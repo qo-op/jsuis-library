@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<svg height="0" style="display: block;">
+			<defs>
+				<image id="dukeWaveRed.gif" xlink:href="/images/dukeWaveRed.gif" width="64" height="64"/>
+			</defs>
+		</svg>
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	layeredPaneExample = new jsuis.Panel(new jsuis.BorderLayout());
+	frame.add(layeredPaneExample);
+	layeredPaneExample.setPreferredSize(new jsuis.Dimension(200, 200));
+	layeredPaneExample.setBorder(new jsuis.LineBorder());
+	
+	icon = new jsuis.Component(document.getElementById("dukeWaveRed.gif"));
+	
+	layeredPane = new jsuis.LayeredPane();
+	layeredPaneExample.add(layeredPane);
+	
+	origin = new jsuis.Point(10, 10);
+	
+	offset = 35;
+	
+	layerStrings = [ "Cyan (0)", "Green (1)" ];
+	layerColors = [ jsuis.Color.Cyan, jsuis.Color.Green ]
+	
+	for (var i = 0; i < layerStrings.length; i++) {
+		var panel = new jsuis.Panel(new jsuis.BorderLayout());
+		panel.setBorder(new jsuis.LineBorder());
+		var label = new jsuis.Label(layerStrings[i]);
+		label.setAnchor(jsuis.Constants.CENTER);
+		panel.add(label, jsuis.Constants.NORTH);
+		panel.setBackground(layerColors[i]);
+		panel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
+		layeredPane.add(panel, i);
+		origin.x += offset;
+		origin.y += offset;
+	}
+	
+	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
+	dukePanel.add(icon);
+	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
+	layeredPane.add(dukePanel, 0, 0);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

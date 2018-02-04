@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<svg height="0" style="display: block;">
+			<defs>
+				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
+					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
+				</linearGradient>
+			</defs>
+		</svg>
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document
+			.getElementById("container"));
+
+	frame = new jsuis.Frame();
+	component.add(frame);
+
+	scrollPaneExample = new jsuis.Panel(new jsuis.GridBagLayout());
+	frame.add(scrollPaneExample);
+	
+	scrollPane = new jsuis.ScrollPane();
+	scrollPaneExample.add(scrollPane);
+	scrollPane.setPreferredSize(new jsuis.Dimension(200, 200));
+	scrollPane.setBorder(new jsuis.LineBorder());
+
+	view = new jsuis.Panel(new jsuis.GridBagLayout());
+	scrollPane.setViewportView(view);
+	view.setMinimumSize(new jsuis.Dimension(250, 250));
+	view.setBackground("url(#blueGradient)");
+
+	button = new jsuis.Button("Button");
+	view.add(button);
+	
+	button.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			alert("Button clicked!");
+		}
+	}));
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

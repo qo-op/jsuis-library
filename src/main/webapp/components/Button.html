@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<svg height="0" style="display: block;">
+			<defs>
+				<image id="middle.gif" xlink:href="/images/middle.gif" width="20" height="22"/>
+			</defs>
+		</svg>
+    	<div id="container" style="height: 100vh;"></div>
+    	<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	buttonExample = new jsuis.Panel();
+	frame.add(buttonExample);
+	buttonExample.setPreferredSize(new jsuis.Dimension(200, 200));
+	buttonExample.setBorder(new jsuis.LineBorder());
+	
+	middleButtoIcon = new jsuis.Component(document.getElementById("middle.gif"));
+	
+	b1 = new jsuis.Button("Disable middle button");
+	b1.setActionCommand("disable");
+	
+	b2 = new jsuis.Button("Middle button", middleButtoIcon);
+	b2.setActionCommand("alert");
+	
+	b3 = new jsuis.Button("Enable middle button");
+	b3.setActionCommand("enable");
+	b3.setEnabled(false);
+	
+	actionListener = new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			if ("disable" === event.getActionCommand()) {
+				b2.setEnabled(false);
+				b1.setEnabled(false);
+				b3.setEnabled(true);
+			} else if ("enable" === event.getActionCommand()) {
+				b2.setEnabled(true);
+				b1.setEnabled(true);
+				b3.setEnabled(false);
+			} else {
+				alert("Button clicked!");
+			}
+		}
+	});
+	b1.addActionListener(actionListener);
+	b2.addActionListener(actionListener);
+	b3.addActionListener(actionListener);
+	
+	buttonExample.add(b1);
+	buttonExample.add(b2);
+	buttonExample.add(b3);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

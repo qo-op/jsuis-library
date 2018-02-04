@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	
+	borderLayoutExample = new jsuis.Panel(new jsuis.BorderLayout());
+	frame.add(borderLayoutExample);
+	
+	north = new jsuis.Button("North");
+	borderLayoutExample.add(north, jsuis.Constants.NORTH);
+	
+	south = new jsuis.Button("South");
+	borderLayoutExample.add(south, jsuis.Constants.SOUTH);
+	
+	west = new jsuis.Button("West");
+	borderLayoutExample.add(west, jsuis.Constants.WEST);
+	
+	east = new jsuis.Button("East");
+	borderLayoutExample.add(east, jsuis.Constants.EAST);
+	
+	center = new jsuis.Button("Center");
+	borderLayoutExample.add(center);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

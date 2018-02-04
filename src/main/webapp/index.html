@@ -1,0 +1,243 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<svg height="0" style="display: block;">
+			<defs>
+				<image id="middle.gif" xlink:href="/images/middle.gif" width="20" height="22"/>
+				<image id="dukeWaveRed.gif" xlink:href="/images/dukeWaveRed.gif" width="64" height="64"/>
+				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
+					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
+				</linearGradient>
+			</defs>
+		</svg>
+    	<div id="container" style="height: 100vh;"></div>
+    	<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	
+	scrollPane = new jsuis.ScrollPane();
+	frame.add(scrollPane);
+	
+	panel = new jsuis.Panel(new jsuis.FlowLayout());
+	scrollPane.setViewportView(panel);
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		panel.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setAnchor(jsuis.Constants.CENTER);
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	/*
+	 * BorderLayout example
+	 */
+	borderLayoutExample = createExamplePanel("jsuis.BorderLayout example");
+	borderLayoutExample.setLayout(new jsuis.BorderLayout());
+	
+	north = new jsuis.Button("North");
+	borderLayoutExample.add(north, jsuis.Constants.NORTH);
+	
+	south = new jsuis.Button("South");
+	borderLayoutExample.add(south, jsuis.Constants.SOUTH);
+	
+	west = new jsuis.Button("West");
+	borderLayoutExample.add(west, jsuis.Constants.WEST);
+	
+	east = new jsuis.Button("East");
+	borderLayoutExample.add(east, jsuis.Constants.EAST);
+	
+	center = new jsuis.Button("Center");
+	borderLayoutExample.add(center);
+	
+	/*
+	 * FlowLayout example
+	 */
+	flowLayoutExample = createExamplePanel("jsuis.FlowLayout example");
+	flowLayoutExample.setLayout(new jsuis.FlowLayout());
+	
+	button1 = new jsuis.Button("Button 1");
+	flowLayoutExample.add(button1);
+	
+	button2 = new jsuis.Button("Button 2");
+	flowLayoutExample.add(button2);
+	
+	button3 = new jsuis.Button("Button 3");
+	flowLayoutExample.add(button3);
+	
+	button4 = new jsuis.Button("Long-Named Button 4");
+	flowLayoutExample.add(button4);
+	
+	button5 = new jsuis.Button("5");
+	flowLayoutExample.add(button5);
+	
+	/*
+	 * GridBagLayout example
+	 */
+	gridBagLayoutExample = createExamplePanel("jsuis.GridBagLayout example");
+	gridBagLayoutExample.setLayout(new jsuis.GridBagLayout());
+	
+	gridBagConstraints = new jsuis.GridBagConstraints()
+	.setFill(jsuis.Constants.HORIZONTAL)
+	.setWeightx(.5);
+	
+	button1 = new jsuis.Button("Button 1");
+	gridBagLayoutExample.add(button1, gridBagConstraints
+			.setGridx(0)
+			.setGridy(0));
+	
+	button2 = new jsuis.Button("Button 2");
+	gridBagLayoutExample.add(button2, gridBagConstraints
+			.setGridx(1)
+			.setGridy(0));
+	
+	button3 = new jsuis.Button("Button 3");
+	gridBagLayoutExample.add(button3, gridBagConstraints
+			.setGridx(2)
+			.setGridy(0));
+	
+	button4 = new jsuis.Button("Long-Named Button 4");
+	gridBagLayoutExample.add(button4, gridBagConstraints
+			.setIpady(40)
+			.setWeightx(0)
+			.setGridwidth(3)
+			.setGridx(0)
+			.setGridy(1));
+	
+	button5 = new jsuis.Button("5");
+	gridBagLayoutExample.add(button5, gridBagConstraints
+			.setIpady(0)
+			.setWeighty(1)
+			.setAnchor(jsuis.Constants.PAGE_END)
+			.setInsets(new jsuis.Insets(10, 0, 0))
+			.setGridx(1)
+			.setGridwidth(2)
+			.setGridy(2));
+	
+	/*
+	 * Button example
+	 */
+	buttonExample = createExamplePanel("jsuis.Button example");
+	
+	middleButtoIcon = new jsuis.Component(document.getElementById("middle.gif"));
+	
+	b1 = new jsuis.Button("Disable middle button");
+	b1.setActionCommand("disable");
+	
+	b2 = new jsuis.Button("Middle button", middleButtoIcon);
+	b2.setActionCommand("alert");
+	
+	b3 = new jsuis.Button("Enable middle button");
+	b3.setActionCommand("enable");
+	b3.setEnabled(false);
+	
+	actionListener = new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			if ("disable" === event.getActionCommand()) {
+				b2.setEnabled(false);
+				b1.setEnabled(false);
+				b3.setEnabled(true);
+			} else if ("enable" === event.getActionCommand()) {
+				b2.setEnabled(true);
+				b1.setEnabled(true);
+				b3.setEnabled(false);
+			} else {
+				alert("Button clicked!");
+			}
+		}
+	});
+	b1.addActionListener(actionListener);
+	b2.addActionListener(actionListener);
+	b3.addActionListener(actionListener);
+	
+	buttonExample.add(b1);
+	buttonExample.add(b2);
+	buttonExample.add(b3);
+	
+	/*
+	 * Label example
+	 */
+	labelExample = createExamplePanel("jsuis.Label example");
+	labelExample.setLayout(new jsuis.GridBagLayout());
+	
+	label = new jsuis.Label("Hello, World!");
+	labelExample.add(label);
+	
+	/*
+	 * LayeredPane example
+	 */
+	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
+	layeredPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	icon = new jsuis.Component(document.getElementById("dukeWaveRed.gif"));
+	
+	layeredPane = new jsuis.LayeredPane();
+	layeredPaneExample.add(layeredPane);
+	
+	origin = new jsuis.Point(10, 10);
+	
+	offset = 35;
+	
+	layerStrings = [ "Cyan (0)", "Green (1)" ];
+	layerColors = [ jsuis.Color.Cyan, jsuis.Color.Green ]
+	
+	for (var i = 0; i < layerStrings.length; i++) {
+		var layerPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		layerPanel.setBorder(new jsuis.LineBorder());
+		var label = new jsuis.Label(layerStrings[i]);
+		label.setAnchor(jsuis.Constants.CENTER);
+		layerPanel.add(label, jsuis.Constants.NORTH);
+		layerPanel.setBackground(layerColors[i]);
+		layerPanel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
+		layeredPane.add(layerPanel, i);
+		origin.x += offset;
+		origin.y += offset;
+	}
+	
+	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
+	dukePanel.add(icon);
+	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
+	layeredPane.add(dukePanel, 0, 0);
+	
+	/*
+	 * ScrollPane example
+	 */
+	scrollPaneExample = createExamplePanel("jsuis.ScrollPane example");
+	scrollPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	scrollPane = new jsuis.ScrollPane();
+	scrollPaneExample.add(scrollPane);
+
+	view = new jsuis.Panel(new jsuis.GridBagLayout());
+	scrollPane.setViewportView(view);
+	view.setMinimumSize(new jsuis.Dimension(250, 250));
+	view.setBackground("url(#blueGradient)");
+
+	button = new jsuis.Button("Button");
+	view.add(button);
+	
+	button.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			alert("Button clicked!");
+		}
+	}));
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

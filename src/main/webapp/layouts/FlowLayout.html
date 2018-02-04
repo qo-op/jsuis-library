@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	
+	flowLayoutExample = new jsuis.Panel(new jsuis.FlowLayout());
+	frame.add(flowLayoutExample);
+	
+	button1 = new jsuis.Button("Button 1");
+	flowLayoutExample.add(button1);
+	
+	button2 = new jsuis.Button("Button 2");
+	flowLayoutExample.add(button2);
+	
+	button3 = new jsuis.Button("Button 3");
+	flowLayoutExample.add(button3);
+	
+	button4 = new jsuis.Button("Long-Named Button 4");
+	flowLayoutExample.add(button4);
+	
+	button5 = new jsuis.Button("5");
+	flowLayoutExample.add(button5);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

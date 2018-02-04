@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180204163456"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	labelExample = new jsuis.Panel(new jsuis.GridBagLayout());
+	frame.add(labelExample);
+	labelExample.setPreferredSize(new jsuis.Dimension(200, 200));
+	labelExample.setBorder(new jsuis.LineBorder());
+	
+	label = new jsuis.Label("Hello, World!");
+	labelExample.add(label);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>
