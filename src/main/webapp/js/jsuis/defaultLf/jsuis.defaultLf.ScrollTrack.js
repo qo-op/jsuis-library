@@ -1,9 +1,9 @@
 /**
- * jsuis.ScrollTrack
+ * jsuis.defaultLf.ScrollTrack
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.ScrollTrack = jsuis.Object.extend(SUPER, function(direction) {
+	jsuis.defaultLf.ScrollTrack = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, null);
 		direction = nvl(direction, jsuis.Constants.VERTICAL);
 		this.setDirection(direction);
@@ -15,7 +15,7 @@
 			this.setMargin(new jsuis.Insets(-16, 0));
 		}
 	});
-	jsuis.Object.addProperties(jsuis.ScrollTrack,
+	jsuis.Object.addProperties(jsuis.defaultLf.ScrollTrack,
 			new jsuis.Property("direction"),
 			new jsuis.Property("path"),
 			new jsuis.Property("viewport")

@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.Frame = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "svg"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
 		this.setVisible(false);
 		SUPER.prototype.setLayout.call(this, new jsuis.BorderLayout());
 		var rootPane = new jsuis.RootPane();

@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout, shape) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "g"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "g"));
 		this.setShape(nvl(shape, new jsuis.Rect()));
 		this.setLayout(layout !== undefined ? layout : new jsuis.FlowLayout());
 		this.setBackground(null);

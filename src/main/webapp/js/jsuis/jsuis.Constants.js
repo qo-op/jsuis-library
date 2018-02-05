@@ -2,8 +2,12 @@
  * jsuis.Constants
  */
 (function(jsuis) {
-	jsuis.Constants = function() {
-	}
+	var SUPER = jsuis.Object;
+	jsuis.Constants = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	
+	jsuis.Constants.SVG = "http://www.w3.org/2000/svg";
 	
 	var CONSTANTS = {
 			ABOVE_BASELINE: "",

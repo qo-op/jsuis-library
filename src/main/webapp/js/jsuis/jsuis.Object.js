@@ -33,13 +33,13 @@
 	jsuis.Object.addProperty = function(constructor, property) {
 		var key = property.getKey();
 		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getLibrary() + "." + jsuis.Object.getConstructorName(constructor) + ".prototype.get" + method + " = ";
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
 		get += function() {
 			return this.key;
 		};
 		get = get.replace(/key/g, key);
 		eval(get);
-		var set = jsuis.Object.getLibrary() + "." + jsuis.Object.getConstructorName(constructor) + ".prototype.set" + method + " = ";
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			this.key = key;
 			return this;
@@ -52,9 +52,6 @@
 			constructor.properties = properties;
 		}
 		properties.push(property);
-	}
-	jsuis.Object.getLibrary = function() {
-		return "jsuis";
 	}
 	jsuis.Object.extend = function(source, target) {
 		var object = function() {};
@@ -125,24 +122,36 @@
 	jsuis.Object.isArray = function(value) {
 		return (Object.prototype.toString.call(value) === "[object Array]");
 	}
-	jsuis.Object.getConstructorName = function(constructor) {
-		var name = constructor.name;
-		if (name) {
-			return name;
+	jsuis.Object.getClassName = function(constructor, prefix, jsuisPackage) {
+		var className = constructor.className;
+		if (className) {
+			return className;
 		}
-		for (name in jsuis) {
-			if (constructor === jsuis[name]) {
-				constructor.name = name;
-				return name;
+		var prefix = prefix || "jsuis";
+		var jsuisPackage = jsuisPackage || jsuis;
+		for (name in jsuisPackage) {
+			if (constructor === jsuisPackage[name]) {
+				var className = prefix + "." + name;
+				constructor.className = className;
+				return className;
+			}
+			var object = jsuisPackage[name];
+			if (jsuis.packages.indexOf(object) === -1) {
+				continue;
+			}
+			var className = jsuis.Object.getClassName(constructor, prefix + "." + name, object);
+			if (className) {
+				constructor.className = className;
+				return className;
 			}
 		}
 	}
 	jsuis.Object.prototype.getConstructor = function() {
 		return this.constructor;
 	}
-	jsuis.Object.prototype.getConstructorName = function() {
+	jsuis.Object.prototype.getClassName = function() {
 		var constructor = this.getConstructor();
-		return jsuis.Object.getConstructorName(constructor);
+		return jsuis.Object.getClassName(constructor);
 	}
 	jsuis.Object.prototype.setProperties = function(properties) {
 		var constructor = this.getConstructor();
@@ -154,6 +163,6 @@
 		return constructor.properties;
 	}
 	jsuis.Object.prototype.toString = function() {
-		return jsuis.Object.getLibrary() + "." + this.getConstructorName() + JSON.stringify(this);
+		return this.getClassName() + JSON.stringify(this);
 	}
 })(jsuis);

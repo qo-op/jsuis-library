@@ -155,7 +155,6 @@ public class Build {
 		List<File> files = build.getFiles();
 		System.out.println("Sorting jsuis files...");
 		build.sort(files);
-		files.add(0, new File("src/main/webapp/js/jsuis/!jsuis.js"));
 		System.out.println("Building jsuis.js...");
 		String version = FileUtils.readFileToString(new File("version.txt"), "ISO-8859-1");
 		File jsuisVersion = new File("versions/jsuis-" + version + ".js");

@@ -1,9 +1,9 @@
 /**
- * jsuis.ScrollButton
+ * jsuis.defaultLf.ScrollButton
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
+	jsuis.defaultLf.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		this.setDirection(nvl(direction, jsuis.Constants.NORTH));
 		var shape;
@@ -59,7 +59,7 @@
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.ScrollButton,
+	jsuis.Object.addProperties(jsuis.defaultLf.ScrollButton,
 			new jsuis.Property("direction"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),

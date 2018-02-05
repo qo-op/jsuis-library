@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.Rect = jsuis.Object.extend(SUPER, function(x, y, width, height) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "rect"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "rect"));
 		this.setX(nvl(x, 0));
 		this.setY(nvl(y, 0));
 		this.setWidth(nvl(width, 0));

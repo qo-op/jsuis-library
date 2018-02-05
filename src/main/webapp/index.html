@@ -2,13 +2,13 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180204163456"></script>
+    <script src="/jsuis.js?20180205205729"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
-				<image id="middle.gif" xlink:href="/images/middle.gif" width="20" height="22"/>
-				<image id="dukeWaveRed.gif" xlink:href="/images/dukeWaveRed.gif" width="64" height="64"/>
+				<image id="Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
+				<image id="Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
 					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
 					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtoIcon = new jsuis.Component(document.getElementById("middle.gif"));
+	middleButtoIcon = new jsuis.Component(document.getElementById("Star.svg"));
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
 	layeredPaneExample.setLayout(new jsuis.BorderLayout());
 	
-	icon = new jsuis.Component(document.getElementById("dukeWaveRed.gif"));
+	icon = new jsuis.Component(document.getElementById("Duke_(Java_mascot)_waving.svg"));
 	
 	layeredPane = new jsuis.LayeredPane();
 	layeredPaneExample.add(layeredPane);

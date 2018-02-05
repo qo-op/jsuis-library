@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.Path = jsuis.Object.extend(SUPER, function(d) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "path"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "path"));
 		this.setAttribute("d", d);
 	});
 	jsuis.Path.prototype.setX = function(x) {

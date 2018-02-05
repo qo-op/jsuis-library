@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.Viewport = jsuis.Object.extend(SUPER, function(view, viewBox) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "svg"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
 		if ((view !== null) && (view !== undefined)) {
 			this.setView(view);
 		}

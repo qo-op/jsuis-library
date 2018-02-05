@@ -6,7 +6,7 @@
 	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
 		SUPER.prototype.constructor.call(this);
 		this.setElement(element);
-		this.addClass(this.getConstructorName());
+		this.addClass(this.getClassName());
 		this.setComponents([]);
 		this.setEventListeners({});
 		this.setComponentListeners([]);
@@ -117,7 +117,7 @@
 		if (referenceComponent) {
 			referenceElement = referenceComponent.getElement();
 		}
-		element.insertBefore(componentElement, referenceElement);
+		element.insertBefore(componentElement, referenceElement || null);
 	}
 	jsuis.Component.prototype.removeChild = function(component) {
 		var element = this.getElement();
@@ -627,10 +627,17 @@
 		return this;
 	}
 	jsuis.Component.prototype.isSelectable = function() {
-		return (this.getStyleProperty("user-select") !== "none");
+		return nvl(this.selectable, true);
 	}
 	jsuis.Component.prototype.setSelectable = function(selectable) {
-		this.setStyleProperty("user-select", selectable ? "text" : "none");
+		this.selectable = selectable;
+		this
+		.setStyleProperty("-webkit-touch-callout", selectable ? "text" : "none")
+		.setStyleProperty("-webkit-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-khtml-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-moz-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-ms-user-select", selectable ? "text" : "none")
+		.setStyleProperty("user-select", selectable ? "text" : "none");
 		return this;
 	}
 	jsuis.Component.prototype.isPressed = function() {

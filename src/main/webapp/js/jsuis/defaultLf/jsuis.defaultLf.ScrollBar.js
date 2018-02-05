@@ -1,22 +1,22 @@
 /**
- * jsuis.ScrollBar
+ * jsuis.defaultLf.ScrollBar
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
+	jsuis.defaultLf.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		orientation = nvl(orientation, jsuis.ScrollBar.VERTICAL);
+		orientation = nvl(orientation, jsuis.defaultLf.ScrollBar.VERTICAL);
 		this.setOrientation(orientation);
 		
 		var layeredPane = new jsuis.LayeredPane();
 		this.add(layeredPane);
 		layeredPane.setLayout(new jsuis.BorderLayout());
 		
-		var scrollTrack = new jsuis.ScrollTrack(orientation);
+		var scrollTrack = new jsuis.defaultLf.ScrollTrack(orientation);
 		this.setScrollTrack(scrollTrack);
 		layeredPane.add(scrollTrack);
 		
-		var scrollThumb = new jsuis.ScrollThumb(orientation);
+		var scrollThumb = new jsuis.defaultLf.ScrollThumb(orientation);
 		this.setScrollThumb(scrollThumb);
 		layeredPane.add(scrollThumb);
 		scrollThumb.setBounds(new jsuis.Rectangle(0, 0, 16, 16));
@@ -24,14 +24,14 @@
 		var decreaseButton;
 		var increaseButton;
 		if (orientation === jsuis.Constants.HORIZONTAL) {
-			decreaseButton = new jsuis.ScrollButton(jsuis.Constants.WEST);
+			decreaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.WEST);
 			this.add(decreaseButton, jsuis.Constants.WEST);
-			increaseButton = new jsuis.ScrollButton(jsuis.Constants.EAST);
+			increaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.EAST);
 			this.add(increaseButton, jsuis.Constants.EAST);
 		} else {
-			decreaseButton = new jsuis.ScrollButton(jsuis.Constants.NORTH);
+			decreaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.NORTH);
 			this.add(decreaseButton, jsuis.Constants.NORTH);
-			increaseButton = new jsuis.ScrollButton(jsuis.Constants.SOUTH);
+			increaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.SOUTH);
 			this.add(increaseButton, jsuis.Constants.SOUTH);
 		}
 		this.setDecreaseButton(decreaseButton);
@@ -183,7 +183,7 @@
 		mouseMotionListener.setListenerComponent(this);
 		scrollThumb.addMouseMotionListener(mouseMotionListener);
 	});
-	jsuis.Object.addProperties(jsuis.ScrollBar,
+	jsuis.Object.addProperties(jsuis.defaultLf.ScrollBar,
 			new jsuis.Property("orientation"),
 			new jsuis.Property("value"),
 			new jsuis.Property("extent"),
@@ -200,31 +200,31 @@
 			new jsuis.Property("timerActionListener"),
 			new jsuis.Property("timer")
 	);
-	jsuis.ScrollBar.prototype.getValue = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getValue = function() {
 		return this.value || 0;
 	}
-	jsuis.ScrollBar.prototype.setValue = function(value) {
+	jsuis.defaultLf.ScrollBar.prototype.setValue = function(value) {
 		var oldValue = this.value;
 		this.value = value;
 		this.firePropertyChange("value", oldValue, value);
 		return this;
 	}
-	jsuis.ScrollBar.prototype.getExtent = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getExtent = function() {
 		return nvl(this.extent, 32);
 	}
-	jsuis.ScrollBar.prototype.getMinimum = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getMinimum = function() {
 		return nvl(this.minimum, 0);
 	}
-	jsuis.ScrollBar.prototype.getMaximum = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getMaximum = function() {
 		return nvl(this.maximum, 1);
 	}
-	jsuis.ScrollBar.prototype.getUnitIncrement = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getUnitIncrement = function() {
 		return nvl(this.unitIncrement, 16);
 	}
-	jsuis.ScrollBar.prototype.getBlockIncrement = function() {
+	jsuis.defaultLf.ScrollBar.prototype.getBlockIncrement = function() {
 		return nvl(this.blockIncrement, (this.getExtent() - this.getUnitIncrement()));
 	}
-	jsuis.ScrollBar.prototype.validate = function() {
+	jsuis.defaultLf.ScrollBar.prototype.validate = function() {
 		SUPER.prototype.validate.call(this);
 		var value = this.getValue();
 		var extent = this.getExtent();
@@ -239,7 +239,9 @@
 			scrollThumbWidth = Math.min(Math.max(scrollThumbWidth,
 					scrollThumb.getMinimumSize().getWidth()), scrollTrackWidth);
 			var scrollThumbX = scrollTrackWidth - scrollThumbWidth;
-			if (value < (maximum - extent)) {
+			if ((maximum - minimum) === extent) {
+				scrollThumbX = 0;
+			} else if (value < (maximum - extent)) {
 				scrollThumbX = (scrollTrackWidth - scrollThumbWidth) * (value - minimum) / (maximum - minimum - extent);
 			}
 			scrollThumb.setBounds(new jsuis.Rectangle(Math.round(scrollThumbX), scrollThumb.getY(), Math.round(scrollThumbWidth), scrollThumb.getHeight()));
@@ -249,7 +251,9 @@
 			scrollThumbHeight = Math.min(Math.max(scrollThumbHeight,
 					scrollThumb.getMinimumSize().getHeight()), scrollTrackHeight);
 			var scrollThumbY = scrollTrackHeight - scrollThumbHeight;
-			if (value < (maximum - extent)) {
+			if ((maximum - minimum) === extent) {
+				scrollThumbY = 0;
+			} else if (value < (maximum - extent)) {
 				scrollThumbY = (scrollTrackHeight - scrollThumbHeight) * (value - minimum) / (maximum - minimum - extent);
 			}
 			scrollThumb.setBounds(new jsuis.Rectangle(scrollThumb.getX(), Math.round(scrollThumbY), scrollThumb.getWidth(), Math.round(scrollThumbHeight)));

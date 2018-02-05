@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.Component;
 	jsuis.ClipPath = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "clipPath"));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "clipPath"));
 		this.setId(jsuis.ClipPath.next());
 	});
 	jsuis.ClipPath.sequence = 0;
