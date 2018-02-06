@@ -1,9 +1,9 @@
 /**
- * jsuis.defaultLf.ScrollPane
+ * jsuis.defaultlf.ScrollPane
  */
 (function(jsuis) {
 	var SUPER = jsuis.LayeredPane;
-	jsuis.defaultLf.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
+	jsuis.defaultlf.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
 		SUPER.prototype.constructor.call(this);
 		this.setLayout(new jsuis.BorderLayout());
 		
@@ -23,7 +23,7 @@
 		this.setScrollBarPanel(scrollBarPanel);
 		this.add(scrollBarPanel);
 		
-		var verticalScrollBar = new jsuis.defaultLf.ScrollBar(jsuis.Constants.VERTICAL);
+		var verticalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.VERTICAL);
 		this.setVerticalScrollBar(verticalScrollBar);
 		scrollBarPanel.add(verticalScrollBar, new jsuis.GridBagConstraints()
 		.setGridx(1).setGridy(0).setWeighty(1)
@@ -32,7 +32,7 @@
 			verticalScrollBar.setVisible(false);
 		}
 		
-		var horizontalScrollBar = new jsuis.defaultLf.ScrollBar(jsuis.Constants.HORIZONTAL);
+		var horizontalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.HORIZONTAL);
 		this.setHorizontalScrollBar(horizontalScrollBar);
 		scrollBarPanel.add(horizontalScrollBar, new jsuis.GridBagConstraints()
 		.setGridx(0).setGridy(1).setWeightx(1)
@@ -66,7 +66,7 @@
 			}
 		}).setPropertyName("value").setListenerComponent(this));
 	});
-	jsuis.Object.addProperties(jsuis.defaultLf.ScrollPane,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollPane,
 			new jsuis.Property("vsbPolicy"),
 			new jsuis.Property("hsbPolicy"),
 			new jsuis.Property("viewport"),
@@ -74,16 +74,16 @@
 			new jsuis.Property("verticalScrollBar"),
 			new jsuis.Property("horizontalScrollBar")
 	);
-	jsuis.defaultLf.ScrollPane.prototype.setViewportView = function(view) {
+	jsuis.defaultlf.ScrollPane.prototype.setViewportView = function(view) {
 		var viewport = this.getViewport();
 		viewport.setView(view);
 		return this;
 	}
-	jsuis.defaultLf.ScrollPane.prototype.getViewportView = function() {
+	jsuis.defaultlf.ScrollPane.prototype.getViewportView = function() {
 		var viewport = this.getViewport();
 		return viewport.getView();
 	}
-	jsuis.defaultLf.ScrollPane.prototype.validate = function() {
+	jsuis.defaultlf.ScrollPane.prototype.validate = function() {
 		var size = this.getSize();
 		var insetsDimension = this.getInsets().getDimension();
 		var outsetsDimension = this.getOutsets().getDimension();

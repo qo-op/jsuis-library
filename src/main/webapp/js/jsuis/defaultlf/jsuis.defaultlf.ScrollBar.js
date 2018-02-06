@@ -1,22 +1,22 @@
 /**
- * jsuis.defaultLf.ScrollBar
+ * jsuis.defaultlf.ScrollBar
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.defaultLf.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
+	jsuis.defaultlf.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		orientation = nvl(orientation, jsuis.defaultLf.ScrollBar.VERTICAL);
+		orientation = nvl(orientation, jsuis.defaultlf.ScrollBar.VERTICAL);
 		this.setOrientation(orientation);
 		
 		var layeredPane = new jsuis.LayeredPane();
 		this.add(layeredPane);
 		layeredPane.setLayout(new jsuis.BorderLayout());
 		
-		var scrollTrack = new jsuis.defaultLf.ScrollTrack(orientation);
+		var scrollTrack = new jsuis.defaultlf.ScrollTrack(orientation);
 		this.setScrollTrack(scrollTrack);
 		layeredPane.add(scrollTrack);
 		
-		var scrollThumb = new jsuis.defaultLf.ScrollThumb(orientation);
+		var scrollThumb = new jsuis.defaultlf.ScrollThumb(orientation);
 		this.setScrollThumb(scrollThumb);
 		layeredPane.add(scrollThumb);
 		scrollThumb.setBounds(new jsuis.Rectangle(0, 0, 16, 16));
@@ -24,14 +24,14 @@
 		var decreaseButton;
 		var increaseButton;
 		if (orientation === jsuis.Constants.HORIZONTAL) {
-			decreaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.WEST);
+			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.WEST);
 			this.add(decreaseButton, jsuis.Constants.WEST);
-			increaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.EAST);
+			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.EAST);
 			this.add(increaseButton, jsuis.Constants.EAST);
 		} else {
-			decreaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.NORTH);
+			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.NORTH);
 			this.add(decreaseButton, jsuis.Constants.NORTH);
-			increaseButton = new jsuis.defaultLf.ScrollButton(jsuis.Constants.SOUTH);
+			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.SOUTH);
 			this.add(increaseButton, jsuis.Constants.SOUTH);
 		}
 		this.setDecreaseButton(decreaseButton);
@@ -183,7 +183,7 @@
 		mouseMotionListener.setListenerComponent(this);
 		scrollThumb.addMouseMotionListener(mouseMotionListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultLf.ScrollBar,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollBar,
 			new jsuis.Property("orientation"),
 			new jsuis.Property("value"),
 			new jsuis.Property("extent"),
@@ -200,31 +200,31 @@
 			new jsuis.Property("timerActionListener"),
 			new jsuis.Property("timer")
 	);
-	jsuis.defaultLf.ScrollBar.prototype.getValue = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getValue = function() {
 		return this.value || 0;
 	}
-	jsuis.defaultLf.ScrollBar.prototype.setValue = function(value) {
+	jsuis.defaultlf.ScrollBar.prototype.setValue = function(value) {
 		var oldValue = this.value;
 		this.value = value;
 		this.firePropertyChange("value", oldValue, value);
 		return this;
 	}
-	jsuis.defaultLf.ScrollBar.prototype.getExtent = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getExtent = function() {
 		return nvl(this.extent, 32);
 	}
-	jsuis.defaultLf.ScrollBar.prototype.getMinimum = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getMinimum = function() {
 		return nvl(this.minimum, 0);
 	}
-	jsuis.defaultLf.ScrollBar.prototype.getMaximum = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getMaximum = function() {
 		return nvl(this.maximum, 1);
 	}
-	jsuis.defaultLf.ScrollBar.prototype.getUnitIncrement = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getUnitIncrement = function() {
 		return nvl(this.unitIncrement, 16);
 	}
-	jsuis.defaultLf.ScrollBar.prototype.getBlockIncrement = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getBlockIncrement = function() {
 		return nvl(this.blockIncrement, (this.getExtent() - this.getUnitIncrement()));
 	}
-	jsuis.defaultLf.ScrollBar.prototype.validate = function() {
+	jsuis.defaultlf.ScrollBar.prototype.validate = function() {
 		SUPER.prototype.validate.call(this);
 		var value = this.getValue();
 		var extent = this.getExtent();

@@ -1,9 +1,9 @@
 /**
- * jsuis.defaultLf.Button
+ * jsuis.defaultlf.Button
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.defaultLf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, null);
 		this.setLayout(new jsuis.GridBagLayout());
 		if ((text !== null) && (text !== undefined)) {
@@ -40,7 +40,7 @@
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultLf.Button,
+	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("iconTextGap"),
@@ -48,7 +48,7 @@
 			new jsuis.Property("pressedColor"),
 			new jsuis.Property("rolloverColor")
 	);
-	jsuis.defaultLf.Button.prototype.setText = function(text, textConstraints) {
+	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
 		if (!label) {
 			label = new jsuis.Label();
@@ -66,14 +66,14 @@
 		}
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.getText = function() {
+	jsuis.defaultlf.Button.prototype.getText = function() {
 		var label = this.getLabel();
 		if (label) {
 			return label.getText();
 		}
 		return "";
 	}
-	jsuis.defaultLf.Button.prototype.setIcon = function(icon, iconConstraints) {
+	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
 		var oldIcon = this.getIcon();
 		if (oldIcon) {
 			this.remove(oldIcon);
@@ -93,7 +93,7 @@
 		this.icon = icon;
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.setIconTextGap = function(iconTextGap) {
+	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
 		var icon = this.getIcon();
 		var text = this.getText();
@@ -105,42 +105,42 @@
 		this.iconTextGap = iconTextGap;
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.setBackground = function(background) {
+	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setColor(background);
 		this.setRolloverColor(background);
 		this.setPressedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.getForeground = function() {
+	jsuis.defaultlf.Button.prototype.getForeground = function() {
 		var label = this.getLabel();
 		return label.getForeground();
 	}
-	jsuis.defaultLf.Button.prototype.setForeground = function(foreground) {
+	jsuis.defaultlf.Button.prototype.setForeground = function(foreground) {
 		var label = this.getLabel();
 		label.setForeground(foreground);
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.setEnabled = function(enabled) {
+	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
 		var label = this.getLabel();
 		label.setEnabled(enabled);
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
-	jsuis.defaultLf.Button.prototype.mousePressed = function() {
+	jsuis.defaultlf.Button.prototype.mousePressed = function() {
 		var pressedColor = this.getPressedColor();
 		SUPER.prototype.setBackground.call(this, pressedColor);
 	}
-	jsuis.defaultLf.Button.prototype.mouseReleased = function() {
+	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
 		var color = this.getColor();
 		SUPER.prototype.setBackground.call(this, color);
 	}
-	jsuis.defaultLf.Button.prototype.mouseEntered = function() {
+	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
 		var enabled = this.isEnabled();
 		var rolloverColor = this.getRolloverColor();
 		SUPER.prototype.setBackground.call(this, rolloverColor);
 	}
-	jsuis.defaultLf.Button.prototype.mouseExited = function() {
+	jsuis.defaultlf.Button.prototype.mouseExited = function() {
 		var color = this.getColor();
 		SUPER.prototype.setBackground.call(this, color);
 	}
