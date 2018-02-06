@@ -2,12 +2,12 @@
  * jsuis.defaultlf.ScrollPane
  */
 (function(jsuis) {
-	var SUPER = jsuis.LayeredPane;
+	var SUPER = jsuis.defaultlf.LayeredPane;
 	jsuis.defaultlf.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
 		SUPER.prototype.constructor.call(this);
 		this.setLayout(new jsuis.BorderLayout());
 		
-		var viewport = new jsuis.Viewport();
+		var viewport = new jsuis.defaultlf.Viewport();
 		this.setViewport(viewport);
 		this.add(viewport);
 		
@@ -19,7 +19,7 @@
 		hsbPolicy = nvl(hsbPolicy, jsuis.Constants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.setHsbPolicy(hsbPolicy);
 		
-		var scrollBarPanel = new jsuis.Panel(new jsuis.GridBagLayout());
+		var scrollBarPanel = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
 		this.setScrollBarPanel(scrollBarPanel);
 		this.add(scrollBarPanel);
 		
@@ -41,7 +41,7 @@
 			horizontalScrollBar.setVisible(false);
 		}
 		
-		var central = new jsuis.Panel(null);
+		var central = new jsuis.defaultlf.Panel(null);
 		scrollBarPanel.add(central, new jsuis.GridBagConstraints()
 		.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
 		.setFill(jsuis.Constants.BOTH));
@@ -84,6 +84,7 @@
 		return viewport.getView();
 	}
 	jsuis.defaultlf.ScrollPane.prototype.validate = function() {
+		this.setLayoutBounds(null);
 		var size = this.getSize();
 		var insetsDimension = this.getInsets().getDimension();
 		var outsetsDimension = this.getOutsets().getDimension();
@@ -135,6 +136,8 @@
 				}
 				break;
 			}
+			viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
+					height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
 			var viewWidth = Math.max(viewSize.getWidth(), viewMinimumSize.getWidth());
 			var viewHeight = Math.max(viewSize.getHeight(), viewMinimumSize.getHeight());
 			view.setSize(new jsuis.Dimension(viewWidth, viewHeight));
@@ -143,12 +146,20 @@
 		}
 		horizontalScrollBar.setExtent(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0));
 		verticalScrollBar.setExtent(height- (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
-		horizontalScrollBar.setValue(Math.min(horizontalScrollBar.getValue(),
+		horizontalScrollBar.setValue(Math.min(Math.max(horizontalScrollBar.getValue(), horizontalScrollBar.getMinimum()),
 				horizontalScrollBar.getMaximum() - horizontalScrollBar.getExtent()));
-		verticalScrollBar.setValue(Math.min(verticalScrollBar.getValue(),
+		verticalScrollBar.setValue(Math.min(Math.max(verticalScrollBar.getValue(), verticalScrollBar.getMinimum()),
 				verticalScrollBar.getMaximum() - verticalScrollBar.getExtent()));
 		verticalScrollBar.setVisible(verticalScrollBarVisible);
 		horizontalScrollBar.setVisible(horizontalScrollBarVisible);
-		SUPER.prototype.validate.call(this);
+		this.doLayout();
+		var components = this.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			component.validate();
+		}
+	}
+	jsuis.defaultlf.ScrollPane.prototype.getMinimumSize = function() {
+		return new jsuis.Dimension(0, 0);
 	}
 }) (jsuis);

@@ -2,7 +2,7 @@
  * jsuis.defaultlf.Label
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
+	var SUPER = jsuis.defaultlf.Component;
 	jsuis.defaultlf.Label = jsuis.Object.extend(SUPER, function(text) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "text"));
 		SUPER.prototype.setEnabled.call(this, false);

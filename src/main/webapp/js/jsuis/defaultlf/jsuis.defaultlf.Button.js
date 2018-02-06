@@ -2,7 +2,7 @@
  * jsuis.defaultlf.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
+	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, null);
 		this.setLayout(new jsuis.GridBagLayout());
@@ -14,12 +14,11 @@
 		}
 		this.setIconTextGap(4);
 		this.setPadding(new jsuis.Insets(2, 4));
-		this.setBorder(new jsuis.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		this.setForeground(jsuis.Color.Black);
-		// this.setDisabledColor(jsuis.Color.Gray);
 		var mouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
 				var button = event.getSource();
@@ -51,7 +50,7 @@
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
 		if (!label) {
-			label = new jsuis.Label();
+			label = new jsuis.defaultlf.Label();
 			this.setLabel(label);
 			this.add(label, nvl(textConstraints, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)));
 		}

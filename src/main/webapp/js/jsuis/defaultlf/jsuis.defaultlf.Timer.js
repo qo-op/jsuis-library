@@ -1,9 +1,9 @@
 /**
- * jsuis.Timer
+ * jsuis.defaultlf.Timer
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.Timer = jsuis.Object.extend(SUPER, function(delay, actionListener) {
+	jsuis.defaultlf.Timer = jsuis.Object.extend(SUPER, function(delay, actionListener) {
 		SUPER.prototype.constructor.call(this);
 		this.setActionListeners([]);
 		this.setDelay(delay);
@@ -11,7 +11,7 @@
 		this.setInitialDelay(delay);
 		this.setRepeats(true);
 	});
-	jsuis.Object.addProperties(jsuis.Timer,
+	jsuis.Object.addProperties(jsuis.defaultlf.Timer,
 			new jsuis.Property("actionListeners"),
 			new jsuis.Property("delay"),
 			new jsuis.Property("actionListener"),
@@ -20,18 +20,18 @@
 			new jsuis.Property("interval"),
 			new jsuis.Property("actionCommand")
 	);
-	jsuis.Timer.prototype.addActionListener = function(actionListener) {
+	jsuis.defaultlf.Timer.prototype.addActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		actionListeners.push(actionListener);
 	}
-	jsuis.Timer.prototype.removeActionListener = function(actionListener) {
+	jsuis.defaultlf.Timer.prototype.removeActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		var index = actionListeners.indexOf(actionListener);
 		if (index !== -1) {
 			actionListeners.splice(index, 1);
 		}
 	}
-	jsuis.Timer.prototype.fireActionPerformed = function() {
+	jsuis.defaultlf.Timer.prototype.fireActionPerformed = function() {
 		var event = new jsuis.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand());
 		var actionListeners = this.getActionListeners();
 		for (var i = 0; i < actionListeners.length; i++) {
@@ -39,14 +39,14 @@
 			actionListener.actionPerformed(event);
 		}
 	}
-	jsuis.Timer.prototype.isRepeats = function() {
+	jsuis.defaultlf.Timer.prototype.isRepeats = function() {
 		return this.repeats;
 	}
-	jsuis.Timer.prototype.setRepeats = function(repeats) {
+	jsuis.defaultlf.Timer.prototype.setRepeats = function(repeats) {
 		this.repeats = repeats;
 		return this;
 	}
-	jsuis.Timer.prototype.start = function() {
+	jsuis.defaultlf.Timer.prototype.start = function() {
 		this.stop();
 		var initialDelay = this.getInitialDelay();
 		var timer = this;
@@ -64,21 +64,21 @@
 		}, initialDelay);
 		this.setTimeout(timeout);
 	}
-	jsuis.Timer.prototype.stop = function() {
+	jsuis.defaultlf.Timer.prototype.stop = function() {
 		try {
 			this.stopInterval();
 		} finally {
 			this.stopTimeout();
 		}
 	}
-	jsuis.Timer.prototype.stopInterval = function() {
+	jsuis.defaultlf.Timer.prototype.stopInterval = function() {
 		var interval = this.getInterval();
 		if (interval) {
 			clearInterval(interval);
 			interval = null;
 		}
 	}
-	jsuis.Timer.prototype.stopTimeout = function() {
+	jsuis.defaultlf.Timer.prototype.stopTimeout = function() {
 		var timeout = this.getTimeout();
 		if (timeout) {
 			clearTimeout(timeout);

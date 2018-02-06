@@ -110,6 +110,7 @@
 			if (!component.isVisible()) {
 				continue;
 			}
+			component.setFill(nvl(component.getFill(), jsuis.Constants.BOTH));
 			var componentPreferredSize = component.getPreferredSize();
 			var componentPreferredWidth = componentPreferredSize.getWidth();
 			var componentPreferredHeight = componentPreferredSize.getHeight();
@@ -157,7 +158,7 @@
 			componentWidth -= hgap;
 			componentHeight -= vgap;
 			var rectangle = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			component.setBounds(rectangle);
+			// component.setBounds(rectangle);
 			component.setMaximumLayoutBounds(rectangle);
 		}
 	}

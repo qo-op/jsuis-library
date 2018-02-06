@@ -1,22 +1,22 @@
 /**
- * Border
+ * jsuis.Border
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Border = jsuis.Object.extend(SUPER, function(color, thickness) {
-		SUPER.prototype.constructor.call(this);
+	var SUPER = jsuis.Peer;
+	jsuis.Border = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Border());
 	});
 	jsuis.Border.prototype.install = function(component) {
-		var shape = component.getShape();
-		if (!shape) {
-			return;
-		}
-		shape.setForeground(null);
+		var peer = this.getPeer();
+		peer.install(component);
 	}
 	jsuis.Border.prototype.getBorderInsets = function(component) {
-		return new jsuis.Insets();
+		var peer = this.getPeer();
+		return peer.getBorderInsets(component);
 	}
 	jsuis.Border.prototype.getBorderOutsets = function(component) {
-		return new jsuis.Insets();
+		var peer = this.getPeer();
+		return peer.getBorderOutsets(component);
 	}
-})(jsuis);
+}) (jsuis);

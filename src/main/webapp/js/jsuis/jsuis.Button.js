@@ -2,10 +2,13 @@
  * jsuis.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
+	var SUPER = jsuis.Panel;
 	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this);
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		return new jsuis[lookAndFeel].Button(text, icon);
+		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
 	});
+	jsuis.Component.addProperties(jsuis.Label,
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconTextGap")
+	);
 }) (jsuis);

@@ -14,4 +14,9 @@
 			new jsuis.Property("style"),
 			new jsuis.Property("size")
 	);
+	
+	jsuis.Font.NORMAL = "normal";
+	jsuis.Font.ITALIC = "italic";
+	jsuis.Font.OBLIQUE = "oblique";
+	
 }) (jsuis);

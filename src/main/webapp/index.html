@@ -2,13 +2,15 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180205225556"></script>
+    <script src="/jsuis.js?20180206213553"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
 				<image id="Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
 				<image id="Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
+				<image id="Cat_silhouette.svg" xlink:href="/images/Cat_silhouette.svg" width="32" height="32"/>
+				<image id="Dog.svg" xlink:href="/images/Dog.svg" width="32" height="32"/>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
 					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
 					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
@@ -24,18 +26,18 @@ document.addEventListener('DOMContentLoaded', function() {
 	frame = new jsuis.Frame();
 	component.add(frame);
 	
-	scrollPane = new jsuis.ScrollPane();
-	frame.add(scrollPane);
+	frameScrollPane = new jsuis.ScrollPane();
+	frame.add(frameScrollPane);
 	
 	panel = new jsuis.Panel(new jsuis.FlowLayout());
-	scrollPane.setViewportView(panel);
+	frameScrollPane.setViewportView(panel);
 	
 	function createExamplePanel(title) {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		panel.add(titledPanel);
 		var label = new jsuis.Label(title);
 		titledPanel.add(label, jsuis.Constants.NORTH);
-		label.setAnchor(jsuis.Constants.CENTER);
+		label.setFill(jsuis.Constants.NONE)
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
@@ -199,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var layerPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		layerPanel.setBorder(new jsuis.LineBorder());
 		var label = new jsuis.Label(layerStrings[i]);
-		label.setAnchor(jsuis.Constants.CENTER);
+		label.setFill(jsuis.Constants.NONE);
 		layerPanel.add(label, jsuis.Constants.NORTH);
 		layerPanel.setBackground(layerColors[i]);
 		layerPanel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
@@ -235,6 +237,37 @@ document.addEventListener('DOMContentLoaded', function() {
 			alert("Button clicked!");
 		}
 	}));
+
+	/*
+	 * SplitPane example
+	 */
+	splitPaneExample = createExamplePanel("jsuis.SplitPane example");
+	splitPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	font = new jsuis.Font("Serif", jsuis.Font.ITALIC, 24);
+	
+	splitPane = new jsuis.SplitPane();
+	splitPaneExample.add(splitPane);
+	splitPane.setPadding(new jsuis.Insets(4));
+	
+	leftIcon = new jsuis.Component(document.getElementById("Cat_silhouette.svg"));
+	leftIcon.setPreferredSize(new jsuis.Dimension(30, 30));
+	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
+	leftComponent = new jsuis.LayeredPane();
+	leftComponent.setLayout(new jsuis.BorderLayout());
+	leftComponent.add(leftIcon.setFill(jsuis.Constants.NONE));
+	leftComponent.add(leftLabel.setFill(jsuis.Constants.NONE));
+	leftComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	splitPane.setLeftComponent(leftComponent);
+	
+	rightIcon = new jsuis.Component(document.getElementById("Dog.svg"));
+	rightLabel = new jsuis.Label("Right").setFont(font).setForeground(jsuis.Color.Orange);
+	rightComponent = new jsuis.LayeredPane();
+	rightComponent.setLayout(new jsuis.BorderLayout());
+	rightComponent.add(rightIcon.setFill(jsuis.Constants.NONE));
+	rightComponent.add(rightLabel.setFill(jsuis.Constants.NONE));
+	rightComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	splitPane.setRightComponent(rightComponent);
 	
 	frame.setVisible(true);
 });

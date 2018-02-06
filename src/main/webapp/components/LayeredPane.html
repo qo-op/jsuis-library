@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180205225556"></script>
+    <script src="/jsuis.js?20180206213553"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var panel = new jsuis.Panel(new jsuis.BorderLayout());
 		panel.setBorder(new jsuis.LineBorder());
 		var label = new jsuis.Label(layerStrings[i]);
-		label.setAnchor(jsuis.Constants.CENTER);
+		label.setFill(jsuis.Constants.NONE);
 		panel.add(label, jsuis.Constants.NORTH);
 		panel.setBackground(layerColors[i]);
 		panel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));

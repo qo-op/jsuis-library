@@ -2,13 +2,13 @@
  * jsuis.defaultlf.ScrollBar
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
+	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		orientation = nvl(orientation, jsuis.defaultlf.ScrollBar.VERTICAL);
 		this.setOrientation(orientation);
 		
-		var layeredPane = new jsuis.LayeredPane();
+		var layeredPane = new jsuis.defaultlf.LayeredPane();
 		this.add(layeredPane);
 		layeredPane.setLayout(new jsuis.BorderLayout());
 		
@@ -16,9 +16,12 @@
 		this.setScrollTrack(scrollTrack);
 		layeredPane.add(scrollTrack);
 		
+		var scrollThumbPanel = new jsuis.defaultlf.Panel(null);
+		layeredPane.add(scrollThumbPanel);
+		
 		var scrollThumb = new jsuis.defaultlf.ScrollThumb(orientation);
 		this.setScrollThumb(scrollThumb);
-		layeredPane.add(scrollThumb);
+		scrollThumbPanel.add(scrollThumb);
 		scrollThumb.setBounds(new jsuis.Rectangle(0, 0, 16, 16));
 		
 		var decreaseButton;
@@ -36,6 +39,48 @@
 		}
 		this.setDecreaseButton(decreaseButton);
 		this.setIncreaseButton(increaseButton);
+		
+		var scrollThumbMouseListener = new jsuis.MouseListener({
+			mousePressed: function(event) {
+				var scrollBar = this.getListenerComponent();
+				var point = event.getPoint();
+				scrollBar.setScrollThumbPressedPoint(point);
+			}
+		});
+		scrollThumbMouseListener.setListenerComponent(this);
+		scrollThumb.addMouseListener(scrollThumbMouseListener);
+		
+		var scrollThumbMouseMotionListener = new jsuis.MouseMotionListener({
+			mouseDragged: function(event) {
+				var scrollBar = this.getListenerComponent();
+				var point = event.getPoint();
+				var pressedPoint = scrollBar.getScrollThumbPressedPoint();
+				var scrollTrack = scrollBar.getScrollTrack();
+				var scrollThumb = scrollBar.getScrollThumb();
+				var extent = scrollBar.getExtent();
+				var maximum = scrollBar.getMaximum();
+				var orientation = scrollBar.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
+					var x = Math.min(Math.max(scrollThumb.getX() + dx, 0), maximumX);
+					scrollThumb.setX(x);
+					if (maximumX > 0) {
+						scrollBar.setValue((maximum - extent) * x / maximumX);
+					}
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
+					var y = Math.min(Math.max(scrollThumb.getY() + dy, 0), maximumY);
+					scrollThumb.setY(y);
+					if (maximumY > 0) {
+						scrollBar.setValue((maximum - extent) * y / maximumY);
+					}
+				}
+			}
+		});
+		scrollThumbMouseMotionListener.setListenerComponent(this);
+		scrollThumb.addMouseMotionListener(scrollThumbMouseMotionListener);
 		
 		var scrollTrackMouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
@@ -141,47 +186,9 @@
 		timerActionListener.setListenerComponent(this);
 		this.setTimerActionListener(timerActionListener);
 		
-		var timer = new jsuis.Timer(50, timerActionListener);
+		var timer = new jsuis.defaultlf.Timer(50, timerActionListener);
 		this.setTimer(timer);
 		timer.setInitialDelay(250);
-		
-		var mouseListener = new jsuis.MouseListener({
-			mousePressed: function(event) {
-				var scrollBar = this.getListenerComponent();
-				var point = event.getPoint();
-				scrollBar.setScrollThumbPressedPoint(point);
-			}
-		});
-		mouseListener.setListenerComponent(this);
-		scrollThumb.addMouseListener(mouseListener);
-		
-		var mouseMotionListener = new jsuis.MouseMotionListener({
-			mouseDragged: function(event) {
-				var scrollBar = this.getListenerComponent();
-				var point = event.getPoint();
-				var pressedPoint = scrollBar.getScrollThumbPressedPoint();
-				var scrollTrack = scrollBar.getScrollTrack();
-				var scrollThumb = scrollBar.getScrollThumb();
-				var extent = scrollBar.getExtent();
-				var maximum = scrollBar.getMaximum();
-				var orientation = scrollBar.getOrientation();
-				if (orientation === jsuis.Constants.HORIZONTAL) {
-					var dx = point.getX() - pressedPoint.getX();
-					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
-					var x = Math.min(Math.max(scrollThumb.getX() + dx, 0), maximumX);
-					scrollThumb.setX(x);
-					scrollBar.setValue((maximum - extent) * x / maximumX);
-				} else {
-					var dy = point.getY() - pressedPoint.getY();
-					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
-					var y = Math.min(Math.max(scrollThumb.getY() + dy, 0), maximumY);
-					scrollThumb.setY(y);
-					scrollBar.setValue((maximum - extent) * y / maximumY);
-				}
-			}
-		});
-		mouseMotionListener.setListenerComponent(this);
-		scrollThumb.addMouseMotionListener(mouseMotionListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ScrollBar,
 			new jsuis.Property("orientation"),
