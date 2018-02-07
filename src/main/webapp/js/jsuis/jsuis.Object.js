@@ -163,7 +163,7 @@
 		return constructor.properties;
 	}
 	jsuis.Object.prototype.toString = function() {
-		return this.getClassName() + JSON.stringify(this);
+		return this.getClassName();
 	}
 })(jsuis);
 

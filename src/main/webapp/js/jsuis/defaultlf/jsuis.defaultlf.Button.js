@@ -4,8 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, null);
-		this.setLayout(new jsuis.GridBagLayout());
+		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}

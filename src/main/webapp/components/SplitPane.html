@@ -2,13 +2,13 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180206213553"></script>
+    <script src="/jsuis.js?20180207213211"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
-				<image id="Cat_silhouette.svg" xlink:href="/images/Cat_silhouette.svg" width="32" height="32"/>
-				<image id="Dog.svg" xlink:href="/images/Dog.svg" width="32" height="32"/>
+				<image id="/images/Cat_silhouette.svg" xlink:href="/images/Cat_silhouette.svg" width="32" height="32"/>
+				<image id="/images/Dog.svg" xlink:href="/images/Dog.svg" width="32" height="32"/>
 			</defs>
 		</svg>
 		<div id="container" style="height: 100vh;"></div>
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	splitPane.setBorder(new jsuis.LineBorder());
 	splitPane.setPadding(new jsuis.Insets(4));
 	
-	leftIcon = new jsuis.Component(document.getElementById("Cat_silhouette.svg"));
+	leftIcon = new jsuis.ImageIcon("/images/Cat_silhouette.svg");
 	leftIcon.setPreferredSize(new jsuis.Dimension(30, 30));
 	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
 	leftComponent = new jsuis.LayeredPane();
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	leftComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
 	splitPane.setLeftComponent(leftComponent);
 	
-	rightIcon = new jsuis.Component(document.getElementById("Dog.svg"));
+	rightIcon = new jsuis.ImageIcon("/images/Dog.svg");
 	rightLabel = new jsuis.Label("Right").setFont(font).setForeground(jsuis.Color.Orange);
 	rightComponent = new jsuis.LayeredPane();
 	rightComponent.setLayout(new jsuis.BorderLayout());

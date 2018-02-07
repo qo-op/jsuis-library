@@ -2,12 +2,12 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180206213553"></script>
+    <script src="/jsuis.js?20180207213211"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
-				<image id="Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
+				<image id="/images/Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
 			</defs>
 		</svg>
     	<div id="container" style="height: 100vh;"></div>
@@ -25,12 +25,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	buttonExample.setPreferredSize(new jsuis.Dimension(200, 200));
 	buttonExample.setBorder(new jsuis.LineBorder());
 	
-	middleButtoIcon = new jsuis.Component(document.getElementById("Star.svg"));
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg");
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");
 	
-	b2 = new jsuis.Button("Middle button", middleButtoIcon);
+	b2 = new jsuis.Button("Middle button", middleButtonIcon);
 	b2.setActionCommand("alert");
 	
 	b3 = new jsuis.Button("Enable middle button");

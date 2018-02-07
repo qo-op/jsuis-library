@@ -2,15 +2,15 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180206213553"></script>
+    <script src="/jsuis.js?20180207213211"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
-				<image id="Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
-				<image id="Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
-				<image id="Cat_silhouette.svg" xlink:href="/images/Cat_silhouette.svg" width="32" height="32"/>
-				<image id="Dog.svg" xlink:href="/images/Dog.svg" width="32" height="32"/>
+				<image id="/images/Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
+				<image id="/images/Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
+				<image id="/images/Cat_silhouette.svg" xlink:href="/images/Cat_silhouette.svg" width="32" height="32"/>
+				<image id="/images/Dog.svg" xlink:href="/images/Dog.svg" width="32" height="32"/>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
 					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
 					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
@@ -135,12 +135,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtoIcon = new jsuis.Component(document.getElementById("Star.svg"));
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg");
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");
 	
-	b2 = new jsuis.Button("Middle button", middleButtoIcon);
+	b2 = new jsuis.Button("Middle button", middleButtonIcon);
 	b2.setActionCommand("alert");
 	
 	b3 = new jsuis.Button("Enable middle button");
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
 	layeredPaneExample.setLayout(new jsuis.BorderLayout());
 	
-	icon = new jsuis.Component(document.getElementById("Duke_(Java_mascot)_waving.svg"));
+	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg");
 	
 	layeredPane = new jsuis.LayeredPane();
 	layeredPaneExample.add(layeredPane);
@@ -250,8 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	splitPaneExample.add(splitPane);
 	splitPane.setPadding(new jsuis.Insets(4));
 	
-	leftIcon = new jsuis.Component(document.getElementById("Cat_silhouette.svg"));
-	leftIcon.setPreferredSize(new jsuis.Dimension(30, 30));
+	leftIcon = new jsuis.ImageIcon("/images/Cat_silhouette.svg");
 	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
 	leftComponent = new jsuis.LayeredPane();
 	leftComponent.setLayout(new jsuis.BorderLayout());
@@ -260,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	leftComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
 	splitPane.setLeftComponent(leftComponent);
 	
-	rightIcon = new jsuis.Component(document.getElementById("Dog.svg"));
+	rightIcon = new jsuis.ImageIcon("/images/Dog.svg");
 	rightLabel = new jsuis.Label("Right").setFont(font).setForeground(jsuis.Color.Orange);
 	rightComponent = new jsuis.LayeredPane();
 	rightComponent.setLayout(new jsuis.BorderLayout());
