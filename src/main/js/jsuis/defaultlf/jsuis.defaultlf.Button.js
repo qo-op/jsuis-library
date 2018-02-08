@@ -110,13 +110,12 @@
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.getForeground = function() {
-		var label = this.getLabel();
-		return label.getForeground();
-	}
 	jsuis.defaultlf.Button.prototype.setForeground = function(foreground) {
 		var label = this.getLabel();
-		label.setForeground(foreground);
+		if (label) {
+			label.setForeground(foreground);
+		}
+		this.foreground = foreground;
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {

@@ -15,10 +15,21 @@ document.addEventListener('DOMContentLoaded', function() {
 	component.add(frame);
 	frame.setLayout(new jsuis.GridBagLayout());
 	
-	labelExample = new jsuis.Panel(new jsuis.GridBagLayout());
-	frame.add(labelExample);
-	labelExample.setPreferredSize(new jsuis.Dimension(200, 200));
-	labelExample.setBorder(new jsuis.LineBorder());
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	labelExample = createExamplePanel("jsuis.Label example");
+	labelExample.setLayout(new jsuis.GridBagLayout());
 	
 	label = new jsuis.Label("Hello, World!");
 	labelExample.add(label);

@@ -32,7 +32,7 @@
 		}
 	}
 	jsuis.defaultlf.Timer.prototype.fireActionPerformed = function() {
-		var event = new jsuis.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand());
+		var event = new jsuis.defaultlf.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand());
 		var actionListeners = this.getActionListeners();
 		for (var i = 0; i < actionListeners.length; i++) {
 			var actionListener = actionListeners[i];

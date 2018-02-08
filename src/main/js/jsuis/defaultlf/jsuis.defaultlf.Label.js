@@ -25,16 +25,12 @@
 		element.textContent = text;
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.getWidth = function() {
-		return this.getPreferredSize().getWidth();
-	}
 	jsuis.defaultlf.Label.prototype.setWidth = function(width) {
+		this.width = width;
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.getHeight = function() {
-		return this.getPreferredSize().getHeight();
-	}
 	jsuis.defaultlf.Label.prototype.setHeight = function(height) {
+		this.height = height;
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.getBackground = function() {
@@ -68,7 +64,9 @@
 	}
 	jsuis.defaultlf.Label.prototype.validate = function() {
 		var element = this.getElement();
-		this.setAttribute("transform", "translate(" + 0 + "," + (this.getY() - element.getBBox().y) + ")");
+		var outsets = this.getOutsets();
+		this.setAttribute("transform", "translate(" + 0 + ","
+				+ (this.getY() + outsets.getTop() - element.getBBox().y) + ")");
 		SUPER.prototype.validate.call(this);
 	}
 }) (jsuis);

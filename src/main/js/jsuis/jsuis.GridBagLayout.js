@@ -88,6 +88,7 @@
 			var ipadx = constraints.getIpadx();
 			var ipady = constraints.getIpady();
 			component.setLayoutPadding(new jsuis.Insets(ipady, ipadx));
+			component.setLayoutMargin(constraints.getInsets());
 		}
 		
 		var widthComponents = components.slice();
@@ -114,12 +115,15 @@
 				if ((gridx + gridwidth - 1) !== i) {
 					continue;
 				}
-				var weightx = constraints.getWeightx();
 				var componentPreferredSize = component.getPreferredSize();
-				var componentPreferredWidth = componentPreferredSize.getWidth();
-				widths[i] = Math.max(widths[i], componentPreferredWidth
-						- widths[i - gridwidth + 1]);
-				weightxs[i] = Math.max(weightxs[i], weightx - weightxs[i - gridwidth + 1]);
+				var width = componentPreferredSize.getWidth();
+				var weightx = constraints.getWeightx();
+				for (var k = 1; k < gridwidth; k++) {
+					width -= widths[i - k];
+					weightx -= weightxs[i - k];
+				}
+				widths[i] = Math.max(widths[i], width);
+				weightxs[i] = Math.max(weightxs[i], weightx);
 				var index = remainingComponents.indexOf(component);
 				if (index !== -1) {
 					remainingComponents.splice(index, 1);
@@ -154,12 +158,15 @@
 				if ((gridy + gridheight - 1) !== i) {
 					continue;
 				}
-				var weighty = constraints.getWeighty();
 				var componentPreferredSize = component.getPreferredSize();
-				var componentPreferredHeight = componentPreferredSize.getHeight();
-				heights[i] = Math.max(heights[i], componentPreferredHeight
-						- heights[i - gridheight + 1]);
-				weightys[i] = Math.max(weightys[i], weighty - weightys[i - gridheight + 1]);
+				var height = componentPreferredSize.getHeight();
+				var weighty = constraints.getWeighty();
+				for (var k = 1; k < gridheight; k++) {
+					height -= heights[i - k];
+					weighty -= weightys[i - k];
+				}
+				heights[i] = Math.max(heights[i], height);
+				weightys[i] = Math.max(weightys[i], weighty);
 				var index = remainingComponents.indexOf(component);
 				if (index !== -1) {
 					remainingComponents.splice(index, 1);

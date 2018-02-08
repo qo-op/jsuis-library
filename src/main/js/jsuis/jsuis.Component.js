@@ -97,6 +97,10 @@
 		peer.setPressed(pressed);
 		return this;
 	}
+	jsuis.Component.prototype.requestFocus = function() {
+		var peer = this.getPeer();
+		peer.requestFocus();
+	}
 	jsuis.Component.prototype.addComponentListener = function(componentListener) {
 		var peer = this.getPeer();
 		peer.addComponentListener(componentListener);

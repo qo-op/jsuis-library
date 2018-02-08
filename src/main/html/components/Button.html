@@ -20,10 +20,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	component.add(frame);
 	frame.setLayout(new jsuis.GridBagLayout());
 	
-	buttonExample = new jsuis.Panel();
-	frame.add(buttonExample);
-	buttonExample.setPreferredSize(new jsuis.Dimension(200, 200));
-	buttonExample.setBorder(new jsuis.LineBorder());
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	buttonExample = createExamplePanel("jsuis.Button example");
 	
 	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg");
 	

@@ -222,31 +222,32 @@
 		var layoutPaddingMargin = this.getLayoutPadding().add(this.getLayoutMargin());
 		var preferredSize = this.preferredSize;
 		if (preferredSize) {
-			return preferredSize.add(layoutPaddingMargin.getDimension());
+			return preferredSize.add(
+					layoutPaddingMargin.getDimension());
 		}
 		var layout = this.getLayout();
 		if (layout) {
 			var preferredLayoutSize = layout.preferredLayoutSize(this);
-			return preferredLayoutSize.add(layoutPaddingMargin.getDimension());
+			return preferredLayoutSize;
 		}
 		var element = this.getElement();
 		var bbox = element.getBBox();
-		return new jsuis.Dimension(Math.ceil(bbox.width), Math.ceil(bbox.height)).add(layoutPaddingMargin.getDimension());
+		return new jsuis.Dimension(Math.ceil(bbox.width), Math.ceil(bbox.height)).add(
+				layoutPaddingMargin.getDimension());
 	}
 	jsuis.defaultlf.Component.prototype.setPreferredSize = function(preferredSize) {
 		this.preferredSize = preferredSize ? preferredSize.clone() : preferredSize;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getMinimumSize = function() {
-		var layoutPaddingMargin = this.getLayoutPadding().add(this.getLayoutMargin());
 		var minimumSize = this.minimumSize;
 		if (minimumSize) {
-			return minimumSize.add(layoutPaddingMargin.getDimension());
+			return minimumSize;
 		}
 		var layout = this.getLayout();
 		if (layout) {
 			var minimumLayoutSize = layout.minimumLayoutSize(this);
-			return minimumLayoutSize.add(layoutPaddingMargin.getDimension());
+			return minimumLayoutSize;
 		}
 		return this.getPreferredSize();
 	}
@@ -357,7 +358,7 @@
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
-		var insets = this.getPadding();
+		var insets = this.getPadding().add(this.getLayoutPadding());
 		var border = this.getBorder();
 		if (border) {
 			return insets.add(border.getBorderInsets(this));
@@ -365,7 +366,7 @@
 		return insets;
 	}
 	jsuis.defaultlf.Component.prototype.getOutsets = function() {
-		var outsets = this.getMargin();
+		var outsets = this.getMargin().add(this.getLayoutMargin());
 		var border = this.getBorder();
 		if (border) {
 			return outsets.add(border.getBorderOutsets(this));
@@ -582,12 +583,13 @@
 		return this.font;
 	}
 	jsuis.defaultlf.Component.prototype.setFont = function(font) {
-		this.font = font;
 		if (font) {
-			this.setAttribute("font-family", font.getName());
-			this.setAttribute("font-style", font.getStyle());
-			this.setAttribute("font-size", font.getSize());
+			this.setStyleProperty("font-family", font.getName());
+			this.setStyleProperty("font-style", font.getStyle());
+			this.setStyleProperty("font-weight", font.getStyle());
+			this.setStyleProperty("font-size", font.getSize());
 		}
+		this.font = font;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getCursor = function() {
@@ -627,6 +629,10 @@
 	jsuis.defaultlf.Component.prototype.setPressed = function(pressed) {
 		this.pressed = pressed;
 		return this;
+	}
+	jsuis.defaultlf.Component.prototype.requestFocus = function() {
+		var element = this.getElement();
+		element.focus();
 	}
 	jsuis.defaultlf.Component.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
@@ -702,7 +708,7 @@
 			}
 		}
 		if (listener.mouseReleased) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseListeners = browserWindow.getMouseListeners();
 			var i = 0;
 			for (; i < browserWindowMouseListeners.length; i++) {
@@ -749,7 +755,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -757,7 +763,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseDoubleClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setClickCount(2);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setClickCount(2);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -765,7 +771,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseRightClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setPopupTrigger(true);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setPopupTrigger(true);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -774,7 +780,7 @@
 	}
 	jsuis.defaultlf.Component.prototype.fireMousePressed = function(domEvent) {
 		this.setPressed(true);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_PRESSED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_PRESSED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -783,7 +789,7 @@
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseReleased = function(domEvent) {
 		this.setPressed(false);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -791,7 +797,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseEntered = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_ENTERED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_ENTERED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -799,7 +805,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseExited = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_EXITED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_EXITED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -820,7 +826,7 @@
 			}
 		}
 		if (listener.mouseDragged) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseMotionListeners = browserWindow.getMouseMotionListeners();
 			var i = 0;
 			for (; i < browserWindowMouseMotionListeners.length; i++) {
@@ -854,7 +860,7 @@
 		if (this.isPressed()) {
 			return;
 		}
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_MOVED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_MOVED).setDomEvent(domEvent);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
@@ -862,7 +868,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
@@ -929,7 +935,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.fireActionPerformed = function(domEvent) {
-		var event = new jsuis.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand()).setDomEvent(domEvent);
+		var event = new jsuis.defaultlf.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand()).setDomEvent(domEvent);
 		var actionListeners = this.getActionListeners();
 		for (var i = 0; i < actionListeners.length; i++) {
 			var actionListener = actionListeners[i];

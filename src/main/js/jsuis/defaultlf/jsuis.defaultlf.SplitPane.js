@@ -128,7 +128,7 @@
 			} else {
 				var dwidth = width - firstComponentMinimumWidth - dividerSize - secondComponentMinimumWidth;
 				firstComponentWidth = firstComponentMinimumWidth + dwidth * resizeWeight;
-				this.setDividerLocation(minimum + firstComponentWidth);
+				this.setDividerLocation(x + firstComponentWidth);
 			}
 			firstComponent.setBounds(new jsuis.Rectangle(x, y, firstComponentWidth, height));
 			divider.setBounds(new jsuis.Rectangle(x + firstComponentWidth, y, dividerSize, height));
@@ -145,7 +145,7 @@
 			} else {
 				var dheight = height - firstComponentMinimumHeight - dividerSize - secondComponentMinimumHeight;
 				firstComponentHeight = firstComponentMinimumHeight + dheight * resizeWeight;
-				this.setDividerLocation(minimum + firstComponentHeight);
+				this.setDividerLocation(y + firstComponentHeight);
 			}
 			firstComponent.setBounds(new jsuis.Rectangle(x, y, width, firstComponentHeight));
 			divider.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight, width, dividerSize));

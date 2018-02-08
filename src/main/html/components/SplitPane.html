@@ -19,20 +19,31 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	frame = new jsuis.Frame();
 	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
 	
-	splitPaneExample = new jsuis.Panel(new jsuis.GridBagLayout());
-	frame.add(splitPaneExample);
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	splitPaneExample = createExamplePanel("jsuis.SplitPane example");
+	splitPaneExample.setLayout(new jsuis.BorderLayout());
 	
 	font = new jsuis.Font("Serif", jsuis.Font.ITALIC, 24);
 	
 	splitPane = new jsuis.SplitPane();
 	splitPaneExample.add(splitPane);
-	splitPane.setPreferredSize(new jsuis.Dimension(200, 200));
-	splitPane.setBorder(new jsuis.LineBorder());
 	splitPane.setPadding(new jsuis.Insets(4));
 	
 	leftIcon = new jsuis.ImageIcon("/images/Cat_silhouette.svg");
-	leftIcon.setPreferredSize(new jsuis.Dimension(30, 30));
 	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
 	leftComponent = new jsuis.LayeredPane();
 	leftComponent.setLayout(new jsuis.BorderLayout());

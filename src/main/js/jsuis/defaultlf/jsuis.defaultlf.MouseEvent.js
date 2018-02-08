@@ -1,9 +1,9 @@
 /**
- * jsuis.MouseEvent
+ * jsuis.defaultlf.MouseEvent
  */
 (function(jsuis) {
-	var SUPER = jsuis.ComponentEvent;
-	jsuis.MouseEvent = jsuis.Object.extend(SUPER, function(component, id,
+	var SUPER = jsuis.defaultlf.ComponentEvent;
+	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(component, id,
 			when, modifiers, x, y, xAbs, yAbs, clickCount, popupTrigger, button) {
 		SUPER.prototype.constructor.call(this, component, id, when, modifiers);
 		this.setX(x);
@@ -14,7 +14,7 @@
 		this.setPopupTrigger(popupTrigger);
 		this.setButton(button);
 	});
-	jsuis.Object.addProperties(jsuis.MouseEvent,
+	jsuis.Object.addProperties(jsuis.defaultlf.MouseEvent,
 			new jsuis.Property("x"),
 			new jsuis.Property("y"),
 			new jsuis.Property("xAbs"),
@@ -23,7 +23,7 @@
 			new jsuis.Property("popupTrigger"),
 			new jsuis.Property("button")
 	);
-	jsuis.MouseEvent.prototype.getPoint = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getPoint = function() {
 		var x = this.x;
 		var y = this.y;
 		if (x !== null && x !== undefined && y !== null && y !== undefined) {
@@ -38,15 +38,15 @@
 		this.setX(x).setY(y);
 		return new jsuis.Point(x, y);
 	}
-	jsuis.MouseEvent.prototype.getX = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getX = function() {
 		var point = this.getPoint();
 		return point.getX();
 	}
-	jsuis.MouseEvent.prototype.getY = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getY = function() {
 		var point = this.getPoint();
 		return point.getY();
 	}
-	jsuis.MouseEvent.prototype.getLocationOnScreen = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getLocationOnScreen = function() {
 		var xAbs = this.xAbs;
 		var yAbs = this.yAbs;
 		if (xAbs !== null && xAbs !== undefined && yAbs !== null && yAbs !== undefined) {
@@ -58,15 +58,15 @@
 		this.setXAbs(xAbs).setYAbs(yAbs);
 		return new jsuis.Point(xAbs, yAbs);
 	}
-	jsuis.MouseEvent.prototype.getXOnScreen = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getXOnScreen = function() {
 		var locationOnScreen = this.getLocationOnScreen();
 		return locationOnScreen.getX();
 	}
-	jsuis.MouseEvent.prototype.getYOnScreen = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getYOnScreen = function() {
 		var locationOnScreen = this.getLocationOnScreen();
 		return locationOnScreen.getY();
 	}
-	jsuis.MouseEvent.prototype.getClickCount = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getClickCount = function() {
 		var clickCount = this.clickCount;
 		if (clickCount !== null && clickCount !== undefined) {
 			return clickCount;
@@ -76,7 +76,7 @@
 		this.setClickCount(clickCount);
 		return clickCount;
 	}
-	jsuis.MouseEvent.prototype.getPopupTrigger = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getPopupTrigger = function() {
 		var popupTrigger = this.popupTrigger;
 		if (popupTrigger !== null && popupTrigger !== undefined) {
 			return popupTrigger;
@@ -86,7 +86,7 @@
 		this.setPopupTrigger(popupTrigger);
 		return popupTrigger;
 	}
-	jsuis.MouseEvent.prototype.getButton = function() {
+	jsuis.defaultlf.MouseEvent.prototype.getButton = function() {
 		var button = this.button;
 		if (button !== null && button !== undefined) {
 			return button;

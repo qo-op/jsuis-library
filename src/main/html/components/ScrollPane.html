@@ -17,19 +17,30 @@
 		<script>
 document.addEventListener('DOMContentLoaded', function() {
 	
-	component = new jsuis.Component(document
-			.getElementById("container"));
-
+	component = new jsuis.Component(document.getElementById("container"));
+	
 	frame = new jsuis.Frame();
 	component.add(frame);
-
-	scrollPaneExample = new jsuis.Panel(new jsuis.GridBagLayout());
-	frame.add(scrollPaneExample);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	scrollPaneExample = createExamplePanel("jsuis.ScrollPane example");
+	scrollPaneExample.setLayout(new jsuis.BorderLayout());
 	
 	scrollPane = new jsuis.ScrollPane();
 	scrollPaneExample.add(scrollPane);
-	scrollPane.setPreferredSize(new jsuis.Dimension(200, 200));
-	scrollPane.setBorder(new jsuis.LineBorder());
 
 	view = new jsuis.Panel(new jsuis.GridBagLayout());
 	scrollPane.setViewportView(view);

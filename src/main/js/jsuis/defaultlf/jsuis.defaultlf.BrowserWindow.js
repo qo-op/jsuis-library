@@ -1,9 +1,9 @@
 /**
- * jsuis.BrowserWindow
+ * jsuis.defaultlf.BrowserWindow
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.BrowserWindow = jsuis.Object.extend(SUPER, function() {
+	jsuis.defaultlf.BrowserWindow = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
 		this.setElement(window);
 		this.setEventListeners({});
@@ -11,19 +11,19 @@
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
 		this.setEventListener("mousedown", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMousePressed(domEvent);
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
 		});
 		this.setEventListener("mouseup", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMouseReleased(domEvent);
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
 		});
 		this.setEventListener("mousemove", function(domEvent) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			if (browserWindow.isPressed()) {
 				browserWindow.fireMouseDragged(domEvent);
 			}
 		});
 	});
-	jsuis.Object.addProperties(jsuis.BrowserWindow,
+	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
 			new jsuis.Property("element"),
 			new jsuis.Property("eventListeners"),
 			new jsuis.Property("componentListeners"),
@@ -31,17 +31,17 @@
 			new jsuis.Property("mouseMotionListeners")
 	);
 	var instance;
-	jsuis.BrowserWindow.getInstance = function() {
+	jsuis.defaultlf.BrowserWindow.getInstance = function() {
 		if (!instance) {
-			instance = new jsuis.BrowserWindow();
+			instance = new jsuis.defaultlf.BrowserWindow();
 		}
 		return instance;
 	}
-	jsuis.BrowserWindow.prototype.getEventListener = function(type) {
+	jsuis.defaultlf.BrowserWindow.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
 		return eventListeners["on" + type];
 	}
-	jsuis.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
 		var oldEventListener = this.getEventListener(type);
 		if (oldEventListener) {
 			this.removeEventListener(type, oldEventListener);
@@ -51,15 +51,15 @@
 		eventListeners["on" + type] = eventListener;
 		return this;
 	}
-	jsuis.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
 		var element = this.getElement();
 		element.addEventListener(type, eventListener);
 	}
-	jsuis.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
 		var element = this.getElement();
 		element.removeEventListener(type, eventListener);
 	}
-	jsuis.BrowserWindow.prototype.addComponentListener = function(componentListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		componentListeners.push(componentListener);
 		var component = this;
@@ -78,64 +78,64 @@
 		}
 		*/
 	}
-	jsuis.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		var index = componentListeners.indexOf(componentListener);
 		if (index !== -1) {
 			componentListeners.splice(index, 1);
 		}
 	}
-	jsuis.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
-		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
+	jsuis.defaultlf.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];
 			componentListener.componentResized(event);
 		}
 	}
-	jsuis.BrowserWindow.prototype.isPressed = function() {
+	jsuis.defaultlf.BrowserWindow.prototype.isPressed = function() {
 		return this.pressed;
 	}
-	jsuis.BrowserWindow.prototype.setPressed = function(pressed) {
+	jsuis.defaultlf.BrowserWindow.prototype.setPressed = function(pressed) {
 		this.pressed = pressed;
 		return this;
 	}
-	jsuis.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
 		var mouseListeners = this.getMouseListeners();
 		mouseListeners.push(mouseListener);
 	}
-	jsuis.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
 		var mouseListeners = this.getMouseListeners();
 		var index = mouseListeners.indexOf(mouseListener);
 		if (index !== -1) {
 			mouseListeners.splice(index, 1);
 		}
 	}
-	jsuis.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
+	jsuis.defaultlf.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
 		this.setPressed(true);
 	}
-	jsuis.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
 		this.setPressed(false);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
 			mouseListener.mouseReleased(mouseEvent);
 		}
 	}
-	jsuis.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		mouseMotionListeners.push(mouseMotionListener);
 	}
-	jsuis.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		var index = mouseMotionListeners.indexOf(mouseMotionListener);
 		if (index !== -1) {
 			mouseMotionListeners.splice(index, 1);
 		}
 	}
-	jsuis.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];

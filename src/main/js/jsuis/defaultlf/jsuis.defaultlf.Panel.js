@@ -76,8 +76,4 @@
 		shape.setBackground(background);
 		return this;
 	}
-	jsuis.defaultlf.Panel.prototype.addMouseListener = function(mouseListener) {
-		var shape = this.getShape();
-		SUPER.prototype.addMouseListener.call(this, mouseListener, shape);
-	}
 }) (jsuis);

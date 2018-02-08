@@ -14,7 +14,7 @@
 		this.setContentPane(contentPane);
 		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
-		var browserWindow = jsuis.BrowserWindow.getInstance();
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var browserWindowComponentListeners = browserWindow.getComponentListeners();
 		var i = 0;
 		for (; i < browserWindowComponentListeners.length; i++) {
@@ -92,7 +92,7 @@
 		return this;
 	}
 	jsuis.defaultlf.Frame.prototype.dispose = function() {
-		var browserWindow = jsuis.BrowserWindow.getInstance();
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var browserWindowComponentListeners = browserWindow.getComponentListeners();
 		for (var i = 0; i < browserWindowComponentListeners.length; i++) {
 			var browserWindowComponentListener = browserWindowComponentListeners[i];

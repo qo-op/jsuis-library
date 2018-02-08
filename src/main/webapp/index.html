@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?<date>"></script>
+    <script src="/jsuis.js?20180210172226"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
@@ -267,6 +267,30 @@ document.addEventListener('DOMContentLoaded', function() {
 	rightComponent.add(rightLabel.setFill(jsuis.Constants.NONE));
 	rightComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
 	splitPane.setRightComponent(rightComponent);
+	
+	/*
+	 * ScrollPane example
+	 */
+	textFieldExample = createExamplePanel("jsuis.TextField example");
+	textFieldExample.setLayout(new jsuis.GridBagLayout(4));
+	
+	gridBagConstraints = new jsuis.GridBagConstraints();
+	
+	firstNameLabel = new jsuis.Label("First name:");
+	textFieldExample.add(firstNameLabel, gridBagConstraints.setGridx(0).setGridy(0));
+	
+	firstNameTextField = new jsuis.TextField("Mickey");
+	firstNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
+	firstNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	textFieldExample.add(firstNameTextField, gridBagConstraints.setGridx(1).setGridy(0));
+	
+	lastNameLabel = new jsuis.Label("Last name:");
+	textFieldExample.add(lastNameLabel, gridBagConstraints.setGridx(0).setGridy(1));
+	
+	lastNameTextField = new jsuis.TextField("Mouse");
+	lastNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
+	lastNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	textFieldExample.add(lastNameTextField, gridBagConstraints.setGridx(1).setGridy(1));
 	
 	frame.setVisible(true);
 });

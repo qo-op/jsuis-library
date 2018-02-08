@@ -454,152 +454,6 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.BrowserWindow
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.BrowserWindow = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this);
-		this.setElement(window);
-		this.setEventListeners({});
-		this.setComponentListeners([]);
-		this.setMouseListeners([]);
-		this.setMouseMotionListeners([]);
-		this.setEventListener("mousedown", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMousePressed(domEvent);
-		});
-		this.setEventListener("mouseup", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMouseReleased(domEvent);
-		});
-		this.setEventListener("mousemove", function(domEvent) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
-			if (browserWindow.isPressed()) {
-				browserWindow.fireMouseDragged(domEvent);
-			}
-		});
-	});
-	jsuis.Object.addProperties(jsuis.BrowserWindow,
-			new jsuis.Property("element"),
-			new jsuis.Property("eventListeners"),
-			new jsuis.Property("componentListeners"),
-			new jsuis.Property("mouseListeners"),
-			new jsuis.Property("mouseMotionListeners")
-	);
-	var instance;
-	jsuis.BrowserWindow.getInstance = function() {
-		if (!instance) {
-			instance = new jsuis.BrowserWindow();
-		}
-		return instance;
-	}
-	jsuis.BrowserWindow.prototype.getEventListener = function(type) {
-		var eventListeners = this.getEventListeners();
-		return eventListeners["on" + type];
-	}
-	jsuis.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
-		var oldEventListener = this.getEventListener(type);
-		if (oldEventListener) {
-			this.removeEventListener(type, oldEventListener);
-		}
-		this.addEventListener(type, eventListener);
-		var eventListeners = this.getEventListeners();
-		eventListeners["on" + type] = eventListener;
-		return this;
-	}
-	jsuis.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
-		var element = this.getElement();
-		element.addEventListener(type, eventListener);
-	}
-	jsuis.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
-		var element = this.getElement();
-		element.removeEventListener(type, eventListener);
-	}
-	jsuis.BrowserWindow.prototype.addComponentListener = function(componentListener) {
-		var componentListeners = this.getComponentListeners();
-		componentListeners.push(componentListener);
-		var component = this;
-		var listener = componentListener.getListener();
-		if (listener.componentResized) {
-			var onresize = this.getEventListener("resize");
-			if (!onresize) {
-				this.setEventListener("resize", function(event) {
-					component.fireComponentResized(event);
-				});
-			}
-		}
-		/*
-		if (listener.componentMoved) {
-			// TODO
-		}
-		*/
-	}
-	jsuis.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
-		var componentListeners = this.getComponentListeners();
-		var index = componentListeners.indexOf(componentListener);
-		if (index !== -1) {
-			componentListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
-		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
-		var componentListeners = this.getComponentListeners();
-		for (var i = 0; i < componentListeners.length; i++) {
-			var componentListener = componentListeners[i];
-			componentListener.componentResized(event);
-		}
-	}
-	jsuis.BrowserWindow.prototype.isPressed = function() {
-		return this.pressed;
-	}
-	jsuis.BrowserWindow.prototype.setPressed = function(pressed) {
-		this.pressed = pressed;
-		return this;
-	}
-	jsuis.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
-		var mouseListeners = this.getMouseListeners();
-		mouseListeners.push(mouseListener);
-	}
-	jsuis.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
-		var mouseListeners = this.getMouseListeners();
-		var index = mouseListeners.indexOf(mouseListener);
-		if (index !== -1) {
-			mouseListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
-		this.setPressed(true);
-	}
-	jsuis.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
-		this.setPressed(false);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseReleased(mouseEvent);
-		}
-	}
-	jsuis.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		mouseMotionListeners.push(mouseMotionListener);
-	}
-	jsuis.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		var index = mouseMotionListeners.indexOf(mouseMotionListener);
-		if (index !== -1) {
-			mouseMotionListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		for (var i = 0; i < mouseMotionListeners.length; i++) {
-			var mouseMotionListener = mouseMotionListeners[i];
-			mouseMotionListener.mouseDragged(mouseEvent);
-		}
-	}
-}) (jsuis);
-
-/**
  * jsuis.Color
  */
 (function(jsuis) {
@@ -1914,6 +1768,10 @@ jsuis.packages = [];
 		peer.setPressed(pressed);
 		return this;
 	}
+	jsuis.Component.prototype.requestFocus = function() {
+		var peer = this.getPeer();
+		peer.requestFocus();
+	}
 	jsuis.Component.prototype.addComponentListener = function(componentListener) {
 		var peer = this.getPeer();
 		peer.addComponentListener(componentListener);
@@ -2072,6 +1930,32 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.Action
+ */
+(function(jsuis) {
+	var SUPER = jsuis.ActionListener;
+	jsuis.Action = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+}) (jsuis);
+
+/**
+ * jsuis.Button
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Button,
+			new jsuis.Property("text"),
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconTextGap")
+	);
+}) (jsuis);
+
+/**
  * jsuis.Frame
  */
 (function(jsuis) {
@@ -2190,7 +2074,7 @@ jsuis.packages = [];
 		}
 		var domEvent = this.getDomEvent();
 		var source = this.getSource();
-		var boundingClientRect = source.getElement().getBoundingClientRect();
+		var boundingClientRect = source.getBoundingClientRect();
 		var outsets = source.getOutsets();
 		x = nvl(x, domEvent.clientX - boundingClientRect.left + outsets.getLeft());
 		y = nvl(y, domEvent.clientY - boundingClientRect.top + outsets.getTop());
@@ -2269,17 +2153,16 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.Button
+ * jsuis.TextField
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+	var SUPER = jsuis.Component;
+	jsuis.TextField = jsuis.Object.extend(SUPER, function(text) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
+		this.setPeer(new jsuis[lookAndFeel].TextField(text));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Button,
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconTextGap")
+	jsuis.Object.addPeerProperties(jsuis.TextField,
+			new jsuis.Property("text")
 	);
 }) (jsuis);
 
@@ -2381,6 +2264,152 @@ jsuis.packages.push(jsuis.defaultlf);
 		return new jsuis.Insets();
 	}
 })(jsuis);
+
+/**
+ * jsuis.defaultlf.BrowserWindow
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.BrowserWindow = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+		this.setElement(window);
+		this.setEventListeners({});
+		this.setComponentListeners([]);
+		this.setMouseListeners([]);
+		this.setMouseMotionListeners([]);
+		this.setEventListener("mousedown", function(domEvent) {
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
+		});
+		this.setEventListener("mouseup", function(domEvent) {
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
+		});
+		this.setEventListener("mousemove", function(domEvent) {
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+			if (browserWindow.isPressed()) {
+				browserWindow.fireMouseDragged(domEvent);
+			}
+		});
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
+			new jsuis.Property("element"),
+			new jsuis.Property("eventListeners"),
+			new jsuis.Property("componentListeners"),
+			new jsuis.Property("mouseListeners"),
+			new jsuis.Property("mouseMotionListeners")
+	);
+	var instance;
+	jsuis.defaultlf.BrowserWindow.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.BrowserWindow();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.getEventListener = function(type) {
+		var eventListeners = this.getEventListeners();
+		return eventListeners["on" + type];
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
+		var oldEventListener = this.getEventListener(type);
+		if (oldEventListener) {
+			this.removeEventListener(type, oldEventListener);
+		}
+		this.addEventListener(type, eventListener);
+		var eventListeners = this.getEventListeners();
+		eventListeners["on" + type] = eventListener;
+		return this;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
+		var element = this.getElement();
+		element.addEventListener(type, eventListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
+		var element = this.getElement();
+		element.removeEventListener(type, eventListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addComponentListener = function(componentListener) {
+		var componentListeners = this.getComponentListeners();
+		componentListeners.push(componentListener);
+		var component = this;
+		var listener = componentListener.getListener();
+		if (listener.componentResized) {
+			var onresize = this.getEventListener("resize");
+			if (!onresize) {
+				this.setEventListener("resize", function(event) {
+					component.fireComponentResized(event);
+				});
+			}
+		}
+		/*
+		if (listener.componentMoved) {
+			// TODO
+		}
+		*/
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
+		var componentListeners = this.getComponentListeners();
+		var index = componentListeners.indexOf(componentListener);
+		if (index !== -1) {
+			componentListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
+		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
+		var componentListeners = this.getComponentListeners();
+		for (var i = 0; i < componentListeners.length; i++) {
+			var componentListener = componentListeners[i];
+			componentListener.componentResized(event);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.isPressed = function() {
+		return this.pressed;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.setPressed = function(pressed) {
+		this.pressed = pressed;
+		return this;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
+		var mouseListeners = this.getMouseListeners();
+		mouseListeners.push(mouseListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
+		var mouseListeners = this.getMouseListeners();
+		var index = mouseListeners.indexOf(mouseListener);
+		if (index !== -1) {
+			mouseListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
+		this.setPressed(true);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
+		this.setPressed(false);
+		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseReleased(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		mouseMotionListeners.push(mouseMotionListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		var index = mouseMotionListeners.indexOf(mouseMotionListener);
+		if (index !== -1) {
+			mouseMotionListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
+		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		for (var i = 0; i < mouseMotionListeners.length; i++) {
+			var mouseMotionListener = mouseMotionListeners[i];
+			mouseMotionListener.mouseDragged(mouseEvent);
+		}
+	}
+}) (jsuis);
 
 /**
  * Component
@@ -2654,6 +2683,10 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.Component.prototype.setMaximumLayoutBounds = function(maximumLayoutBounds) {
 		this.maximumLayoutBounds = maximumLayoutBounds ? maximumLayoutBounds.clone() : maximumLayoutBounds;
 		return this;
+	}
+	jsuis.defaultlf.Component.prototype.getBoundingClientRect = function() {
+		var element = this.getElement();
+		return element.getBoundingClientRect();
 	}
 	jsuis.defaultlf.Component.prototype.getPadding = function() {
 		if (!this.padding) {
@@ -3012,6 +3045,10 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.pressed = pressed;
 		return this;
 	}
+	jsuis.defaultlf.Component.prototype.requestFocus = function() {
+		var element = this.getElement();
+		element.focus();
+	}
 	jsuis.defaultlf.Component.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		componentListeners.push(componentListener);
@@ -3086,7 +3123,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		}
 		if (listener.mouseReleased) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseListeners = browserWindow.getMouseListeners();
 			var i = 0;
 			for (; i < browserWindowMouseListeners.length; i++) {
@@ -3204,7 +3241,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		}
 		if (listener.mouseDragged) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseMotionListeners = browserWindow.getMouseMotionListeners();
 			var i = 0;
 			for (; i < browserWindowMouseMotionListeners.length; i++) {
@@ -3473,7 +3510,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setContentPane(contentPane);
 		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
-		var browserWindow = jsuis.BrowserWindow.getInstance();
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var browserWindowComponentListeners = browserWindow.getComponentListeners();
 		var i = 0;
 		for (; i < browserWindowComponentListeners.length; i++) {
@@ -3551,7 +3588,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		return this;
 	}
 	jsuis.defaultlf.Frame.prototype.dispose = function() {
-		var browserWindow = jsuis.BrowserWindow.getInstance();
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var browserWindowComponentListeners = browserWindow.getComponentListeners();
 		for (var i = 0; i < browserWindowComponentListeners.length; i++) {
 			var browserWindowComponentListener = browserWindowComponentListeners[i];
@@ -3769,10 +3806,6 @@ jsuis.packages.push(jsuis.defaultlf);
 		shape.setBackground(background);
 		return this;
 	}
-	jsuis.defaultlf.Panel.prototype.addMouseListener = function(mouseListener) {
-		var shape = this.getShape();
-		SUPER.prototype.addMouseListener.call(this, mouseListener, shape);
-	}
 }) (jsuis);
 
 /**
@@ -3808,6 +3841,71 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setWidth(nvl(width, 0));
 		this.setHeight(nvl(height, 0));
 	});
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TextFieldEditor
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.TextFieldEditor = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElement("input"));
+		this.setAttribute("type", "text");
+		this.setStyleProperty("position", "absolute");
+		this.setStyleProperty("padding", "0");
+		this.setStyleProperty("margin", "0");
+		this.setStyleProperty("border", "0");
+		this.setStyleProperty("outline", "none");
+		this.setStyleProperty("background-color", "transparent");
+		this.setVisible(false);
+		new jsuis.defaultlf.Component(document.body).add(this);
+	});
+	var instance;
+	jsuis.defaultlf.TextFieldEditor.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.TextFieldEditor();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {
+		var element = this.getElement();
+		return element.value;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setText = function(text) {
+		var element = this.getElement();
+		element.value = text || "";
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setX = function(x) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("left", +nvl(x, 0) + outsets.getLeft() + "px");
+		this.x = x;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setY = function(y) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("top", +nvl(y, 0) + outsets.getTop()+ "px");
+		this.y = y;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setWidth = function(width) {
+		var outsets = this.getOutsets();
+		width -= outsets.getLeft() + outsets.getRight();
+		if (width >= 0) {
+			this.setStyleProperty("width", width + "px");
+		}
+		this.width = width;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setHeight = function(height) {
+		var outsets = this.getOutsets();
+		height -= outsets.getTop() + outsets.getBottom();
+		if (height >= 0) {
+			this.setStyleProperty("height", height + "px");
+		}
+		this.height = height;
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -4573,7 +4671,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			} else {
 				var dwidth = width - firstComponentMinimumWidth - dividerSize - secondComponentMinimumWidth;
 				firstComponentWidth = firstComponentMinimumWidth + dwidth * resizeWeight;
-				this.setDividerLocation(minimum + firstComponentWidth);
+				this.setDividerLocation(x + firstComponentWidth);
 			}
 			firstComponent.setBounds(new jsuis.Rectangle(x, y, firstComponentWidth, height));
 			divider.setBounds(new jsuis.Rectangle(x + firstComponentWidth, y, dividerSize, height));
@@ -4590,7 +4688,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			} else {
 				var dheight = height - firstComponentMinimumHeight - dividerSize - secondComponentMinimumHeight;
 				firstComponentHeight = firstComponentMinimumHeight + dheight * resizeWeight;
-				this.setDividerLocation(minimum + firstComponentHeight);
+				this.setDividerLocation(y + firstComponentHeight);
 			}
 			firstComponent.setBounds(new jsuis.Rectangle(x, y, width, firstComponentHeight));
 			divider.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight, width, dividerSize));
@@ -4779,5 +4877,37 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.ScrollPane.prototype.getMinimumSize = function() {
 		return new jsuis.Dimension(0, 0);
 	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TextField
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.LayeredPane;
+	jsuis.defaultlf.TextField = jsuis.Object.extend(SUPER, function(text) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		var label = new jsuis.Label(text);
+		this.add(label);
+		this.setBorder(new jsuis.LineBorder(jsuis.Color.Gray));
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		
+		var mouseListener = new jsuis.MouseListener({
+			mousePressed: function(event) {
+				var source = event.getSource();
+				var outsets = source.getOutsets();
+				var boundingClientRect = source.getBoundingClientRect();
+				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
+				textFieldEditor.setBounds(new jsuis.Rectangle(
+						boundingClientRect.x + outsets.getLeft(), boundingClientRect.y + outsets.getTop(),
+						boundingClientRect.width - outsets.getLeft() - outsets.getRight(), boundingClientRect.height - outsets.getTop() - outsets.getBottom()));
+				textFieldEditor.setVisible(true);
+				textFieldEditor.requestFocus();
+			},
+		});
+		this.addMouseListener(mouseListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TextField,
+			new jsuis.Property("label")
+	);
 }) (jsuis);
 
