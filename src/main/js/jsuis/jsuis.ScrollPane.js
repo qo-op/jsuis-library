@@ -7,7 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].ScrollPane(view, vsbPolicy, hsbPolicy));
 	});
-	jsuis.Component.addProperties(jsuis.ScrollPane,
+	jsuis.Object.addPeerProperties(jsuis.ScrollPane,
 			new jsuis.Property("vsbPolicy"),
 			new jsuis.Property("hsbPolicy"),
 			new jsuis.Property("viewport"),

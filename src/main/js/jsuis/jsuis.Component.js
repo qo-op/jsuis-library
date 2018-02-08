@@ -7,40 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Component(element));
 	});
-	jsuis.Component.addProperties = function(constructor, properties) {
-		properties = Array.prototype.slice.call(arguments, 1);
-		for (var i = 0; i < properties.length; i++) {
-			var property = properties[i];
-			jsuis.Component.addProperty(constructor, property);
-		}
-	}
-	jsuis.Component.addProperty = function(constructor, property) {
-		var key = property.getKey();
-		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
-		get += function() {
-			var peer = this.getPeer();
-			return peer.getmethod();
-		};
-		get = get.replace("peer.getmethod", "peer.get" + method);
-		eval(get);
-		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
-		set += function(key) {
-			var peer = this.getPeer();
-			peer.setmethod(key);
-			return this;
-		};
-		set = set.replace(/key/g, key);
-		set = set.replace("peer.setmethod", "peer.set" + method);
-		eval(set);
-		var properties = constructor.properties;
-		if (!properties) {
-			properties = [];
-			constructor.properties = properties;
-		}
-		properties.push(property);
-	}
-	jsuis.Component.addProperties(jsuis.Component,
+	jsuis.Object.addPeerProperties(jsuis.Component,
 			new jsuis.Property("element"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),

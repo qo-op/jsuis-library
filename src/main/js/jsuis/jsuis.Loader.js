@@ -14,9 +14,9 @@
 		}
 		return instance;
 	}
-	jsuis.Loader.prototype.load = function(resources) {
+	jsuis.Loader.prototype.add = function(resources) {
 		var peer = this.getPeer();
-		peer.load(resources);
+		peer.add(resources);
 	}
 	jsuis.Loader.prototype.getResource = function(name) {
 		var peer = this.getPeer();

@@ -7,7 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].SplitPane(orientation, leftComponent, rightComponent));
 	});
-	jsuis.Component.addProperties(jsuis.SplitPane,
+	jsuis.Object.addPeerProperties(jsuis.SplitPane,
 			new jsuis.Property("orientation"),
 			new jsuis.Property("leftComponent"),
 			new jsuis.Property("rightComponent"),

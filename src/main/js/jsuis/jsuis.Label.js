@@ -7,7 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Label(text));
 	});
-	jsuis.Component.addProperties(jsuis.Label,
+	jsuis.Object.addPeerProperties(jsuis.Label,
 			new jsuis.Property("text")
 	);
 }) (jsuis);

@@ -27,13 +27,7 @@ import org.apache.commons.io.IOUtils;
  */
 public class Build {
 	
-	public List<File> getFiles() {
-		List<File> files = new ArrayList<File>();
-		files.addAll(FileUtils.listFiles(new File("src/main/webapp/js/jsuis"), new String[] { "js" }, true));
-		return files;
-	}
-	
-	public void sort(List<File> files) throws IOException {
+	public static void sort(List<File> files) throws IOException {
 		Pattern pattern = Pattern.compile("\\s*var\\s+SUPER\\s*=\\s*(.*?)\\s*;\\s*");
 		Map<String, String> parents = new HashMap<String, String>();
 		for (File file : files) {
@@ -84,8 +78,7 @@ public class Build {
 		});
 	}
 	
-    public void join(File destination, List<File> files) throws IOException {
-		FileUtils.writeStringToFile(destination, "", "ISO-8859-1");
+    public static void join(File destination, List<File> files) throws IOException {
     	BufferedWriter bufferedWriter = null;
     	try {
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destination, true), "ISO-8859-1"));
@@ -108,32 +101,23 @@ public class Build {
 		}
     }
     
-	public List<File> getHtmlFiles() {
-		List<File> files = new ArrayList<File>();
-		files.addAll(FileUtils.listFiles(new File("src/main/webapp"), new String[] { "html" }, true));
-		return files;
-	}
-	
-	public void update(List<File> htmlFiles) throws IOException {
-		String date = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-		Pattern pattern = Pattern.compile("\\s*<script src=\"/jsuis\\b.*?\\.js\\b.*\"></script>\\s*");
+	public static void replace(List<File> htmlFiles, String regex, String replacement, String from, String to) throws IOException {
 		for (File file : htmlFiles) {
-			File copy = new File(file.getAbsolutePath() + ".tmp");
-			FileUtils.copyFile(file, copy);
+			File destination = new File(file.getAbsolutePath().replaceAll(from, to));
+			if (!destination.exists()) {
+				destination.getParentFile().mkdirs();
+				destination.createNewFile();
+			}
 	    	BufferedWriter bufferedWriter = null;
 	    	try {
-				bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1"));
+				bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destination), "UTF-8"));
 				BufferedReader bufferedReader = null;
 				try {
-					bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(copy), "ISO-8859-1"));
+					bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 					String line = null;
 					while ((line = bufferedReader.readLine()) != null) {
-						Matcher matcher = pattern.matcher(line);
-						if (matcher.matches()) {
-							bufferedWriter.write("    <script src=\"/jsuis.js?" + date + "\"></script>\n");
-						} else {
-							bufferedWriter.write(line + "\n");
-						}
+						line = line.replaceAll(regex, replacement);
+						bufferedWriter.write(line + "\n");
 					}
 				} finally {
 					if (bufferedReader != null) {
@@ -145,26 +129,59 @@ public class Build {
 					bufferedWriter.close();
 				}
 			}
-	    	copy.delete();
 		}
 	}
     
 	public static void main(String[] args) throws IOException {
-		Build build = new Build();
+		
+		/*
+		 * output
+		 */
+		System.out.println("Output folder...");
+		File output = new File("src/main/webapp");
+		
+		/*
+		 * jsuis.js
+		 */
+		File jsuis = new File(output, "jsuis.js");
+		System.out.println("Cleaning jsuis.js...");
+		FileUtils.writeStringToFile(jsuis, "", "ISO-8859-1");
 		System.out.println("Getting jsuis files...");
-		List<File> files = build.getFiles();
+		List<File> jsuisFiles = new ArrayList<File>();
+		jsuisFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis"), new String[] { "js" }, false));
 		System.out.println("Sorting jsuis files...");
-		build.sort(files);
-		System.out.println("Building jsuis.js...");
+		Build.sort(jsuisFiles);
+		System.out.println("Adding jsuis files to jsuis.js...");
+		Build.join(jsuis, jsuisFiles);
+		
+		System.out.println("Getting jsuis-defaultlf files...");
+		List<File> jsuisDefaultlfFiles = new ArrayList<File>();
+		jsuisDefaultlfFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis/defaultlf"), new String[] { "js" }, false));
+		System.out.println("Sorting jsuis-defaultlf files...");
+		Build.sort(jsuisDefaultlfFiles);
+		System.out.println("Adding jsuis-defaultlf files to jsuis.js...");
+		Build.join(jsuis, jsuisDefaultlfFiles);
+		
+		/*
+		 * versions/jsuis-version.js
+		 */
 		String version = FileUtils.readFileToString(new File("version.txt"), "ISO-8859-1");
 		File jsuisVersion = new File("versions/jsuis-" + version + ".js");
-		build.join(jsuisVersion, files);
-		File jsuis = new File("src/main/webapp/jsuis.js");
-		FileUtils.copyFile(jsuisVersion, jsuis);
+		FileUtils.copyFile(jsuis, jsuisVersion);
+		
+		/*
+		 * .html
+		 */
 		System.out.println("Getting html files...");
-		List<File> htmlFiles = build.getHtmlFiles();
-		System.out.println("Updating html files...");
-		build.update(htmlFiles);
+		List<File> htmlFiles = new ArrayList<File>();
+		htmlFiles.addAll(FileUtils.listFiles(new File("src/main/html"), new String[] { "html" }, true));
+		System.out.println("Replacing html files...");
+		String date = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+		Build.replace(htmlFiles, "\\$\\{date\\}", date, "src[\\\\\\/]main[\\\\\\/]html", "src/main/webapp");
+		
+		/*
+		 * done
+		 */
 		System.out.println("Done.");
 	}
 }

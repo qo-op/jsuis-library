@@ -53,6 +53,72 @@
 		}
 		properties.push(property);
 	}
+	jsuis.Object.addPeerProperties = function(constructor, properties) {
+		properties = Array.prototype.slice.call(arguments, 1);
+		for (var i = 0; i < properties.length; i++) {
+			var property = properties[i];
+			jsuis.Object.addPeerProperty(constructor, property);
+		}
+	}
+	jsuis.Object.addPeerProperty = function(constructor, property) {
+		var key = property.getKey();
+		var method = key.charAt(0).toUpperCase() + key.slice(1);
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+		get += function() {
+			var peer = this.getPeer();
+			return peer.getmethod();
+		};
+		get = get.replace("peer.getmethod", "peer.get" + method);
+		eval(get);
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
+		set += function(key) {
+			var peer = this.getPeer();
+			peer.setmethod(key);
+			return this;
+		};
+		set = set.replace(/key/g, key);
+		set = set.replace("peer.setmethod", "peer.set" + method);
+		eval(set);
+		var properties = constructor.properties;
+		if (!properties) {
+			properties = [];
+			constructor.properties = properties;
+		}
+		properties.push(property);
+	}
+	jsuis.Object.addElementProperties = function(constructor, properties) {
+		properties = Array.prototype.slice.call(arguments, 1);
+		for (var i = 0; i < properties.length; i++) {
+			var property = properties[i];
+			jsuis.Object.addElementProperty(constructor, property);
+		}
+	}
+	jsuis.Object.addElementProperty = function(constructor, property) {
+		var key = property.getKey();
+		var method = key.charAt(0).toUpperCase() + key.slice(1);
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+		get += function() {
+			var element = this.getElement();
+			return element.getmethod();
+		};
+		get = get.replace("element.getmethod", "element.get" + method);
+		eval(get);
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
+		set += function(key) {
+			var element = this.getElement();
+			element.setmethod(key);
+			return this;
+		};
+		set = set.replace(/key/g, key);
+		set = set.replace("element.setmethod", "element.set" + method);
+		eval(set);
+		var properties = constructor.properties;
+		if (!properties) {
+			properties = [];
+			constructor.properties = properties;
+		}
+		properties.push(property);
+	}
 	jsuis.Object.extend = function(source, target) {
 		var object = function() {};
 		object.prototype = source.prototype;
@@ -166,35 +232,3 @@
 		return this.getClassName();
 	}
 })(jsuis);
-
-/**
- * jsuis.Property
- */
-(function(jsuis) {
-	jsuis.Property = jsuis.Object.extend(jsuis.Object, function(key, value) {
-		jsuis.Object.prototype.constructor.call(this);
-		if (key !== undefined) {
-			this.setKey(key);
-		}
-		if (value !== undefined) {
-			this.setValue(value);
-		}
-	});
-	jsuis.Property.prototype.getKey = function() {
-		return this.key;
-	}
-	jsuis.Property.prototype.setKey = function(key) {
-		this.key = "" + key;
-		return this;
-	}
-	jsuis.Property.prototype.getValue = function() {
-		return this.value;
-	}
-	jsuis.Property.prototype.setValue = function(value) {
-		this.value = value;
-		return this;
-	}
-	jsuis.Property.prototype.toString = function() {
-		return "jsuis.Property" + JSON.stringify(this);
-	}
-}) (jsuis);
