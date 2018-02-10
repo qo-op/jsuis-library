@@ -587,7 +587,7 @@
 			this.setStyleProperty("font-family", font.getName());
 			this.setStyleProperty("font-style", font.getStyle());
 			this.setStyleProperty("font-weight", font.getStyle());
-			this.setStyleProperty("font-size", font.getSize());
+			this.setStyleProperty("font-size", font.getSize() + "px");
 		}
 		this.font = font;
 		return this;

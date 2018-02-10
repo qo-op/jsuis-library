@@ -14,25 +14,16 @@
 		this.setContentPane(contentPane);
 		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
+		
 		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
-		var browserWindowComponentListeners = browserWindow.getComponentListeners();
-		var i = 0;
-		for (; i < browserWindowComponentListeners.length; i++) {
-			var browserWindowComponentListener = browserWindowComponentListeners[i];
-			if (browserWindowComponentListener.getListenerComponent() === this) {
-				break;
+		var componentListener = new jsuis.ComponentListener({
+			componentResized: function(event) {
+				var frame = this.getListenerComponent();
+				frame.validate();
 			}
-		}
-		if (i === browserWindowComponentListeners.length) {
-			var componentListener = new jsuis.ComponentListener({
-				componentResized: function(event) {
-					var component = this.getListenerComponent();
-					component.validate();
-				}
-			});
-			componentListener.setListenerComponent(this);
-			browserWindow.addComponentListener(componentListener);
-		}
+		});
+		componentListener.setListenerComponent(this);
+		browserWindow.addComponentListener(componentListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Frame,
 			new jsuis.Property("rootPane"),
