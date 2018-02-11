@@ -182,8 +182,20 @@
 		return new jsuis.Point(this.getX(), this.getY());
 	}
 	jsuis.defaultlf.Component.prototype.setLocation = function(point) {
-		this.setX(point.getX());
-		this.setY(point.getY());
+		var componentListeners = this.getComponentListeners();
+		if (!componentListeners.length) {
+			this.setX(point.getX());
+			this.setY(point.getY());
+		} else {
+			var oldBoundingClientRect = this.getElement().getBoundingClientRect();
+			this.setX(point.getX());
+			this.setY(point.getY());
+			var boundingClientRect = this.getElement().getBoundingClientRect();
+			if ((boundingClientRect.getLeft() !== oldBoundingClientRect.getLeft()) ||
+					(boundingClientRect.getTop() !== oldBoundingClientRect.getTop())) {
+				this.fireComponentMoved();
+			}
+		}
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getWidth = function() {
@@ -259,10 +271,8 @@
 		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	jsuis.defaultlf.Component.prototype.setBounds = function(rectangle) {
-		this.setX(rectangle.getX());
-		this.setY(rectangle.getY());
-		this.setWidth(rectangle.getWidth());
-		this.setHeight(rectangle.getHeight());
+		this.setLocation(rectangle.getPoint());
+		this.setSize(rectangle.getDimension());
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getMaximumLayoutBounds = function() {
@@ -647,9 +657,6 @@
 				});
 			}
 		}
-		if (listener.componentMoved) {
-			//TODO
-		}
 	}
 	jsuis.defaultlf.Component.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
@@ -666,8 +673,8 @@
 			componentListener.componentResized(event);
 		}
 	}
-	jsuis.defaultlf.Component.prototype.fireComponentMoved = function(domEvent) {
-		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireComponentMoved = function() {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];

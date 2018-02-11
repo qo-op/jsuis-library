@@ -72,11 +72,6 @@
 				});
 			}
 		}
-		/*
-		if (listener.componentMoved) {
-			// TODO
-		}
-		*/
 	}
 	jsuis.defaultlf.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();

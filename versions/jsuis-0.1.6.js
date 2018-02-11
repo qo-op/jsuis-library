@@ -799,14 +799,14 @@ jsuis.packages = [];
 			new jsuis.Property("width"),
 			new jsuis.Property("height")
 	);
-	jsuis.Dimension.prototype.add = function(insets) {
-		var width = this.getWidth() + insets.getWidth();
-		var height = this.getHeight() + insets.getHeight();
+	jsuis.Dimension.prototype.add = function(dimension) {
+		var width = this.getWidth() + dimension.getWidth();
+		var height = this.getHeight() + dimension.getHeight();
 		return new jsuis.Dimension(width, height);
 	}
-	jsuis.Dimension.prototype.subtract = function(insets) {
-		var width = this.getWidth() - insets.getWidth();
-		var height = this.getHeight() - insets.getHeight();
+	jsuis.Dimension.prototype.subtract = function(dimension) {
+		var width = this.getWidth() - dimension.getWidth();
+		var height = this.getHeight() - dimension.getHeight();
 		return new jsuis.Dimension(width, height);
 	}
 	jsuis.Dimension.prototype.clone = function() {
@@ -2149,11 +2149,6 @@ jsuis.packages.push(jsuis.defaultlf);
 				});
 			}
 		}
-		/*
-		if (listener.componentMoved) {
-			// TODO
-		}
-		*/
 	}
 	jsuis.defaultlf.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
@@ -2405,8 +2400,20 @@ jsuis.packages.push(jsuis.defaultlf);
 		return new jsuis.Point(this.getX(), this.getY());
 	}
 	jsuis.defaultlf.Component.prototype.setLocation = function(point) {
-		this.setX(point.getX());
-		this.setY(point.getY());
+		var componentListeners = this.getComponentListeners();
+		if (!componentListeners.length) {
+			this.setX(point.getX());
+			this.setY(point.getY());
+		} else {
+			var oldBoundingClientRect = this.getElement().getBoundingClientRect();
+			this.setX(point.getX());
+			this.setY(point.getY());
+			var boundingClientRect = this.getElement().getBoundingClientRect();
+			if ((boundingClientRect.getLeft() !== oldBoundingClientRect.getLeft()) ||
+					(boundingClientRect.getTop() !== oldBoundingClientRect.getTop())) {
+				this.fireComponentMoved();
+			}
+		}
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getWidth = function() {
@@ -2482,10 +2489,8 @@ jsuis.packages.push(jsuis.defaultlf);
 		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	jsuis.defaultlf.Component.prototype.setBounds = function(rectangle) {
-		this.setX(rectangle.getX());
-		this.setY(rectangle.getY());
-		this.setWidth(rectangle.getWidth());
-		this.setHeight(rectangle.getHeight());
+		this.setLocation(rectangle.getPoint());
+		this.setSize(rectangle.getDimension());
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getMaximumLayoutBounds = function() {
@@ -2870,9 +2875,6 @@ jsuis.packages.push(jsuis.defaultlf);
 				});
 			}
 		}
-		if (listener.componentMoved) {
-			//TODO
-		}
 	}
 	jsuis.defaultlf.Component.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
@@ -2889,8 +2891,8 @@ jsuis.packages.push(jsuis.defaultlf);
 			componentListener.componentResized(event);
 		}
 	}
-	jsuis.defaultlf.Component.prototype.fireComponentMoved = function(domEvent) {
-		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireComponentMoved = function() {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];
@@ -3783,13 +3785,14 @@ jsuis.packages.push(jsuis.defaultlf);
 			this.uninstall(oldTextField);
 		}
 		if (textField) {
-			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
 			var label = textField.getLabel();
 			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
+			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
+			var bodyBoundingClientRect = document.body.getBoundingClientRect();
 			var dx = labelBoundingClientRect.left - textFieldBoundingClientRect.left;
 			var dy = labelBoundingClientRect.top - textFieldBoundingClientRect.top;
 			this.setBounds(new jsuis.Rectangle(
-					labelBoundingClientRect.left, labelBoundingClientRect.top - dy,
+					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
 					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
@@ -3812,7 +3815,7 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.setText = function(text) {
 		var element = this.getElement();
-		element.value = text || "";
+		element.value = nvl(text, "");
 		return this;
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.setX = function(x) {

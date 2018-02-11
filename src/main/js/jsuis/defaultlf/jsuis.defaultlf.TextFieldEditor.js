@@ -44,13 +44,14 @@
 			this.uninstall(oldTextField);
 		}
 		if (textField) {
-			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
 			var label = textField.getLabel();
 			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
+			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
+			var bodyBoundingClientRect = document.body.getBoundingClientRect();
 			var dx = labelBoundingClientRect.left - textFieldBoundingClientRect.left;
 			var dy = labelBoundingClientRect.top - textFieldBoundingClientRect.top;
 			this.setBounds(new jsuis.Rectangle(
-					labelBoundingClientRect.left, labelBoundingClientRect.top - dy,
+					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
 					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
@@ -73,7 +74,7 @@
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.setText = function(text) {
 		var element = this.getElement();
-		element.value = text || "";
+		element.value = nvl(text, "");
 		return this;
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.setX = function(x) {

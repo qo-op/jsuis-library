@@ -12,14 +12,14 @@
 			new jsuis.Property("width"),
 			new jsuis.Property("height")
 	);
-	jsuis.Dimension.prototype.add = function(insets) {
-		var width = this.getWidth() + insets.getWidth();
-		var height = this.getHeight() + insets.getHeight();
+	jsuis.Dimension.prototype.add = function(dimension) {
+		var width = this.getWidth() + dimension.getWidth();
+		var height = this.getHeight() + dimension.getHeight();
 		return new jsuis.Dimension(width, height);
 	}
-	jsuis.Dimension.prototype.subtract = function(insets) {
-		var width = this.getWidth() - insets.getWidth();
-		var height = this.getHeight() - insets.getHeight();
+	jsuis.Dimension.prototype.subtract = function(dimension) {
+		var width = this.getWidth() - dimension.getWidth();
+		var height = this.getHeight() - dimension.getHeight();
 		return new jsuis.Dimension(width, height);
 	}
 	jsuis.Dimension.prototype.clone = function() {
