@@ -49,6 +49,16 @@
 		});
 		dividerMouseMotionListener.setListenerComponent(this);
 		splitPaneDivider.addMouseMotionListener(dividerMouseMotionListener);
+		
+		var dividerTouchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				dividerMouseListener.mousePressed(event);
+			},
+			touchMoved: function(event) {
+				dividerMouseMotionListener.mouseDragged(event);
+			}
+		});
+		splitPaneDivider.addTouchListener(dividerTouchListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane,
 			new jsuis.Property("orientation"),

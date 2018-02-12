@@ -27,17 +27,17 @@
 		return new jsuis.Insets(thickness / 2, thickness / 2, thickness / 2, thickness / 2);
 	}
 	jsuis.defaultlf.LineBorder.prototype.install = function(component) {
-		var shape = component.getShape();
-		if (!shape) {
+		var target = component.getTarget();
+		if (!target) {
 			return;
 		}
 		var color = this.getColor();
-		shape.setForeground(color);
+		target.setForeground(color);
 		var thickness = this.getThickness();
-		shape.setStyleProperty("stroke-width", thickness);
+		target.setStyleProperty("stroke-width", thickness);
 		var rx = this.getRx();
-		shape.setAttribute("rx", rx);
+		target.setAttribute("rx", rx);
 		var ry = this.getRy();
-		shape.setAttribute("ry", ry);
+		target.setAttribute("ry", ry);
 	}
 }) (jsuis);

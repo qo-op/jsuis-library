@@ -82,6 +82,16 @@
 		scrollThumbMouseMotionListener.setListenerComponent(this);
 		scrollThumb.addMouseMotionListener(scrollThumbMouseMotionListener);
 		
+		var scrollThumbTouchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				scrollThumbMouseListener.mousePressed(event);
+			},
+			touchMoved: function(event) {
+				scrollThumbMouseMotionListener.mouseDragged(event);
+			}
+		});
+		scrollThumb.addTouchListener(scrollThumbTouchListener);
+		
 		var scrollTrackMouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
 				var scrollBar = this.getListenerComponent();

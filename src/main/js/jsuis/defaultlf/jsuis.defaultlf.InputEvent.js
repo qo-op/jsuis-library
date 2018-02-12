@@ -13,6 +13,17 @@
 			new jsuis.Property("when"),
 			new jsuis.Property("modifiers")
 	);
+	
+	jsuis.defaultlf.InputEvent.SHIFT_MASK = 1;
+	jsuis.defaultlf.InputEvent.CTRL_MASK = 2;
+	jsuis.defaultlf.InputEvent.META_MASK = 4;
+	jsuis.defaultlf.InputEvent.ALT_MASK = 8;
+	
+	jsuis.defaultlf.InputEvent.SHIFT_DOWN_MASK = 64;
+	jsuis.defaultlf.InputEvent.CTRL_DOWN_MASK = 128;
+	jsuis.defaultlf.InputEvent.META_DOWN_MASK = 256;
+	jsuis.defaultlf.InputEvent.ALT_DOWN_MASK = 512;
+	
 	jsuis.defaultlf.InputEvent.prototype.getWhen = function() {
 		var when = this.when;
 		if (when !== null && when !== undefined) {
@@ -34,10 +45,10 @@
 		}
 		var domEvent = this.getDomEvent();
 		if (domEvent) {
-			modifiers = (domEvent.shiftKey ? (jsuis.defaultlf.Event.SHIFT_MASK | jsuis.defaultlf.Event.SHIFT_DOWN_MASK) : 0)
-			| (domEvent.ctrlKey ? (jsuis.defaultlf.Event.CTRL_MASK | jsuis.defaultlf.Event.CTRL_DOWN_MASK) : 0)
-			| (domEvent.metaKey ? (jsuis.defaultlf.Event.META_MASK | jsuis.defaultlf.Event.META_DOWN_MASK) : 0)
-			| (domEvent.altKey ? (jsuis.defaultlf.Event.ALT_MASK | jsuis.defaultlf.Event.ALT_DOWN_MASK) : 0);
+			modifiers = (domEvent.shiftKey ? (jsuis.defaultlf.InputEvent.SHIFT_MASK | jsuis.defaultlf.InputEvent.SHIFT_DOWN_MASK) : 0)
+			| (domEvent.ctrlKey ? (jsuis.defaultlf.InputEvent.CTRL_MASK | jsuis.defaultlf.InputEvent.CTRL_DOWN_MASK) : 0)
+			| (domEvent.altKey ? (jsuis.defaultlf.InputEvent.ALT_MASK | jsuis.defaultlf.InputEvent.ALT_DOWN_MASK) : 0)
+			| (domEvent.metaKey ? (jsuis.defaultlf.InputEvent.META_MASK | jsuis.defaultlf.InputEvent.META_DOWN_MASK) : 0);
 			this.setModifiers(modifiers);
 		}
 		return modifiers;

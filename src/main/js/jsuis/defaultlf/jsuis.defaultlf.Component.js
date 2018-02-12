@@ -12,6 +12,7 @@
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
+		this.setTouchListeners([]);
 		this.setFocusListeners([]);
 		this.setPropertyChangeListeners({});
 		this.setActionListeners([]);
@@ -26,10 +27,12 @@
 			new jsuis.Property("anchor"),
 			new jsuis.Property("fill"),
 			new jsuis.Property("cursor"),
+			new jsuis.Property("target"),
 			new jsuis.Property("eventListeners"),
 			new jsuis.Property("componentListeners"),
 			new jsuis.Property("mouseListeners"),
 			new jsuis.Property("mouseMotionListeners"),
+			new jsuis.Property("touchListeners"),
 			new jsuis.Property("focusListeners"),
 			new jsuis.Property("propertyChangeListeners"),
 			new jsuis.Property("actionListeners"),
@@ -650,6 +653,9 @@
 		var element = this.getElement();
 		element.focus();
 	}
+	jsuis.defaultlf.Component.prototype.getTarget = function() {
+		return this;
+	}
 	jsuis.defaultlf.Component.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		componentListeners.push(componentListener);
@@ -691,7 +697,7 @@
 		var mouseListeners = this.getMouseListeners();
 		mouseListeners.push(mouseListener);
 		var component = this;
-		var listener = mouseListener;
+		var listener = mouseListener.getListener();
 		if (listener.mouseClicked) {
 			var onclick = this.getEventListener("click");
 			if (!onclick) {
@@ -712,7 +718,7 @@
 				});
 			}
 		}
-		if (listener.mousePressed) {
+		if (listener.mousePressed || listener.mouseReleased) {
 			var onmousedown = this.getEventListener("mousedown");
 			if (!onmousedown) {
 				this.setEventListener("mousedown", function(event) {
@@ -888,11 +894,72 @@
 			mouseMotionListener.mouseDragged(mouseEvent);
 		}
 	}
+	jsuis.defaultlf.Component.prototype.addTouchListener = function(touchListener) {
+		var touchListeners = this.getTouchListeners();
+		touchListeners.push(touchListener);
+		var component = this;
+		var listener = touchListener.getListener();
+		if (listener.touchPressed) {
+			var ontouchstart = this.getEventListener("touchstart");
+			if (!ontouchstart) {
+				this.setEventListener("touchstart", function(event) {
+					component.fireTouchPressed(event);
+				});
+			}
+		}
+		if (listener.touchReleased) {
+			var ontouchend = this.getEventListener("touchend");
+			if (!ontouchend) {
+				this.setEventListener("touchend", function(event) {
+					component.fireTouchReleased(event);
+				});
+			}
+		}
+		if (listener.touchMoved) {
+			var ontouchmove = this.getEventListener("touchmove");
+			if (!ontouchmove) {
+				this.setEventListener("touchmove", function(event) {
+					component.fireTouchMoved(event);
+				});
+			}
+		}
+	}
+	jsuis.defaultlf.Component.prototype.removeTouchListener = function(touchListener) {
+		var touchListeners = this.getTouchListeners();
+		var index = touchListeners.indexOf(touchListener);
+		if (index !== -1) {
+			touchListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireTouchPressed = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_PRESSED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchPressed(touchEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireTouchReleased = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_RELEASED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchReleased(touchEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireTouchMoved = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_MOVED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchMoved(touchEvent);
+		}
+	}
 	jsuis.defaultlf.Component.prototype.addFocusListener = function(focusListener) {
 		var focusListeners = this.getFocusListeners();
 		focusListeners.push(focusListener);
 		var component = this;
-		var listener = focusListener;
+		var listener = focusListener.getListener();
 		if (listener.focusGained) {
 			var onfocus = this.getEventListener("focus");
 			if (!onfocus) {

@@ -2,7 +2,7 @@
  * jsuis.defaultlf.SplitPaneDivider
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
+	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.SplitPaneDivider = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, null);
 		direction = nvl(direction, jsuis.Constants.HORIZONTAL);

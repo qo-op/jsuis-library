@@ -6,27 +6,27 @@
 	jsuis.defaultlf.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		this.setDirection(nvl(direction, jsuis.Constants.NORTH));
-		var shape;
+		var target;
 		var icon;
 		switch (direction) {
 		case jsuis.Constants.SOUTH:
-			shape = new jsuis.defaultlf.Path("M 0 -8 a 8 8 0 0 0 16 0 v 16 a 8 8 0 0 1 -16 0 z");
+			target = new jsuis.defaultlf.Path("M 0 -8 a 8 8 0 0 0 16 0 v 16 a 8 8 0 0 1 -16 0 z");
 			icon = new jsuis.defaultlf.Path("M 4 6 l -4 -6 h 8 z");
 			break;
 		case jsuis.Constants.EAST:
-			shape = new jsuis.defaultlf.Path("M -8 0 a 8 8 0 0 1 0 16 h 16 a 8 8 0 0 0 0 -16 z");
+			target = new jsuis.defaultlf.Path("M -8 0 a 8 8 0 0 1 0 16 h 16 a 8 8 0 0 0 0 -16 z");
 			icon = new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z");
 			break;
 		case jsuis.Constants.WEST:
-			shape = new jsuis.defaultlf.Path("M 24 0 a 8 8 0 0 0 0 16 h -16 a 8 8 0 0 1 0 -16 z");
+			target = new jsuis.defaultlf.Path("M 24 0 a 8 8 0 0 0 0 16 h -16 a 8 8 0 0 1 0 -16 z");
 			icon = new jsuis.defaultlf.Path("M 0 4 l 6 -4 v 8 z");
 			break;
 		case jsuis.Constants.NORTH:
 		default:
-			shape = new jsuis.defaultlf.Path("M 0 24 a 8 8 0 0 1 16 0 v -16 a 8 8 0 0 0 -16 0 z");
+			target = new jsuis.defaultlf.Path("M 0 24 a 8 8 0 0 1 16 0 v -16 a 8 8 0 0 0 -16 0 z");
 			icon = new jsuis.defaultlf.Path("M 4 0 l -4 6 h 8 z");
 		}
-		this.setShape(shape);
+		this.setTarget(target);
 		icon.setEnabled(false);
 		this.add(icon);
 		this.setPreferredSize(new jsuis.Dimension(16, 16));
