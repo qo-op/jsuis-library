@@ -12,6 +12,7 @@
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
+		this.setFocusListeners([]);
 		this.setPropertyChangeListeners({});
 		this.setActionListeners([]);
 	});
@@ -29,6 +30,7 @@
 			new jsuis.Property("componentListeners"),
 			new jsuis.Property("mouseListeners"),
 			new jsuis.Property("mouseMotionListeners"),
+			new jsuis.Property("focusListeners"),
 			new jsuis.Property("propertyChangeListeners"),
 			new jsuis.Property("actionListeners"),
 			new jsuis.Property("actionCommand")
@@ -112,6 +114,9 @@
 		this.setAttribute("name", name);
 		return this;
 	}
+	jsuis.defaultlf.Component.prototype.getPeer = function() {
+		return this;
+	}
 	jsuis.defaultlf.Component.prototype.addChild = function(component, referenceComponent) {
 		var element = this.getElement();
 		var componentElement = component.getElement();
@@ -187,12 +192,13 @@
 			this.setX(point.getX());
 			this.setY(point.getY());
 		} else {
-			var oldBoundingClientRect = this.getElement().getBoundingClientRect();
-			this.setX(point.getX());
-			this.setY(point.getY());
-			var boundingClientRect = this.getElement().getBoundingClientRect();
-			if ((boundingClientRect.getLeft() !== oldBoundingClientRect.getLeft()) ||
-					(boundingClientRect.getTop() !== oldBoundingClientRect.getTop())) {
+			var oldX = this.getX();
+			var oldY = this.getY();
+			var x = point.getX();
+			var y = point.getY();
+			this.setX(x);
+			this.setY(y);
+			if ((x !== oldX) || (y !== oldY)) {
 				this.fireComponentMoved();
 			}
 		}
@@ -880,6 +886,51 @@
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
 			mouseMotionListener.mouseDragged(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.addFocusListener = function(focusListener) {
+		var focusListeners = this.getFocusListeners();
+		focusListeners.push(focusListener);
+		var component = this;
+		var listener = focusListener;
+		if (listener.focusGained) {
+			var onfocus = this.getEventListener("focus");
+			if (!onfocus) {
+				this.setEventListener("focus", function(event) {
+					component.fireFocusGained(event);
+				});
+			}
+		}
+		if (listener.focusLost) {
+			var onblur = this.getEventListener("blur");
+			if (!onblur) {
+				this.setEventListener("blur", function(event) {
+					component.fireFocusLost(event);
+				});
+			}
+		}
+	}
+	jsuis.defaultlf.Component.prototype.removeFocusListener = function(focusListener) {
+		var focusListeners = this.getFocusListeners();
+		var index = focusListeners.indexOf(focusListener);
+		if (index !== -1) {
+			focusListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireFocusGained = function(domEvent) {
+		var focusEvent = new jsuis.defaultlf.FocusEvent(this, jsuis.Constants.FOCUS_GAINED).setDomEvent(domEvent);
+		var focusListeners = this.getFocusListeners();
+		for (var i = 0; i < focusListeners.length; i++) {
+			var focusListener = focusListeners[i];
+			focusListener.focusGained(focusEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireFocusLost = function(domEvent) {
+		var focusEvent = new jsuis.defaultlf.FocusEvent(this, jsuis.Constants.FOCUS_LOST).setDomEvent(domEvent);
+		var focusListeners = this.getFocusListeners();
+		for (var i = 0; i < focusListeners.length; i++) {
+			var focusListener = focusListeners[i];
+			focusListener.focusLost(focusEvent);
 		}
 	}
 	jsuis.defaultlf.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {

@@ -125,6 +125,14 @@
 		var peer = this.getPeer();
 		peer.removeMouseMotionListener(mouseMotionListener);
 	}
+	jsuis.Component.prototype.addFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.addFocusListener(focusListener);
+	}
+	jsuis.Component.prototype.removeFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.removeFocusListener(focusListener);
+	}
 	jsuis.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
 		var peer = this.getPeer();
 		peer.addPropertyChangeListener(propertyChangeListener);

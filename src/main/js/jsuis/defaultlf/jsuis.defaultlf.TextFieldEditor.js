@@ -15,18 +15,15 @@
 		this.setVisible(false);
 		new jsuis.defaultlf.Component(document.body).add(this);
 		
-		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
-		var componentListener = new jsuis.ComponentListener({
-			componentResized: function(event) {
-				var textFieldEditor = this.getListenerComponent();
+		this.addFocusListener(new jsuis.FocusListener({
+			focusLost: function(event) {
+				var textFieldEditor = event.getSource();
 				var textField = textFieldEditor.getTextField();
 				if (textField) {
 					textFieldEditor.uninstall(textField);
 				}
 			}
-		});
-		componentListener.setListenerComponent(this);
-		browserWindow.addComponentListener(componentListener);
+		}));
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor,
 			new jsuis.Property("textField")

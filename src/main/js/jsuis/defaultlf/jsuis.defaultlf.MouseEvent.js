@@ -2,10 +2,10 @@
  * jsuis.defaultlf.MouseEvent
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.ComponentEvent;
-	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(component, id,
+	var SUPER = jsuis.defaultlf.InputEvent;
+	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(source, id,
 			when, modifiers, x, y, xAbs, yAbs, clickCount, popupTrigger, button) {
-		SUPER.prototype.constructor.call(this, component, id, when, modifiers);
+		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
 		this.setX(x);
 		this.setY(y);
 		this.setXAbs(xAbs);

@@ -3,19 +3,15 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.defaultlf.Event = jsuis.Object.extend(SUPER, function(source, id, when, modifiers) {
+	jsuis.defaultlf.Event = jsuis.Object.extend(SUPER, function(source, id) {
 		SUPER.prototype.constructor.call(this);
 		this.setSource(source);
 		this.setId(id);
-		this.setWhen(when);
-		this.setModifiers(modifiers);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Event,
 			new jsuis.Property("domEvent"),
 			new jsuis.Property("source"),
-			new jsuis.Property("id"),
-			new jsuis.Property("when"),
-			new jsuis.Property("modifiers")
+			new jsuis.Property("id")
 	);
 	
 	jsuis.defaultlf.Event.prototype.setComponent = jsuis.defaultlf.Event.prototype.setSource;
@@ -26,37 +22,6 @@
 		if (domEvent) {
 			domEvent.stopPropagation();
 		}
-	}
-	
-	jsuis.defaultlf.Event.prototype.getWhen = function() {
-		var when = this.when;
-		if (when !== null && when !== undefined) {
-			return when;
-		}
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			when = domEvent.timeStamp;
-		} else {
-			when = new Date().getTime();
-		}
-		this.setWhen(when);
-		return when;
-	}
-	
-	jsuis.defaultlf.Event.prototype.getModifiers = function() {
-		var modifiers = this.modifiers;
-		if (modifiers !== null && modifiers !== undefined) {
-			return modifiers;
-		}
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			modifiers = (domEvent.shiftKey ? (jsuis.defaultlf.Event.SHIFT_MASK | jsuis.defaultlf.Event.SHIFT_DOWN_MASK) : 0)
-			| (domEvent.ctrlKey ? (jsuis.defaultlf.Event.CTRL_MASK | jsuis.defaultlf.Event.CTRL_DOWN_MASK) : 0)
-			| (domEvent.metaKey ? (jsuis.defaultlf.Event.META_MASK | jsuis.defaultlf.Event.META_DOWN_MASK) : 0)
-			| (domEvent.altKey ? (jsuis.defaultlf.Event.ALT_MASK | jsuis.defaultlf.Event.ALT_DOWN_MASK) : 0);
-			this.setModifiers(modifiers);
-		}
-		return modifiers;
 	}
 	
 	jsuis.defaultlf.Event.SHIFT_MASK = 1;

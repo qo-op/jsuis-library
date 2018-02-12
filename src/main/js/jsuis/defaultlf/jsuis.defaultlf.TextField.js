@@ -13,17 +13,11 @@
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		this.setFont(new jsuis.Font("Arial", "normal", 12));
 		var mouseListener = new jsuis.MouseListener({
-			mousePressed: function(event) {
+			mouseReleased: function(event) {
 				var source = event.getSource();
 				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
 				source.setEditor(textFieldEditor);
-			},
-			mouseReleased: function(event) {
-				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
 				textFieldEditor.requestFocus();
-				var text = textFieldEditor.getText();
-				var length = text.length;
-				textFieldEditor.getElement().setSelectionRange(length, length);
 			}
 		});
 		this.addMouseListener(mouseListener);
