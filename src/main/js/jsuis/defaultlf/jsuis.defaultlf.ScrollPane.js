@@ -51,7 +51,6 @@
 				var scrollPane = this.getListenerComponent();
 				var point = event.getPoint();
 				scrollPane.setScrollThumbPressedPoint(point);
-				event.preventDefault();
 				event.stopPropagation();
 			},
 			touchMoved: function(event) {

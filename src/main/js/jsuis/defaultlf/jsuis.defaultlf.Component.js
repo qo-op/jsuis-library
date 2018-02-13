@@ -142,7 +142,9 @@
 			referenceComponent = components[index];
 		}
 		this.addChild(component, referenceComponent);
-		component.setConstraints(jsuis.Object.clone(constraints));
+		if (constraints !== null && constraints !== undefined) {
+			component.setConstraints(jsuis.Object.clone(constraints));
+		}
 		component.setParent(this);
 		if (index !== undefined) {
 			components.splice(index, 0, component);

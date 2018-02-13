@@ -85,7 +85,6 @@
 		var scrollThumbTouchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {
 				scrollThumbMouseListener.mousePressed(event);
-				event.preventDefault();
 				event.stopPropagation();
 			},
 			touchMoved: function(event) {

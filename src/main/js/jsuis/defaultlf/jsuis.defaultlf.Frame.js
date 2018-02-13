@@ -12,15 +12,7 @@
 		SUPER.prototype.add.call(this, rootPane);
 		var contentPane = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
 		this.setContentPane(contentPane);
-		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
-		
-		var touchListener = new jsuis.TouchListener({
-			touchMoved: function(event) {
-				event.preventDefault();
-			}
-		});
-		this.addTouchListener(touchListener);
 		
 		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var componentListener = new jsuis.ComponentListener({
@@ -33,8 +25,7 @@
 		browserWindow.addComponentListener(componentListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Frame,
-			new jsuis.Property("rootPane"),
-			new jsuis.Property("contentPane")
+			new jsuis.Property("rootPane")
 	);
 	jsuis.defaultlf.Frame.prototype.add = function(component, constraints, index) {
 		var contentPane = this.getContentPane();
@@ -47,6 +38,15 @@
 	jsuis.defaultlf.Frame.prototype.removeAll = function() {
 		var contentPane = this.getContentPane();
 		contentPane.removeAll();
+	}
+	jsuis.defaultlf.Frame.prototype.getContentPane = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getContentPane();
+	}
+	jsuis.defaultlf.Frame.prototype.setContentPane = function(contentPane) {
+		var rootPane = this.getRootPane();
+		rootPane.setContentPane(contentPane);
+		return this;
 	}
 	jsuis.defaultlf.Frame.prototype.getLayout = function() {
 		var contentPane = this.getContentPane();

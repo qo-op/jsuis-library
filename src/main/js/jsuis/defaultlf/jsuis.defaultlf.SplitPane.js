@@ -54,7 +54,6 @@
 		var dividerTouchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {
 				dividerMouseListener.mousePressed(event);
-				event.preventDefault();
 				event.stopPropagation();
 			},
 			touchMoved: function(event) {
@@ -70,7 +69,6 @@
 				var splitPane = event.getSource();
 				var point = event.getPoint();
 				splitPane.setPressedPoint(point);
-				event.preventDefault();
 				event.stopPropagation();
 			},
 			touchMoved: function(event) {
