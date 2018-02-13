@@ -15,6 +15,13 @@
 		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
 		
+		var touchListener = new jsuis.TouchListener({
+			touchMoved: function(event) {
+				event.preventDefault();
+			}
+		});
+		this.addTouchListener(touchListener);
+		
 		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var componentListener = new jsuis.ComponentListener({
 			componentResized: function(event) {

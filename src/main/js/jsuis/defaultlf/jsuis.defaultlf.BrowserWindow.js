@@ -10,6 +10,7 @@
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
+		
 		this.setEventListener("mousedown", function(domEvent) {
 			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
 		});

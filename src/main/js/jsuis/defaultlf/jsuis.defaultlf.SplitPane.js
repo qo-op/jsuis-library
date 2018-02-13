@@ -7,6 +7,7 @@
 		SUPER.prototype.constructor.call(this, null);
 		orientation = nvl(orientation, jsuis.Constants.HORIZONTAL);
 		this.setOrientation(orientation);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		this.setLeftComponent(leftComponent || new jsuis.defaultlf.Button("Left"));
 		this.setRightComponent(rightComponent || new jsuis.defaultlf.Button("Right"));
 		var splitPaneDivider = new jsuis.defaultlf.SplitPaneDivider();
@@ -53,12 +54,50 @@
 		var dividerTouchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {
 				dividerMouseListener.mousePressed(event);
+				event.preventDefault();
+				event.stopPropagation();
 			},
 			touchMoved: function(event) {
 				dividerMouseMotionListener.mouseDragged(event);
+				event.preventDefault();
+				event.stopPropagation();
 			}
 		});
 		splitPaneDivider.addTouchListener(dividerTouchListener);
+		
+		var touchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				splitPane.setPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				var pressedPoint = splitPane.getPressedPoint();
+				var divider = splitPane.getDivider();
+				var orientation = splitPane.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = splitPane.getWidth() - divider.getWidth();
+					var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
+					splitPane.setDividerLocation(x);
+					splitPane.validate();
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = splitPane.getHeight() - divider.getHeight();
+					var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
+					splitPane.setDividerLocation(y);
+					splitPane.validate();
+				}
+				splitPane.setPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		this.addTouchListener(touchListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane,
 			new jsuis.Property("orientation"),
@@ -68,7 +107,8 @@
 			new jsuis.Property("dividerLocation"),
 			new jsuis.Property("dividerSize"),
 			new jsuis.Property("dividerPressedPoint"),
-			new jsuis.Property("resizeWeight")
+			new jsuis.Property("resizeWeight"),
+			new jsuis.Property("pressedPoint")
 	);
 	jsuis.defaultlf.SplitPane.prototype.setLeftComponent = function(leftComponent) {
 		var oldLeftComponent = this.getLeftComponent();

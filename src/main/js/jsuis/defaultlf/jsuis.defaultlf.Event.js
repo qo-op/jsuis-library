@@ -17,6 +17,13 @@
 	jsuis.defaultlf.Event.prototype.setComponent = jsuis.defaultlf.Event.prototype.setSource;
 	jsuis.defaultlf.Event.prototype.getComponent = jsuis.defaultlf.Event.prototype.getSource;
 	
+	jsuis.defaultlf.Event.prototype.preventDefault = function() {
+		var domEvent = this.getDomEvent();
+		if (domEvent) {
+			domEvent.preventDefault();
+		}
+	}
+	
 	jsuis.defaultlf.Event.prototype.stopPropagation = function() {
 		var domEvent = this.getDomEvent();
 		if (domEvent) {

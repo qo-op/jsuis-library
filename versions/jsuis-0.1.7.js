@@ -2208,6 +2208,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
+		
 		this.setEventListener("mousedown", function(domEvent) {
 			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
 		});
@@ -3440,6 +3441,13 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.Event.prototype.setComponent = jsuis.defaultlf.Event.prototype.setSource;
 	jsuis.defaultlf.Event.prototype.getComponent = jsuis.defaultlf.Event.prototype.getSource;
 	
+	jsuis.defaultlf.Event.prototype.preventDefault = function() {
+		var domEvent = this.getDomEvent();
+		if (domEvent) {
+			domEvent.preventDefault();
+		}
+	}
+	
 	jsuis.defaultlf.Event.prototype.stopPropagation = function() {
 		var domEvent = this.getDomEvent();
 		if (domEvent) {
@@ -3588,6 +3596,13 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setContentPane(contentPane);
 		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
+		
+		var touchListener = new jsuis.TouchListener({
+			touchMoved: function(event) {
+				event.preventDefault();
+			}
+		});
+		this.addTouchListener(touchListener);
 		
 		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var componentListener = new jsuis.ComponentListener({
@@ -4436,9 +4451,13 @@ jsuis.packages.push(jsuis.defaultlf);
 		var scrollThumbTouchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {
 				scrollThumbMouseListener.mousePressed(event);
+				event.preventDefault();
+				event.stopPropagation();
 			},
 			touchMoved: function(event) {
 				scrollThumbMouseMotionListener.mouseDragged(event);
+				event.preventDefault();
+				event.stopPropagation();
 			}
 		});
 		scrollThumb.addTouchListener(scrollThumbTouchListener);
@@ -4760,6 +4779,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.constructor.call(this, null);
 		orientation = nvl(orientation, jsuis.Constants.HORIZONTAL);
 		this.setOrientation(orientation);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		this.setLeftComponent(leftComponent || new jsuis.defaultlf.Button("Left"));
 		this.setRightComponent(rightComponent || new jsuis.defaultlf.Button("Right"));
 		var splitPaneDivider = new jsuis.defaultlf.SplitPaneDivider();
@@ -4806,12 +4826,50 @@ jsuis.packages.push(jsuis.defaultlf);
 		var dividerTouchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {
 				dividerMouseListener.mousePressed(event);
+				event.preventDefault();
+				event.stopPropagation();
 			},
 			touchMoved: function(event) {
 				dividerMouseMotionListener.mouseDragged(event);
+				event.preventDefault();
+				event.stopPropagation();
 			}
 		});
 		splitPaneDivider.addTouchListener(dividerTouchListener);
+		
+		var touchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				splitPane.setPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				var pressedPoint = splitPane.getPressedPoint();
+				var divider = splitPane.getDivider();
+				var orientation = splitPane.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = splitPane.getWidth() - divider.getWidth();
+					var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
+					splitPane.setDividerLocation(x);
+					splitPane.validate();
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = splitPane.getHeight() - divider.getHeight();
+					var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
+					splitPane.setDividerLocation(y);
+					splitPane.validate();
+				}
+				splitPane.setPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		this.addTouchListener(touchListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane,
 			new jsuis.Property("orientation"),
@@ -4821,7 +4879,8 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("dividerLocation"),
 			new jsuis.Property("dividerSize"),
 			new jsuis.Property("dividerPressedPoint"),
-			new jsuis.Property("resizeWeight")
+			new jsuis.Property("resizeWeight"),
+			new jsuis.Property("pressedPoint")
 	);
 	jsuis.defaultlf.SplitPane.prototype.setLeftComponent = function(leftComponent) {
 		var oldLeftComponent = this.getLeftComponent();
@@ -5167,6 +5226,56 @@ jsuis.packages.push(jsuis.defaultlf);
 		.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
 		.setFill(jsuis.Constants.BOTH));
 		
+		var touchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				var scrollPane = this.getListenerComponent();
+				var point = event.getPoint();
+				scrollPane.setScrollThumbPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				var scrollPane = this.getListenerComponent();
+				var point = event.getPoint();
+				var pressedPoint = scrollPane.getScrollThumbPressedPoint();
+				var view = scrollPane.getViewportView();
+				var verticalScrollBar = scrollPane.getVerticalScrollBar();
+				var verticalScrollBarVisible = verticalScrollBar.isVisible();
+				if (verticalScrollBarVisible) {
+					var scrollTrack = verticalScrollBar.getScrollTrack();
+					var scrollThumb = verticalScrollBar.getScrollThumb();
+					var extent = verticalScrollBar.getExtent();
+					var maximum = verticalScrollBar.getMaximum();
+					var dy = point.getY() - pressedPoint.getY();
+					var value = Math.min(Math.max(verticalScrollBar.getValue() - dy, 0), maximum - extent);
+					verticalScrollBar.setValue(value);
+					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
+					if (maximum > extent) {
+						scrollThumb.setY(value * maximumY / (maximum - extent));
+					}
+				}
+				var horizontalScrollBar = scrollPane.getHorizontalScrollBar();
+				var horizontalScrollBarVisible = horizontalScrollBar.isVisible();
+				if (horizontalScrollBarVisible) {
+					var scrollTrack = horizontalScrollBar.getScrollTrack();
+					var scrollThumb = horizontalScrollBar.getScrollThumb();
+					var extent = horizontalScrollBar.getExtent();
+					var maximum = horizontalScrollBar.getMaximum();
+					var dx = point.getX() - pressedPoint.getX();
+					var value = Math.min(Math.max(horizontalScrollBar.getValue() - dx, 0), maximum - extent);
+					horizontalScrollBar.setValue(value);
+					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
+					if (maximum > extent) {
+						scrollThumb.setX(value * maximumX / (maximum - extent));
+					}
+				}
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		touchListener.setListenerComponent(this);
+		viewport.addTouchListener(touchListener);
+		
 		verticalScrollBar.addPropertyChangeListener(new jsuis.PropertyChangeListener({
 			propertyChange: function(event) {
 				var newValue = event.getNewValue();
@@ -5193,7 +5302,8 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("viewport"),
 			new jsuis.Property("scrollBarPanel"),
 			new jsuis.Property("verticalScrollBar"),
-			new jsuis.Property("horizontalScrollBar")
+			new jsuis.Property("horizontalScrollBar"),
+			new jsuis.Property("scrollThumbPressedPoint")
 	);
 	jsuis.defaultlf.ScrollPane.prototype.setViewportView = function(view) {
 		var viewport = this.getViewport();
@@ -5321,7 +5431,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		var touches = this.getTouches();
 		for (var i = 0; i < touches.length; i++) {
 			var touch = touches[i];
-			if (touch.target === targetElement) {
+			if (touch.target === targetElement || targetElement.contains(touch.target)) {
 				return touch;
 			}
 		}
