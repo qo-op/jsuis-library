@@ -693,11 +693,22 @@
 			componentListener.componentMoved(event);
 		}
 	}
-	jsuis.defaultlf.Component.prototype.addMouseListener = function(mouseListener) {
+	jsuis.defaultlf.Component.prototype.addMouseAdapter = function(mouseAdapter) {
 		var mouseListeners = this.getMouseListeners();
-		mouseListeners.push(mouseListener);
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		// TODO MouseWheelListener
+		if (mouseAdapter instanceof jsuis.MouseAdapter) {
+			mouseListeners.push(mouseAdapter);
+			mouseMotionListeners.push(mouseAdapter);
+		} else if (mouseAdapter instanceof jsuis.MouseListener) {
+			mouseListeners.push(mouseAdapter);
+		} else if (mouseAdapter instanceof jsuis.MouseMotionListener) {
+			mouseMotionListeners.push(mouseAdapter);
+		} else {
+			return;
+		}
 		var component = this;
-		var listener = mouseListener.getListener();
+		var listener = mouseAdapter.getListener();
 		if (listener.mouseClicked) {
 			var onclick = this.getEventListener("click");
 			if (!onclick) {
@@ -718,15 +729,13 @@
 				});
 			}
 		}
-		if (listener.mousePressed || listener.mouseReleased) {
+		if (listener.mousePressed || listener.mouseReleased || listener.mouseDragged) {
 			var onmousedown = this.getEventListener("mousedown");
 			if (!onmousedown) {
 				this.setEventListener("mousedown", function(event) {
 					component.fireMousePressed(event);
 				});
 			}
-		}
-		if (listener.mouseReleased) {
 			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseListeners = browserWindow.getMouseListeners();
 			var i = 0;
@@ -765,6 +774,44 @@
 				});
 			}
 		}
+		if (listener.mouseMoved) {
+			var onmousemove = this.getEventListener("mousemove");
+			if (!onmousemove) {
+				this.setEventListener("mousemove", function(event) {
+					component.fireMouseMoved(event);
+				});
+			}
+		}
+		if (listener.mouseDragged) {
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+			var browserWindowMouseMotionListeners = browserWindow.getMouseMotionListeners();
+			var i = 0;
+			for (; i < browserWindowMouseMotionListeners.length; i++) {
+				var browserWindowMouseMotionListener = browserWindowMouseMotionListeners[i];
+				if (browserWindowMouseMotionListener.getListenerComponent() === this) {
+					break;
+				}
+			}
+			if (i === browserWindowMouseMotionListeners.length) {
+				var mouseMotionListener = new jsuis.MouseMotionListener({
+					mouseDragged: function(event) {
+						var component = this.getListenerComponent();
+						if (component.isPressed()) {
+							component.fireMouseDragged(event.getDomEvent());
+						}
+					}
+				});
+				mouseMotionListener.setListenerComponent(this);
+				browserWindow.addMouseMotionListener(mouseMotionListener);
+			}
+		}
+	}
+	jsuis.defaultlf.Component.prototype.removeMouseAdapter = function(mouseAdapter) {
+		this.removeMouseListener(mouseAdapter);
+		this.removeMouseMotionListener(mouseAdapter);
+	}
+	jsuis.defaultlf.Component.prototype.addMouseListener = function(mouseListener) {
+		this.addMouseAdapter(mouseListener);
 	}
 	jsuis.defaultlf.Component.prototype.removeMouseListener = function(mouseListener) {
 		var mouseListeners = this.getMouseListeners();
@@ -832,41 +879,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		mouseMotionListeners.push(mouseMotionListener);
-		var component = this;
-		var listener = mouseMotionListener.getListener();
-		if (listener.mouseMoved) {
-			var onmousemove = this.getEventListener("mousemove");
-			if (!onmousemove) {
-				this.setEventListener("mousemove", function(event) {
-					component.fireMouseMoved(event);
-				});
-			}
-		}
-		if (listener.mouseDragged) {
-			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
-			var browserWindowMouseMotionListeners = browserWindow.getMouseMotionListeners();
-			var i = 0;
-			for (; i < browserWindowMouseMotionListeners.length; i++) {
-				var browserWindowMouseMotionListener = browserWindowMouseMotionListeners[i];
-				if (browserWindowMouseMotionListener.getListenerComponent() === this) {
-					break;
-				}
-			}
-			if (i === browserWindowMouseMotionListeners.length) {
-				var mouseMotionListener = new jsuis.MouseMotionListener({
-					mouseDragged: function(event) {
-						var component = this.getListenerComponent();
-						if (component.isPressed()) {
-							component.fireMouseDragged(event.getDomEvent());
-						}
-					}
-				});
-				mouseMotionListener.setListenerComponent(this);
-				browserWindow.addMouseMotionListener(mouseMotionListener);
-			}
-		}
+		this.addMouseAdapter(mouseMotionListener);
 	}
 	jsuis.defaultlf.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
 		var mouseMotionListeners = this.getMouseMotionListeners();
