@@ -144,8 +144,8 @@
 		this.dividerLocation = dividerLocation;
 		return this;
 	}
-	jsuis.defaultlf.SplitPane.prototype.validate = function() {
-		this.setLayoutBounds(null);
+	// TODO SplitPaneLayout
+	jsuis.defaultlf.SplitPane.prototype.doLayout = function() {
 		var x = 0;
 		var y = 0;
 		var width = this.getWidth();
@@ -198,11 +198,6 @@
 			firstComponent.setBounds(new jsuis.Rectangle(x, y, width, firstComponentHeight));
 			divider.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight, width, dividerSize));
 			secondComponent.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight + dividerSize, width, height - firstComponentHeight - dividerSize));
-		}
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.validate();
 		}
 	}
 }) (jsuis);

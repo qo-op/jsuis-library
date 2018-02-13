@@ -5,7 +5,7 @@
 	var SUPER = jsuis.Object;
 	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
 		SUPER.prototype.constructor.call(this);
-		this.setAlign(nvl(align, jsuis.FlowLayout.CENTER));
+		this.setAlign(nvl(align, jsuis.Constants.CENTER));
 		this.setHgap(nvl(hgap, 4));
 		this.setVgap(nvl(vgap, 4));
 	});
@@ -14,11 +14,6 @@
 			new jsuis.Property("hgap"),
 			new jsuis.Property("vgap")
 	);
-	jsuis.FlowLayout.LEFT = 0;
-	jsuis.FlowLayout.CENTER = 1;
-	jsuis.FlowLayout.RIGHT = 2;
-	jsuis.FlowLayout.LEADING = 3;
-	jsuis.FlowLayout.TRAILING = 4;
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -93,11 +88,14 @@
 				var dx = 0;
 				var align = this.getAlign();
 				switch (align) {
-				case jsuis.FlowLayout.RIGHT:
-				case jsuis.FlowLayout.TRAILING:
+				case jsuis.Constants.LEFT:
+				case jsuis.Constants.LEADING:
+					break;
+				case jsuis.Constants.RIGHT:
+				case jsuis.Constants.TRAILING:
 					dx = maxWidth - width;
 					break;
-				case jsuis.FlowLayout.CENTER:
+				case jsuis.Constants.CENTER:
 				default:
 					dx = Math.round((maxWidth - width) / 2);
 				}

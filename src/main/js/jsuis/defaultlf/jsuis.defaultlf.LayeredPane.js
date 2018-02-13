@@ -10,7 +10,7 @@
 		index = nvl(index, 0);
 		var components = this.getComponents();
 		if (components.length === 0) {
-			SUPER.prototype.add.call(this, component);
+			SUPER.prototype.add.call(this, component, constraints);
 			return;
 		}
 		var referenceConstraints;
@@ -23,11 +23,11 @@
 			}
 		}
 		if (i === components.length) {
-			SUPER.prototype.add.call(this, component);
+			SUPER.prototype.add.call(this, component, constraints);
 			return;
 		}
 		if (constraints < referenceConstraints) {
-			SUPER.prototype.add.call(this, component, null, i);
+			SUPER.prototype.add.call(this, component, constraints, i);
 			return;
 		}
 		for (var j = i; j < components.length; j++) {
@@ -40,6 +40,6 @@
 		var n = j - i + 1;
 		index = (index === -1 ? n - 1 : index);
 		index = i + (n - 1 - index);
-		SUPER.prototype.add.call(this, component, null, index);
+		SUPER.prototype.add.call(this, component, constraints, index);
 	}
 }) (jsuis);

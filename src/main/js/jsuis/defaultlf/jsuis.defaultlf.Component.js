@@ -374,7 +374,7 @@
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
 		this.border = border;
-		border = nvl(border, new jsuis.Border());
+		border = nvl(border, new jsuis.defaultlf.Border());
 		border.install(this);
 		return this;
 	}

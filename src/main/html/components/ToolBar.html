@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?${date}"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<svg height="0" style="display: block;">
+			<defs>
+				<image id="/images/Gnome-go-previous.svg" xlink:href="/images/Gnome-go-previous.svg" width="16" height="16"/>
+				<image id="/images/Gnome-go-up.svg" xlink:href="/images/Gnome-go-up.svg" width="16" height="16"/>
+				<image id="/images/Gnome-go-next.svg" xlink:href="/images/Gnome-go-next.svg" width="16" height="16"/>
+			</defs>
+		</svg>
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	toolBarExample = createExamplePanel("jsuis.ToolBar example");
+	toolBarExample.setLayout(new jsuis.BorderLayout());
+	
+	toolBar = new jsuis.ToolBar();
+	toolBarExample.add(toolBar, jsuis.Constants.NORTH);
+	
+	previousButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-previous.svg");
+	previousButton = new jsuis.Button(null, previousButtonIcon);
+	toolBar.add(previousButton);
+	
+	upButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-up.svg");
+	upButton = new jsuis.Button(null, upButtonIcon);
+	toolBar.add(upButton);
+	
+	nextButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-next.svg");
+	nextButton = new jsuis.Button(null, nextButtonIcon);
+	toolBar.add(nextButton);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

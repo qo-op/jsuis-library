@@ -133,8 +133,8 @@
 		var viewport = this.getViewport();
 		return viewport.getView();
 	}
-	jsuis.defaultlf.ScrollPane.prototype.validate = function() {
-		this.setLayoutBounds(null);
+	// TODO ScrollPaneLayout
+	jsuis.defaultlf.ScrollPane.prototype.doLayout = function() {
 		var size = this.getSize();
 		var insetsDimension = this.getInsets().getDimension();
 		var outsetsDimension = this.getOutsets().getDimension();
@@ -202,12 +202,7 @@
 				verticalScrollBar.getMaximum() - verticalScrollBar.getExtent()));
 		verticalScrollBar.setVisible(verticalScrollBarVisible);
 		horizontalScrollBar.setVisible(horizontalScrollBarVisible);
-		this.doLayout();
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.validate();
-		}
+		SUPER.prototype.doLayout.call(this);
 	}
 	jsuis.defaultlf.ScrollPane.prototype.getMinimumSize = function() {
 		return new jsuis.Dimension(0, 0);
