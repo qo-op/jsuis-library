@@ -39,6 +39,24 @@
 		var contentPane = this.getContentPane();
 		contentPane.removeAll();
 	}
+	jsuis.defaultlf.Frame.prototype.getLayeredPane = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getLayeredPane();
+	}
+	jsuis.defaultlf.Frame.prototype.setLayeredPane = function(contentPane) {
+		var rootPane = this.getRootPane();
+		rootPane.setLayeredPane(contentPane);
+		return this;
+	}
+	jsuis.defaultlf.Frame.prototype.getMenuBar = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getMenuBar();
+	}
+	jsuis.defaultlf.Frame.prototype.setMenuBar = function(menuBar) {
+		var rootPane = this.getRootPane();
+		rootPane.setMenuBar(menuBar);
+		return this;
+	}
 	jsuis.defaultlf.Frame.prototype.getContentPane = function() {
 		var rootPane = this.getRootPane();
 		return rootPane.getContentPane();

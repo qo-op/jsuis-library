@@ -8,6 +8,10 @@ function nvl(value, defaultValue) {
 	return value;
 }
 
+function println(text) {
+	console.log(text);
+}
+
 /**
  * jsuis
  */

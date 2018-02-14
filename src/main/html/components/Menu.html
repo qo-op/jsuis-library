@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?${date}"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constants.NORTH);
+		label.setFill(jsuis.Constants.NONE)
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	menuExample = createExamplePanel("jsuis.Menu example");
+	menuExample.setLayout(new jsuis.BorderLayout());
+	
+	menuFrame = new jsuis.Frame();
+	menuExample.add(menuFrame);
+	
+	menuBar = new jsuis.MenuBar();
+	menuFrame.setMenuBar(menuBar);
+	
+	menu = new jsuis.Menu("Color");
+	menuBar.add(menu);
+	
+	redMenuItem = new jsuis.MenuItem("Red");
+	menu.add(redMenuItem);
+	
+	yellowMenuItem = new jsuis.MenuItem("Yellow");
+	menu.add(yellowMenuItem);
+	
+	greenMenuItem = new jsuis.MenuItem("Green");
+	menu.add(greenMenuItem);
+	
+	redMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Red);
+		}
+	}));
+	
+	yellowMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Yellow);
+		}
+	}));
+	
+	greenMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Green);
+		}
+	}));
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

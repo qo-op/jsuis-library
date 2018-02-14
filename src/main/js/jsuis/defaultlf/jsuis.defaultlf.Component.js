@@ -14,11 +14,9 @@
 		this.setMouseMotionListeners([]);
 		this.setTouchListeners([]);
 		this.setFocusListeners([]);
-		this.setPropertyChangeListeners({});
 		this.setActionListeners([]);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Component,
-			new jsuis.Property("element"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),
 			new jsuis.Property("layout"),
@@ -34,9 +32,9 @@
 			new jsuis.Property("mouseMotionListeners"),
 			new jsuis.Property("touchListeners"),
 			new jsuis.Property("focusListeners"),
-			new jsuis.Property("propertyChangeListeners"),
 			new jsuis.Property("actionListeners"),
-			new jsuis.Property("actionCommand")
+			new jsuis.Property("actionCommand"),
+			new jsuis.Property("action")
 	);
 	jsuis.defaultlf.Component.prototype.addClass = function(name) {
 		var value = this.getAttribute("class");
@@ -1013,46 +1011,6 @@
 		for (var i = 0; i < focusListeners.length; i++) {
 			var focusListener = focusListeners[i];
 			focusListener.focusLost(focusEvent);
-		}
-	}
-	jsuis.defaultlf.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		propertyChangeListeners.push(propertyChangeListener);
-		if (propertyName !== "") {
-			propertyChangeListeners = this.getPropertyChangeListeners();
-			propertyChangeListeners.push(propertyChangeListener);
-		}
-	}
-	jsuis.defaultlf.Component.prototype.removePropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		var index = propertyChangeListeners.indexOf(propertyChangeListener);
-		if (index !== -1) {
-			propertyChangeListeners.splice(index, 1);
-		}
-		if (propertyName !== "") {
-			var propertyChangeListeners = this.getPropertyChangeListeners();
-			var index = propertyChangeListeners.indexOf(propertyChangeListener);
-			if (index !== -1) {
-				propertyChangeListeners.splice(index, 1);
-			}
-		}
-	}
-	jsuis.defaultlf.Component.prototype.getPropertyChangeListeners = function(propertyName) {
-		propertyName = propertyName || "";
-		var propertyChangeListeners = this.propertyChangeListeners;
-		if (!propertyChangeListeners[propertyName]) {
-			propertyChangeListeners[propertyName] = [];
-		}
-		return propertyChangeListeners[propertyName];
-	}
-	jsuis.defaultlf.Component.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
-		var propertyChangeEvent = new jsuis.PropertyChangeEvent(this, propertyName, oldValue, newValue);
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		for (var i = 0; i < propertyChangeListeners.length; i++) {
-			var propertyChangeListener = propertyChangeListeners[i];
-			propertyChangeListener.propertyChange(propertyChangeEvent);
 		}
 	}
 	jsuis.defaultlf.Component.prototype.addActionListener = function(actionListener) {

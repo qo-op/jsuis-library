@@ -8,6 +8,10 @@ function nvl(value, defaultValue) {
 	return value;
 }
 
+function println(text) {
+	console.log(text);
+}
+
 /**
  * jsuis
  */
@@ -59,14 +63,24 @@ jsuis.packages = [];
 			return this.key;
 		};
 		get = get.replace(/key/g, key);
-		eval(get);
+		try {
+			eval(get);
+		} catch (e) {
+			println(get);
+			println(e.stack);
+		}
 		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			this.key = key;
 			return this;
 		};
 		set = set.replace(/key/g, key);
-		eval(set);
+		try {
+			eval(set);
+		} catch (e) {
+			println(set);
+			println(e.stack);
+		}
 		var properties = constructor.properties;
 		if (!properties) {
 			properties = [];
@@ -240,6 +254,20 @@ jsuis.packages = [];
 		var constructor = this.getConstructor();
 		return jsuis.Object.getClassName(constructor);
 	}
+	jsuis.Object.prototype.getElement = function() {
+		return this.element;
+	}
+	jsuis.Object.prototype.setElement = function(element) {
+		this.element = element;
+		return this;
+	}
+	jsuis.Object.prototype.getPeer = function() {
+		return this.peer;
+	}
+	jsuis.Object.prototype.setPeer = function(peer) {
+		this.peer = peer;
+		return this;
+	}
 	jsuis.Object.prototype.setProperties = function(properties) {
 		var constructor = this.getConstructor();
 		constructor.properties = properties;
@@ -248,6 +276,33 @@ jsuis.packages = [];
 	jsuis.Object.prototype.getProperties = function() {
 		var constructor = this.getConstructor();
 		return constructor.properties;
+	}
+	jsuis.Object.prototype.getPropertyChangeSupport = function() {
+		var propertyChangeSupport = this.propertyChangeSupport;
+		if (!propertyChangeSupport) {
+			propertyChangeSupport = new jsuis.PropertyChangeSupport(this);
+			this.setPropertyChangeSupport(propertyChangeSupport);
+		}
+		return propertyChangeSupport;
+	}
+	jsuis.Object.prototype.setPropertyChangeSupport = function(propertyChangeSupport) {
+		this.propertyChangeSupport = propertyChangeSupport;
+	}
+	jsuis.Object.prototype.addPropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.addPropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.removePropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.removePropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.getPropertyChangeListeners = function(propertyName) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.getPropertyChangeListeners(propertyName);
+	}
+	jsuis.Object.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 	jsuis.Object.prototype.toString = function() {
 		return this.getClassName();
@@ -827,8 +882,10 @@ jsuis.packages = [];
 	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
 		SUPER.prototype.constructor.call(this);
 		this.setAlign(nvl(align, jsuis.Constants.CENTER));
-		this.setHgap(nvl(hgap, 4));
-		this.setVgap(nvl(vgap, 4));
+		hgap = nvl(hgap, 4);
+		vgap = nvl(vgap, hgap);
+		this.setHgap(hgap);
+		this.setVgap(vgap);
 	});
 	jsuis.Object.addProperties(jsuis.FlowLayout,
 			new jsuis.Property("align"),
@@ -1451,6 +1508,48 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.Loader
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Loader = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Loader());
+	});
+	jsuis.Loader.getInstance = function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].Loader.getInstance();
+	}
+	jsuis.Loader.prototype.add = function(resources) {
+		var peer = this.getPeer();
+		peer.add(resources);
+	}
+	jsuis.Loader.prototype.getResource = function(name) {
+		var peer = this.getPeer();
+		return peer.getResource(name);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Locale
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Locale = jsuis.Object.extend(SUPER, function(language, country) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Locale(language, country));
+	});
+	jsuis.Locale.getDefault = function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].Locale.getDefault();
+	}
+	jsuis.Locale.prototype.toString = function() {
+		var peer = this.getPeer();
+		return peer.toString();
+	}
+}) (jsuis);
+
+/**
  * jsuis.Peer
  */
 (function(jsuis) {
@@ -1510,6 +1609,62 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.PropertyChangeSupport
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.PropertyChangeSupport = jsuis.Object.extend(SUPER, function(source) {
+		this.setSource(source);
+		this.setPropertyChangeListeners({});
+	});
+	jsuis.Object.addProperties(jsuis.PropertyChangeSupport,
+			new jsuis.Property("source"),
+			new jsuis.Property("propertyChangeListeners")
+	);
+	jsuis.PropertyChangeSupport.prototype.addPropertyChangeListener = function(propertyChangeListener) {
+		var propertyName = propertyChangeListener.getPropertyName() || "";
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		propertyChangeListeners.push(propertyChangeListener);
+		if (propertyName !== "") {
+			propertyChangeListeners = this.getPropertyChangeListeners();
+			propertyChangeListeners.push(propertyChangeListener);
+		}
+	}
+	jsuis.PropertyChangeSupport.prototype.removePropertyChangeListener = function(propertyChangeListener) {
+		var propertyName = propertyChangeListener.getPropertyName() || "";
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		var index = propertyChangeListeners.indexOf(propertyChangeListener);
+		if (index !== -1) {
+			propertyChangeListeners.splice(index, 1);
+		}
+		if (propertyName !== "") {
+			var propertyChangeListeners = this.getPropertyChangeListeners();
+			var index = propertyChangeListeners.indexOf(propertyChangeListener);
+			if (index !== -1) {
+				propertyChangeListeners.splice(index, 1);
+			}
+		}
+	}
+	jsuis.PropertyChangeSupport.prototype.getPropertyChangeListeners = function(propertyName) {
+		propertyName = propertyName || "";
+		var propertyChangeListeners = this.propertyChangeListeners;
+		if (!propertyChangeListeners[propertyName]) {
+			propertyChangeListeners[propertyName] = [];
+		}
+		return propertyChangeListeners[propertyName];
+	}
+	jsuis.PropertyChangeSupport.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
+		var source = this.getSource();
+		var propertyChangeEvent = new jsuis.PropertyChangeEvent(source, propertyName, oldValue, newValue);
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		for (var i = 0; i < propertyChangeListeners.length; i++) {
+			var propertyChangeListener = propertyChangeListeners[i];
+			propertyChangeListener.propertyChange(propertyChangeEvent);
+		}
+	}
+}) (jsuis);
+
+/**
  * jsuis.Rectangle
  */
 (function(jsuis) {
@@ -1535,6 +1690,25 @@ jsuis.packages = [];
 	}
 	jsuis.Rectangle.prototype.clone = function() {
 		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+}) (jsuis);
+
+/**
+ * jsuis.ResourceBundle
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.ResourceBundle = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ResourceBundle());
+	});
+	jsuis.ResourceBundle.getBundle = function(baseName, locale) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].ResourceBundle.getBundle(baseName, locale);
+	}
+	jsuis.ResourceBundle.prototype.getString = function(key) {
+		var peer = this.getPeer();
+		return peer.getString(key);
 	}
 }) (jsuis);
 
@@ -1726,18 +1900,6 @@ jsuis.packages = [];
 	jsuis.Component.prototype.removeFocusListener = function(focusListener) {
 		var peer = this.getPeer();
 		peer.removeFocusListener(focusListener);
-	}
-	jsuis.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
-		var peer = this.getPeer();
-		peer.addPropertyChangeListener(propertyChangeListener);
-	}
-	jsuis.Component.prototype.removePropertyChangeListener = function(propertyChangeListener) {
-		var peer = this.getPeer();
-		peer.removePropertyChangeListener(propertyChangeListener);
-	}
-	jsuis.Component.prototype.getPropertyChangeListeners = function(propertyName) {
-		var peer = this.getPeer();
-		peer.getPropertyChangeListeners(propertyName);
 	}
 	jsuis.Component.prototype.addActionListener = function(actionListener) {
 		var peer = this.getPeer();
@@ -1966,6 +2128,15 @@ jsuis.packages = [];
 	jsuis.Action = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
 	});
+	jsuis.Action.prototype.isEnabled = function() {
+		return this.enabled;
+	}
+	jsuis.Action.prototype.setEnabled = function(enabled) {
+		var oldEnabled = this.enabled;
+		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -1980,6 +2151,7 @@ jsuis.packages = [];
 	jsuis.Object.addPeerProperties(jsuis.Button,
 			new jsuis.Property("text"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("action"),
 			new jsuis.Property("iconTextGap")
 	);
 }) (jsuis);
@@ -1994,8 +2166,9 @@ jsuis.packages = [];
 		this.setPeer(new jsuis[lookAndFeel].Frame());
 	});
 	jsuis.Object.addPeerProperties(jsuis.Frame,
-			new jsuis.Property("contentPane"),
-			new jsuis.Property("menuBar")
+			new jsuis.Property("layeredPane"),
+			new jsuis.Property("menuBar"),
+			new jsuis.Property("contentPane")
 	);
 	jsuis.Frame.prototype.dispose = function() {
 		var peer = this.getPeer();
@@ -2046,32 +2219,6 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.Loader
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Loader = jsuis.Object.extend(SUPER, function() {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Loader());
-	});
-	var instance;
-	jsuis.Loader.getInstance = function() {
-		if (!instance) {
-			instance = new jsuis.Loader();
-		}
-		return instance;
-	}
-	jsuis.Loader.prototype.add = function(resources) {
-		var peer = this.getPeer();
-		peer.add(resources);
-	}
-	jsuis.Loader.prototype.getResource = function(name) {
-		var peer = this.getPeer();
-		return peer.getResource(name);
-	}
-}) (jsuis);
-
-/**
  * jsuis.Panel
  */
 (function(jsuis) {
@@ -2079,17 +2226,6 @@ jsuis.packages = [];
 	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout, target) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Panel(layout, target));
-	});
-}) (jsuis);
-
-/**
- * jsuis.PopupMenu
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.PopupMenu = jsuis.Object.extend(SUPER, function(layout, target) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].PopupMenu(layout, target));
 	});
 }) (jsuis);
 
@@ -2144,6 +2280,32 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.MenuItem
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].MenuItem(text, icon));
+	});
+}) (jsuis);
+
+/**
+ * jsuis.PopupMenu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.PopupMenu = jsuis.Object.extend(SUPER, function(layout, target) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].PopupMenu(layout, target));
+	});
+	jsuis.PopupMenu.prototype.show = function(invoker, x, y) {
+		var peer = this.getPeer();
+		peer.show(invoker, x, y);
+	}
+}) (jsuis);
+
+/**
  * jsuis.ScrollPane
  */
 (function(jsuis) {
@@ -2192,6 +2354,17 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.ToggleButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ToggleButton(text, icon));
+	});
+}) (jsuis);
+
+/**
  * jsuis.ToolBar
  */
 (function(jsuis) {
@@ -2200,6 +2373,29 @@ jsuis.packages = [];
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].ToolBar(element));
 	});
+}) (jsuis);
+
+/**
+ * jsuis.Menu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.MenuItem;
+	jsuis.Menu = jsuis.Object.extend(SUPER, function(layout, target) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Menu(layout, target));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Menu,
+			new jsuis.Property("popupMenu")
+	);
+	jsuis.Menu.prototype.isPopupMenuVisible = function() {
+		var peer = this.getPeer();
+		return peer.isPopupMenuVisible();
+	}
+	jsuis.Menu.prototype.setPopupMenuVisible = function(popupMenuVisible) {
+		var peer = this.getPeer();
+		peer.setPopupMenuVisible(popupMenuVisible);
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -2219,6 +2415,11 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.constructor.call(this);
 	});
 	jsuis.defaultlf.Border.prototype.install = function(component) {
+		var target = component.getTarget();
+		if (!target) {
+			return;
+		}
+		target.setStyleProperty("stroke-width", 0);
 	}
 	jsuis.defaultlf.Border.prototype.getBorderInsets = function(component) {
 		return new jsuis.Insets();
@@ -2255,7 +2456,6 @@ jsuis.packages.push(jsuis.defaultlf);
 		});
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
-			new jsuis.Property("element"),
 			new jsuis.Property("eventListeners"),
 			new jsuis.Property("componentListeners"),
 			new jsuis.Property("mouseListeners"),
@@ -2386,11 +2586,9 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setMouseMotionListeners([]);
 		this.setTouchListeners([]);
 		this.setFocusListeners([]);
-		this.setPropertyChangeListeners({});
 		this.setActionListeners([]);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Component,
-			new jsuis.Property("element"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),
 			new jsuis.Property("layout"),
@@ -2406,9 +2604,9 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("mouseMotionListeners"),
 			new jsuis.Property("touchListeners"),
 			new jsuis.Property("focusListeners"),
-			new jsuis.Property("propertyChangeListeners"),
 			new jsuis.Property("actionListeners"),
-			new jsuis.Property("actionCommand")
+			new jsuis.Property("actionCommand"),
+			new jsuis.Property("action")
 	);
 	jsuis.defaultlf.Component.prototype.addClass = function(name) {
 		var value = this.getAttribute("class");
@@ -3387,46 +3585,6 @@ jsuis.packages.push(jsuis.defaultlf);
 			focusListener.focusLost(focusEvent);
 		}
 	}
-	jsuis.defaultlf.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		propertyChangeListeners.push(propertyChangeListener);
-		if (propertyName !== "") {
-			propertyChangeListeners = this.getPropertyChangeListeners();
-			propertyChangeListeners.push(propertyChangeListener);
-		}
-	}
-	jsuis.defaultlf.Component.prototype.removePropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		var index = propertyChangeListeners.indexOf(propertyChangeListener);
-		if (index !== -1) {
-			propertyChangeListeners.splice(index, 1);
-		}
-		if (propertyName !== "") {
-			var propertyChangeListeners = this.getPropertyChangeListeners();
-			var index = propertyChangeListeners.indexOf(propertyChangeListener);
-			if (index !== -1) {
-				propertyChangeListeners.splice(index, 1);
-			}
-		}
-	}
-	jsuis.defaultlf.Component.prototype.getPropertyChangeListeners = function(propertyName) {
-		propertyName = propertyName || "";
-		var propertyChangeListeners = this.propertyChangeListeners;
-		if (!propertyChangeListeners[propertyName]) {
-			propertyChangeListeners[propertyName] = [];
-		}
-		return propertyChangeListeners[propertyName];
-	}
-	jsuis.defaultlf.Component.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
-		var propertyChangeEvent = new jsuis.PropertyChangeEvent(this, propertyName, oldValue, newValue);
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		for (var i = 0; i < propertyChangeListeners.length; i++) {
-			var propertyChangeListener = propertyChangeListeners[i];
-			propertyChangeListener.propertyChange(propertyChangeEvent);
-		}
-	}
 	jsuis.defaultlf.Component.prototype.addActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		actionListeners.push(actionListener);
@@ -3654,6 +3812,24 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.Frame.prototype.removeAll = function() {
 		var contentPane = this.getContentPane();
 		contentPane.removeAll();
+	}
+	jsuis.defaultlf.Frame.prototype.getLayeredPane = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getLayeredPane();
+	}
+	jsuis.defaultlf.Frame.prototype.setLayeredPane = function(contentPane) {
+		var rootPane = this.getRootPane();
+		rootPane.setLayeredPane(contentPane);
+		return this;
+	}
+	jsuis.defaultlf.Frame.prototype.getMenuBar = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getMenuBar();
+	}
+	jsuis.defaultlf.Frame.prototype.setMenuBar = function(menuBar) {
+		var rootPane = this.getRootPane();
+		rootPane.setMenuBar(menuBar);
+		return this;
 	}
 	jsuis.defaultlf.Frame.prototype.getContentPane = function() {
 		var rootPane = this.getRootPane();
@@ -4123,6 +4299,10 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		this.setForeground(jsuis.Color.Black);
 		var mouseListener = new jsuis.MouseListener({
+			mouseClicked: function(event) {
+				var button = event.getSource();
+				button.mouseClicked();
+			},
 			mousePressed: function(event) {
 				var button = event.getSource();
 				button.mousePressed();
@@ -4145,10 +4325,12 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("action"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor")
+			new jsuis.Property("rolloverColor"),
+			new jsuis.Property("propertyChangeListener")
 	);
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
@@ -4195,6 +4377,29 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.icon = icon;
 		return this;
 	}
+	jsuis.defaultlf.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
+		return this;
+	}
 	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
 		var icon = this.getIcon();
@@ -4209,8 +4414,6 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setColor(background);
-		this.setRolloverColor(background);
-		this.setPressedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
@@ -4228,22 +4431,52 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+	jsuis.defaultlf.Button.prototype.isSelected = function() {
+		return this.selected;
+	}
+	jsuis.defaultlf.Button.prototype.setSelected = function(selected) {
+		this.selected = selected;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.isRollover = function() {
+		return this.rollover;
+	}
+	jsuis.defaultlf.Button.prototype.setRollover = function(rollover) {
+		this.rollover = rollover;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.paint = function() {
+		var color = this.getColor();
+		SUPER.prototype.setBackground.call(this, color);
+	}
+	jsuis.defaultlf.Button.prototype.paintPressed = function() {
 		var pressedColor = this.getPressedColor();
 		SUPER.prototype.setBackground.call(this, pressedColor);
 	}
-	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
-	}
-	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
-		var enabled = this.isEnabled();
+	jsuis.defaultlf.Button.prototype.paintRollover = function() {
 		var rolloverColor = this.getRolloverColor();
 		SUPER.prototype.setBackground.call(this, rolloverColor);
 	}
+	jsuis.defaultlf.Button.prototype.mouseClicked = function() {
+	}
+	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+		this.paintPressed();
+	}
+	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
+		var rollover = this.isRollover();
+		if (rollover) {
+			this.paintRollover();
+		} else {
+			this.paint();
+		}
+	}
+	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
+		this.paintRollover();
+		this.setRollover(true);
+	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
+		this.paint();
+		this.setRollover(false);
 	}
 }) (jsuis);
 
@@ -4404,7 +4637,7 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.MenuBar = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, new jsuis.FlowLayout(jsuis.Constants.LEFT));
+		SUPER.prototype.constructor.call(this, new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
 }) (jsuis);
@@ -4416,9 +4649,39 @@ jsuis.packages.push(jsuis.defaultlf);
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.PopupMenu = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
 	jsuis.defaultlf.PopupMenu.prototype.add = function(component, constraints, index) {
-		SUPER.prototype.add(component, nvl(constraints, jsuis.Constants.NORTH), index);
+		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.NORTH), index);
+	}
+	jsuis.defaultlf.PopupMenu.prototype.show = function(invoker, x, y) {
+		var invokerX = 0;
+		var invokerY = 0;
+		var component = invoker;
+		while (component && !(component instanceof jsuis.defaultlf.Frame)) {
+			invokerX += component.getX();
+			invokerY += component.getY();
+			component = component.getParent();
+		}
+		if (!component) {
+			return;
+		}
+		var layeredPane = this.getParent();
+		if (!layeredPane) {
+			layeredPane = component.getLayeredPane();
+			layeredPane.add(this, jsuis.Constants.POPUP_LAYER);
+		}
+		this.setLocation(new jsuis.Point(invokerX + x, invokerY + y));
+		this.setVisible(true);
+	}
+	jsuis.defaultlf.PopupMenu.prototype.setVisible = function(visible) {
+		SUPER.prototype.setVisible.call(this, visible);
+		if (visible) {
+			this.setSize(this.getPreferredSize());
+			this.validate();
+		}
+		return this;
 	}
 }) (jsuis);
 
@@ -5145,6 +5408,32 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.MenuItem
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+		this.setBorder(null);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+	});
+	jsuis.defaultlf.MenuItem.prototype.addActionListener = function(actionListener) {
+		var actionListeners = this.getActionListeners();
+		actionListeners.push(actionListener);
+		var mouseListener = new jsuis.MouseListener({
+			mouseClicked: function(event) {
+				var menuItem = event.getSource();
+				menuItem.fireActionPerformed(event.getDomEvent());
+				var menu = menuItem.getParent();
+				menu.setSelected(false);
+			}
+		});
+		mouseListener.setListenerComponent(actionListener.getListenerComponent());
+		this.addMouseListener(mouseListener);
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.MouseEvent
  */
 (function(jsuis) {
@@ -5260,6 +5549,16 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("menuBar"),
 			new jsuis.Property("contentPane")
 	);
+	jsuis.defaultlf.RootPane.prototype.setMenuBar = function(menuBar) {
+		var layeredPane = this.getLayeredPane();
+		var oldMenuBar = this.getMenuBar();
+		if (oldMenuBar) {
+			layeredPane.remove(oldMenuBar);
+		}
+		layeredPane.add(menuBar, jsuis.Constants.FRAME_CONTENT_LAYER);
+		this.menuBar = menuBar;
+		return this;
+	}
 	jsuis.defaultlf.RootPane.prototype.setContentPane = function(contentPane) {
 		var layeredPane = this.getLayeredPane();
 		var oldContentPane = this.getContentPane();
@@ -5508,6 +5807,30 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.ToggleButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+	});
+	jsuis.defaultlf.ToggleButton.prototype.mousePressed = function() {
+		var selected = this.isSelected();
+		selected = !selected;
+		this.setSelected(selected);
+		if (selected) {
+			SUPER.prototype.mousePressed.call(this);
+		}
+	}
+	jsuis.defaultlf.ToggleButton.prototype.mouseReleased = function() {
+		var selected = this.isSelected();
+		if (!selected) {
+			SUPER.prototype.mouseReleased.call(this);
+		}
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.TouchEvent
  */
 (function(jsuis) {
@@ -5570,6 +5893,88 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.TouchEvent.prototype.getY = function() {
 		var point = this.getPoint();
 		return point.getY();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.Menu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.MenuItem;
+	jsuis.defaultlf.Menu = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Menu,
+			new jsuis.Property("popupMenu"),
+			new jsuis.Property("statusChanged")
+	);
+	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
+		var componentPeer = component.getPeer();
+		if (componentPeer instanceof jsuis.defaultlf.MenuItem) {
+			var popupMenu = this.getPopupMenu();
+			if (!popupMenu) {
+				popupMenu = new jsuis.defaultlf.PopupMenu();
+				this.setPopupMenu(popupMenu);
+			}
+			popupMenu.add(component, constraints, index);
+			component.setParent(this);
+		} else {
+			SUPER.prototype.add.call(this, component, constraints, index);
+		}
+	}
+	jsuis.defaultlf.Menu.prototype.isPopupMenuVisible = function() {
+		var popupMenu = this.getPopupMenu();
+		return popupMenu.isVisible();
+	}
+	jsuis.defaultlf.Menu.prototype.setPopupMenuVisible = function(popupMenuVisible) {
+		var popupMenu = this.getPopupMenu();
+		if (!popupMenu) {
+			return;
+		}
+		if (popupMenuVisible) {
+			popupMenu.show(this, 0, this.getHeight());
+		} else {
+			popupMenu.setVisible(false);
+		}
+		return this;
+	}
+	jsuis.defaultlf.Menu.prototype.mousePressed = function() {
+		this.setSelected(!this.isSelected());
+	}
+	jsuis.defaultlf.Menu.prototype.mouseReleased = function() {
+	}
+	jsuis.defaultlf.Menu.prototype.mouseEntered = function() {
+		var selected = this.isSelected();
+		if (selected) {
+			this.paintPressed();
+		} else {
+			this.paintRollover();
+		}
+		this.setRollover(true);
+	}
+	jsuis.defaultlf.Menu.prototype.mouseExited = function() {
+		var selected = this.isSelected();
+		if (selected) {
+			this.paintPressed();
+		} else {
+			this.paint();
+		}
+		this.setRollover(false);
+	}
+	jsuis.defaultlf.Menu.prototype.setSelected = function(selected) {
+		this.setPopupMenuVisible(selected);
+		if (selected) {
+			this.paintPressed();
+		} else {
+			var rollover = this.isRollover();
+			if (rollover) {
+				this.paintRollover();
+			} else {
+				this.paint();
+			}
+		}
+		SUPER.prototype.setSelected.call(this, selected);
+		return this;
 	}
 }) (jsuis);
 

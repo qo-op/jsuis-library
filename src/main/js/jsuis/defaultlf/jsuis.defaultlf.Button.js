@@ -19,6 +19,10 @@
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		this.setForeground(jsuis.Color.Black);
 		var mouseListener = new jsuis.MouseListener({
+			mouseClicked: function(event) {
+				var button = event.getSource();
+				button.mouseClicked();
+			},
 			mousePressed: function(event) {
 				var button = event.getSource();
 				button.mousePressed();
@@ -41,10 +45,12 @@
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("action"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor")
+			new jsuis.Property("rolloverColor"),
+			new jsuis.Property("propertyChangeListener")
 	);
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
@@ -91,6 +97,29 @@
 		this.icon = icon;
 		return this;
 	}
+	jsuis.defaultlf.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
+		return this;
+	}
 	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
 		var icon = this.getIcon();
@@ -105,8 +134,6 @@
 	}
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setColor(background);
-		this.setRolloverColor(background);
-		this.setPressedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
@@ -124,21 +151,51 @@
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+	jsuis.defaultlf.Button.prototype.isSelected = function() {
+		return this.selected;
+	}
+	jsuis.defaultlf.Button.prototype.setSelected = function(selected) {
+		this.selected = selected;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.isRollover = function() {
+		return this.rollover;
+	}
+	jsuis.defaultlf.Button.prototype.setRollover = function(rollover) {
+		this.rollover = rollover;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.paint = function() {
+		var color = this.getColor();
+		SUPER.prototype.setBackground.call(this, color);
+	}
+	jsuis.defaultlf.Button.prototype.paintPressed = function() {
 		var pressedColor = this.getPressedColor();
 		SUPER.prototype.setBackground.call(this, pressedColor);
 	}
-	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
-	}
-	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
-		var enabled = this.isEnabled();
+	jsuis.defaultlf.Button.prototype.paintRollover = function() {
 		var rolloverColor = this.getRolloverColor();
 		SUPER.prototype.setBackground.call(this, rolloverColor);
 	}
+	jsuis.defaultlf.Button.prototype.mouseClicked = function() {
+	}
+	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+		this.paintPressed();
+	}
+	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
+		var rollover = this.isRollover();
+		if (rollover) {
+			this.paintRollover();
+		} else {
+			this.paint();
+		}
+	}
+	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
+		this.paintRollover();
+		this.setRollover(true);
+	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
+		this.paint();
+		this.setRollover(false);
 	}
 }) (jsuis);

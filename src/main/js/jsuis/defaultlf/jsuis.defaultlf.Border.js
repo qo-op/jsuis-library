@@ -7,6 +7,11 @@
 		SUPER.prototype.constructor.call(this);
 	});
 	jsuis.defaultlf.Border.prototype.install = function(component) {
+		var target = component.getTarget();
+		if (!target) {
+			return;
+		}
+		target.setStyleProperty("stroke-width", 0);
 	}
 	jsuis.defaultlf.Border.prototype.getBorderInsets = function(component) {
 		return new jsuis.Insets();

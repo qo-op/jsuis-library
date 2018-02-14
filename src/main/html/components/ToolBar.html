@@ -7,9 +7,9 @@
 	<body style="margin: 0; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
-				<image id="/images/Gnome-go-previous.svg" xlink:href="/images/Gnome-go-previous.svg" width="16" height="16"/>
-				<image id="/images/Gnome-go-up.svg" xlink:href="/images/Gnome-go-up.svg" width="16" height="16"/>
-				<image id="/images/Gnome-go-next.svg" xlink:href="/images/Gnome-go-next.svg" width="16" height="16"/>
+				<image id="/images/Previous.svg" xlink:href="/images/Previous.svg" width="16" height="16"/>
+				<image id="/images/Up.svg" xlink:href="/images/Up.svg" width="16" height="16"/>
+				<image id="/images/Next.svg" xlink:href="/images/Next.svg" width="16" height="16"/>
 			</defs>
 		</svg>
 		<div id="container" style="height: 100vh;"></div>
@@ -41,15 +41,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBar = new jsuis.ToolBar();
 	toolBarExample.add(toolBar, jsuis.Constants.NORTH);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-previous.svg");
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg");
 	previousButton = new jsuis.Button(null, previousButtonIcon);
 	toolBar.add(previousButton);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-up.svg");
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg");
 	upButton = new jsuis.Button(null, upButtonIcon);
 	toolBar.add(upButton);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-next.svg");
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg");
 	nextButton = new jsuis.Button(null, nextButtonIcon);
 	toolBar.add(nextButton);
 	

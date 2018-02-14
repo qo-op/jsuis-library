@@ -6,8 +6,10 @@
 	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
 		SUPER.prototype.constructor.call(this);
 		this.setAlign(nvl(align, jsuis.Constants.CENTER));
-		this.setHgap(nvl(hgap, 4));
-		this.setVgap(nvl(vgap, 4));
+		hgap = nvl(hgap, 4);
+		vgap = nvl(vgap, hgap);
+		this.setHgap(hgap);
+		this.setVgap(vgap);
 	});
 	jsuis.Object.addProperties(jsuis.FlowLayout,
 			new jsuis.Property("align"),

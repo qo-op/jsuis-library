@@ -9,9 +9,9 @@
 			<defs>
 				<image id="/images/Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
 				<image id="/images/Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
-				<image id="/images/Gnome-go-previous.svg" xlink:href="/images/Gnome-go-previous.svg" width="16" height="16"/>
-				<image id="/images/Gnome-go-up.svg" xlink:href="/images/Gnome-go-up.svg" width="16" height="16"/>
-				<image id="/images/Gnome-go-next.svg" xlink:href="/images/Gnome-go-next.svg" width="16" height="16"/>
+				<image id="/images/Previous.svg" xlink:href="/images/Previous.svg" width="16" height="16"/>
+				<image id="/images/Up.svg" xlink:href="/images/Up.svg" width="16" height="16"/>
+				<image id="/images/Next.svg" xlink:href="/images/Next.svg" width="16" height="16"/>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
 					<stop offset="0%" style="stop-color: rgb(255, 255, 255);"/>
 					<stop offset="100%" style="stop-color: rgb(0, 128, 128);"/>
@@ -298,17 +298,62 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBar = new jsuis.ToolBar();
 	toolBarExample.add(toolBar, jsuis.Constants.NORTH);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-previous.svg");
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg");
 	previousButton = new jsuis.Button(null, previousButtonIcon);
 	toolBar.add(previousButton);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-up.svg");
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg");
 	upButton = new jsuis.Button(null, upButtonIcon);
 	toolBar.add(upButton);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Gnome-go-next.svg");
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg");
 	nextButton = new jsuis.Button(null, nextButtonIcon);
 	toolBar.add(nextButton);
+
+	/*
+	 * Menu example
+	 */
+	menuExample = createExamplePanel("jsuis.Menu example");
+	menuExample.setLayout(new jsuis.BorderLayout());
+	
+	menuFrame = new jsuis.Frame();
+	menuExample.add(menuFrame);
+	
+	menuBar = new jsuis.MenuBar();
+	menuFrame.setMenuBar(menuBar);
+	
+	menu = new jsuis.Menu("Color");
+	menuBar.add(menu);
+	
+	redMenuItem = new jsuis.MenuItem("Red");
+	menu.add(redMenuItem);
+	
+	yellowMenuItem = new jsuis.MenuItem("Yellow");
+	menu.add(yellowMenuItem);
+	
+	greenMenuItem = new jsuis.MenuItem("Green");
+	menu.add(greenMenuItem);
+	
+	redMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Red);
+		}
+	}));
+	
+	yellowMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Yellow);
+		}
+	}));
+	
+	greenMenuItem.addActionListener(new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var contentPane = menuFrame.getContentPane();
+			contentPane.setBackground(jsuis.Color.Green);
+		}
+	}));
 	
 	frame.setVisible(true);
 });

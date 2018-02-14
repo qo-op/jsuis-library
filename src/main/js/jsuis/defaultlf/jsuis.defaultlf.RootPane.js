@@ -14,6 +14,16 @@
 			new jsuis.Property("menuBar"),
 			new jsuis.Property("contentPane")
 	);
+	jsuis.defaultlf.RootPane.prototype.setMenuBar = function(menuBar) {
+		var layeredPane = this.getLayeredPane();
+		var oldMenuBar = this.getMenuBar();
+		if (oldMenuBar) {
+			layeredPane.remove(oldMenuBar);
+		}
+		layeredPane.add(menuBar, jsuis.Constants.FRAME_CONTENT_LAYER);
+		this.menuBar = menuBar;
+		return this;
+	}
 	jsuis.defaultlf.RootPane.prototype.setContentPane = function(contentPane) {
 		var layeredPane = this.getLayeredPane();
 		var oldContentPane = this.getContentPane();

@@ -25,7 +25,6 @@
 		});
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
-			new jsuis.Property("element"),
 			new jsuis.Property("eventListeners"),
 			new jsuis.Property("componentListeners"),
 			new jsuis.Property("mouseListeners"),

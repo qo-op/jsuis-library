@@ -2,17 +2,14 @@
  * jsuis.Loader
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
+	var SUPER = jsuis.Object;
 	jsuis.Loader = jsuis.Object.extend(SUPER, function() {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Loader());
 	});
-	var instance;
 	jsuis.Loader.getInstance = function() {
-		if (!instance) {
-			instance = new jsuis.Loader();
-		}
-		return instance;
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].Loader.getInstance();
 	}
 	jsuis.Loader.prototype.add = function(resources) {
 		var peer = this.getPeer();

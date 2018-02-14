@@ -38,14 +38,24 @@
 			return this.key;
 		};
 		get = get.replace(/key/g, key);
-		eval(get);
+		try {
+			eval(get);
+		} catch (e) {
+			println(get);
+			println(e.stack);
+		}
 		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			this.key = key;
 			return this;
 		};
 		set = set.replace(/key/g, key);
-		eval(set);
+		try {
+			eval(set);
+		} catch (e) {
+			println(set);
+			println(e.stack);
+		}
 		var properties = constructor.properties;
 		if (!properties) {
 			properties = [];
@@ -219,6 +229,20 @@
 		var constructor = this.getConstructor();
 		return jsuis.Object.getClassName(constructor);
 	}
+	jsuis.Object.prototype.getElement = function() {
+		return this.element;
+	}
+	jsuis.Object.prototype.setElement = function(element) {
+		this.element = element;
+		return this;
+	}
+	jsuis.Object.prototype.getPeer = function() {
+		return this.peer;
+	}
+	jsuis.Object.prototype.setPeer = function(peer) {
+		this.peer = peer;
+		return this;
+	}
 	jsuis.Object.prototype.setProperties = function(properties) {
 		var constructor = this.getConstructor();
 		constructor.properties = properties;
@@ -227,6 +251,33 @@
 	jsuis.Object.prototype.getProperties = function() {
 		var constructor = this.getConstructor();
 		return constructor.properties;
+	}
+	jsuis.Object.prototype.getPropertyChangeSupport = function() {
+		var propertyChangeSupport = this.propertyChangeSupport;
+		if (!propertyChangeSupport) {
+			propertyChangeSupport = new jsuis.PropertyChangeSupport(this);
+			this.setPropertyChangeSupport(propertyChangeSupport);
+		}
+		return propertyChangeSupport;
+	}
+	jsuis.Object.prototype.setPropertyChangeSupport = function(propertyChangeSupport) {
+		this.propertyChangeSupport = propertyChangeSupport;
+	}
+	jsuis.Object.prototype.addPropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.addPropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.removePropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.removePropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.getPropertyChangeListeners = function(propertyName) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.getPropertyChangeListeners(propertyName);
+	}
+	jsuis.Object.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 	jsuis.Object.prototype.toString = function() {
 		return this.getClassName();

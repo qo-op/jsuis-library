@@ -8,8 +8,9 @@
 		this.setPeer(new jsuis[lookAndFeel].Frame());
 	});
 	jsuis.Object.addPeerProperties(jsuis.Frame,
-			new jsuis.Property("contentPane"),
-			new jsuis.Property("menuBar")
+			new jsuis.Property("layeredPane"),
+			new jsuis.Property("menuBar"),
+			new jsuis.Property("contentPane")
 	);
 	jsuis.Frame.prototype.dispose = function() {
 		var peer = this.getPeer();

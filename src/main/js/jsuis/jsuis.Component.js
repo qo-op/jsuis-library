@@ -133,18 +133,6 @@
 		var peer = this.getPeer();
 		peer.removeFocusListener(focusListener);
 	}
-	jsuis.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
-		var peer = this.getPeer();
-		peer.addPropertyChangeListener(propertyChangeListener);
-	}
-	jsuis.Component.prototype.removePropertyChangeListener = function(propertyChangeListener) {
-		var peer = this.getPeer();
-		peer.removePropertyChangeListener(propertyChangeListener);
-	}
-	jsuis.Component.prototype.getPropertyChangeListeners = function(propertyName) {
-		var peer = this.getPeer();
-		peer.getPropertyChangeListeners(propertyName);
-	}
 	jsuis.Component.prototype.addActionListener = function(actionListener) {
 		var peer = this.getPeer();
 		peer.addActionListener(actionListener);

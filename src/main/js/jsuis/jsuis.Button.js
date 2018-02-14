@@ -10,6 +10,7 @@
 	jsuis.Object.addPeerProperties(jsuis.Button,
 			new jsuis.Property("text"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("action"),
 			new jsuis.Property("iconTextGap")
 	);
 }) (jsuis);
