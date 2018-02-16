@@ -626,6 +626,9 @@
 	}
 	jsuis.defaultlf.Component.prototype.setEnabled = function(enabled) {
 		this.setStyleProperty("pointer-events", enabled ? "" : "none");
+		var oldEnabled = this.isEnabled();
+		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.isSelectable = function() {

@@ -19,4 +19,8 @@
 		peer.setPopupMenuVisible(popupMenuVisible);
 		return this;
 	}
+	jsuis.Menu.prototype.addSeparator = function() {
+		var peer = this.getPeer();
+		peer.addSeparator();
+	}
 }) (jsuis);

@@ -28,26 +28,34 @@ document.addEventListener('DOMContentLoaded', function() {
 		return contentPane;
 	}
 	
-	toolBarExample = createExamplePanel("jsuis.ToolBar example");
-	toolBarExample.setLayout(new jsuis.BorderLayout());
+	menuExample = createExamplePanel("jsuis.Menu example");
+	menuExample.setLayout(new jsuis.BorderLayout());
 	
-	toolBar = new jsuis.ToolBar();
-	toolBarExample.add(toolBar, jsuis.Constants.NORTH);
+	menuFrame = new jsuis.Frame();
+	menuExample.add(menuFrame);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
-	previousButton = new jsuis.Button(null, previousButtonIcon);
-	toolBar.add(previousButton);
+	menuBar = new jsuis.MenuBar();
+	menuFrame.setMenuBar(menuBar);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
-	upButton = new jsuis.Button(null, upButtonIcon);
-	toolBar.add(upButton);
+	menu = new jsuis.Menu("A Menu");
+	menuBar.add(menu);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
-	nextButton = new jsuis.Button(null, nextButtonIcon);
-	toolBar.add(nextButton);
+	textOnlyMenuItem = new jsuis.MenuItem("A text-only menu item");
+	menu.add(textOnlyMenuItem);
+	
+	bothTextIconMenuItem = new jsuis.MenuItem("Both text and icon",
+			new jsuis.ImageIcon("/images/Star.svg").setPreferredSize(new jsuis.Dimension(16, 16)));
+	menu.add(bothTextIconMenuItem);
+	
+	iconMenuItem = new jsuis.MenuItem(null,
+			new jsuis.ImageIcon("/images/Star.svg").setPreferredSize(new jsuis.Dimension(16, 16)));
+	menu.add(iconMenuItem);
+	
+	anotherMenu = new jsuis.Menu("Another Menu");
+	menuBar.add(anotherMenu);
+	
+	cbMenuItem = new jsuis.MenuItem("Menu item");
+	anotherMenu.add(cbMenuItem);
 	
 	frame.setVisible(true);
 });

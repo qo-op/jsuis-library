@@ -5,7 +5,7 @@
 	var SUPER = jsuis.defaultlf.Border;
 	jsuis.defaultlf.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
 		SUPER.prototype.constructor.call(this, color, thickness);
-		this.setColor(nvl(color, jsuis.Color.black));
+		this.setColor(nvl(color, jsuis.Color.GRAY));
 		this.setThickness(nvl(thickness, 1));
 		rx = nvl(rx, 0);
 		ry = nvl(ry, rx);

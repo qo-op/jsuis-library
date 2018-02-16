@@ -23,4 +23,7 @@
 			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.WEST), index);
 		}
 	}
+	jsuis.defaultlf.ToolBar.prototype.addSeparator = function(size) {
+		this.add(new jsuis.defaultlf.TollBarSeparator(size));
+	}
 }) (jsuis);

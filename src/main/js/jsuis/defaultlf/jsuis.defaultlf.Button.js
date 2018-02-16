@@ -46,6 +46,7 @@
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("action"),
+			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
@@ -147,7 +148,9 @@
 	}
 	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
 		var label = this.getLabel();
-		label.setEnabled(enabled);
+		if (label) {
+			label.setEnabled(enabled);
+		}
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}

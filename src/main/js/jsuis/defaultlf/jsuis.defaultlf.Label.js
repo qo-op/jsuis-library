@@ -48,9 +48,6 @@
 		SUPER.prototype.setBackground.call(this, foreground);
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.getEnabled = function() {
-		return this.enabled;
-	}
 	jsuis.defaultlf.Label.prototype.setEnabled = function(enabled) {
 		if (enabled) {
 			var color = this.getColor();
@@ -59,7 +56,9 @@
 			var disabledColor = this.getDisabledColor();
 			SUPER.prototype.setBackground.call(this, disabledColor);
 		}
+		var oldEnabled = this.isEnabled();
 		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.validate = function() {

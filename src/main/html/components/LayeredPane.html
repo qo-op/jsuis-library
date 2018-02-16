@@ -5,11 +5,6 @@
     <script src="/jsuis.js?${date}"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
-		<svg height="0" style="display: block;">
-			<defs>
-				<image id="/images/Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg" width="64" height="64"/>
-			</defs>
-		</svg>
 		<div id="container" style="height: 100vh;"></div>
 		<script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -36,7 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
 	layeredPaneExample.setLayout(new jsuis.BorderLayout());
 	
-	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg");
+	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg")
+			.setPreferredSize(new jsuis.Dimension(16, 16));
 	
 	layeredPane = new jsuis.LayeredPane();
 	layeredPaneExample.add(layeredPane);

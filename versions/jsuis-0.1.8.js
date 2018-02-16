@@ -509,6 +509,54 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.ButtonGroup
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.ButtonGroup = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+		this.setButtons([]);
+	});
+	jsuis.Object.addProperties(jsuis.ButtonGroup,
+			new jsuis.Property("buttons"),
+			new jsuis.Property("selection")
+	);
+	jsuis.ButtonGroup.prototype.add = function(button) {
+		var buttons = this.getButtons();
+		buttons.push(button);
+		button.setGroup(this);
+	}
+	jsuis.ButtonGroup.prototype.remove = function(button) {
+		var buttons = this.getButtons();
+		var index = buttons.indexOf(button);
+		if (index === -1) {
+			return;
+		}
+		buttons.splice(index, 1);
+		var selection = this.getSelection();
+		if (button === selection) {
+			this.setSelection(null);
+		}
+		button.setGroup(null);
+	}
+	jsuis.ButtonGroup.prototype.isSelected = function(button) {
+		var selection = this.getSelection();
+		return (button === selection);
+	}
+	jsuis.ButtonGroup.prototype.setSelected = function(button) {
+		var oldSelection = this.getSelection();
+		if (oldSelection) {
+			oldSelection.setSelected(false);
+		}
+		this.setSelection(button);
+		if (button) {
+			button.setSelected(true);
+		}
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.Color
  */
 (function(jsuis) {
@@ -852,8 +900,10 @@ jsuis.packages = [];
 	var SUPER = jsuis.Object;
 	jsuis.Dimension = jsuis.Object.extend(SUPER, function(width, height) {
 		SUPER.prototype.constructor.call(this);
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
+		width = nvl(width, 0);
+		height = nvl(height, width);
+		this.setWidth(width);
+		this.setHeight(height);
 	});
 	jsuis.Object.addProperties(jsuis.Dimension,
 			new jsuis.Property("width"),
@@ -1443,7 +1493,6 @@ jsuis.packages = [];
 			} else {
 				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
 			}
-			component.setBounds(bounds);
 			component.setMaximumLayoutBounds(bounds);
 		}
 	}
@@ -2152,6 +2201,7 @@ jsuis.packages = [];
 			new jsuis.Property("text"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("action"),
+			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap")
 	);
 }) (jsuis);
@@ -2369,10 +2419,14 @@ jsuis.packages = [];
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.ToolBar = jsuis.Object.extend(SUPER, function(element) {
+	jsuis.ToolBar = jsuis.Object.extend(SUPER, function(orientation) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ToolBar(element));
+		this.setPeer(new jsuis[lookAndFeel].ToolBar(orientation));
 	});
+	jsuis.ToolBar.prototype.addSeparator = function(size) {
+		var peer = this.getPeer();
+		peer.addSeperator(size);
+	}
 }) (jsuis);
 
 /**
@@ -2395,6 +2449,10 @@ jsuis.packages = [];
 		var peer = this.getPeer();
 		peer.setPopupMenuVisible(popupMenuVisible);
 		return this;
+	}
+	jsuis.Menu.prototype.addSeparator = function() {
+		var peer = this.getPeer();
+		peer.addSeparator();
 	}
 }) (jsuis);
 
@@ -3198,6 +3256,9 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.Component.prototype.setEnabled = function(enabled) {
 		this.setStyleProperty("pointer-events", enabled ? "" : "none");
+		var oldEnabled = this.isEnabled();
+		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.isSelectable = function() {
@@ -3953,9 +4014,6 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.setBackground.call(this, foreground);
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.getEnabled = function() {
-		return this.enabled;
-	}
 	jsuis.defaultlf.Label.prototype.setEnabled = function(enabled) {
 		if (enabled) {
 			var color = this.getColor();
@@ -3964,7 +4022,9 @@ jsuis.packages.push(jsuis.defaultlf);
 			var disabledColor = this.getDisabledColor();
 			SUPER.prototype.setBackground.call(this, disabledColor);
 		}
+		var oldEnabled = this.isEnabled();
 		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.validate = function() {
@@ -3977,13 +4037,69 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Line
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Line = jsuis.Object.extend(SUPER, function(x1, y1, x2, y2, color, thickness) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "line"));
+		this.setX1(nvl(x1, 0));
+		this.setY1(nvl(y1, 0));
+		this.setX2(nvl(x2, 0));
+		this.setY2(nvl(y2, 0));
+		this.setForeground(nvl(color, jsuis.Color.GRAY));
+		this.setThickness(nvl(thickness, 1));
+	});
+	jsuis.defaultlf.Line.prototype.getX1 = function() {
+		return this.x1 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setX1 = function(x1) {
+		this.setAttribute("x1", +nvl(x1, 0));
+		this.x1 = x1;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getY1 = function() {
+		return this.y1 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setY1 = function(y1) {
+		this.setAttribute("y1", +nvl(y1, 0));
+		this.y1 = y1;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getX2 = function() {
+		return this.x2 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setX2 = function(x2) {
+		this.setAttribute("x2", +nvl(x2, 0));
+		this.x2 = x2;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getY2 = function() {
+		return this.y2 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setY2 = function(y2) {
+		this.setAttribute("y2", +nvl(y2, 0));
+		this.y2 = y2;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getThickness = function() {
+		return this.thickness;
+	}
+	jsuis.defaultlf.Line.prototype.setThickness = function(thickness) {
+		this.setStyleProperty("stroke-width", thickness);
+		this.thickness = thickness;
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.LineBorder
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Border;
 	jsuis.defaultlf.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
 		SUPER.prototype.constructor.call(this, color, thickness);
-		this.setColor(nvl(color, jsuis.Color.black));
+		this.setColor(nvl(color, jsuis.Color.GRAY));
 		this.setThickness(nvl(thickness, 1));
 		rx = nvl(rx, 0);
 		ry = nvl(ry, rx);
@@ -4326,6 +4442,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("action"),
+			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
@@ -4427,7 +4544,9 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
 		var label = this.getLabel();
-		label.setEnabled(enabled);
+		if (label) {
+			label.setEnabled(enabled);
+		}
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
@@ -4520,12 +4639,18 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Icon;
 	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
-		SUPER.prototype.constructor.call(this, document.getElementById(resource));
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
 		this.setResource(resource);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
 			new jsuis.Property("resource")
 	);
+	jsuis.defaultlf.ImageIcon.prototype.setResource = function(resource) {
+		var element = this.getElement();
+		element.setAttributeNS('http://www.w3.org/1999/xlink','href', resource);
+		this.resource = resource;
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -4640,6 +4765,24 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.constructor.call(this, new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
+	jsuis.Object.addProperties(jsuis.defaultlf.MenuBar,
+			new jsuis.Property("selection")
+	);
+	jsuis.defaultlf.MenuBar.prototype.isSelected = function(menu) {
+		var selection = this.getSelection();
+		return (menu === selection);
+	}
+	jsuis.defaultlf.MenuBar.prototype.setSelected = function(menu) {
+		var selection = this.getSelection();
+		if (selection) {
+			selection.setSelected(false);
+		}
+		this.setSelection(menu);
+		if (menu) {
+			menu.setSelected(true);
+		}
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -5390,6 +5533,43 @@ jsuis.packages.push(jsuis.defaultlf);
 			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.WEST), index);
 		}
 	}
+	jsuis.defaultlf.ToolBar.prototype.addSeparator = function(size) {
+		this.add(new jsuis.defaultlf.TollBarSeparator(size));
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ToolBarSeparator
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ToolBarSeparator = jsuis.Object.extend(SUPER, function(size) {
+		SUPER.prototype.constructor.call(this, null);
+		var line = new jsuis.defaultlf.Line();
+		this.setLine(line);
+		this.add(line);
+		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ToolBarSeparator,
+			new jsuis.Property("line")
+	);
+	jsuis.defaultlf.ToolBarSeparator.prototype.validate = function() {
+		var toolBar = this.getParent();
+		if (!toolBar) {
+			return;
+		}
+		var width = this.getWidth();
+		var height = this.getWidth();
+		var line = this.getLine();
+		var toolBarOrientation = toolBar.getOrientantion();
+		if (toolBarOrientation === jsuis.Constants.VERTICAL) {
+			var y = height / 2 - line.getThickness() / 2;
+			line.setX1(0).setY1(y).setX2(width).setY2(y);
+		} else {
+			var x = width / 2 - line.getThickness() / 2;
+			line.setX1(x).setY1(0).setX2(x).setY2(height);
+		}
+	}
 }) (jsuis);
 
 /**
@@ -5413,23 +5593,24 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Button;
 	jsuis.defaultlf.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, text, icon);
+		SUPER.prototype.constructor.call(this, nvl(text, ""), icon);
 		this.setBorder(null);
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
-	});
-	jsuis.defaultlf.MenuItem.prototype.addActionListener = function(actionListener) {
-		var actionListeners = this.getActionListeners();
-		actionListeners.push(actionListener);
-		var mouseListener = new jsuis.MouseListener({
+		this.addMouseListener(new jsuis.MouseListener({
 			mouseClicked: function(event) {
 				var menuItem = event.getSource();
-				menuItem.fireActionPerformed(event.getDomEvent());
+				if (menuItem instanceof jsuis.defaultlf.Menu) {
+					return;
+				}
 				var menu = menuItem.getParent();
-				menu.setSelected(false);
+				var menuBar = menu.getParent();
+				menuBar.getPeer().setSelected(null);
 			}
-		});
-		mouseListener.setListenerComponent(actionListener.getListenerComponent());
-		this.addMouseListener(mouseListener);
+		}));
+	});
+	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
+		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
+				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
 	}
 }) (jsuis);
 
@@ -5530,6 +5711,37 @@ jsuis.packages.push(jsuis.defaultlf);
 		button = domEvent.button + 1;
 		this.setButton(button);
 		return button;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.PopupMenuSeparator
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.PopupMenuSeparator = jsuis.Object.extend(SUPER, function(size) {
+		SUPER.prototype.constructor.call(this, null);
+		var line = new jsuis.defaultlf.Line();
+		this.setLine(line);
+		this.add(line);
+		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
+		this.setBorder(null);
+		this.setBackground(null);
+		this.setEnabled(false);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
+			new jsuis.Property("line")
+	);
+	jsuis.defaultlf.PopupMenuSeparator.prototype.doLayout = function() {
+		var popupMenu = this.getParent();
+		if (!popupMenu) {
+			return;
+		}
+		var width = this.getWidth();
+		var height = this.getHeight();
+		var line = this.getLine();
+		var y = height / 2;
+		line.setX1(0).setY1(y).setX2(width).setY2(y);
 	}
 }) (jsuis);
 
@@ -5905,12 +6117,12 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.constructor.call(this, text, icon);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Menu,
-			new jsuis.Property("popupMenu"),
-			new jsuis.Property("statusChanged")
+			new jsuis.Property("popupMenu")
 	);
 	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
 		var componentPeer = component.getPeer();
-		if (componentPeer instanceof jsuis.defaultlf.MenuItem) {
+		if ((componentPeer instanceof jsuis.defaultlf.MenuItem) ||
+				(componentPeer instanceof jsuis.defaultlf.PopupMenuSeparator)) {
 			var popupMenu = this.getPopupMenu();
 			if (!popupMenu) {
 				popupMenu = new jsuis.defaultlf.PopupMenu();
@@ -5938,12 +6150,66 @@ jsuis.packages.push(jsuis.defaultlf);
 		}
 		return this;
 	}
+	jsuis.defaultlf.Menu.prototype.addSeparator = function() {
+		var separator = new jsuis.defaultlf.PopupMenuSeparator()
+		this.add(separator);
+	}
+	jsuis.defaultlf.Menu.prototype.setSelected = function(selected) {
+		this.setPopupMenuVisible(selected);
+		if (selected) {
+			this.paintPressed();
+		} else {
+			var rollover = this.isRollover();
+			if (rollover) {
+				this.paintRollover();
+			} else {
+				this.paint();
+			}
+		}
+		SUPER.prototype.setSelected.call(this, selected);
+		return this;
+	}
+	jsuis.defaultlf.Menu.prototype.hasChanged = function() {
+		return this.changed;
+	}
+	jsuis.defaultlf.Menu.prototype.setChanged = function(changed) {
+		this.changed = changed;
+		return this;
+	}
 	jsuis.defaultlf.Menu.prototype.mousePressed = function() {
-		this.setSelected(!this.isSelected());
+		this.setChanged(false);
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var selection = menuBar.getPeer().getSelection();
+		if (!selection) {
+			menuBar.getPeer().setSelected(this);
+			this.setChanged(true);
+		}
 	}
 	jsuis.defaultlf.Menu.prototype.mouseReleased = function() {
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var changed = this.hasChanged();
+		if (!changed) {
+			var selection = menuBar.getPeer().getSelection();
+			if (selection) {
+				menuBar.getPeer().setSelected(null);
+			}
+		}
 	}
 	jsuis.defaultlf.Menu.prototype.mouseEntered = function() {
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var selection = menuBar.getPeer().getSelection();
+		if (selection) {
+			menuBar.getPeer().setSelected(this);
+		}
 		var selected = this.isSelected();
 		if (selected) {
 			this.paintPressed();
@@ -5960,21 +6226,6 @@ jsuis.packages.push(jsuis.defaultlf);
 			this.paint();
 		}
 		this.setRollover(false);
-	}
-	jsuis.defaultlf.Menu.prototype.setSelected = function(selected) {
-		this.setPopupMenuVisible(selected);
-		if (selected) {
-			this.paintPressed();
-		} else {
-			var rollover = this.isRollover();
-			if (rollover) {
-				this.paintRollover();
-			} else {
-				this.paint();
-			}
-		}
-		SUPER.prototype.setSelected.call(this, selected);
-		return this;
 	}
 }) (jsuis);
 

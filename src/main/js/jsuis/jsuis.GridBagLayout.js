@@ -293,7 +293,6 @@
 			} else {
 				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
 			}
-			component.setBounds(bounds);
 			component.setMaximumLayoutBounds(bounds);
 		}
 	}

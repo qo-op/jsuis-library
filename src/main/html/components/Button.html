@@ -5,11 +5,6 @@
     <script src="/jsuis.js?${date}"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
-		<svg height="0" style="display: block;">
-			<defs>
-				<image id="/images/Star.svg" xlink:href="/images/Star.svg" width="16" height="16"/>
-			</defs>
-		</svg>
     	<div id="container" style="height: 100vh;"></div>
     	<script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,7 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg");
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg")
+			.setPreferredSize(new jsuis.Dimension(16, 16));
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");

@@ -11,6 +11,7 @@
 			new jsuis.Property("text"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("action"),
+			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap")
 	);
 }) (jsuis);

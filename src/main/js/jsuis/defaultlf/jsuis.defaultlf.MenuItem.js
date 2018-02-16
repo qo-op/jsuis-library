@@ -4,22 +4,23 @@
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Button;
 	jsuis.defaultlf.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, text, icon);
+		SUPER.prototype.constructor.call(this, nvl(text, ""), icon);
 		this.setBorder(null);
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
-	});
-	jsuis.defaultlf.MenuItem.prototype.addActionListener = function(actionListener) {
-		var actionListeners = this.getActionListeners();
-		actionListeners.push(actionListener);
-		var mouseListener = new jsuis.MouseListener({
+		this.addMouseListener(new jsuis.MouseListener({
 			mouseClicked: function(event) {
 				var menuItem = event.getSource();
-				menuItem.fireActionPerformed(event.getDomEvent());
+				if (menuItem instanceof jsuis.defaultlf.Menu) {
+					return;
+				}
 				var menu = menuItem.getParent();
-				menu.setSelected(false);
+				var menuBar = menu.getParent();
+				menuBar.getPeer().setSelected(null);
 			}
-		});
-		mouseListener.setListenerComponent(actionListener.getListenerComponent());
-		this.addMouseListener(mouseListener);
+		}));
+	});
+	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
+		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
+				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
 	}
 }) (jsuis);

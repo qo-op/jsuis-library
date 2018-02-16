@@ -5,8 +5,10 @@
 	var SUPER = jsuis.Object;
 	jsuis.Dimension = jsuis.Object.extend(SUPER, function(width, height) {
 		SUPER.prototype.constructor.call(this);
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
+		width = nvl(width, 0);
+		height = nvl(height, width);
+		this.setWidth(width);
+		this.setHeight(height);
 	});
 	jsuis.Object.addProperties(jsuis.Dimension,
 			new jsuis.Property("width"),
