@@ -3,9 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Frame = jsuis.Object.extend(SUPER, function() {
+	jsuis.defaultlf.Frame = jsuis.Object.extend(SUPER, function(title) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
-		this.setVisible(false);
 		SUPER.prototype.setLayout.call(this, new jsuis.BorderLayout());
 		var rootPane = new jsuis.defaultlf.RootPane();
 		this.setRootPane(rootPane);

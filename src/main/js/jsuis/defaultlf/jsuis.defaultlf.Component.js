@@ -133,6 +133,7 @@
 		element.removeChild(componentElement);
 	}
 	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
+		component = component.getPeer();
 		component.init();
 		var components = this.getComponents();
 		var referenceComponent = undefined;
@@ -151,6 +152,7 @@
 		}
 	}
 	jsuis.defaultlf.Component.prototype.remove = function(component) {
+		component = component.getPeer();
 		this.removeChild(component);
 		component.setParent(undefined);
 		var components = this.getComponents();
@@ -371,9 +373,12 @@
 		return this.border;
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
+		if (border) {
+			border.getPeer().install(this);
+		} else {
+			new jsuis.defaultlf.Border().install(this);
+		}
 		this.border = border;
-		border = nvl(border, new jsuis.defaultlf.Border());
-		border.install(this);
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
@@ -574,11 +579,6 @@
 	}
 	jsuis.defaultlf.Component.prototype.setVisible = function(visible) {
 		this.setStyleProperty("display", visible ? "" : "none");
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.setVisible(visible);
-		}
 		this.visible = visible;
 		return this;
 	}

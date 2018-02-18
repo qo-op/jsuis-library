@@ -18,6 +18,10 @@
 			new jsuis.Property("weightxs"),
 			new jsuis.Property("weightys")
 	);
+	jsuis.GridBagLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.GridBagLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -192,6 +196,9 @@
 		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
+	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
+	}
 	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
 		var preferredLayoutSize = this.preferredLayoutSize(parent);
 		var x = 0;
@@ -295,8 +302,5 @@
 			}
 			component.setMaximumLayoutBounds(bounds);
 		}
-	}
-	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 }) (jsuis);

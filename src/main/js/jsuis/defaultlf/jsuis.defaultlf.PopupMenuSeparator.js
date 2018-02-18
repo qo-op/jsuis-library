@@ -2,16 +2,13 @@
  * jsuis.defaultlf.PopupMenuSeparator
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Button;
+	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.PopupMenuSeparator = jsuis.Object.extend(SUPER, function(size) {
 		SUPER.prototype.constructor.call(this, null);
 		var line = new jsuis.defaultlf.Line();
 		this.setLine(line);
 		this.add(line);
 		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
-		this.setBorder(null);
-		this.setBackground(null);
-		this.setEnabled(false);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
 			new jsuis.Property("line")

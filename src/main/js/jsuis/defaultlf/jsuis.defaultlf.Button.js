@@ -45,13 +45,11 @@
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
-			new jsuis.Property("action"),
-			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
 			new jsuis.Property("rolloverColor"),
-			new jsuis.Property("propertyChangeListener")
+			new jsuis.Property("group")
 	);
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();

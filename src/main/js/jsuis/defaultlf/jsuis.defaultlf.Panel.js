@@ -3,10 +3,10 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Panel = jsuis.Object.extend(SUPER, function(layout, target) {
+	jsuis.defaultlf.Panel = jsuis.Object.extend(SUPER, function(layout) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "g"));
-		this.setTarget(nvl(target, new jsuis.defaultlf.Rect()));
 		this.setLayout(layout !== undefined ? layout : new jsuis.FlowLayout());
+		this.setTarget(new jsuis.defaultlf.Rect());
 		this.setBackground(null);
 	});
 	jsuis.defaultlf.Panel.prototype.getTarget = function() {

@@ -10,9 +10,9 @@
 			new jsuis.Property("popupMenu")
 	);
 	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
-		var componentPeer = component.getPeer();
-		if ((componentPeer instanceof jsuis.defaultlf.MenuItem) ||
-				(componentPeer instanceof jsuis.defaultlf.PopupMenuSeparator)) {
+		var component = component.getPeer();
+		if ((component instanceof jsuis.defaultlf.MenuItem) ||
+				(component instanceof jsuis.defaultlf.PopupMenuSeparator)) {
 			var popupMenu = this.getPopupMenu();
 			if (!popupMenu) {
 				popupMenu = new jsuis.defaultlf.PopupMenu();
@@ -72,9 +72,9 @@
 		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
 			return;
 		}
-		var selection = menuBar.getPeer().getSelection();
+		var selection = menuBar.getSelection();
 		if (!selection) {
-			menuBar.getPeer().setSelected(this);
+			menuBar.setSelected(this);
 			this.setChanged(true);
 		}
 	}
@@ -85,9 +85,9 @@
 		}
 		var changed = this.hasChanged();
 		if (!changed) {
-			var selection = menuBar.getPeer().getSelection();
+			var selection = menuBar.getSelection();
 			if (selection) {
-				menuBar.getPeer().setSelected(null);
+				menuBar.setSelected(null);
 			}
 		}
 	}
@@ -96,9 +96,9 @@
 		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
 			return;
 		}
-		var selection = menuBar.getPeer().getSelection();
+		var selection = menuBar.getSelection();
 		if (selection) {
-			menuBar.getPeer().setSelected(this);
+			menuBar.setSelected(this);
 		}
 		var selected = this.isSelected();
 		if (selected) {

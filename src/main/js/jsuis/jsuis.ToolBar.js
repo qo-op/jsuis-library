@@ -9,6 +9,6 @@
 	});
 	jsuis.ToolBar.prototype.addSeparator = function(size) {
 		var peer = this.getPeer();
-		peer.addSeperator(size);
+		peer.addSeparator(size);
 	}
 }) (jsuis);

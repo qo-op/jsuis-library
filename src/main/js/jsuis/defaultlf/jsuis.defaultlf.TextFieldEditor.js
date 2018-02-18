@@ -52,7 +52,7 @@
 					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
-			label.getPeer().setStyleProperty("visibility", "hidden");
+			label.setStyleProperty("visibility", "hidden");
 			this.setVisible(true);
 		}
 		this.textField = textField;
@@ -62,7 +62,7 @@
 		var label = textField.getLabel();
 		label.setText(this.getText());
 		this.setVisible(false);
-		label.getPeer().setStyleProperty("visibility", "visible");
+		label.setStyleProperty("visibility", "visible");
 		textField.setEditor(null);
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {

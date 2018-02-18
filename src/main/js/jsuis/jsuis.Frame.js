@@ -3,9 +3,9 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.Frame = jsuis.Object.extend(SUPER, function() {
+	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Frame());
+		this.setPeer(new jsuis[lookAndFeel].Frame(title));
 	});
 	jsuis.Object.addPeerProperties(jsuis.Frame,
 			new jsuis.Property("layeredPane"),

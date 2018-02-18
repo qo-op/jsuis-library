@@ -1,13 +1,4 @@
 /**
- * jsuis
- */
-jsuis = {
-};
-/**
- * SVG
- */
-jsuis.SVG = "http://www.w3.org/2000/svg";
-/**
  * null value
  */
 function nvl(value, defaultValue) {
@@ -17,114 +8,20 @@ function nvl(value, defaultValue) {
 	return value;
 }
 
+function println(text) {
+	console.log(text);
+}
+
 /**
  * jsuis
  */
 jsuis = {
 };
-/**
- * SVG
- */
-jsuis.SVG = "http://www.w3.org/2000/svg";
-/**
- * null value
- */
-function nvl(value, defaultValue) {
-	if ((value === null) || (value === undefined)) {
-		return defaultValue;
-	}
-	return value;
-}
 
 /**
- * jsuis.Constants
+ * jsuis.packages
  */
-(function(jsuis) {
-	jsuis.Constants = function() {
-	}
-	
-	var CONSTANTS = {
-			ABOVE_BASELINE: "",
-			ABOVE_BASELINE_LEADING: "",
-			ABOVE_BASELINE_TRAILING: "",
-			ACTION_PERFORMED: "",
-			AFTER_LAST_LINE: "",
-			AFTER_LINE_ENDS: "",
-			BASELINE: "",
-			BASELINE_LEADING: "",
-			BASELINE_TRAILING: "",
-			BELOW_BASELINE: "",
-			BELOW_BASELINE_LEADING: "",
-			BELOW_BASELINE_TRAILING: "",
-			BEFORE_FIRST_LINE: "",
-			BEFORE_LINE_BEGINS: "",
-			BOTH: "",
-			BOTTOM: "",
-			CENTER: "",
-			COMPONENT_MOVED: "",
-			COMPONENT_RESIZED: "",
-			EAST: "",
-			FIRST_LINE_END: "",
-			FIRST_LINE_START: "",
-			HORIZONTAL: "",
-			HORIZONTAL_SCROLLBAR_ALWAYS: "",
-			HORIZONTAL_SCROLLBAR_AS_NEEDED: "",
-			HORIZONTAL_SCROLLBAR_NEVER: "",
-			LAST_LINE_END: "",
-			LAST_LINE_START: "",
-			LEADING: "",
-			LEFT: "",
-			LINE_END: "",
-			LINE_START: "",
-			MOUSE_CLICKED: "",
-			MOUSE_DRAGGED: "",
-			MOUSE_ENTERED: "",
-			MOUSE_EXITED: "",
-			MOUSE_MOVED: "",
-			MOUSE_PRESSED: "",
-			MOUSE_RELEASED: "",
-			NEXT: "",
-			NONE: "",
-			NORTH: "",
-			NORTHEAST: "",
-			NORTHWEST: "",
-			NORTH_EAST: "",
-			NORTH_WEST: "",
-			PAGE_END: "",
-			PAGE_START: "",
-			PREVIOUS: "",
-			RELATIVE: "",
-			REMAINDER: "",
-			RIGHT: "",
-			SOUTH: "",
-			SOUTHEAST: "",
-			SOUTHWEST: "",
-			SOUTH_EAST: "",
-			SOUTH_WEST: "",
-			TOP: "",
-			TRAILING: "",
-			VERTICAL: "",
-			VERTICAL_SCROLLBAR_ALWAYS: "",
-			VERTICAL_SCROLLBAR_AS_NEEDED: "",
-			VERTICAL_SCROLLBAR_NEVER: "",
-			WEST: ""
-	}
-	
-	for (var key in CONSTANTS) {
-		jsuis.Constants[key] = (key.charAt(0) + key.slice(1).toLowerCase())
-				.replace(/_([a-z])/g, function(g) {
-					return g[1].toUpperCase()
-				});
-	}
-
-	jsuis.Constants.FRAME_CONTENT_LAYER = -30000;
-	jsuis.Constants.DEFAULT_LAYER = 0;
-	jsuis.Constants.PALETTE_LAYER = 100;
-	jsuis.Constants.MODAL_LAYER = 200;
-	jsuis.Constants.POPUP_LAYER = 300;
-	jsuis.Constants.DRAG_LAYER = 400;
-	
-})(jsuis);
+jsuis.packages = [];
 
 /**
  * jsuis.Object
@@ -161,18 +58,61 @@ function nvl(value, defaultValue) {
 	jsuis.Object.addProperty = function(constructor, property) {
 		var key = property.getKey();
 		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getLibrary() + "." + jsuis.Object.getConstructorName(constructor) + ".prototype.get" + method + " = ";
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
 		get += function() {
 			return this.key;
 		};
 		get = get.replace(/key/g, key);
-		eval(get);
-		var set = jsuis.Object.getLibrary() + "." + jsuis.Object.getConstructorName(constructor) + ".prototype.set" + method + " = ";
+		try {
+			eval(get);
+		} catch (e) {
+			println(get);
+			println(e.stack);
+		}
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			this.key = key;
 			return this;
 		};
 		set = set.replace(/key/g, key);
+		try {
+			eval(set);
+		} catch (e) {
+			println(set);
+			println(e.stack);
+		}
+		var properties = constructor.properties;
+		if (!properties) {
+			properties = [];
+			constructor.properties = properties;
+		}
+		properties.push(property);
+	}
+	jsuis.Object.addPeerProperties = function(constructor, properties) {
+		properties = Array.prototype.slice.call(arguments, 1);
+		for (var i = 0; i < properties.length; i++) {
+			var property = properties[i];
+			jsuis.Object.addPeerProperty(constructor, property);
+		}
+	}
+	jsuis.Object.addPeerProperty = function(constructor, property) {
+		var key = property.getKey();
+		var method = key.charAt(0).toUpperCase() + key.slice(1);
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+		get += function() {
+			var peer = this.getPeer();
+			return peer.getmethod();
+		};
+		get = get.replace("peer.getmethod", "peer.get" + method);
+		eval(get);
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
+		set += function(key) {
+			var peer = this.getPeer();
+			peer.setmethod(key);
+			return this;
+		};
+		set = set.replace(/key/g, key);
+		set = set.replace("peer.setmethod", "peer.set" + method);
 		eval(set);
 		var properties = constructor.properties;
 		if (!properties) {
@@ -181,8 +121,38 @@ function nvl(value, defaultValue) {
 		}
 		properties.push(property);
 	}
-	jsuis.Object.getLibrary = function() {
-		return "jsuis";
+	jsuis.Object.addElementProperties = function(constructor, properties) {
+		properties = Array.prototype.slice.call(arguments, 1);
+		for (var i = 0; i < properties.length; i++) {
+			var property = properties[i];
+			jsuis.Object.addElementProperty(constructor, property);
+		}
+	}
+	jsuis.Object.addElementProperty = function(constructor, property) {
+		var key = property.getKey();
+		var method = key.charAt(0).toUpperCase() + key.slice(1);
+		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+		get += function() {
+			var element = this.getElement();
+			return element.getmethod();
+		};
+		get = get.replace("element.getmethod", "element.get" + method);
+		eval(get);
+		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
+		set += function(key) {
+			var element = this.getElement();
+			element.setmethod(key);
+			return this;
+		};
+		set = set.replace(/key/g, key);
+		set = set.replace("element.setmethod", "element.set" + method);
+		eval(set);
+		var properties = constructor.properties;
+		if (!properties) {
+			properties = [];
+			constructor.properties = properties;
+		}
+		properties.push(property);
 	}
 	jsuis.Object.extend = function(source, target) {
 		var object = function() {};
@@ -253,24 +223,50 @@ function nvl(value, defaultValue) {
 	jsuis.Object.isArray = function(value) {
 		return (Object.prototype.toString.call(value) === "[object Array]");
 	}
-	jsuis.Object.getConstructorName = function(constructor) {
-		var name = constructor.name;
-		if (name) {
-			return name;
+	jsuis.Object.getClassName = function(constructor, prefix, jsuisPackage) {
+		var className = constructor.className;
+		if (className) {
+			return className;
 		}
-		for (name in jsuis) {
-			if (constructor === jsuis[name]) {
-				constructor.name = name;
-				return name;
+		var prefix = prefix || "jsuis";
+		var jsuisPackage = jsuisPackage || jsuis;
+		for (name in jsuisPackage) {
+			if (constructor === jsuisPackage[name]) {
+				var className = prefix + "." + name;
+				constructor.className = className;
+				return className;
+			}
+			var object = jsuisPackage[name];
+			if (jsuis.packages.indexOf(object) === -1) {
+				continue;
+			}
+			var className = jsuis.Object.getClassName(constructor, prefix + "." + name, object);
+			if (className) {
+				constructor.className = className;
+				return className;
 			}
 		}
 	}
 	jsuis.Object.prototype.getConstructor = function() {
 		return this.constructor;
 	}
-	jsuis.Object.prototype.getConstructorName = function() {
+	jsuis.Object.prototype.getClassName = function() {
 		var constructor = this.getConstructor();
-		return jsuis.Object.getConstructorName(constructor);
+		return jsuis.Object.getClassName(constructor);
+	}
+	jsuis.Object.prototype.getElement = function() {
+		return this.element;
+	}
+	jsuis.Object.prototype.setElement = function(element) {
+		this.element = element;
+		return this;
+	}
+	jsuis.Object.prototype.getPeer = function() {
+		return this.peer;
+	}
+	jsuis.Object.prototype.setPeer = function(peer) {
+		this.peer = peer;
+		return this;
 	}
 	jsuis.Object.prototype.setProperties = function(properties) {
 		var constructor = this.getConstructor();
@@ -281,8 +277,35 @@ function nvl(value, defaultValue) {
 		var constructor = this.getConstructor();
 		return constructor.properties;
 	}
+	jsuis.Object.prototype.getPropertyChangeSupport = function() {
+		var propertyChangeSupport = this.propertyChangeSupport;
+		if (!propertyChangeSupport) {
+			propertyChangeSupport = new jsuis.PropertyChangeSupport(this);
+			this.setPropertyChangeSupport(propertyChangeSupport);
+		}
+		return propertyChangeSupport;
+	}
+	jsuis.Object.prototype.setPropertyChangeSupport = function(propertyChangeSupport) {
+		this.propertyChangeSupport = propertyChangeSupport;
+	}
+	jsuis.Object.prototype.addPropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.addPropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.removePropertyChangeListener = function(propertyChangeListener) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.removePropertyChangeListener(propertyChangeListener);
+	}
+	jsuis.Object.prototype.getPropertyChangeListeners = function(propertyName) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.getPropertyChangeListeners(propertyName);
+	}
+	jsuis.Object.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
+		var propertyChangeSupport = this.getPropertyChangeSupport();
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
 	jsuis.Object.prototype.toString = function() {
-		return jsuis.Object.getLibrary() + "." + this.getConstructorName() + JSON.stringify(this);
+		return this.getClassName();
 	}
 })(jsuis);
 
@@ -290,14 +313,16 @@ function nvl(value, defaultValue) {
  * jsuis.Property
  */
 (function(jsuis) {
-	jsuis.Property = function(key, value) {
+	var SUPER = jsuis.Object;
+	jsuis.Property = jsuis.Object.extend(jsuis.Object, function(key, value) {
+		SUPER.prototype.constructor.call(this);
 		if (key !== undefined) {
 			this.setKey(key);
 		}
 		if (value !== undefined) {
 			this.setValue(value);
 		}
-	}
+	});
 	jsuis.Property.prototype.getKey = function() {
 		return this.key;
 	}
@@ -312,33 +337,7 @@ function nvl(value, defaultValue) {
 		this.value = value;
 		return this;
 	}
-	jsuis.Property.prototype.toString = function() {
-		return "jsuis.Property" + JSON.stringify(this);
-	}
-})(jsuis);
-
-/**
- * Border
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Border = jsuis.Object.extend(SUPER, function(color, thickness) {
-		SUPER.prototype.constructor.call(this);
-	});
-	jsuis.Border.prototype.install = function(component) {
-		var shape = component.getShape();
-		if (!shape) {
-			return;
-		}
-		shape.setForeground(null);
-	}
-	jsuis.Border.prototype.getBorderInsets = function(component) {
-		return new jsuis.Insets();
-	}
-	jsuis.Border.prototype.getBorderOutsets = function(component) {
-		return new jsuis.Insets();
-	}
-})(jsuis);
+}) (jsuis);
 
 /**
  * jsuis.BorderLayout
@@ -378,6 +377,10 @@ function nvl(value, defaultValue) {
 			};
 		}
 		return comparator;
+	}
+	jsuis.BorderLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.BorderLayout.prototype.removeLayoutComponent = function(comp) {
 	}
 	jsuis.BorderLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
@@ -426,6 +429,9 @@ function nvl(value, defaultValue) {
 		preferredLayoutHeight += parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
+	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
+	}
 	jsuis.BorderLayout.prototype.layoutContainer = function(parent) {
 		var x = 0;
 		var y = 0;
@@ -452,6 +458,7 @@ function nvl(value, defaultValue) {
 			if (!component.isVisible()) {
 				continue;
 			}
+			component.setFill(nvl(component.getFill(), jsuis.Constants.BOTH));
 			var componentPreferredSize = component.getPreferredSize();
 			var componentPreferredWidth = componentPreferredSize.getWidth();
 			var componentPreferredHeight = componentPreferredSize.getHeight();
@@ -499,158 +506,56 @@ function nvl(value, defaultValue) {
 			componentWidth -= hgap;
 			componentHeight -= vgap;
 			var rectangle = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			component.setBounds(rectangle);
 			component.setMaximumLayoutBounds(rectangle);
 		}
-	}
-	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 }) (jsuis);
 
 /**
- * jsuis.BrowserWindow
+ * jsuis.ButtonGroup
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.BrowserWindow = jsuis.Object.extend(SUPER, function() {
+	jsuis.ButtonGroup = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
-		this.setElement(window);
-		this.setEventListeners({});
-		this.setComponentListeners([]);
-		this.setMouseListeners([]);
-		this.setMouseMotionListeners([]);
-		this.setEventListener("mousedown", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMousePressed(domEvent);
-		});
-		this.setEventListener("mouseup", function(domEvent) {
-			jsuis.BrowserWindow.getInstance().fireMouseReleased(domEvent);
-		});
-		this.setEventListener("mousemove", function(domEvent) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
-			if (browserWindow.isPressed()) {
-				browserWindow.fireMouseDragged(domEvent);
-			}
-		});
+		this.setButtons([]);
 	});
-	jsuis.Object.addProperties(jsuis.BrowserWindow,
-			new jsuis.Property("element"),
-			new jsuis.Property("eventListeners"),
-			new jsuis.Property("componentListeners"),
-			new jsuis.Property("mouseListeners"),
-			new jsuis.Property("mouseMotionListeners")
+	jsuis.Object.addProperties(jsuis.ButtonGroup,
+			new jsuis.Property("buttons"),
+			new jsuis.Property("selection")
 	);
-	var instance;
-	jsuis.BrowserWindow.getInstance = function() {
-		if (!instance) {
-			instance = new jsuis.BrowserWindow();
-		}
-		return instance;
+	jsuis.ButtonGroup.prototype.add = function(button) {
+		var buttons = this.getButtons();
+		buttons.push(button);
+		button.setGroup(this);
 	}
-	jsuis.BrowserWindow.prototype.getEventListener = function(type) {
-		var eventListeners = this.getEventListeners();
-		return eventListeners["on" + type];
-	}
-	jsuis.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
-		var oldEventListener = this.getEventListener(type);
-		if (oldEventListener) {
-			this.removeEventListener(type, oldEventListener);
+	jsuis.ButtonGroup.prototype.remove = function(button) {
+		var buttons = this.getButtons();
+		var index = buttons.indexOf(button);
+		if (index === -1) {
+			return;
 		}
-		this.addEventListener(type, eventListener);
-		var eventListeners = this.getEventListeners();
-		eventListeners["on" + type] = eventListener;
+		buttons.splice(index, 1);
+		var selection = this.getSelection();
+		if (button === selection) {
+			this.setSelection(null);
+		}
+		button.setGroup(null);
+	}
+	jsuis.ButtonGroup.prototype.isSelected = function(button) {
+		var selection = this.getSelection();
+		return (button === selection);
+	}
+	jsuis.ButtonGroup.prototype.setSelected = function(button) {
+		var oldSelection = this.getSelection();
+		if (oldSelection) {
+			oldSelection.setSelected(false);
+		}
+		this.setSelection(button);
+		if (button) {
+			button.setSelected(true);
+		}
 		return this;
-	}
-	jsuis.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
-		var element = this.getElement();
-		element.addEventListener(type, eventListener);
-	}
-	jsuis.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
-		var element = this.getElement();
-		element.removeEventListener(type, eventListener);
-	}
-	jsuis.BrowserWindow.prototype.addComponentListener = function(componentListener) {
-		var componentListeners = this.getComponentListeners();
-		componentListeners.push(componentListener);
-		var component = this;
-		var listener = componentListener.getListener();
-		if (listener.componentResized) {
-			var onresize = this.getEventListener("resize");
-			if (!onresize) {
-				this.setEventListener("resize", function(event) {
-					component.fireComponentResized(event);
-				});
-			}
-		}
-		/*
-		if (listener.componentMoved) {
-			// TODO
-		}
-		*/
-	}
-	jsuis.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
-		var componentListeners = this.getComponentListeners();
-		var index = componentListeners.indexOf(componentListener);
-		if (index !== -1) {
-			componentListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
-		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
-		var componentListeners = this.getComponentListeners();
-		for (var i = 0; i < componentListeners.length; i++) {
-			var componentListener = componentListeners[i];
-			componentListener.componentResized(event);
-		}
-	}
-	jsuis.BrowserWindow.prototype.isPressed = function() {
-		return this.pressed;
-	}
-	jsuis.BrowserWindow.prototype.setPressed = function(pressed) {
-		this.pressed = pressed;
-		return this;
-	}
-	jsuis.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
-		var mouseListeners = this.getMouseListeners();
-		mouseListeners.push(mouseListener);
-	}
-	jsuis.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
-		var mouseListeners = this.getMouseListeners();
-		var index = mouseListeners.indexOf(mouseListener);
-		if (index !== -1) {
-			mouseListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
-		this.setPressed(true);
-	}
-	jsuis.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
-		this.setPressed(false);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseReleased(mouseEvent);
-		}
-	}
-	jsuis.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		mouseMotionListeners.push(mouseMotionListener);
-	}
-	jsuis.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		var index = mouseMotionListeners.indexOf(mouseMotionListener);
-		if (index !== -1) {
-			mouseMotionListeners.splice(index, 1);
-		}
-	}
-	jsuis.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		for (var i = 0; i < mouseMotionListeners.length; i++) {
-			var mouseMotionListener = mouseMotionListeners[i];
-			mouseMotionListener.mouseDragged(mouseEvent);
-		}
 	}
 }) (jsuis);
 
@@ -867,23 +772,1095 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * Component
+ * jsuis.Constants
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
+	jsuis.Constants = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
-		this.setElement(element);
-		this.addClass(this.getConstructorName());
-		this.setComponents([]);
-		this.setEventListeners({});
-		this.setComponentListeners([]);
-		this.setMouseListeners([]);
-		this.setMouseMotionListeners([]);
-		this.setPropertyChangeListeners({});
-		this.setActionListeners([]);
 	});
-	jsuis.Object.addProperties(jsuis.Component,
+	
+	jsuis.Constants.SVG = "http://www.w3.org/2000/svg";
+	
+	var CONSTANTS = {
+			ABOVE_BASELINE: "",
+			ABOVE_BASELINE_LEADING: "",
+			ABOVE_BASELINE_TRAILING: "",
+			ACTION_PERFORMED: "",
+			AFTER_LAST_LINE: "",
+			AFTER_LINE_ENDS: "",
+			BASELINE: "",
+			BASELINE_LEADING: "",
+			BASELINE_TRAILING: "",
+			BELOW_BASELINE: "",
+			BELOW_BASELINE_LEADING: "",
+			BELOW_BASELINE_TRAILING: "",
+			BEFORE_FIRST_LINE: "",
+			BEFORE_LINE_BEGINS: "",
+			BOTH: "",
+			BOTTOM: "",
+			CENTER: "",
+			COMPONENT_MOVED: "",
+			COMPONENT_RESIZED: "",
+			EAST: "",
+			FIRST_LINE_END: "",
+			FIRST_LINE_START: "",
+			FOCUS_GAINED: "",
+			FOCUS_LOST: "",
+			HORIZONTAL: "",
+			HORIZONTAL_SCROLLBAR_ALWAYS: "",
+			HORIZONTAL_SCROLLBAR_AS_NEEDED: "",
+			HORIZONTAL_SCROLLBAR_NEVER: "",
+			LAST_LINE_END: "",
+			LAST_LINE_START: "",
+			LEADING: "",
+			LEFT: "",
+			LINE_END: "",
+			LINE_START: "",
+			MOUSE_CLICKED: "",
+			MOUSE_DRAGGED: "",
+			MOUSE_ENTERED: "",
+			MOUSE_EXITED: "",
+			MOUSE_MOVED: "",
+			MOUSE_PRESSED: "",
+			MOUSE_RELEASED: "",
+			NEXT: "",
+			NONE: "",
+			NORTH: "",
+			NORTHEAST: "",
+			NORTHWEST: "",
+			NORTH_EAST: "",
+			NORTH_WEST: "",
+			PAGE_END: "",
+			PAGE_START: "",
+			PREVIOUS: "",
+			RELATIVE: "",
+			REMAINDER: "",
+			RIGHT: "",
+			SOUTH: "",
+			SOUTHEAST: "",
+			SOUTHWEST: "",
+			SOUTH_EAST: "",
+			SOUTH_WEST: "",
+			TOP: "",
+			TOUCH_PRESSED: "",
+			TOUCH_RELEASED: "",
+			TOUCH_MOVED: "",
+			TRAILING: "",
+			VERTICAL: "",
+			VERTICAL_SCROLLBAR_ALWAYS: "",
+			VERTICAL_SCROLLBAR_AS_NEEDED: "",
+			VERTICAL_SCROLLBAR_NEVER: "",
+			WEST: ""
+	}
+	
+	for (var key in CONSTANTS) {
+		jsuis.Constants[key] = (key.charAt(0) + key.slice(1).toLowerCase())
+				.replace(/_([a-z])/g, function(g) {
+					return g[1].toUpperCase()
+				});
+	}
+
+	jsuis.Constants.FRAME_CONTENT_LAYER = -30000;
+	jsuis.Constants.DEFAULT_LAYER = 0;
+	jsuis.Constants.PALETTE_LAYER = 100;
+	jsuis.Constants.MODAL_LAYER = 200;
+	jsuis.Constants.POPUP_LAYER = 300;
+	jsuis.Constants.DRAG_LAYER = 400;
+	
+})(jsuis);
+
+/**
+ * jsuis.Cursor
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Cursor = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	
+	jsuis.Cursor.CROSSHAIR_CURSOR = "crosshair";
+	jsuis.Cursor.DEFAULT_CURSOR = "default";
+	jsuis.Cursor.E_RESIZE_CURSOR = "e-resize";
+	jsuis.Cursor.HAND_CURSOR = "pointer";
+	jsuis.Cursor.MOVE_CURSOR = "move";
+	jsuis.Cursor.N_RESIZE_CURSOR = "n-resize";
+	jsuis.Cursor.NE_RESIZE_CURSOR = "ne-resize";
+	jsuis.Cursor.NW_RESIZE_CURSOR = "nw-resize";
+	jsuis.Cursor.S_RESIZE_CURSOR = "s-resize";
+	jsuis.Cursor.SE_RESIZE_CURSOR = "se-resize";
+	jsuis.Cursor.SW_RESIZE_CURSOR = "sw-resize";
+	jsuis.Cursor.TEXT_CURSOR = "text";
+	jsuis.Cursor.W_RESIZE_CURSOR = "w-resize";
+	jsuis.Cursor.WAIT_CURSOR = "wait";
+	
+}) (jsuis);
+
+/**
+ * jsuis.Dimension
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Dimension = jsuis.Object.extend(SUPER, function(width, height) {
+		SUPER.prototype.constructor.call(this);
+		width = nvl(width, 0);
+		height = nvl(height, width);
+		this.setWidth(width);
+		this.setHeight(height);
+	});
+	jsuis.Object.addProperties(jsuis.Dimension,
+			new jsuis.Property("width"),
+			new jsuis.Property("height")
+	);
+	jsuis.Dimension.prototype.add = function(dimension) {
+		var width = this.getWidth() + dimension.getWidth();
+		var height = this.getHeight() + dimension.getHeight();
+		return new jsuis.Dimension(width, height);
+	}
+	jsuis.Dimension.prototype.subtract = function(dimension) {
+		var width = this.getWidth() - dimension.getWidth();
+		var height = this.getHeight() - dimension.getHeight();
+		return new jsuis.Dimension(width, height);
+	}
+	jsuis.Dimension.prototype.clone = function() {
+		return new jsuis.Dimension(this.getWidth(), this.getHeight());
+	}
+}) (jsuis);
+
+/**
+ * jsuis.FlowLayout
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
+		SUPER.prototype.constructor.call(this);
+		this.setAlign(nvl(align, jsuis.Constants.CENTER));
+		hgap = nvl(hgap, 4);
+		vgap = nvl(vgap, hgap);
+		this.setHgap(hgap);
+		this.setVgap(vgap);
+	});
+	jsuis.Object.addProperties(jsuis.FlowLayout,
+			new jsuis.Property("align"),
+			new jsuis.Property("hgap"),
+			new jsuis.Property("vgap")
+	);
+	jsuis.FlowLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.FlowLayout.prototype.removeLayoutComponent = function(comp) {
+	}
+	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
+		var preferredLayoutWidth = 0;
+		var preferredLayoutHeight = 0;
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var componentPreferredSize = component.getPreferredSize();
+			var componentPreferredWidth = componentPreferredSize.getWidth();
+			var componentPreferredHeight = componentPreferredSize.getHeight();
+			componentPreferredWidth += hgap;
+			componentPreferredHeight += vgap;
+			preferredLayoutWidth += componentPreferredWidth;
+			preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredHeight);
+		}
+		if (components.length) {
+			preferredLayoutWidth -= hgap;
+			preferredLayoutHeight -= vgap;
+		}
+		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
+		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
+		return new jsuis.Dimension(preferredLayoutWidth + 2 * hgap, preferredLayoutHeight + 2 * vgap);
+	}
+	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
+		this.layoutContainer(parent);
+		var minimumLayoutX = 0;
+		var minimumLayoutWidth = 0;
+		var minimumLayoutHeight = 0;
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var componentX = component.getX();
+			var componentY = component.getY();
+			var componentWidth = component.getWidth();
+			var componentHeight = component.getHeight();
+			minimumLayoutX = Math.min(minimumLayoutX, componentX);
+			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
+			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
+		}
+		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
+	}
+	jsuis.FlowLayout.prototype.layoutContainer = function(parent) {
+		var minX = 0;
+		var minY = 0;
+		var maxWidth = parent.getWidth();
+		var maxHeight = parent.getHeight();
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+		minX += parentInsetsOutsets.getLeft() + hgap;
+		minY += parentInsetsOutsets.getTop() + vgap;
+		maxWidth -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight() + 2 * hgap;
+		maxHeight -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom() + 2 * vgap;
+		minX += hgap / 2;
+		minY += vgap / 2;
+		maxWidth += hgap;
+		maxHeight += vgap;
+		var x = minX;
+		var y = minY;
+		var width = 0;
+		var height = 0;
+		var rowComponents = [];
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var componentPreferredSize = component.getPreferredSize();
+			var componentPreferredWidth = componentPreferredSize.getWidth();
+			var componentPreferredHeight = componentPreferredSize.getHeight();
+			var componentX = x;
+			var componentY = y;
+			var componentWidth = componentPreferredWidth + hgap;
+			var componentHeight = componentPreferredHeight + vgap;
+			if ((componentX + componentWidth < maxWidth) || (rowComponents.length == 0)) {
+				x += componentWidth;
+				width += componentWidth;
+				height = Math.max(height, componentHeight);
+				component.setBounds(new jsuis.Rectangle(componentX - hgap / 2, componentY - vgap / 2,
+						componentWidth - hgap, componentHeight - vgap));
+				rowComponents.push(component);
+			}
+			if ((componentX + componentWidth >= maxWidth) || (i === components.length - 1)) {
+				var dx = 0;
+				var align = this.getAlign();
+				switch (align) {
+				case jsuis.Constants.LEFT:
+				case jsuis.Constants.LEADING:
+					break;
+				case jsuis.Constants.RIGHT:
+				case jsuis.Constants.TRAILING:
+					dx = maxWidth - width;
+					break;
+				case jsuis.Constants.CENTER:
+				default:
+					dx = Math.round((maxWidth - width) / 2);
+				}
+				for (var j = 0; j < rowComponents.length; j++) {
+					var rowComponent = rowComponents[j];
+					var rowComponentX = rowComponent.getX();
+					var rowComponentY = rowComponent.getY();
+					var rowComponentWidth = rowComponent.getWidth();
+					var rowComponentHeight = rowComponent.getHeight();
+					rowComponentX += dx;
+					rowComponentHeight = height - vgap;
+					var bounds;
+					var leftToRight = parent.isLeftToRight();
+					if (leftToRight) {
+						bounds = new jsuis.Rectangle(rowComponentX, rowComponentY, rowComponentWidth, rowComponentHeight);
+					} else {
+						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
+					}
+					rowComponent.setBounds(bounds);
+					rowComponent.setMaximumLayoutBounds(bounds);
+					rowComponent.setAnchor(rowComponent.getAnchor() || jsuis.Constants.CENTER);
+				}
+				rowComponents.length = 0;
+				x = minX;
+				y += height;
+				width = 0;
+				height = 0;
+				if ((componentX + componentWidth >= maxWidth) && (x + componentWidth < maxWidth)) {
+					i--;
+				}
+			}
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Font
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Font = jsuis.Object.extend(SUPER, function(name, style, size) {
+		SUPER.prototype.constructor.call(this);
+		this.setName(name);
+		this.setStyle(style);
+		this.setSize(size);
+	});
+	jsuis.Object.addProperties(jsuis.Font,
+			new jsuis.Property("name"),
+			new jsuis.Property("style"),
+			new jsuis.Property("size")
+	);
+	
+	jsuis.Font.NORMAL = "normal";
+	jsuis.Font.ITALIC = "italic";
+	jsuis.Font.OBLIQUE = "oblique";
+	
+}) (jsuis);
+
+/**
+ * jsuis.GridBagConstraints
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.GridBagConstraints = jsuis.Object.extend(SUPER, function(
+			gridx, gridy, gridwidth, gridheight,
+			weightx, weighty,
+			anchor, fill,
+			insets, ipadx, ipady) {
+		SUPER.prototype.constructor.call(this);
+		this.setGridx(nvl(gridx, jsuis.Constants.RELATIVE));
+		this.setGridy(nvl(gridy, jsuis.Constants.RELATIVE));
+		this.setGridwidth(nvl(gridwidth, 1));
+		this.setGridheight(nvl(gridheight, 1));
+		this.setWeightx(nvl(weightx, 0));
+		this.setWeighty(nvl(weighty, 0));
+		this.setAnchor(nvl(anchor, jsuis.Constants.CENTER));
+		this.setFill(nvl(fill, jsuis.Constants.NONE));
+		this.setInsets(nvl(insets, new jsuis.Insets()));
+		this.setIpadx(nvl(ipadx, 0));
+		this.setIpady(nvl(ipady, 0));
+	});
+	jsuis.Object.addProperties(jsuis.GridBagConstraints,
+			new jsuis.Property("gridx"),
+			new jsuis.Property("gridy"),
+			new jsuis.Property("gridwidth"),
+			new jsuis.Property("gridheight"),
+			new jsuis.Property("weightx"),
+			new jsuis.Property("weighty"),
+			new jsuis.Property("anchor"),
+			new jsuis.Property("fill"),
+			new jsuis.Property("insets"),
+			new jsuis.Property("ipadx"),
+			new jsuis.Property("ipady"),
+			new jsuis.Property("relativeGridx"),
+			new jsuis.Property("relativeGridy"),
+			new jsuis.Property("remainderGridwidth"),
+			new jsuis.Property("remainderGridheight")
+	);
+	jsuis.GridBagConstraints.prototype.setGridx = function(gridx) {
+		this.gridx = gridx;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setGridy = function(gridy) {
+		this.gridy = gridy;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setGridwidth = function(gridwidth) {
+		this.gridwidth = gridwidth;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setGridheight = function(gridheight) {
+		this.gridheight = gridheight;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setWeightx = function(weightx) {
+		this.weightx = weightx;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setWeighty = function(weighty) {
+		this.weighty = weighty;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setAnchor = function(anchor) {
+		this.anchor = anchor;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setFill = function(fill) {
+		this.fill = fill;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setInsets = function(insets) {
+		this.insets = insets;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setIpadx = function(ipadx) {
+		this.ipadx = ipadx;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.setIpady = function(ipady) {
+		this.ipady = ipady;
+		return this;
+	}
+	jsuis.GridBagConstraints.prototype.clone = function() {
+		return new jsuis.GridBagConstraints(
+				this.getGridx(), this.getGridy(), this.getGridwidth(), this.getGridheight(),
+				this.getWeightx(), this.getWeighty(),
+				this.getAnchor(), this.getFill(),
+				this.getInsets(), this.getIpadx(), this.getIpady());
+	}
+}) (jsuis);
+
+/**
+ * jsuis.GridBagLayout
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.GridBagLayout = jsuis.Object.extend(SUPER, function(hgap, vgap) {
+		SUPER.prototype.constructor.call(this);
+		hgap = nvl(hgap, 0);
+		vgap = nvl(vgap, hgap);
+		this.setHgap(hgap);
+		this.setVgap(vgap);
+	});
+	jsuis.Object.addProperties(jsuis.GridBagLayout,
+			new jsuis.Property("hgap"),
+			new jsuis.Property("vgap"),
+			new jsuis.Property("widths"),
+			new jsuis.Property("heights"),
+			new jsuis.Property("weightxs"),
+			new jsuis.Property("weightys")
+	);
+	jsuis.GridBagLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.GridBagLayout.prototype.removeLayoutComponent = function(comp) {
+	}
+	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
+		var preferredLayoutWidth = 0;
+		var preferredLayoutHeight = 0;
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var maxGridx = 0;
+		var maxGridy = 0;
+		var previousGridx = -1;
+		var previousGridy = -1;
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = new jsuis.GridBagConstraints();
+				component.setConstraints(constraints);
+			}
+			var gridx = constraints.getGridx();
+			if (gridx === jsuis.Constants.RELATIVE) {
+				gridx = previousGridx + 1;
+				constraints.setRelativeGridx(gridx);
+			}
+			previousGridx = gridx;
+			var gridy = constraints.getGridy();
+			if (gridy === jsuis.Constants.RELATIVE) {
+				gridy = previousGridy + 1;
+				constraints.setRelativeGridy(gridy);
+			}
+			previousGridy = gridy;
+			var gridwidth = constraints.getGridwidth();
+			if (gridwidth === jsuis.Constants.REMAINDER) {
+				maxGridx = Math.max(maxGridx, gridx);
+			} else {
+				maxGridx = Math.max(maxGridx, gridx + gridwidth - 1);
+			}
+			var gridheight = constraints.getGridheight();
+			if (gridheight === jsuis.Constants.REMAINDER) {
+				maxGridy = Math.max(maxGridy, gridy);
+			} else {
+				maxGridy = Math.max(maxGridy, gridy + gridheight - 1);
+			}
+		}
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var constraints = component.getConstraints();
+			var gridx = constraints.getGridx();
+			if (gridx === jsuis.Constants.RELATIVE) {
+				gridx = constraints.getRelativeGridx();
+			}
+			var gridwidth = constraints.getGridwidth();
+			if (gridwidth === jsuis.Constants.REMAINDER) {
+				constraints.setRemainderGridwidth(maxGridx - gridx + 1);
+			}
+			var gridy = constraints.getGridy();
+			if (gridy === jsuis.Constants.RELATIVE) {
+				gridy = constraints.getRelativeGridy();
+			}
+			var gridheight = constraints.getGridheight();
+			if (gridheight === jsuis.Constants.REMAINDER) {
+				constraints.setRemainderGridheight(maxGridy - gridy + 1);
+			}
+			var ipadx = constraints.getIpadx();
+			var ipady = constraints.getIpady();
+			component.setLayoutPadding(new jsuis.Insets(ipady, ipadx));
+			component.setLayoutMargin(constraints.getInsets());
+		}
+		
+		var widthComponents = components.slice();
+		var widths = [];
+		var weightxs = [];
+		for (var i = 0; i <= maxGridx; i++) {
+			widths.push(0);
+			weightxs.push(0);
+			var remainingComponents = widthComponents.slice();
+			for (var j = 0; j < widthComponents.length; j++) {
+				var component = widthComponents[j];
+				if (!component.isVisible()) {
+					continue;
+				}
+				var constraints = component.getConstraints();
+				var gridx = constraints.getGridx();
+				if (gridx === jsuis.Constants.RELATIVE) {
+					gridx = constraints.getRelativeGridx();
+				}
+				var gridwidth = constraints.getGridwidth();
+				if (gridwidth === jsuis.Constants.REMAINDER) {
+					gridwidth = constraints.getRemainderGridwidth();
+				}
+				if ((gridx + gridwidth - 1) !== i) {
+					continue;
+				}
+				var componentPreferredSize = component.getPreferredSize();
+				var width = componentPreferredSize.getWidth();
+				var weightx = constraints.getWeightx();
+				for (var k = 1; k < gridwidth; k++) {
+					width -= widths[i - k];
+					weightx -= weightxs[i - k];
+				}
+				widths[i] = Math.max(widths[i], width);
+				weightxs[i] = Math.max(weightxs[i], weightx);
+				var index = remainingComponents.indexOf(component);
+				if (index !== -1) {
+					remainingComponents.splice(index, 1);
+				}
+			}
+			widthComponents = remainingComponents;
+		}
+		this.setWidths(widths);
+		this.setWeightxs(weightxs);
+		
+		var heightComponents = components.slice();
+		var heights = [];
+		var weightys = [];
+		for (var i = 0; i <= maxGridy; i++) {
+			heights.push(0);
+			weightys.push(0);
+			var remainingComponents = heightComponents.slice();
+			for (var j = 0; j < heightComponents.length; j++) {
+				var component = heightComponents[j];
+				if (!component.isVisible()) {
+					continue;
+				}
+				var constraints = component.getConstraints();
+				var gridy = constraints.getGridy();
+				if (gridy === jsuis.Constants.RELATIVE) {
+					gridy = constraints.getRelativeGridy();
+				}
+				var gridheight = constraints.getGridheight();
+				if (gridheight === jsuis.Constants.REMAINDER) {
+					gridheight = constraints.getRemainderGridheight();
+				}
+				if ((gridy + gridheight - 1) !== i) {
+					continue;
+				}
+				var componentPreferredSize = component.getPreferredSize();
+				var height = componentPreferredSize.getHeight();
+				var weighty = constraints.getWeighty();
+				for (var k = 1; k < gridheight; k++) {
+					height -= heights[i - k];
+					weighty -= weightys[i - k];
+				}
+				heights[i] = Math.max(heights[i], height);
+				weightys[i] = Math.max(weightys[i], weighty);
+				var index = remainingComponents.indexOf(component);
+				if (index !== -1) {
+					remainingComponents.splice(index, 1);
+				}
+			}
+			heightComponents = remainingComponents;
+		}
+		this.setHeights(heights);
+		this.setWeightys(weightys);
+		
+		for (var i = 0; i < widths.length; i++) {
+			preferredLayoutWidth += widths[i] + hgap;
+		}
+		for (var i = 0; i < heights.length; i++) {
+			preferredLayoutHeight += heights[i] + vgap;
+		}
+		if (components.length) {
+			preferredLayoutWidth -= hgap;
+			preferredLayoutHeight -= vgap;
+		}
+		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
+		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
+		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
+	}
+	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
+	}
+	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
+		var preferredLayoutSize = this.preferredLayoutSize(parent);
+		var x = 0;
+		var y = 0;
+		var width = parent.getWidth();
+		var height = parent.getHeight();
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+		var preferredLayoutWidth = preferredLayoutSize.getWidth();
+		var preferredLayoutHeight = preferredLayoutSize.getHeight();
+		x += parentInsetsOutsets.getLeft();
+		y += parentInsetsOutsets.getTop();
+		var widths = this.getWidths().slice();
+		var dwidth = width - preferredLayoutWidth;
+		var weightxsSum = 0;
+		var weightxs = this.getWeightxs();
+		for (var i = 0; i < weightxs.length; i++) {
+			weightxsSum += weightxs[i];
+		}
+		if (weightxsSum === 0) {
+			x += dwidth / 2;
+			dwidth = 0;
+		} else {
+			for (var i = 0; i < widths.length; i++) {
+				widths[i] += dwidth * weightxs[i] / weightxsSum;
+			}
+		}
+		var heights = this.getHeights().slice();
+		var dheight = height - preferredLayoutHeight;
+		var weightysSum = 0;
+		var weightys = this.getWeightys();
+		for (var i = 0; i < weightys.length; i++) {
+			weightysSum += weightys[i];
+		}
+		if (weightysSum === 0) {
+			y += dheight / 2;
+			dheight = 0;
+		} else {
+			for (var i = 0; i < heights.length; i++) {
+				heights[i] += dheight * weightys[i] / weightysSum;
+			}
+		}
+		var dx = 0;
+		var xs = [];
+		for (var i = 0; i < widths.length; i++) {
+			xs.push(Math.round(x + dx));
+			dx += widths[i] + hgap;
+		}
+		if (widths.length) {
+			xs.push(Math.round(x + dx));
+		}
+		var dy = 0;
+		var ys = [];
+		for (var i = 0; i < heights.length; i++) {
+			ys.push(Math.round(y + dy));
+			dy += heights[i] + vgap;
+		}
+		if (heights.length) {
+			ys.push(Math.round(y + dy));
+		}
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var constraints = component.getConstraints();
+			var gridx = constraints.getGridx();
+			if (gridx === jsuis.Constants.RELATIVE) {
+				gridx = constraints.getRelativeGridx();
+			}
+			var gridy = constraints.getGridy();
+			if (gridy === jsuis.Constants.RELATIVE) {
+				gridy = constraints.getRelativeGridy();
+			}
+			var gridwidth = constraints.getGridwidth();
+			if (gridwidth === jsuis.Constants.REMAINDER) {
+				gridwidth = constraints.getRemainderGridwidth();
+			}
+			var gridheight = constraints.getGridheight();
+			if (gridheight === jsuis.Constants.REMAINDER) {
+				gridheight = constraints.getRemainderGridheight();
+			}
+			var weightx = constraints.getWeightx();
+			var weighty = constraints.getWeighty();
+			var anchor = constraints.getAnchor();
+			component.setAnchor(anchor);
+			var fill = constraints.getFill();
+			component.setFill(fill);
+			var componentX = xs[gridx];
+			var componentY = ys[gridy];
+			var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
+			var componentHeight = ys[gridy + gridheight] - componentY - vgap;
+			var bounds;
+			var leftToRight = parent.isLeftToRight();
+			if (leftToRight) {
+				bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+			} else {
+				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+			}
+			component.setMaximumLayoutBounds(bounds);
+		}
+	}
+}) (jsuis);
+
+/**
+ * Insets
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Insets = jsuis.Object.extend(SUPER, function(top, left, bottom, right) {
+		SUPER.prototype.constructor.call(this);
+		top = nvl(top, 0);
+		left = nvl(left, top);
+		bottom = nvl(bottom, top);
+		right = nvl(right, left);
+		this.setTop(top);
+		this.setLeft(left);
+		this.setBottom(bottom);
+		this.setRight(right);
+	});
+	jsuis.Object.addProperties(jsuis.Insets,
+			new jsuis.Property("top"),
+			new jsuis.Property("left"),
+			new jsuis.Property("bottom"),
+			new jsuis.Property("right")
+	);
+	jsuis.Insets.prototype.getPoint = function() {
+		return new jsuis.Point(this.getLeft(), this.getTop());
+	}
+	jsuis.Insets.prototype.getDimension = function() {
+		return new jsuis.Dimension(this.getLeft() + this.getRight(), this.getTop() + this.getBottom());
+	}
+	jsuis.Insets.prototype.add = function(insets) {
+		var top = this.getTop() + insets.getTop();
+		var left = this.getLeft() + insets.getLeft();
+		var bottom = this.getBottom() + insets.getBottom();
+		var right = this.getRight() + insets.getRight();
+		return new jsuis.Insets(top, left, bottom, right);
+	}
+	jsuis.Insets.prototype.clone = function() {
+		return new jsuis.Insets(this.getTop(), this.getLeft(), this.getBottom(), this.getRight());
+	}
+})(jsuis);
+
+/**
+ * jsuis.Listener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Listener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this);
+		this.setListener(listener);
+	});
+	jsuis.Object.addProperties(jsuis.Listener,
+			new jsuis.Property("listener"),
+			new jsuis.Property("listenerComponent")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.Loader
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Loader = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Loader());
+	});
+	jsuis.Loader.getInstance = function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].Loader.getInstance();
+	}
+	jsuis.Loader.prototype.add = function(resources) {
+		var peer = this.getPeer();
+		peer.add(resources);
+	}
+	jsuis.Loader.prototype.getResource = function(name) {
+		var peer = this.getPeer();
+		return peer.getResource(name);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Locale
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Locale = jsuis.Object.extend(SUPER, function(language, country) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Locale(language, country));
+	});
+	jsuis.Locale.getDefault = function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].Locale.getDefault();
+	}
+	jsuis.Locale.prototype.toString = function() {
+		var peer = this.getPeer();
+		return peer.toString();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Peer
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Peer = jsuis.Object.extend(SUPER, function() {
+	});
+	jsuis.Peer.prototype.getPeer = function() {
+		return this.peer;
+	}
+	jsuis.Peer.prototype.setPeer = function(peer) {
+		this.peer = peer;
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Point
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Point = jsuis.Object.extend(SUPER, function(x, y) {
+		SUPER.prototype.constructor.call(this);
+		this.setX(nvl(x, 0));
+		this.setY(nvl(y, 0));
+	});
+	jsuis.Object.addProperties(jsuis.Point,
+			new jsuis.Property("x"),
+			new jsuis.Property("y")
+	);
+	jsuis.Point.prototype.add = function(point) {
+		this.setX(this.getX() + point.getX());
+		this.setY(this.getY() + point.getY());
+	}
+	jsuis.Point.prototype.clone = function() {
+		return new jsuis.Point(this.getX(), this.getY());
+	}
+}) (jsuis);
+
+/**
+ * jsuis.PropertyChangeEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.PropertyChangeEvent = jsuis.Object.extend(SUPER, function(source, propertyName, oldValue, newValue) {
+		SUPER.prototype.constructor.call(this);
+		this.setSource(source);
+		this.setPropertyName(propertyName);
+		this.setOldValue(oldValue);
+		this.setNewValue(newValue);
+	});
+	jsuis.Object.addProperties(jsuis.PropertyChangeEvent,
+			new jsuis.Property("source"),
+			new jsuis.Property("propertyName"),
+			new jsuis.Property("oldValue"),
+			new jsuis.Property("newValue")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.PropertyChangeSupport
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.PropertyChangeSupport = jsuis.Object.extend(SUPER, function(source) {
+		this.setSource(source);
+		this.setPropertyChangeListeners({});
+	});
+	jsuis.Object.addProperties(jsuis.PropertyChangeSupport,
+			new jsuis.Property("source"),
+			new jsuis.Property("propertyChangeListeners")
+	);
+	jsuis.PropertyChangeSupport.prototype.addPropertyChangeListener = function(propertyChangeListener) {
+		var propertyName = propertyChangeListener.getPropertyName() || "";
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		propertyChangeListeners.push(propertyChangeListener);
+		if (propertyName !== "") {
+			propertyChangeListeners = this.getPropertyChangeListeners();
+			propertyChangeListeners.push(propertyChangeListener);
+		}
+	}
+	jsuis.PropertyChangeSupport.prototype.removePropertyChangeListener = function(propertyChangeListener) {
+		var propertyName = propertyChangeListener.getPropertyName() || "";
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		var index = propertyChangeListeners.indexOf(propertyChangeListener);
+		if (index !== -1) {
+			propertyChangeListeners.splice(index, 1);
+		}
+		if (propertyName !== "") {
+			var propertyChangeListeners = this.getPropertyChangeListeners();
+			var index = propertyChangeListeners.indexOf(propertyChangeListener);
+			if (index !== -1) {
+				propertyChangeListeners.splice(index, 1);
+			}
+		}
+	}
+	jsuis.PropertyChangeSupport.prototype.getPropertyChangeListeners = function(propertyName) {
+		propertyName = propertyName || "";
+		var propertyChangeListeners = this.propertyChangeListeners;
+		if (!propertyChangeListeners[propertyName]) {
+			propertyChangeListeners[propertyName] = [];
+		}
+		return propertyChangeListeners[propertyName];
+	}
+	jsuis.PropertyChangeSupport.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
+		var source = this.getSource();
+		var propertyChangeEvent = new jsuis.PropertyChangeEvent(source, propertyName, oldValue, newValue);
+		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
+		for (var i = 0; i < propertyChangeListeners.length; i++) {
+			var propertyChangeListener = propertyChangeListeners[i];
+			propertyChangeListener.propertyChange(propertyChangeEvent);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Rectangle
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Rectangle = jsuis.Object.extend(SUPER, function(x, y, width, height) {
+		SUPER.prototype.constructor.call(this);
+		this.setX(nvl(x, 0));
+		this.setY(nvl(y, 0));
+		this.setWidth(nvl(width, 0));
+		this.setHeight(nvl(height, 0));
+	});
+	jsuis.Object.addProperties(jsuis.Rectangle,
+			new jsuis.Property("x"),
+			new jsuis.Property("y"),
+			new jsuis.Property("width"),
+			new jsuis.Property("height")
+	);
+	jsuis.Rectangle.prototype.getPoint = function() {
+		return new jsuis.Point(this.getX(), this.getY());
+	}
+	jsuis.Rectangle.prototype.getDimension = function() {
+		return new jsuis.Dimension(this.getWidth(), this.getHeight());
+	}
+	jsuis.Rectangle.prototype.clone = function() {
+		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+}) (jsuis);
+
+/**
+ * jsuis.ResourceBundle
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.ResourceBundle = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ResourceBundle());
+	});
+	jsuis.ResourceBundle.getBundle = function(baseName, locale) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		return jsuis[lookAndFeel].ResourceBundle.getBundle(baseName, locale);
+	}
+	jsuis.ResourceBundle.prototype.getString = function(key) {
+		var peer = this.getPeer();
+		return peer.getString(key);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.TreeNode
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.TreeNode = jsuis.Object.extend(SUPER, function(userObject) {
+		SUPER.prototype.constructor.call(this);
+		this.setUserObject(userObject);
+	});
+	jsuis.Object.addProperties(jsuis.TreeNode,
+			new jsuis.Property("userObject"),
+			new jsuis.Property("children"),
+			new jsuis.Property("parent")
+	);
+	jsuis.TreeNode.prototype.add = function(treeNode) {
+		var children = this.getChildren();
+		if (!children) {
+			children = [];
+			this.setChildren(children);
+		}
+		children.push(treeNode);
+		treeNode.setParent(this);
+	}
+	jsuis.TreeNode.prototype.isLeaf = function() {
+		var children = this.getChildren();
+		return !children || !children.length;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.UIManager
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.UIManager = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	var lookAndFeel = "defaultlf";
+	jsuis.UIManager.getLookAndFeel = function() {
+		return lookAndFeel;
+	}
+	jsuis.UIManager.setLookAndFeel = function(newLookAndFeel) {
+		lookAndFeel = newLookAndFeel;
+	}
+})(jsuis);
+
+/**
+ * jsuis.ActionListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.ActionListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.ActionListener.prototype.actionPerformed = function(event) {
+		var listener = this.getListener();
+		listener.actionPerformed.call(this, event);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Border
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Peer;
+	jsuis.Border = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Border());
+	});
+	jsuis.Border.prototype.getBorderInsets = function(component) {
+		var peer = this.getPeer();
+		return peer.getBorderInsets(component);
+	}
+	jsuis.Border.prototype.getBorderOutsets = function(component) {
+		var peer = this.getPeer();
+		return peer.getBorderOutsets(component);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Component
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Peer;
+	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Component(element));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Component,
 			new jsuis.Property("element"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),
@@ -891,62 +1868,757 @@ function nvl(value, defaultValue) {
 			new jsuis.Property("constraints"),
 			new jsuis.Property("anchor"),
 			new jsuis.Property("fill"),
-			new jsuis.Property("actionCommand"),
+			new jsuis.Property("x"),
+			new jsuis.Property("y"),
+			new jsuis.Property("location"),
+			new jsuis.Property("width"),
+			new jsuis.Property("height"),
+			new jsuis.Property("size"),
+			new jsuis.Property("preferredSize"),
+			new jsuis.Property("minimumSize"),
+			new jsuis.Property("bounds"),
+			new jsuis.Property("maximumLayoutBounds"),
+			new jsuis.Property("padding"),
+			new jsuis.Property("margin"),
+			new jsuis.Property("layoutPadding"),
+			new jsuis.Property("layoutMargin"),
+			new jsuis.Property("border"),
+			new jsuis.Property("insets"),
+			new jsuis.Property("outsets"),
+			new jsuis.Property("background"),
+			new jsuis.Property("foreground"),
+			new jsuis.Property("font"),
+			new jsuis.Property("cursor"),
+			new jsuis.Property("actionCommand")
+	);
+	jsuis.Component.prototype.getPeer = function() {
+		return this.peer;
+	}
+	jsuis.Component.prototype.setPeer = function(peer) {
+		this.peer = peer;
+		return this;
+	}
+	jsuis.Component.prototype.add = function(component, constraints, index) {
+		var peer = this.getPeer();
+		peer.add(component, constraints, index);
+	}
+	jsuis.Component.prototype.remove = function(component) {
+		var peer = this.getPeer();
+		peer.remove(component);
+	}
+	jsuis.Component.prototype.removeAll = function() {
+		var peer = this.getPeer();
+		peer.removeAll(component);
+	}
+	jsuis.Component.prototype.isLeftToRight = function() {
+		var peer = this.getPeer();
+		return peer.isLeftToRight();
+	}
+	jsuis.Component.prototype.setLeftToRight = function(leftToRight) {
+		var peer = this.getPeer();
+		peer.setLeftToRight(leftToRight);
+		return this;
+	}
+	jsuis.Component.prototype.validate = function() {
+		var peer = this.getPeer();
+		peer.validate();
+	}
+	jsuis.Component.prototype.isVisible = function() {
+		var peer = this.getPeer();
+		return peer.isVisible();
+	}
+	jsuis.Component.prototype.setVisible = function(visible) {
+		var peer = this.getPeer();
+		peer.setVisible(visible);
+		return this;
+	}
+	jsuis.Component.prototype.isEnabled = function() {
+		var peer = this.getPeer();
+		return peer.isEnabled();
+	}
+	jsuis.Component.prototype.setEnabled = function(enabled) {
+		var peer = this.getPeer();
+		peer.setEnabled(enabled);
+		return this;
+	}
+	jsuis.Component.prototype.isPressed = function() {
+		var peer = this.getPeer();
+		return peer.isPressed();
+	}
+	jsuis.Component.prototype.setPressed = function(pressed) {
+		var peer = this.getPeer();
+		peer.setPressed(pressed);
+		return this;
+	}
+	jsuis.Component.prototype.requestFocus = function() {
+		var peer = this.getPeer();
+		peer.requestFocus();
+	}
+	jsuis.Component.prototype.addComponentListener = function(componentListener) {
+		var peer = this.getPeer();
+		peer.addComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
+		var peer = this.getPeer();
+		peer.removeComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
+		var peer = this.getPeer();
+		peer.addMouseListener(mouseListener);
+	}
+	jsuis.Component.prototype.removeMouseListener = function(mouseListener) {
+		var peer = this.getPeer();
+		peer.removeMouseListener(mouseListener);
+	}
+	jsuis.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
+		var peer = this.getPeer();
+		peer.addMouseMotionListener(mouseMotionListener);
+	}
+	jsuis.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+		var peer = this.getPeer();
+		peer.removeMouseMotionListener(mouseMotionListener);
+	}
+	jsuis.Component.prototype.addFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.addFocusListener(focusListener);
+	}
+	jsuis.Component.prototype.removeFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.removeFocusListener(focusListener);
+	}
+	jsuis.Component.prototype.addActionListener = function(actionListener) {
+		var peer = this.getPeer();
+		peer.addActionListener(actionListener);
+	}
+	jsuis.Component.prototype.removeActionListener = function(actionListener) {
+		var peer = this.getPeer();
+		peer.removeActionListener(actionListener);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.ComponentListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.ComponentListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.ComponentListener.prototype.componentResized = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.componentResized) {
+			listener.componentResized.call(this, event);
+		}
+	}
+	jsuis.ComponentListener.prototype.componentMoved = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.componentMoved) {
+			listener.componentMoved.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.FocusListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.FocusListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.FocusListener.prototype.focusGained = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.focusGained) {
+			listener.focusGained.call(this, event);
+		}
+	}
+	jsuis.FocusListener.prototype.focusLost = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.focusLost) {
+			listener.focusLost.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.MouseAdapter
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.MouseAdapter = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.MouseAdapter.prototype.mouseClicked = function(event) {
+		var listener = this.getAdapter();
+		if (listener && listener.mouseClicked) {
+			listener.mouseClicked.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mousePressed = function(event) {
+		var listener = this.getAdapter();
+		if (listener && listener.mousePressed) {
+			listener.mousePressed.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mouseReleased = function(event) {
+		var listener = this.getAdapter();
+		if (listener && listener.mouseReleased) {
+			listener.mouseReleased.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mouseEntered = function(event) {
+		var listener = this.getAdapter();
+		if (listener && listener.mouseEntered) {
+			listener.mouseEntered.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mouseExited = function(event) {
+		var listener = this.getAdapter();
+		if (listener && listener.mouseExited) {
+			listener.mouseExited.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mouseDragged = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseDragged) {
+			listener.mouseDragged.call(this, event);
+		}
+	}
+	jsuis.MouseAdapter.prototype.mouseMoved = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseMoved) {
+			listener.mouseMoved.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.MouseListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.MouseListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.MouseListener.prototype.mouseClicked = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseClicked) {
+			listener.mouseClicked.call(this, event);
+		}
+	}
+	jsuis.MouseListener.prototype.mousePressed = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mousePressed) {
+			listener.mousePressed.call(this, event);
+		}
+	}
+	jsuis.MouseListener.prototype.mouseReleased = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseReleased) {
+			listener.mouseReleased.call(this, event);
+		}
+	}
+	jsuis.MouseListener.prototype.mouseEntered = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseEntered) {
+			listener.mouseEntered.call(this, event);
+		}
+	}
+	jsuis.MouseListener.prototype.mouseExited = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseExited) {
+			listener.mouseExited.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.MouseMotionListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.MouseMotionListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.MouseMotionListener.prototype.mouseDragged = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseDragged) {
+			listener.mouseDragged.call(this, event);
+		}
+	}
+	jsuis.MouseMotionListener.prototype.mouseMoved = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.mouseMoved) {
+			listener.mouseMoved.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.PropertyChangeListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.PropertyChangeListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.Object.addProperties(jsuis.PropertyChangeListener,
+			new jsuis.Property("propertyName")
+	);
+	jsuis.PropertyChangeListener.prototype.propertyChange = function(event) {
+		var listener = this.getListener();
+		listener.propertyChange.call(this, event);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.TouchListener
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Listener;
+	jsuis.TouchListener = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.TouchListener.prototype.touchPressed = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.touchPressed) {
+			listener.touchPressed.call(this, event);
+		}
+	}
+	jsuis.TouchListener.prototype.touchReleased = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.touchReleased) {
+			listener.touchReleased.call(this, event);
+		}
+	}
+	jsuis.TouchListener.prototype.touchMoved = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.touchMoved) {
+			listener.touchMoved.call(this, event);
+		}
+	}
+	jsuis.TouchListener.prototype.touchDragged = function(event) {
+		var listener = this.getListener();
+		if (listener && listener.touchDragged) {
+			listener.touchDragged.call(this, event);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Action
+ */
+(function(jsuis) {
+	var SUPER = jsuis.ActionListener;
+	jsuis.Action = jsuis.Object.extend(SUPER, function(listener) {
+		SUPER.prototype.constructor.call(this, listener);
+	});
+	jsuis.Action.prototype.isEnabled = function() {
+		return this.enabled;
+	}
+	jsuis.Action.prototype.setEnabled = function(enabled) {
+		var oldEnabled = this.enabled;
+		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Button
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
+	});
+	jsuis.Object.addProperties(jsuis.Button,
+			new jsuis.Property("action"),
+			new jsuis.Property("propertyChangeListener")
+	);
+	jsuis.Object.addPeerProperties(jsuis.Button,
+			new jsuis.Property("text"),
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconTextGap"),
+			new jsuis.Property("group")
+	);
+	jsuis.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Frame
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Frame(title));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Frame,
+			new jsuis.Property("layeredPane"),
+			new jsuis.Property("menuBar"),
+			new jsuis.Property("contentPane")
+	);
+	jsuis.Frame.prototype.dispose = function() {
+		var peer = this.getPeer();
+		peer.dispose();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Icon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Icon = jsuis.Object.extend(SUPER, function(element) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Icon(element));
+	});
+}) (jsuis);
+
+/**
+ * jsuis.Label
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Label = jsuis.Object.extend(SUPER, function(text) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Label(text));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Label,
+			new jsuis.Property("text")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.LineBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Border;
+	jsuis.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].LineBorder(color, thickness, rx, ry));
+	});
+	jsuis.Object.addPeerProperties(jsuis.LineBorder,
+			new jsuis.Property("color"),
+			new jsuis.Property("thickness"),
+			new jsuis.Property("rx"),
+			new jsuis.Property("ry")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.Panel
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Panel(layout));
+	});
+}) (jsuis);
+
+/**
+ * jsuis.TextField
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.TextField = jsuis.Object.extend(SUPER, function(text) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].TextField(text));
+	});
+	jsuis.Object.addPeerProperties(jsuis.TextField,
+			new jsuis.Property("text")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Icon;
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
+	});
+	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
+			new jsuis.Property("resource")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.LayeredPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.LayeredPane = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].LayeredPane());
+	});
+}) (jsuis);
+
+/**
+ * jsuis.MenuBar
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.MenuBar = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].MenuBar());
+	});
+}) (jsuis);
+
+/**
+ * jsuis.MenuItem
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].MenuItem(text, icon));
+	});
+}) (jsuis);
+
+/**
+ * jsuis.PopupMenu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.PopupMenu = jsuis.Object.extend(SUPER, function(layout, target) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].PopupMenu(layout, target));
+	});
+	jsuis.PopupMenu.prototype.show = function(invoker, x, y) {
+		var peer = this.getPeer();
+		peer.show(invoker, x, y);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.ScrollPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ScrollPane(view, vsbPolicy, hsbPolicy));
+	});
+	jsuis.Object.addPeerProperties(jsuis.ScrollPane,
+			new jsuis.Property("vsbPolicy"),
+			new jsuis.Property("hsbPolicy"),
+			new jsuis.Property("viewport"),
+			new jsuis.Property("verticalScrollBar"),
+			new jsuis.Property("horizontalScrollBar")
+	);
+	jsuis.ScrollPane.prototype.setViewportView = function(view) {
+		var peer = this.getPeer();
+		peer.setViewportView(view);
+		return this;
+	}
+	jsuis.ScrollPane.prototype.getViewportView = function() {
+		var peer = this.getPeer();
+		return peer.getViewportView();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.SplitPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.SplitPane = jsuis.Object.extend(SUPER, function(orientation, leftComponent, rightComponent) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].SplitPane(orientation, leftComponent, rightComponent));
+	});
+	jsuis.Object.addPeerProperties(jsuis.SplitPane,
+			new jsuis.Property("orientation"),
+			new jsuis.Property("leftComponent"),
+			new jsuis.Property("rightComponent"),
+			new jsuis.Property("topComponent"),
+			new jsuis.Property("bottomComponent"),
+			new jsuis.Property("dividerLocation"),
+			new jsuis.Property("dividerSize"),
+			new jsuis.Property("resizeWeight")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.ToggleButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ToggleButton(text, icon));
+	});
+}) (jsuis);
+
+/**
+ * jsuis.ToolBar
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.ToolBar = jsuis.Object.extend(SUPER, function(orientation) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ToolBar(orientation));
+	});
+	jsuis.ToolBar.prototype.addSeparator = function(size) {
+		var peer = this.getPeer();
+		peer.addSeparator(size);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.Tree = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Tree());
+	});
+	jsuis.Object.addPeerProperties(jsuis.Tree,
+			new jsuis.Property("model"),
+			new jsuis.Property("root")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.CheckBox
+ */
+(function(jsuis) {
+	var SUPER = jsuis.ToggleButton;
+	jsuis.CheckBox = jsuis.Object.extend(SUPER, function(text, icon, selected) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].CheckBox(text, icon, selected));
+	});
+	jsuis.CheckBox.prototype.isSelected = function() {
+		var peer = this.getPeer();
+		return peer.isSelected();
+	}
+	jsuis.CheckBox.prototype.setSelected = function(selected) {
+		var peer = this.getPeer();
+		peer.setSelected(selected);
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Menu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.MenuItem;
+	jsuis.Menu = jsuis.Object.extend(SUPER, function(layout, target) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Menu(layout, target));
+	});
+	jsuis.Menu.prototype.addSeparator = function() {
+		var peer = this.getPeer();
+		peer.addSeparator();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf
+ */
+jsuis.defaultlf = {
+};
+
+jsuis.packages.push(jsuis.defaultlf);
+
+/**
+ * Border
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.Border = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.defaultlf.Border.prototype.install = function(component) {
+		var target = component.getTarget();
+		if (!target) {
+			return;
+		}
+		target.setStyleProperty("stroke-width", 0);
+	}
+	jsuis.defaultlf.Border.prototype.getPeer = function() {
+		return this;
+	}
+	jsuis.defaultlf.Border.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.defaultlf.Border.prototype.getBorderOutsets = function(component) {
+		return new jsuis.Insets();
+	}
+})(jsuis);
+
+/**
+ * jsuis.defaultlf.BrowserWindow
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.BrowserWindow = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+		this.setElement(window);
+		this.setEventListeners({});
+		this.setComponentListeners([]);
+		this.setMouseListeners([]);
+		this.setMouseMotionListeners([]);
+		
+		this.setEventListener("mousedown", function(domEvent) {
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
+		});
+		this.setEventListener("mouseup", function(domEvent) {
+			jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
+		});
+		this.setEventListener("mousemove", function(domEvent) {
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+			if (browserWindow.isPressed()) {
+				browserWindow.fireMouseDragged(domEvent);
+			}
+		});
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
 			new jsuis.Property("eventListeners"),
 			new jsuis.Property("componentListeners"),
 			new jsuis.Property("mouseListeners"),
-			new jsuis.Property("mouseMotionListeners"),
-			new jsuis.Property("propertyChangeListeners"),
-			new jsuis.Property("actionListeners")
+			new jsuis.Property("mouseMotionListeners")
 	);
-	jsuis.Component.prototype.addClass = function(name) {
-		var value = this.getAttribute("class");
-		var classes = value ? value.split(" ") : [];
-		if (classes.indexOf(name) === -1) {
-			classes.push(name);
-			var value = classes.join(" ");
-			this.setAttribute("class", value);
+	var instance;
+	jsuis.defaultlf.BrowserWindow.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.BrowserWindow();
 		}
+		return instance;
 	}
-	jsuis.Component.prototype.getAttribute = function(attribute) {
-		var element = this.getElement();
-		return element.getAttribute(attribute);
-	}
-	jsuis.Component.prototype.setAttribute = function(attribute, value) {
-		var element = this.getElement();
-		if (value === null) {
-			element.removeAttribute(attribute);
-			return this;
-		}
-		element.setAttribute(attribute, value);
-		return this;
-	}
-	jsuis.Component.prototype.setStyleProperty = function(property, value) {
-		var element = this.getElement();
-		element.style[property] = value;
-		return this;
-	}
-	jsuis.Component.prototype.getStyleProperty = function(property) {
-		var element = this.getElement();
-		var computedStyle = getComputedStyle(element);
-		return computedStyle[property];
-	}
-	/*
-	jsuis.Component.prototype.getEventListener = function(type) {
-		var element = this.getElement();
-		return element["on" + type];
-	}
-	jsuis.Component.prototype.setEventListener = function(type, listener) {
-		var element = this.getElement();
-		element["on" + type] = listener;
-		return this;
-	}
-	*/
-	jsuis.Component.prototype.getEventListener = function(type) {
+	jsuis.defaultlf.BrowserWindow.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
 		return eventListeners["on" + type];
 	}
-	jsuis.Component.prototype.setEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.setEventListener = function(type, eventListener) {
 		var oldEventListener = this.getEventListener(type);
 		if (oldEventListener) {
 			this.removeEventListener(type, oldEventListener);
@@ -956,43 +2628,230 @@ function nvl(value, defaultValue) {
 		eventListeners["on" + type] = eventListener;
 		return this;
 	}
-	jsuis.Component.prototype.addEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.addEventListener = function(type, eventListener) {
 		var element = this.getElement();
 		element.addEventListener(type, eventListener);
 	}
-	jsuis.Component.prototype.removeEventListener = function(type, eventListener) {
+	jsuis.defaultlf.BrowserWindow.prototype.removeEventListener = function(type, eventListener) {
 		var element = this.getElement();
 		element.removeEventListener(type, eventListener);
 	}
-	jsuis.Component.prototype.getId = function() {
+	jsuis.defaultlf.BrowserWindow.prototype.addComponentListener = function(componentListener) {
+		var componentListeners = this.getComponentListeners();
+		componentListeners.push(componentListener);
+		var component = this;
+		var listener = componentListener.getListener();
+		if (listener.componentResized) {
+			var onresize = this.getEventListener("resize");
+			if (!onresize) {
+				this.setEventListener("resize", function(event) {
+					component.fireComponentResized(event);
+				});
+			}
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeComponentListener = function(componentListener) {
+		var componentListeners = this.getComponentListeners();
+		var index = componentListeners.indexOf(componentListener);
+		if (index !== -1) {
+			componentListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
+		var componentListeners = this.getComponentListeners();
+		for (var i = 0; i < componentListeners.length; i++) {
+			var componentListener = componentListeners[i];
+			componentListener.componentResized(event);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.isPressed = function() {
+		return this.pressed;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.setPressed = function(pressed) {
+		this.pressed = pressed;
+		return this;
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseListener = function(mouseListener) {
+		var mouseListeners = this.getMouseListeners();
+		mouseListeners.push(mouseListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseListener = function(mouseListener) {
+		var mouseListeners = this.getMouseListeners();
+		var index = mouseListeners.indexOf(mouseListener);
+		if (index !== -1) {
+			mouseListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMousePressed = function(domEvent) {
+		this.setPressed(true);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
+		this.setPressed(false);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseReleased(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.addMouseMotionListener = function(mouseMotionListener) {
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		mouseMotionListeners.push(mouseMotionListener);
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		var index = mouseMotionListeners.indexOf(mouseMotionListener);
+		if (index !== -1) {
+			mouseMotionListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		for (var i = 0; i < mouseMotionListeners.length; i++) {
+			var mouseMotionListener = mouseMotionListeners[i];
+			mouseMotionListener.mouseDragged(mouseEvent);
+		}
+	}
+}) (jsuis);
+
+/**
+ * Component
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.Component = jsuis.Object.extend(SUPER, function(element) {
+		SUPER.prototype.constructor.call(this);
+		this.setElement(element);
+		this.addClass(this.getClassName());
+		this.setComponents([]);
+		this.setEventListeners({});
+		this.setComponentListeners([]);
+		this.setMouseListeners([]);
+		this.setMouseMotionListeners([]);
+		this.setTouchListeners([]);
+		this.setFocusListeners([]);
+		this.setActionListeners([]);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Component,
+			new jsuis.Property("components"),
+			new jsuis.Property("parent"),
+			new jsuis.Property("layout"),
+			new jsuis.Property("constraints"),
+			new jsuis.Property("layoutBounds"),
+			new jsuis.Property("anchor"),
+			new jsuis.Property("fill"),
+			new jsuis.Property("cursor"),
+			new jsuis.Property("target"),
+			new jsuis.Property("eventListeners"),
+			new jsuis.Property("componentListeners"),
+			new jsuis.Property("mouseListeners"),
+			new jsuis.Property("mouseMotionListeners"),
+			new jsuis.Property("touchListeners"),
+			new jsuis.Property("focusListeners"),
+			new jsuis.Property("actionListeners"),
+			new jsuis.Property("actionCommand"),
+			new jsuis.Property("action")
+	);
+	jsuis.defaultlf.Component.prototype.addClass = function(name) {
+		var value = this.getAttribute("class");
+		var classes = value ? value.split(" ") : [];
+		if (classes.indexOf(name) === -1) {
+			classes.push(name);
+			var value = classes.join(" ");
+			this.setAttribute("class", value);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.getAttribute = function(attribute) {
+		var element = this.getElement();
+		return element.getAttribute(attribute);
+	}
+	jsuis.defaultlf.Component.prototype.setAttribute = function(attribute, value) {
+		var element = this.getElement();
+		if (value === null) {
+			element.removeAttribute(attribute);
+			return this;
+		}
+		element.setAttribute(attribute, value);
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.setStyleProperty = function(property, value) {
+		var element = this.getElement();
+		element.style[property] = value;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.getStyleProperty = function(property) {
+		var element = this.getElement();
+		var computedStyle = getComputedStyle(element);
+		return computedStyle[property];
+	}
+	/*
+	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
+		var element = this.getElement();
+		return element["on" + type];
+	}
+	jsuis.defaultlf.Component.prototype.setEventListener = function(type, listener) {
+		var element = this.getElement();
+		element["on" + type] = listener;
+		return this;
+	}
+	*/
+	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
+		var eventListeners = this.getEventListeners();
+		return eventListeners["on" + type];
+	}
+	jsuis.defaultlf.Component.prototype.setEventListener = function(type, eventListener) {
+		var oldEventListener = this.getEventListener(type);
+		if (oldEventListener) {
+			this.removeEventListener(type, oldEventListener);
+		}
+		this.addEventListener(type, eventListener);
+		var eventListeners = this.getEventListeners();
+		eventListeners["on" + type] = eventListener;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.addEventListener = function(type, eventListener) {
+		var element = this.getElement();
+		element.addEventListener(type, eventListener);
+	}
+	jsuis.defaultlf.Component.prototype.removeEventListener = function(type, eventListener) {
+		var element = this.getElement();
+		element.removeEventListener(type, eventListener);
+	}
+	jsuis.defaultlf.Component.prototype.getId = function() {
 		return this.getAttribute("id");
 	}
-	jsuis.Component.prototype.setId = function(id) {
+	jsuis.defaultlf.Component.prototype.setId = function(id) {
 		this.setAttribute("id", id);
 		return this;
 	}
-	jsuis.Component.prototype.getName = function() {
+	jsuis.defaultlf.Component.prototype.getName = function() {
 		return this.getAttribute("name");
 	}
-	jsuis.Component.prototype.setName = function(name) {
+	jsuis.defaultlf.Component.prototype.setName = function(name) {
 		this.setAttribute("name", name);
 		return this;
 	}
-	jsuis.Component.prototype.addChild = function(component, referenceComponent) {
+	jsuis.defaultlf.Component.prototype.getPeer = function() {
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.addChild = function(component, referenceComponent) {
 		var element = this.getElement();
 		var componentElement = component.getElement();
 		var referenceElement;
 		if (referenceComponent) {
 			referenceElement = referenceComponent.getElement();
 		}
-		element.insertBefore(componentElement, referenceElement);
+		element.insertBefore(componentElement, referenceElement || null);
 	}
-	jsuis.Component.prototype.removeChild = function(component) {
+	jsuis.defaultlf.Component.prototype.removeChild = function(component) {
 		var element = this.getElement();
 		var componentElement = component.getElement();
 		element.removeChild(componentElement);
 	}
-	jsuis.Component.prototype.add = function(component, constraints, index) {
+	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
+		component = component.getPeer();
 		component.init();
 		var components = this.getComponents();
 		var referenceComponent = undefined;
@@ -1000,7 +2859,9 @@ function nvl(value, defaultValue) {
 			referenceComponent = components[index];
 		}
 		this.addChild(component, referenceComponent);
-		component.setConstraints(jsuis.Object.clone(constraints));
+		if (constraints !== null && constraints !== undefined) {
+			component.setConstraints(jsuis.Object.clone(constraints));
+		}
 		component.setParent(this);
 		if (index !== undefined) {
 			components.splice(index, 0, component);
@@ -1008,7 +2869,8 @@ function nvl(value, defaultValue) {
 			components.push(component);
 		}
 	}
-	jsuis.Component.prototype.remove = function(component) {
+	jsuis.defaultlf.Component.prototype.remove = function(component) {
+		component = component.getPeer();
 		this.removeChild(component);
 		component.setParent(undefined);
 		var components = this.getComponents();
@@ -1017,7 +2879,7 @@ function nvl(value, defaultValue) {
 			components.splice(index, 1);
 		}
 	}
-	jsuis.Component.prototype.removeAll = function() {
+	jsuis.defaultlf.Component.prototype.removeAll = function() {
 		var components = this.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
@@ -1026,36 +2888,49 @@ function nvl(value, defaultValue) {
 		}
 		components.length = 0;
 	}
-	jsuis.Component.prototype.getX = function() {
+	jsuis.defaultlf.Component.prototype.getX = function() {
 		return this.x || 0;
 	}
-	jsuis.Component.prototype.setX = function(x) {
+	jsuis.defaultlf.Component.prototype.setX = function(x) {
 		var outsets = this.getOutsets();
 		this.setAttribute("x", +nvl(x, 0) + outsets.getLeft());
 		this.x = x;
 		return this;
 	}
-	jsuis.Component.prototype.getY = function() {
+	jsuis.defaultlf.Component.prototype.getY = function() {
 		return this.y || 0;
 	}
-	jsuis.Component.prototype.setY = function(y) {
+	jsuis.defaultlf.Component.prototype.setY = function(y) {
 		var outsets = this.getOutsets();
 		this.setAttribute("y", +nvl(y, 0) + outsets.getTop());
 		this.y = y;
 		return this;
 	}
-	jsuis.Component.prototype.getLocation = function() {
+	jsuis.defaultlf.Component.prototype.getLocation = function() {
 		return new jsuis.Point(this.getX(), this.getY());
 	}
-	jsuis.Component.prototype.setLocation = function(point) {
-		this.setX(point.getX());
-		this.setY(point.getY());
+	jsuis.defaultlf.Component.prototype.setLocation = function(point) {
+		var componentListeners = this.getComponentListeners();
+		if (!componentListeners.length) {
+			this.setX(point.getX());
+			this.setY(point.getY());
+		} else {
+			var oldX = this.getX();
+			var oldY = this.getY();
+			var x = point.getX();
+			var y = point.getY();
+			this.setX(x);
+			this.setY(y);
+			if ((x !== oldX) || (y !== oldY)) {
+				this.fireComponentMoved();
+			}
+		}
 		return this;
 	}
-	jsuis.Component.prototype.getWidth = function() {
+	jsuis.defaultlf.Component.prototype.getWidth = function() {
 		return this.width || 0;
 	}
-	jsuis.Component.prototype.setWidth = function(width) {
+	jsuis.defaultlf.Component.prototype.setWidth = function(width) {
 		var outsets = this.getOutsets();
 		width -= outsets.getLeft() + outsets.getRight();
 		if (width >= 0) {
@@ -1064,10 +2939,10 @@ function nvl(value, defaultValue) {
 		this.width = width;
 		return this;
 	}
-	jsuis.Component.prototype.getHeight = function() {
+	jsuis.defaultlf.Component.prototype.getHeight = function() {
 		return this.height || 0;
 	}
-	jsuis.Component.prototype.setHeight = function(height) {
+	jsuis.defaultlf.Component.prototype.setHeight = function(height) {
 		var outsets = this.getOutsets();
 		height -= outsets.getTop() + outsets.getBottom();
 		if (height >= 0) {
@@ -1076,74 +2951,73 @@ function nvl(value, defaultValue) {
 		this.height = height;
 		return this;
 	}
-	jsuis.Component.prototype.getSize = function() {
+	jsuis.defaultlf.Component.prototype.getSize = function() {
 		return new jsuis.Dimension(this.getWidth(), this.getHeight());
 	}
-	jsuis.Component.prototype.setSize = function(dimension) {
+	jsuis.defaultlf.Component.prototype.setSize = function(dimension) {
 		this.setWidth(dimension.getWidth());
 		this.setHeight(dimension.getHeight());
 		return this;
 	}
-	jsuis.Component.prototype.getPreferredSize = function() {
+	jsuis.defaultlf.Component.prototype.getPreferredSize = function() {
 		var layoutPaddingMargin = this.getLayoutPadding().add(this.getLayoutMargin());
 		var preferredSize = this.preferredSize;
 		if (preferredSize) {
-			return preferredSize.add(layoutPaddingMargin.getDimension());
+			return preferredSize.add(
+					layoutPaddingMargin.getDimension());
 		}
 		var layout = this.getLayout();
 		if (layout) {
 			var preferredLayoutSize = layout.preferredLayoutSize(this);
-			return preferredLayoutSize.add(layoutPaddingMargin.getDimension());
+			return preferredLayoutSize;
 		}
 		var element = this.getElement();
 		var bbox = element.getBBox();
-		return new jsuis.Dimension(Math.ceil(bbox.width), Math.ceil(bbox.height)).add(layoutPaddingMargin.getDimension());
+		return new jsuis.Dimension(Math.ceil(bbox.width), Math.ceil(bbox.height)).add(
+				layoutPaddingMargin.getDimension());
 	}
-	jsuis.Component.prototype.setPreferredSize = function(preferredSize) {
+	jsuis.defaultlf.Component.prototype.setPreferredSize = function(preferredSize) {
 		this.preferredSize = preferredSize ? preferredSize.clone() : preferredSize;
 		return this;
 	}
-	jsuis.Component.prototype.getMinimumSize = function() {
-		var layoutPaddingMargin = this.getLayoutPadding().add(this.getLayoutMargin());
+	jsuis.defaultlf.Component.prototype.getMinimumSize = function() {
 		var minimumSize = this.minimumSize;
 		if (minimumSize) {
-			return minimumSize.add(layoutPaddingMargin.getDimension());
+			return minimumSize;
 		}
 		var layout = this.getLayout();
 		if (layout) {
 			var minimumLayoutSize = layout.minimumLayoutSize(this);
-			return minimumLayoutSize.add(layoutPaddingMargin.getDimension());
+			return minimumLayoutSize;
 		}
 		return this.getPreferredSize();
 	}
-	jsuis.Component.prototype.setMinimumSize = function(minimumSize) {
+	jsuis.defaultlf.Component.prototype.setMinimumSize = function(minimumSize) {
 		this.minimumSize = minimumSize ? minimumSize.clone() : minimumSize;
 		return this;
 	}
-	jsuis.Component.prototype.getBounds = function() {
+	jsuis.defaultlf.Component.prototype.getBounds = function() {
 		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
-	jsuis.Component.prototype.setBounds = function(rectangle) {
-		this.setX(rectangle.getX());
-		this.setY(rectangle.getY());
-		this.setWidth(rectangle.getWidth());
-		this.setHeight(rectangle.getHeight());
+	jsuis.defaultlf.Component.prototype.setBounds = function(rectangle) {
+		this.setLocation(rectangle.getPoint());
+		this.setSize(rectangle.getDimension());
 		return this;
 	}
-	jsuis.Component.prototype.getMaximumLayoutBounds = function() {
+	jsuis.defaultlf.Component.prototype.getMaximumLayoutBounds = function() {
 		return this.maximumLayoutBounds;
 	}
-	jsuis.Component.prototype.setMaximumLayoutBounds = function(maximumLayoutBounds) {
+	jsuis.defaultlf.Component.prototype.setMaximumLayoutBounds = function(maximumLayoutBounds) {
 		this.maximumLayoutBounds = maximumLayoutBounds ? maximumLayoutBounds.clone() : maximumLayoutBounds;
 		return this;
 	}
-	jsuis.Component.prototype.getPadding = function() {
+	jsuis.defaultlf.Component.prototype.getPadding = function() {
 		if (!this.padding) {
 			this.padding = new jsuis.Insets();
 		}
 		return this.padding.clone();
 	}
-	jsuis.Component.prototype.setPadding = function(padding) {
+	jsuis.defaultlf.Component.prototype.setPadding = function(padding) {
 		if (!this.padding || padding) {
 			this.padding = new jsuis.Insets();
 		}
@@ -1156,13 +3030,13 @@ function nvl(value, defaultValue) {
 		}
 		return this;
 	}
-	jsuis.Component.prototype.getMargin = function() {
+	jsuis.defaultlf.Component.prototype.getMargin = function() {
 		if (!this.margin) {
 			this.margin = new jsuis.Insets();
 		}
 		return this.margin.clone();
 	}
-	jsuis.Component.prototype.setMargin = function(margin) {
+	jsuis.defaultlf.Component.prototype.setMargin = function(margin) {
 		if (!this.margin || margin) {
 			this.margin = new jsuis.Insets();
 		}
@@ -1175,13 +3049,13 @@ function nvl(value, defaultValue) {
 		}
 		return this;
 	}
-	jsuis.Component.prototype.getLayoutPadding = function() {
+	jsuis.defaultlf.Component.prototype.getLayoutPadding = function() {
 		if (!this.layoutPadding) {
 			this.layoutPadding = new jsuis.Insets();
 		}
 		return this.layoutPadding.clone();
 	}
-	jsuis.Component.prototype.setLayoutPadding = function(layoutPadding) {
+	jsuis.defaultlf.Component.prototype.setLayoutPadding = function(layoutPadding) {
 		if (!this.layoutPadding || !layoutPadding) {
 			this.layoutPadding = new jsuis.Insets();
 		}
@@ -1194,13 +3068,13 @@ function nvl(value, defaultValue) {
 		}
 		return this;
 	}
-	jsuis.Component.prototype.getLayoutMargin = function() {
+	jsuis.defaultlf.Component.prototype.getLayoutMargin = function() {
 		if (!this.layoutMargin) {
 			this.layoutMargin = new jsuis.Insets();
 		}
 		return this.layoutMargin.clone();
 	}
-	jsuis.Component.prototype.setLayoutMargin = function(layoutMargin) {
+	jsuis.defaultlf.Component.prototype.setLayoutMargin = function(layoutMargin) {
 		if (!this.layoutMargin || !layoutMargin) {
 			this.layoutMargin = new jsuis.Insets();
 		}
@@ -1213,39 +3087,62 @@ function nvl(value, defaultValue) {
 		}
 		return this;
 	}
-	jsuis.Component.prototype.getBorder = function() {
+	jsuis.defaultlf.Component.prototype.getBorder = function() {
 		return this.border;
 	}
-	jsuis.Component.prototype.setBorder = function(border) {
+	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
+		if (border) {
+			border.getPeer().install(this);
+		} else {
+			new jsuis.defaultlf.Border().install(this);
+		}
 		this.border = border;
-		border = nvl(border, new jsuis.Border());
-		border.install(this);
 		return this;
 	}
-	jsuis.Component.prototype.getInsets = function() {
-		var insets = this.getPadding();
+	jsuis.defaultlf.Component.prototype.getInsets = function() {
+		var insets = this.getPadding().add(this.getLayoutPadding());
 		var border = this.getBorder();
 		if (border) {
 			return insets.add(border.getBorderInsets(this));
 		}
 		return insets;
 	}
-	jsuis.Component.prototype.getOutsets = function() {
-		var outsets = this.getMargin();
+	jsuis.defaultlf.Component.prototype.getOutsets = function() {
+		var outsets = this.getMargin().add(this.getLayoutMargin());
 		var border = this.getBorder();
 		if (border) {
 			return outsets.add(border.getBorderOutsets(this));
 		}
 		return outsets;
 	}
-	jsuis.Component.prototype.isLeftToRight = function() {
+	jsuis.defaultlf.Component.prototype.isLeftToRight = function() {
 		return nvl(this.leftToRight, true);
 	}
-	jsuis.Component.prototype.setLeftToRight = function(leftToRight) {
+	jsuis.defaultlf.Component.prototype.setLeftToRight = function(leftToRight) {
 		this.leftToRight = leftToRight;
 		return this;
 	}
-	jsuis.Component.prototype.validate = function() {
+	jsuis.defaultlf.Component.prototype.validate = function() {
+		this.setLayoutBounds(null);
+		this.doLayout();
+		var components = this.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			component.validate();
+		}
+	}
+	jsuis.defaultlf.Component.prototype.doLayout = function() {
+		var layout = this.getLayout();
+		if (layout) {
+			layout.layoutContainer(this);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.setLayoutBounds = function(layoutBounds) {
+		if (layoutBounds) {
+			this.setBounds(layoutBounds);
+			this.layoutBounds = layoutBounds;
+			return this;
+		}
 		var anchor = this.getAnchor();
 		var fill = this.getFill();
 		if (anchor || fill) {
@@ -1393,61 +3290,94 @@ function nvl(value, defaultValue) {
 				this.setBounds(new jsuis.Rectangle(Math.round(x), Math.round(y), width, height));
 			}
 		}
-		this.doLayout();
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.validate();
-		}
+		return this;
 	}
-	jsuis.Component.prototype.doLayout = function() {
-		var layout = this.getLayout();
-		if (layout) {
-			layout.layoutContainer(this);
-		}
-	}
-	jsuis.Component.prototype.isVisible = function() {
+	jsuis.defaultlf.Component.prototype.isVisible = function() {
 		return nvl(this.visible, true);
 	}
-	jsuis.Component.prototype.setVisible = function(visible) {
+	jsuis.defaultlf.Component.prototype.setVisible = function(visible) {
 		this.setStyleProperty("display", visible ? "" : "none");
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.setVisible(visible);
-		}
 		this.visible = visible;
 		return this;
 	}
-	jsuis.Component.prototype.getBackground = function() {
+	jsuis.defaultlf.Component.prototype.getBackground = function() {
 		return this.background;
 	}
-	jsuis.Component.prototype.setBackground = function(background) {
+	jsuis.defaultlf.Component.prototype.setBackground = function(background) {
 		this.background = background;
 		this.setStyleProperty("fill", nvl(background, "none").toString());
 		return this;
 	}
-	jsuis.Component.prototype.getForeground = function() {
+	jsuis.defaultlf.Component.prototype.getForeground = function() {
 		return this.foreground;
 	}
-	jsuis.Component.prototype.setForeground = function(foreground) {
+	jsuis.defaultlf.Component.prototype.setForeground = function(foreground) {
 		this.foreground = foreground;
 		this.setStyleProperty("stroke", nvl(foreground, "none").toString());
 		return this;
 	}
-	jsuis.Component.prototype.getFont = function() {
+	jsuis.defaultlf.Component.prototype.getFont = function() {
 		return this.font;
 	}
-	jsuis.Component.prototype.setFont = function(font) {
-		this.font = font;
+	jsuis.defaultlf.Component.prototype.setFont = function(font) {
 		if (font) {
-			this.setAttribute("font-family", font.getName());
-			this.setAttribute("font-style", font.getStyle());
-			this.setAttribute("font-size", font.getSize());
+			this.setStyleProperty("font-family", font.getName());
+			this.setStyleProperty("font-style", font.getStyle());
+			this.setStyleProperty("font-weight", font.getStyle());
+			this.setStyleProperty("font-size", font.getSize() + "px");
+		}
+		this.font = font;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.getCursor = function() {
+		return this.cursor;
+	}
+	jsuis.defaultlf.Component.prototype.setCursor = function(cursor) {
+		this.cursor = cursor;
+		if (cursor) {
+			this.setStyleProperty("cursor", nvl(cursor, "").toString());
 		}
 		return this;
 	}
-	jsuis.Component.prototype.addComponentListener = function(componentListener) {
+	jsuis.defaultlf.Component.prototype.isEnabled = function() {
+		return nvl(this.enabled, true);
+	}
+	jsuis.defaultlf.Component.prototype.setEnabled = function(enabled) {
+		this.setStyleProperty("pointer-events", enabled ? "" : "none");
+		var oldEnabled = this.isEnabled();
+		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.isSelectable = function() {
+		return nvl(this.selectable, true);
+	}
+	jsuis.defaultlf.Component.prototype.setSelectable = function(selectable) {
+		this.selectable = selectable;
+		this
+		.setStyleProperty("-webkit-touch-callout", selectable ? "text" : "none")
+		.setStyleProperty("-webkit-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-khtml-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-moz-user-select", selectable ? "text" : "none")
+		.setStyleProperty("-ms-user-select", selectable ? "text" : "none")
+		.setStyleProperty("user-select", selectable ? "text" : "none");
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.isPressed = function() {
+		return this.pressed;
+	}
+	jsuis.defaultlf.Component.prototype.setPressed = function(pressed) {
+		this.pressed = pressed;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.requestFocus = function() {
+		var element = this.getElement();
+		element.focus();
+	}
+	jsuis.defaultlf.Component.prototype.getTarget = function() {
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		componentListeners.push(componentListener);
 		var component = this;
@@ -1460,59 +3390,46 @@ function nvl(value, defaultValue) {
 				});
 			}
 		}
-		if (listener.componentMoved) {
-			//TODO
-		}
 	}
-	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
+	jsuis.defaultlf.Component.prototype.removeComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();
 		var index = componentListeners.indexOf(componentListener);
 		if (index !== -1) {
 			componentListeners.splice(index, 1);
 		}
 	}
-	jsuis.Component.prototype.fireComponentResized = function(domEvent) {
-		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireComponentResized = function(domEvent) {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];
 			componentListener.componentResized(event);
 		}
 	}
-	jsuis.Component.prototype.fireComponentMoved = function(domEvent) {
-		var event = new jsuis.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireComponentMoved = function() {
+		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_MOVED);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];
 			componentListener.componentMoved(event);
 		}
 	}
-	jsuis.Component.prototype.isEnabled = function() {
-		return nvl(this.enabled, true);
-	}
-	jsuis.Component.prototype.setEnabled = function(enabled) {
-		this.setStyleProperty("pointer-events", enabled ? "" : "none");
-		return this;
-	}
-	jsuis.Component.prototype.isSelectable = function() {
-		return (this.getStyleProperty("user-select") !== "none");
-	}
-	jsuis.Component.prototype.setSelectable = function(selectable) {
-		this.setStyleProperty("user-select", selectable ? "text" : "none");
-		return this;
-	}
-	jsuis.Component.prototype.isPressed = function() {
-		return this.pressed;
-	}
-	jsuis.Component.prototype.setPressed = function(pressed) {
-		this.pressed = pressed;
-		return this;
-	}
-	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
+	jsuis.defaultlf.Component.prototype.addMouseAdapter = function(mouseAdapter) {
 		var mouseListeners = this.getMouseListeners();
-		mouseListeners.push(mouseListener);
+		var mouseMotionListeners = this.getMouseMotionListeners();
+		// TODO MouseWheelListener
+		if (mouseAdapter instanceof jsuis.MouseAdapter) {
+			mouseListeners.push(mouseAdapter);
+			mouseMotionListeners.push(mouseAdapter);
+		} else if (mouseAdapter instanceof jsuis.MouseListener) {
+			mouseListeners.push(mouseAdapter);
+		} else if (mouseAdapter instanceof jsuis.MouseMotionListener) {
+			mouseMotionListeners.push(mouseAdapter);
+		} else {
+			return;
+		}
 		var component = this;
-		var listener = mouseListener;
+		var listener = mouseAdapter.getListener();
 		if (listener.mouseClicked) {
 			var onclick = this.getEventListener("click");
 			if (!onclick) {
@@ -1533,16 +3450,14 @@ function nvl(value, defaultValue) {
 				});
 			}
 		}
-		if (listener.mousePressed) {
+		if (listener.mousePressed || listener.mouseReleased || listener.mouseDragged) {
 			var onmousedown = this.getEventListener("mousedown");
 			if (!onmousedown) {
 				this.setEventListener("mousedown", function(event) {
 					component.fireMousePressed(event);
 				});
 			}
-		}
-		if (listener.mouseReleased) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseListeners = browserWindow.getMouseListeners();
 			var i = 0;
 			for (; i < browserWindowMouseListeners.length; i++) {
@@ -1580,77 +3495,6 @@ function nvl(value, defaultValue) {
 				});
 			}
 		}
-	}
-	jsuis.Component.prototype.removeMouseListener = function(mouseListener) {
-		var mouseListeners = this.getMouseListeners();
-		var index = mouseListeners.indexOf(mouseListener);
-		if (index !== -1) {
-			mouseListeners.splice(index, 1);
-		}
-	}
-	jsuis.Component.prototype.fireMouseClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseClicked(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMouseDoubleClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setClickCount(2);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseClicked(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMouseRightClicked = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setPopupTrigger(true);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseClicked(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMousePressed = function(domEvent) {
-		this.setPressed(true);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_PRESSED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mousePressed(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMouseReleased = function(domEvent) {
-		this.setPressed(false);
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseReleased(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMouseEntered = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_ENTERED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseEntered(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.fireMouseExited = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_EXITED).setDomEvent(domEvent);
-		var mouseListeners = this.getMouseListeners();
-		for (var i = 0; i < mouseListeners.length; i++) {
-			var mouseListener = mouseListeners[i];
-			mouseListener.mouseExited(mouseEvent);
-		}
-	}
-	jsuis.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
-		var mouseMotionListeners = this.getMouseMotionListeners();
-		mouseMotionListeners.push(mouseMotionListener);
-		var component = this;
-		var listener = mouseMotionListener.getListener();
 		if (listener.mouseMoved) {
 			var onmousemove = this.getEventListener("mousemove");
 			if (!onmousemove) {
@@ -1660,7 +3504,7 @@ function nvl(value, defaultValue) {
 			}
 		}
 		if (listener.mouseDragged) {
-			var browserWindow = jsuis.BrowserWindow.getInstance();
+			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			var browserWindowMouseMotionListeners = browserWindow.getMouseMotionListeners();
 			var i = 0;
 			for (; i < browserWindowMouseMotionListeners.length; i++) {
@@ -1683,73 +3527,214 @@ function nvl(value, defaultValue) {
 			}
 		}
 	}
-	jsuis.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+	jsuis.defaultlf.Component.prototype.removeMouseAdapter = function(mouseAdapter) {
+		this.removeMouseListener(mouseAdapter);
+		this.removeMouseMotionListener(mouseAdapter);
+	}
+	jsuis.defaultlf.Component.prototype.addMouseListener = function(mouseListener) {
+		this.addMouseAdapter(mouseListener);
+	}
+	jsuis.defaultlf.Component.prototype.removeMouseListener = function(mouseListener) {
+		var mouseListeners = this.getMouseListeners();
+		var index = mouseListeners.indexOf(mouseListener);
+		if (index !== -1) {
+			mouseListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseClicked = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseClicked(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseDoubleClicked = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setClickCount(2);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseClicked(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseRightClicked = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_CLICKED).setDomEvent(domEvent).setPopupTrigger(true);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseClicked(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMousePressed = function(domEvent) {
+		this.setPressed(true);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_PRESSED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mousePressed(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseReleased = function(domEvent) {
+		this.setPressed(false);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseReleased(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseEntered = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_ENTERED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseEntered(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireMouseExited = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_EXITED).setDomEvent(domEvent);
+		var mouseListeners = this.getMouseListeners();
+		for (var i = 0; i < mouseListeners.length; i++) {
+			var mouseListener = mouseListeners[i];
+			mouseListener.mouseExited(mouseEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
+		this.addMouseAdapter(mouseMotionListener);
+	}
+	jsuis.defaultlf.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		var index = mouseMotionListeners.indexOf(mouseMotionListener);
 		if (index !== -1) {
 			mouseMotionListeners.splice(index, 1);
 		}
 	}
-	jsuis.Component.prototype.fireMouseMoved = function(domEvent) {
+	jsuis.defaultlf.Component.prototype.fireMouseMoved = function(domEvent) {
 		if (this.isPressed()) {
 			return;
 		}
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_MOVED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_MOVED).setDomEvent(domEvent);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
 			mouseMotionListener.mouseMoved(mouseEvent);
 		}
 	}
-	jsuis.Component.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireMouseDragged = function(domEvent) {
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
 			mouseMotionListener.mouseDragged(mouseEvent);
 		}
 	}
-	jsuis.Component.prototype.addPropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		propertyChangeListeners.push(propertyChangeListener);
-		if (propertyName !== "") {
-			propertyChangeListeners = this.getPropertyChangeListeners();
-			propertyChangeListeners.push(propertyChangeListener);
+	jsuis.defaultlf.Component.prototype.addTouchListener = function(touchListener) {
+		var touchListeners = this.getTouchListeners();
+		touchListeners.push(touchListener);
+		var component = this;
+		var listener = touchListener.getListener();
+		if (listener.touchPressed) {
+			var ontouchstart = this.getEventListener("touchstart");
+			if (!ontouchstart) {
+				this.setEventListener("touchstart", function(event) {
+					component.fireTouchPressed(event);
+				});
+			}
 		}
-	}
-	jsuis.Component.prototype.removePropertyChangeListener = function(propertyChangeListener) {
-		var propertyName = propertyChangeListener.getPropertyName() || "";
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		var index = propertyChangeListeners.indexOf(propertyChangeListener);
-		if (index !== -1) {
-			propertyChangeListeners.splice(index, 1);
+		if (listener.touchReleased) {
+			var ontouchend = this.getEventListener("touchend");
+			if (!ontouchend) {
+				this.setEventListener("touchend", function(event) {
+					component.fireTouchReleased(event);
+				});
+			}
 		}
-		if (propertyName !== "") {
-			var propertyChangeListeners = this.getPropertyChangeListeners();
-			var index = propertyChangeListeners.indexOf(propertyChangeListener);
-			if (index !== -1) {
-				propertyChangeListeners.splice(index, 1);
+		if (listener.touchMoved) {
+			var ontouchmove = this.getEventListener("touchmove");
+			if (!ontouchmove) {
+				this.setEventListener("touchmove", function(event) {
+					component.fireTouchMoved(event);
+				});
 			}
 		}
 	}
-	jsuis.Component.prototype.getPropertyChangeListeners = function(propertyName) {
-		propertyName = propertyName || "";
-		var propertyChangeListeners = this.propertyChangeListeners;
-		if (!propertyChangeListeners[propertyName]) {
-			propertyChangeListeners[propertyName] = [];
-		}
-		return propertyChangeListeners[propertyName];
-	}
-	jsuis.Component.prototype.firePropertyChange = function(propertyName, oldValue, newValue) {
-		var propertyChangeEvent = new jsuis.PropertyChangeEvent(this, propertyName, oldValue, newValue);
-		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);
-		for (var i = 0; i < propertyChangeListeners.length; i++) {
-			var propertyChangeListener = propertyChangeListeners[i];
-			propertyChangeListener.propertyChange(propertyChangeEvent);
+	jsuis.defaultlf.Component.prototype.removeTouchListener = function(touchListener) {
+		var touchListeners = this.getTouchListeners();
+		var index = touchListeners.indexOf(touchListener);
+		if (index !== -1) {
+			touchListeners.splice(index, 1);
 		}
 	}
-	jsuis.Component.prototype.addActionListener = function(actionListener) {
+	jsuis.defaultlf.Component.prototype.fireTouchPressed = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_PRESSED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchPressed(touchEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireTouchReleased = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_RELEASED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchReleased(touchEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireTouchMoved = function(domEvent) {
+		var touchEvent = new jsuis.defaultlf.TouchEvent(this, jsuis.Constants.TOUCH_MOVED).setDomEvent(domEvent);
+		var touchListeners = this.getTouchListeners();
+		for (var i = 0; i < touchListeners.length; i++) {
+			var touchListener = touchListeners[i];
+			touchListener.touchMoved(touchEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.addFocusListener = function(focusListener) {
+		var focusListeners = this.getFocusListeners();
+		focusListeners.push(focusListener);
+		var component = this;
+		var listener = focusListener.getListener();
+		if (listener.focusGained) {
+			var onfocus = this.getEventListener("focus");
+			if (!onfocus) {
+				this.setEventListener("focus", function(event) {
+					component.fireFocusGained(event);
+				});
+			}
+		}
+		if (listener.focusLost) {
+			var onblur = this.getEventListener("blur");
+			if (!onblur) {
+				this.setEventListener("blur", function(event) {
+					component.fireFocusLost(event);
+				});
+			}
+		}
+	}
+	jsuis.defaultlf.Component.prototype.removeFocusListener = function(focusListener) {
+		var focusListeners = this.getFocusListeners();
+		var index = focusListeners.indexOf(focusListener);
+		if (index !== -1) {
+			focusListeners.splice(index, 1);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireFocusGained = function(domEvent) {
+		var focusEvent = new jsuis.defaultlf.FocusEvent(this, jsuis.Constants.FOCUS_GAINED).setDomEvent(domEvent);
+		var focusListeners = this.getFocusListeners();
+		for (var i = 0; i < focusListeners.length; i++) {
+			var focusListener = focusListeners[i];
+			focusListener.focusGained(focusEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.fireFocusLost = function(domEvent) {
+		var focusEvent = new jsuis.defaultlf.FocusEvent(this, jsuis.Constants.FOCUS_LOST).setDomEvent(domEvent);
+		var focusListeners = this.getFocusListeners();
+		for (var i = 0; i < focusListeners.length; i++) {
+			var focusListener = focusListeners[i];
+			focusListener.focusLost(focusEvent);
+		}
+	}
+	jsuis.defaultlf.Component.prototype.addActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		actionListeners.push(actionListener);
 		var mouseListener = new jsuis.MouseListener({
@@ -1761,15 +3746,15 @@ function nvl(value, defaultValue) {
 		mouseListener.setListenerComponent(actionListener.getListenerComponent());
 		this.addMouseListener(mouseListener);
 	}
-	jsuis.Component.prototype.removeActionListener = function(actionListener) {
+	jsuis.defaultlf.Component.prototype.removeActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		var index = actionListeners.indexOf(actionListener);
 		if (index !== -1) {
 			actionListeners.splice(index, 1);
 		}
 	}
-	jsuis.Component.prototype.fireActionPerformed = function(domEvent) {
-		var event = new jsuis.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand()).setDomEvent(domEvent);
+	jsuis.defaultlf.Component.prototype.fireActionPerformed = function(domEvent) {
+		var event = new jsuis.defaultlf.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand()).setDomEvent(domEvent);
 		var actionListeners = this.getActionListeners();
 		for (var i = 0; i < actionListeners.length; i++) {
 			var actionListener = actionListeners[i];
@@ -1779,806 +3764,45 @@ function nvl(value, defaultValue) {
 })(jsuis);
 
 /**
- * jsuis.Dimension
+ * jsuis.defaultlf.Event
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.Dimension = jsuis.Object.extend(SUPER, function(width, height) {
-		SUPER.prototype.constructor.call(this);
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
-	});
-	jsuis.Object.addProperties(jsuis.Dimension,
-			new jsuis.Property("width"),
-			new jsuis.Property("height")
-	);
-	jsuis.Dimension.prototype.add = function(insets) {
-		var width = this.getWidth() + insets.getWidth();
-		var height = this.getHeight() + insets.getHeight();
-		return new jsuis.Dimension(width, height);
-	}
-	jsuis.Dimension.prototype.subtract = function(insets) {
-		var width = this.getWidth() - insets.getWidth();
-		var height = this.getHeight() - insets.getHeight();
-		return new jsuis.Dimension(width, height);
-	}
-	jsuis.Dimension.prototype.clone = function() {
-		return new jsuis.Dimension(this.getWidth(), this.getHeight());
-	}
-}) (jsuis);
-
-/**
- * jsuis.Event
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Event = jsuis.Object.extend(SUPER, function(source, id, when, modifiers) {
+	jsuis.defaultlf.Event = jsuis.Object.extend(SUPER, function(source, id) {
 		SUPER.prototype.constructor.call(this);
 		this.setSource(source);
 		this.setId(id);
-		this.setWhen(when);
-		this.setModifiers(modifiers);
 	});
-	jsuis.Object.addProperties(jsuis.Event,
+	jsuis.Object.addProperties(jsuis.defaultlf.Event,
 			new jsuis.Property("domEvent"),
 			new jsuis.Property("source"),
-			new jsuis.Property("id"),
-			new jsuis.Property("when"),
-			new jsuis.Property("modifiers")
+			new jsuis.Property("id")
 	);
 	
-	jsuis.Event.prototype.setComponent = jsuis.Event.prototype.setSource;
-	jsuis.Event.prototype.getComponent = jsuis.Event.prototype.getSource;
+	jsuis.defaultlf.Event.prototype.setComponent = jsuis.defaultlf.Event.prototype.setSource;
+	jsuis.defaultlf.Event.prototype.getComponent = jsuis.defaultlf.Event.prototype.getSource;
 	
-	jsuis.Event.prototype.stopPropagation = function() {
+	jsuis.defaultlf.Event.prototype.preventDefault = function() {
+		var domEvent = this.getDomEvent();
+		if (domEvent) {
+			domEvent.preventDefault();
+		}
+	}
+	
+	jsuis.defaultlf.Event.prototype.stopPropagation = function() {
 		var domEvent = this.getDomEvent();
 		if (domEvent) {
 			domEvent.stopPropagation();
 		}
 	}
-	
-	jsuis.Event.prototype.getWhen = function() {
-		var when = this.when;
-		if (when !== null && when !== undefined) {
-			return when;
-		}
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			when = domEvent.timeStamp;
-		} else {
-			when = new Date().getTime();
-		}
-		this.setWhen(when);
-		return when;
-	}
-	
-	jsuis.Event.prototype.getModifiers = function() {
-		var modifiers = this.modifiers;
-		if (modifiers !== null && modifiers !== undefined) {
-			return modifiers;
-		}
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			modifiers = (domEvent.shiftKey ? (jsuis.Event.SHIFT_MASK | jsuis.Event.SHIFT_DOWN_MASK) : 0)
-			| (domEvent.ctrlKey ? (jsuis.Event.CTRL_MASK | jsuis.Event.CTRL_DOWN_MASK) : 0)
-			| (domEvent.metaKey ? (jsuis.Event.META_MASK | jsuis.Event.META_DOWN_MASK) : 0)
-			| (domEvent.altKey ? (jsuis.Event.ALT_MASK | jsuis.Event.ALT_DOWN_MASK) : 0);
-			this.setModifiers(modifiers);
-		}
-		return modifiers;
-	}
-	
-	jsuis.Event.SHIFT_MASK = 1;
-	jsuis.Event.CTRL_MASK = 2;
-	jsuis.Event.META_MASK = 4;
-	jsuis.Event.ALT_MASK = 8;
-	
-	jsuis.Event.SHIFT_DOWN_MASK = 64;
-	jsuis.Event.CTRL_DOWN_MASK = 128;
-	jsuis.Event.META_DOWN_MASK = 256;
-	jsuis.Event.ALT_DOWN_MASK = 512;
-	
 }) (jsuis);
 
 /**
- * jsuis.FlowLayout
+ * jsuis.defaultlf.Timer
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
-		SUPER.prototype.constructor.call(this);
-		this.setAlign(nvl(align, jsuis.FlowLayout.CENTER));
-		this.setHgap(nvl(hgap, 4));
-		this.setVgap(nvl(vgap, 4));
-	});
-	jsuis.Object.addProperties(jsuis.FlowLayout,
-			new jsuis.Property("align"),
-			new jsuis.Property("hgap"),
-			new jsuis.Property("vgap")
-	);
-	jsuis.FlowLayout.LEFT = 0;
-	jsuis.FlowLayout.CENTER = 1;
-	jsuis.FlowLayout.RIGHT = 2;
-	jsuis.FlowLayout.LEADING = 3;
-	jsuis.FlowLayout.TRAILING = 4;
-	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
-		var preferredLayoutWidth = 0;
-		var preferredLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentPreferredSize = component.getPreferredSize();
-			var componentPreferredWidth = componentPreferredSize.getWidth();
-			var componentPreferredHeight = componentPreferredSize.getHeight();
-			componentPreferredWidth += hgap;
-			componentPreferredHeight += vgap;
-			preferredLayoutWidth += componentPreferredWidth;
-			preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredHeight);
-		}
-		if (components.length) {
-			preferredLayoutWidth -= hgap;
-			preferredLayoutHeight -= vgap;
-		}
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
-		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
-		return new jsuis.Dimension(preferredLayoutWidth + 2 * hgap, preferredLayoutHeight + 2 * vgap);
-	}
-	jsuis.FlowLayout.prototype.layoutContainer = function(parent) {
-		var minX = 0;
-		var minY = 0;
-		var maxWidth = parent.getWidth();
-		var maxHeight = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		minX += parentInsetsOutsets.getLeft() + hgap;
-		minY += parentInsetsOutsets.getTop() + vgap;
-		maxWidth -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight() + 2 * hgap;
-		maxHeight -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom() + 2 * vgap;
-		minX += hgap / 2;
-		minY += vgap / 2;
-		maxWidth += hgap;
-		maxHeight += vgap;
-		var x = minX;
-		var y = minY;
-		var width = 0;
-		var height = 0;
-		var rowComponents = [];
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentPreferredSize = component.getPreferredSize();
-			var componentPreferredWidth = componentPreferredSize.getWidth();
-			var componentPreferredHeight = componentPreferredSize.getHeight();
-			var componentX = x;
-			var componentY = y;
-			var componentWidth = componentPreferredWidth + hgap;
-			var componentHeight = componentPreferredHeight + vgap;
-			if ((componentX + componentWidth < maxWidth) || (rowComponents.length == 0)) {
-				x += componentWidth;
-				width += componentWidth;
-				height = Math.max(height, componentHeight);
-				component.setBounds(new jsuis.Rectangle(componentX - hgap / 2, componentY - vgap / 2,
-						componentWidth - hgap, componentHeight - vgap));
-				rowComponents.push(component);
-			}
-			if ((componentX + componentWidth >= maxWidth) || (i === components.length - 1)) {
-				var dx = 0;
-				var align = this.getAlign();
-				switch (align) {
-				case jsuis.FlowLayout.RIGHT:
-				case jsuis.FlowLayout.TRAILING:
-					dx = maxWidth - width;
-					break;
-				case jsuis.FlowLayout.CENTER:
-				default:
-					dx = Math.round((maxWidth - width) / 2);
-				}
-				for (var j = 0; j < rowComponents.length; j++) {
-					var rowComponent = rowComponents[j];
-					var rowComponentX = rowComponent.getX();
-					var rowComponentY = rowComponent.getY();
-					var rowComponentWidth = rowComponent.getWidth();
-					var rowComponentHeight = rowComponent.getHeight();
-					rowComponentX += dx;
-					rowComponentHeight = height - vgap;
-					var bounds;
-					var leftToRight = parent.isLeftToRight();
-					if (leftToRight) {
-						bounds = new jsuis.Rectangle(rowComponentX, rowComponentY, rowComponentWidth, rowComponentHeight);
-					} else {
-						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
-					}
-					rowComponent.setBounds(bounds);
-					rowComponent.setMaximumLayoutBounds(bounds);
-					rowComponent.setAnchor(rowComponent.getAnchor() || jsuis.Constants.CENTER);
-				}
-				rowComponents.length = 0;
-				x = minX;
-				y += height;
-				width = 0;
-				height = 0;
-				if ((componentX + componentWidth >= maxWidth) && (x + componentWidth < maxWidth)) {
-					i--;
-				}
-			}
-		}
-	}
-	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
-		this.layoutContainer(parent);
-		var minimumLayoutX = 0;
-		var minimumLayoutWidth = 0;
-		var minimumLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentX = component.getX();
-			var componentY = component.getY();
-			var componentWidth = component.getWidth();
-			var componentHeight = component.getHeight();
-			minimumLayoutX = Math.min(minimumLayoutX, componentX);
-			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
-			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
-		}
-		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
-	}
-}) (jsuis);
-
-/**
- * jsuis.Font
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Font = jsuis.Object.extend(SUPER, function(name, style, size) {
-		SUPER.prototype.constructor.call(this);
-		this.setName(name);
-		this.setStyle(style);
-		this.setSize(size);
-	});
-	jsuis.Object.addProperties(jsuis.Font,
-			new jsuis.Property("name"),
-			new jsuis.Property("style"),
-			new jsuis.Property("size")
-	);
-}) (jsuis);
-
-/**
- * jsuis.GridBagConstraints
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.GridBagConstraints = jsuis.Object.extend(SUPER, function(
-			gridx, gridy, gridwidth, gridheight,
-			weightx, weighty,
-			anchor, fill,
-			insets, ipadx, ipady) {
-		SUPER.prototype.constructor.call(this);
-		this.setGridx(nvl(gridx, jsuis.Constants.RELATIVE));
-		this.setGridy(nvl(gridy, jsuis.Constants.RELATIVE));
-		this.setGridwidth(nvl(gridwidth, 1));
-		this.setGridheight(nvl(gridheight, 1));
-		this.setWeightx(nvl(weightx, 0));
-		this.setWeighty(nvl(weighty, 0));
-		this.setAnchor(nvl(anchor, jsuis.Constants.CENTER));
-		this.setFill(nvl(fill, jsuis.Constants.NONE));
-		this.setInsets(nvl(insets, new jsuis.Insets()));
-		this.setIpadx(nvl(ipadx, 0));
-		this.setIpady(nvl(ipady, 0));
-	});
-	jsuis.Object.addProperties(jsuis.GridBagConstraints,
-			new jsuis.Property("gridx"),
-			new jsuis.Property("gridy"),
-			new jsuis.Property("gridwidth"),
-			new jsuis.Property("gridheight"),
-			new jsuis.Property("weightx"),
-			new jsuis.Property("weighty"),
-			new jsuis.Property("anchor"),
-			new jsuis.Property("fill"),
-			new jsuis.Property("insets"),
-			new jsuis.Property("ipadx"),
-			new jsuis.Property("ipady"),
-			new jsuis.Property("relativeGridx"),
-			new jsuis.Property("relativeGridy"),
-			new jsuis.Property("remainderGridwidth"),
-			new jsuis.Property("remainderGridheight")
-	);
-	jsuis.GridBagConstraints.prototype.setGridx = function(gridx) {
-		this.gridx = gridx;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setGridy = function(gridy) {
-		this.gridy = gridy;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setGridwidth = function(gridwidth) {
-		this.gridwidth = gridwidth;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setGridheight = function(gridheight) {
-		this.gridheight = gridheight;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setWeightx = function(weightx) {
-		this.weightx = weightx;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setWeighty = function(weighty) {
-		this.weighty = weighty;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setAnchor = function(anchor) {
-		this.anchor = anchor;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setFill = function(fill) {
-		this.fill = fill;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setInsets = function(insets) {
-		this.insets = insets;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setIpadx = function(ipadx) {
-		this.ipadx = ipadx;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.setIpady = function(ipady) {
-		this.ipady = ipady;
-		return this;
-	}
-	jsuis.GridBagConstraints.prototype.clone = function() {
-		return new jsuis.GridBagConstraints(
-				this.getGridx(), this.getGridy(), this.getGridwidth(), this.getGridheight(),
-				this.getWeightx(), this.getWeighty(),
-				this.getAnchor(), this.getFill(),
-				this.getInsets(), this.getIpadx(), this.getIpady());
-	}
-}) (jsuis);
-
-/**
- * jsuis.GridBagLayout
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.GridBagLayout = jsuis.Object.extend(SUPER, function(hgap, vgap) {
-		SUPER.prototype.constructor.call(this);
-		hgap = nvl(hgap, 0);
-		vgap = nvl(vgap, hgap);
-		this.setHgap(hgap);
-		this.setVgap(vgap);
-	});
-	jsuis.Object.addProperties(jsuis.GridBagLayout,
-			new jsuis.Property("hgap"),
-			new jsuis.Property("vgap"),
-			new jsuis.Property("widths"),
-			new jsuis.Property("heights"),
-			new jsuis.Property("weightxs"),
-			new jsuis.Property("weightys")
-	);
-	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
-		var preferredLayoutWidth = 0;
-		var preferredLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var maxGridx = 0;
-		var maxGridy = 0;
-		var previousGridx = -1;
-		var previousGridy = -1;
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = new jsuis.GridBagConstraints();
-				component.setConstraints(constraints);
-			}
-			var gridx = constraints.getGridx();
-			if (gridx === jsuis.Constants.RELATIVE) {
-				gridx = previousGridx + 1;
-				constraints.setRelativeGridx(gridx);
-			}
-			previousGridx = gridx;
-			var gridy = constraints.getGridy();
-			if (gridy === jsuis.Constants.RELATIVE) {
-				gridy = previousGridy + 1;
-				constraints.setRelativeGridy(gridy);
-			}
-			previousGridy = gridy;
-			var gridwidth = constraints.getGridwidth();
-			if (gridwidth === jsuis.Constants.REMAINDER) {
-				maxGridx = Math.max(maxGridx, gridx);
-			} else {
-				maxGridx = Math.max(maxGridx, gridx + gridwidth - 1);
-			}
-			var gridheight = constraints.getGridheight();
-			if (gridheight === jsuis.Constants.REMAINDER) {
-				maxGridy = Math.max(maxGridy, gridy);
-			} else {
-				maxGridy = Math.max(maxGridy, gridy + gridheight - 1);
-			}
-		}
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var constraints = component.getConstraints();
-			var gridx = constraints.getGridx();
-			if (gridx === jsuis.Constants.RELATIVE) {
-				gridx = constraints.getRelativeGridx();
-			}
-			var gridwidth = constraints.getGridwidth();
-			if (gridwidth === jsuis.Constants.REMAINDER) {
-				constraints.setRemainderGridwidth(maxGridx - gridx + 1);
-			}
-			var gridy = constraints.getGridy();
-			if (gridy === jsuis.Constants.RELATIVE) {
-				gridy = constraints.getRelativeGridy();
-			}
-			var gridheight = constraints.getGridheight();
-			if (gridheight === jsuis.Constants.REMAINDER) {
-				constraints.setRemainderGridheight(maxGridy - gridy + 1);
-			}
-			var ipadx = constraints.getIpadx();
-			var ipady = constraints.getIpady();
-			component.setLayoutPadding(new jsuis.Insets(ipady, ipadx));
-		}
-		
-		var widthComponents = components.slice();
-		var widths = [];
-		var weightxs = [];
-		for (var i = 0; i <= maxGridx; i++) {
-			widths.push(0);
-			weightxs.push(0);
-			var remainingComponents = widthComponents.slice();
-			for (var j = 0; j < widthComponents.length; j++) {
-				var component = widthComponents[j];
-				if (!component.isVisible()) {
-					continue;
-				}
-				var constraints = component.getConstraints();
-				var gridx = constraints.getGridx();
-				if (gridx === jsuis.Constants.RELATIVE) {
-					gridx = constraints.getRelativeGridx();
-				}
-				var gridwidth = constraints.getGridwidth();
-				if (gridwidth === jsuis.Constants.REMAINDER) {
-					gridwidth = constraints.getRemainderGridwidth();
-				}
-				if ((gridx + gridwidth - 1) !== i) {
-					continue;
-				}
-				var weightx = constraints.getWeightx();
-				var componentPreferredSize = component.getPreferredSize();
-				var componentPreferredWidth = componentPreferredSize.getWidth();
-				widths[i] = Math.max(widths[i], componentPreferredWidth
-						- widths[i - gridwidth + 1]);
-				weightxs[i] = Math.max(weightxs[i], weightx - weightxs[i - gridwidth + 1]);
-				var index = remainingComponents.indexOf(component);
-				if (index !== -1) {
-					remainingComponents.splice(index, 1);
-				}
-			}
-			widthComponents = remainingComponents;
-		}
-		this.setWidths(widths);
-		this.setWeightxs(weightxs);
-		
-		var heightComponents = components.slice();
-		var heights = [];
-		var weightys = [];
-		for (var i = 0; i <= maxGridy; i++) {
-			heights.push(0);
-			weightys.push(0);
-			var remainingComponents = heightComponents.slice();
-			for (var j = 0; j < heightComponents.length; j++) {
-				var component = heightComponents[j];
-				if (!component.isVisible()) {
-					continue;
-				}
-				var constraints = component.getConstraints();
-				var gridy = constraints.getGridy();
-				if (gridy === jsuis.Constants.RELATIVE) {
-					gridy = constraints.getRelativeGridy();
-				}
-				var gridheight = constraints.getGridheight();
-				if (gridheight === jsuis.Constants.REMAINDER) {
-					gridheight = constraints.getRemainderGridheight();
-				}
-				if ((gridy + gridheight - 1) !== i) {
-					continue;
-				}
-				var weighty = constraints.getWeighty();
-				var componentPreferredSize = component.getPreferredSize();
-				var componentPreferredHeight = componentPreferredSize.getHeight();
-				heights[i] = Math.max(heights[i], componentPreferredHeight
-						- heights[i - gridheight + 1]);
-				weightys[i] = Math.max(weightys[i], weighty - weightys[i - gridheight + 1]);
-				var index = remainingComponents.indexOf(component);
-				if (index !== -1) {
-					remainingComponents.splice(index, 1);
-				}
-			}
-			heightComponents = remainingComponents;
-		}
-		this.setHeights(heights);
-		this.setWeightys(weightys);
-		
-		for (var i = 0; i < widths.length; i++) {
-			preferredLayoutWidth += widths[i] + hgap;
-		}
-		for (var i = 0; i < heights.length; i++) {
-			preferredLayoutHeight += heights[i] + vgap;
-		}
-		if (components.length) {
-			preferredLayoutWidth -= hgap;
-			preferredLayoutHeight -= vgap;
-		}
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
-		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
-		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
-	}
-	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
-		var preferredLayoutSize = this.preferredLayoutSize(parent);
-		var x = 0;
-		var y = 0;
-		var width = parent.getWidth();
-		var height = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		var preferredLayoutWidth = preferredLayoutSize.getWidth();
-		var preferredLayoutHeight = preferredLayoutSize.getHeight();
-		x += parentInsetsOutsets.getLeft();
-		y += parentInsetsOutsets.getTop();
-		var widths = this.getWidths().slice();
-		var dwidth = width - preferredLayoutWidth;
-		var weightxsSum = 0;
-		var weightxs = this.getWeightxs();
-		for (var i = 0; i < weightxs.length; i++) {
-			weightxsSum += weightxs[i];
-		}
-		if (weightxsSum === 0) {
-			x += dwidth / 2;
-			dwidth = 0;
-		} else {
-			for (var i = 0; i < widths.length; i++) {
-				widths[i] += dwidth * weightxs[i] / weightxsSum;
-			}
-		}
-		var heights = this.getHeights().slice();
-		var dheight = height - preferredLayoutHeight;
-		var weightysSum = 0;
-		var weightys = this.getWeightys();
-		for (var i = 0; i < weightys.length; i++) {
-			weightysSum += weightys[i];
-		}
-		if (weightysSum === 0) {
-			y += dheight / 2;
-			dheight = 0;
-		} else {
-			for (var i = 0; i < heights.length; i++) {
-				heights[i] += dheight * weightys[i] / weightysSum;
-			}
-		}
-		var dx = 0;
-		var xs = [];
-		for (var i = 0; i < widths.length; i++) {
-			xs.push(Math.round(x + dx));
-			dx += widths[i] + hgap;
-		}
-		if (widths.length) {
-			xs.push(Math.round(x + dx));
-		}
-		var dy = 0;
-		var ys = [];
-		for (var i = 0; i < heights.length; i++) {
-			ys.push(Math.round(y + dy));
-			dy += heights[i] + vgap;
-		}
-		if (heights.length) {
-			ys.push(Math.round(y + dy));
-		}
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var constraints = component.getConstraints();
-			var gridx = constraints.getGridx();
-			if (gridx === jsuis.Constants.RELATIVE) {
-				gridx = constraints.getRelativeGridx();
-			}
-			var gridy = constraints.getGridy();
-			if (gridy === jsuis.Constants.RELATIVE) {
-				gridy = constraints.getRelativeGridy();
-			}
-			var gridwidth = constraints.getGridwidth();
-			if (gridwidth === jsuis.Constants.REMAINDER) {
-				gridwidth = constraints.getRemainderGridwidth();
-			}
-			var gridheight = constraints.getGridheight();
-			if (gridheight === jsuis.Constants.REMAINDER) {
-				gridheight = constraints.getRemainderGridheight();
-			}
-			var weightx = constraints.getWeightx();
-			var weighty = constraints.getWeighty();
-			var anchor = constraints.getAnchor();
-			component.setAnchor(anchor);
-			var fill = constraints.getFill();
-			component.setFill(fill);
-			var componentX = xs[gridx];
-			var componentY = ys[gridy];
-			var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
-			var componentHeight = ys[gridy + gridheight] - componentY - vgap;
-			var bounds;
-			var leftToRight = parent.isLeftToRight();
-			if (leftToRight) {
-				bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			} else {
-				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
-			}
-			component.setBounds(bounds);
-			component.setMaximumLayoutBounds(bounds);
-		}
-	}
-	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
-	}
-}) (jsuis);
-
-/**
- * Insets
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Insets = jsuis.Object.extend(SUPER, function(top, left, bottom, right) {
-		SUPER.prototype.constructor.call(this);
-		top = nvl(top, 0);
-		left = nvl(left, top);
-		bottom = nvl(bottom, top);
-		right = nvl(right, left);
-		this.setTop(top);
-		this.setLeft(left);
-		this.setBottom(bottom);
-		this.setRight(right);
-	});
-	jsuis.Object.addProperties(jsuis.Insets,
-			new jsuis.Property("top"),
-			new jsuis.Property("left"),
-			new jsuis.Property("bottom"),
-			new jsuis.Property("right")
-	);
-	jsuis.Insets.prototype.getPoint = function() {
-		return new jsuis.Point(this.getLeft(), this.getTop());
-	}
-	jsuis.Insets.prototype.getDimension = function() {
-		return new jsuis.Dimension(this.getLeft() + this.getRight(), this.getTop() + this.getBottom());
-	}
-	jsuis.Insets.prototype.add = function(insets) {
-		var top = this.getTop() + insets.getTop();
-		var left = this.getLeft() + insets.getLeft();
-		var bottom = this.getBottom() + insets.getBottom();
-		var right = this.getRight() + insets.getRight();
-		return new jsuis.Insets(top, left, bottom, right);
-	}
-	jsuis.Insets.prototype.clone = function() {
-		return new jsuis.Insets(this.getTop(), this.getLeft(), this.getBottom(), this.getRight());
-	}
-})(jsuis);
-
-/**
- * jsuis.Listener
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Listener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this);
-		this.setListener(listener);
-	});
-	jsuis.Object.addProperties(jsuis.Listener,
-			new jsuis.Property("listener"),
-			new jsuis.Property("listenerComponent")
-	);
-}) (jsuis);
-
-/**
- * jsuis.Point
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Point = jsuis.Object.extend(SUPER, function(x, y) {
-		SUPER.prototype.constructor.call(this);
-		this.setX(nvl(x, 0));
-		this.setY(nvl(y, 0));
-	});
-	jsuis.Object.addProperties(jsuis.Point,
-			new jsuis.Property("x"),
-			new jsuis.Property("y")
-	);
-	jsuis.Point.prototype.add = function(point) {
-		this.setX(this.getX() + point.getX());
-		this.setY(this.getY() + point.getY());
-	}
-	jsuis.Point.prototype.clone = function() {
-		return new jsuis.Point(this.getX(), this.getY());
-	}
-}) (jsuis);
-
-/**
- * jsuis.PropertyChangeEvent
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.PropertyChangeEvent = jsuis.Object.extend(SUPER, function(source, propertyName, oldValue, newValue) {
-		SUPER.prototype.constructor.call(this);
-		this.setSource(source);
-		this.setPropertyName(propertyName);
-		this.setOldValue(oldValue);
-		this.setNewValue(newValue);
-	});
-	jsuis.Object.addProperties(jsuis.PropertyChangeEvent,
-			new jsuis.Property("source"),
-			new jsuis.Property("propertyName"),
-			new jsuis.Property("oldValue"),
-			new jsuis.Property("newValue")
-	);
-}) (jsuis);
-
-/**
- * jsuis.Rectangle
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Rectangle = jsuis.Object.extend(SUPER, function(x, y, width, height) {
-		SUPER.prototype.constructor.call(this);
-		this.setX(nvl(x, 0));
-		this.setY(nvl(y, 0));
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
-	});
-	jsuis.Object.addProperties(jsuis.Rectangle,
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("width"),
-			new jsuis.Property("height")
-	);
-	jsuis.Rectangle.prototype.getPoint = function() {
-		return new jsuis.Point(this.getX(), this.getY());
-	}
-	jsuis.Rectangle.prototype.getDimension = function() {
-		return new jsuis.Dimension(this.getWidth(), this.getHeight());
-	}
-	jsuis.Rectangle.prototype.clone = function() {
-		return new jsuis.Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-	}
-}) (jsuis);
-
-/**
- * jsuis.Timer
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Timer = jsuis.Object.extend(SUPER, function(delay, actionListener) {
+	jsuis.defaultlf.Timer = jsuis.Object.extend(SUPER, function(delay, actionListener) {
 		SUPER.prototype.constructor.call(this);
 		this.setActionListeners([]);
 		this.setDelay(delay);
@@ -2586,7 +3810,7 @@ function nvl(value, defaultValue) {
 		this.setInitialDelay(delay);
 		this.setRepeats(true);
 	});
-	jsuis.Object.addProperties(jsuis.Timer,
+	jsuis.Object.addProperties(jsuis.defaultlf.Timer,
 			new jsuis.Property("actionListeners"),
 			new jsuis.Property("delay"),
 			new jsuis.Property("actionListener"),
@@ -2595,33 +3819,33 @@ function nvl(value, defaultValue) {
 			new jsuis.Property("interval"),
 			new jsuis.Property("actionCommand")
 	);
-	jsuis.Timer.prototype.addActionListener = function(actionListener) {
+	jsuis.defaultlf.Timer.prototype.addActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		actionListeners.push(actionListener);
 	}
-	jsuis.Timer.prototype.removeActionListener = function(actionListener) {
+	jsuis.defaultlf.Timer.prototype.removeActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		var index = actionListeners.indexOf(actionListener);
 		if (index !== -1) {
 			actionListeners.splice(index, 1);
 		}
 	}
-	jsuis.Timer.prototype.fireActionPerformed = function() {
-		var event = new jsuis.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand());
+	jsuis.defaultlf.Timer.prototype.fireActionPerformed = function() {
+		var event = new jsuis.defaultlf.ActionEvent(this, jsuis.Constants.ACTION_PERFORMED, this.getActionCommand());
 		var actionListeners = this.getActionListeners();
 		for (var i = 0; i < actionListeners.length; i++) {
 			var actionListener = actionListeners[i];
 			actionListener.actionPerformed(event);
 		}
 	}
-	jsuis.Timer.prototype.isRepeats = function() {
+	jsuis.defaultlf.Timer.prototype.isRepeats = function() {
 		return this.repeats;
 	}
-	jsuis.Timer.prototype.setRepeats = function(repeats) {
+	jsuis.defaultlf.Timer.prototype.setRepeats = function(repeats) {
 		this.repeats = repeats;
 		return this;
 	}
-	jsuis.Timer.prototype.start = function() {
+	jsuis.defaultlf.Timer.prototype.start = function() {
 		this.stop();
 		var initialDelay = this.getInitialDelay();
 		var timer = this;
@@ -2639,21 +3863,21 @@ function nvl(value, defaultValue) {
 		}, initialDelay);
 		this.setTimeout(timeout);
 	}
-	jsuis.Timer.prototype.stop = function() {
+	jsuis.defaultlf.Timer.prototype.stop = function() {
 		try {
 			this.stopInterval();
 		} finally {
 			this.stopTimeout();
 		}
 	}
-	jsuis.Timer.prototype.stopInterval = function() {
+	jsuis.defaultlf.Timer.prototype.stopInterval = function() {
 		var interval = this.getInterval();
 		if (interval) {
 			clearInterval(interval);
 			interval = null;
 		}
 	}
-	jsuis.Timer.prototype.stopTimeout = function() {
+	jsuis.defaultlf.Timer.prototype.stopTimeout = function() {
 		var timeout = this.getTimeout();
 		if (timeout) {
 			clearTimeout(timeout);
@@ -2663,152 +3887,211 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.ActionEvent
+ * jsuis.defaultlf.TreeCellRenderer
  */
 (function(jsuis) {
-	var SUPER = jsuis.Event;
-	jsuis.ActionEvent = jsuis.Object.extend(SUPER, function(component, id, actionCommand, when, modifiers) {
-		SUPER.prototype.constructor.call(this, component, id, when, modifiers);
-		this.setActionCommand(actionCommand);
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.TreeCellRenderer = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
 	});
-	jsuis.Object.addProperties(jsuis.ActionEvent,
-			new jsuis.Property("actionCommand")
-	);
-}) (jsuis);
-
-/**
- * jsuis.ActionListener
- */
-(function(jsuis) {
-	var SUPER = jsuis.Listener;
-	jsuis.ActionListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
-	});
-	jsuis.ActionListener.prototype.actionPerformed = function(event) {
-		var listener = this.getListener();
-		listener.actionPerformed.call(this, event);
+	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
+			tree, value, sel, expanded, leaf, row, hasFocus) {
+		var button = new jsuis.defaultlf.Button();
+		button.setText(nvl(value, "").toString(), new jsuis.GridBagConstraints().setGridx(2).setGridy(0)
+				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
+		/*
+		button.setIcon(icon, new jsuis.GridBagConstraints().setGridx(1).setGridy(0));
+		 */
+		var leftIcon = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
+		leftIcon.add(new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z"));
+		leftIcon.setPreferredSize(new jsuis.Dimension(16, 16));
+		button.add(leftIcon, new jsuis.GridBagConstraints().setGridx(0).setGridy(0));
+		button.setBorder(null);
+		button.setBackground(jsuis.Color.Black.withAlpha(0));
+		return button;
+	}
+	jsuis.defaultlf.TreeCellRenderer.prototype.add = function(component, constraints, index) {
+		var component = component.getPeer();
+		if (component instanceof jsuis.defaultlf.TreeNode) {
+			var panel = this.getPanel();
+			if (!panel) {
+				panel = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
+				this.setPanel(panel);
+				var parent = this.getParent();
+				if (parent instanceof jsuis.defaultlf.Tree) {
+					parent.add(panel, jsuis.Constants.NORTH);
+				} else {
+					var parentPanel = parent.getPanel();
+					var parentPanelComponents = parentPanel.getComponents();
+					parentPanel.add(panel, jsuis.Constants.NORTH, parentPanelComponents.indexOf(this) + 1);
+				}
+			}
+			panel.add(component, nvl(constraints, jsuis.Constants.NORTH), index);
+			var button = this.getButton();
+			var buttonPadding = button.getPadding();
+			component.getButton().setPadding(buttonPadding.add(new jsuis.Insets(0, 16, 0, 0)));
+			component.setParent(this);
+		} else {
+			SUPER.prototype.add.call(this, component, constraints, index);
+		}
 	}
 }) (jsuis);
 
 /**
- * jsuis.ClipPath
+ * jsuis.defaultlf.TreeModel
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.ClipPath = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "clipPath"));
-		this.setId(jsuis.ClipPath.next());
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.TreeModel = jsuis.Object.extend(SUPER, function(root) {
+		SUPER.prototype.constructor.call(this);
+		this.setRoot(root);
 	});
-	jsuis.ClipPath.sequence = 0;
-	jsuis.ClipPath.next = function() {
-		return "ClipPath-" + jsuis.ClipPath.sequence++;
+	jsuis.Object.addProperties(jsuis.defaultlf.TreeModel,
+			new jsuis.Property("root"),
+			new jsuis.Property("rows")
+	);
+	jsuis.defaultlf.TreeModel.prototype.setRoot = function(root) {
+		this.setRows(null);
+		this.root = root;
+		return this;
+	}
+	jsuis.defaultlf.TreeModel.prototype.getRows = function() {
+		var rows = this.rows;
+		if (!rows) {
+			rows = [];
+			this.setRows(rows);
+			var root = this.getRoot();
+			if (root) {
+				this.load(root);
+			}
+		}
+		return rows;
+	}
+	jsuis.defaultlf.TreeModel.prototype.load = function(node) {
+		var rows = this.getRows();
+		rows.push(node);
+		var children = node.getChildren();
+		if (children) {
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				this.load(child);
+			}
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ClipPath
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.ClipPath = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "clipPath"));
+		this.setId(jsuis.defaultlf.ClipPath.next());
+	});
+	jsuis.defaultlf.ClipPath.sequence = 0;
+	jsuis.defaultlf.ClipPath.next = function() {
+		return "ClipPath-" + jsuis.defaultlf.ClipPath.sequence++;
 	};
 }) (jsuis);
 
 /**
- * jsuis.ComponentEvent
+ * jsuis.defaultlf.ComponentEvent
  */
 (function(jsuis) {
-	var SUPER = jsuis.Event;
-	jsuis.ComponentEvent = jsuis.Object.extend(SUPER, function(component, id) {
-		SUPER.prototype.constructor.call(this, component, id);
+	var SUPER = jsuis.defaultlf.Event;
+	jsuis.defaultlf.ComponentEvent = jsuis.Object.extend(SUPER, function(source, id) {
+		SUPER.prototype.constructor.call(this, source, id);
 	});
 }) (jsuis);
 
 /**
- * jsuis.ComponentListener
+ * jsuis.defaultlf.Defs
  */
 (function(jsuis) {
-	var SUPER = jsuis.Listener;
-	jsuis.ComponentListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
-	});
-	jsuis.ComponentListener.prototype.componentResized = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.componentResized) {
-			listener.componentResized.call(this, event);
-		}
-	}
-	jsuis.ComponentListener.prototype.componentMoved = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.componentMoved) {
-			listener.componentMoved.call(this, event);
-		}
-	}
-}) (jsuis);
-
-/**
- * jsuis.Defs
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Defs = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "defs"));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Defs = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "defs"));
 	});
 }) (jsuis);
 
 /**
- * jsuis.Frame
+ * jsuis.defaultlf.Frame
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Frame = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "svg"));
-		this.setVisible(false);
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Frame = jsuis.Object.extend(SUPER, function(title) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
 		SUPER.prototype.setLayout.call(this, new jsuis.BorderLayout());
-		var rootPane = new jsuis.RootPane();
+		var rootPane = new jsuis.defaultlf.RootPane();
 		this.setRootPane(rootPane);
 		SUPER.prototype.add.call(this, rootPane);
-		var contentPane = new jsuis.Panel(new jsuis.BorderLayout());
+		var contentPane = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
 		this.setContentPane(contentPane);
-		rootPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
 		this.setBackground(jsuis.Color.getColor(0xEEEEEE));
-		var browserWindow = jsuis.BrowserWindow.getInstance();
-		var browserWindowComponentListeners = browserWindow.getComponentListeners();
-		var i = 0;
-		for (; i < browserWindowComponentListeners.length; i++) {
-			var browserWindowComponentListener = browserWindowComponentListeners[i];
-			if (browserWindowComponentListener.getListenerComponent() === this) {
-				break;
+		
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+		var componentListener = new jsuis.ComponentListener({
+			componentResized: function(event) {
+				var frame = this.getListenerComponent();
+				frame.validate();
 			}
-		}
-		if (i === browserWindowComponentListeners.length) {
-			var componentListener = new jsuis.ComponentListener({
-				componentResized: function(event) {
-					var component = this.getListenerComponent();
-					component.validate();
-				}
-			});
-			componentListener.setListenerComponent(this);
-			browserWindow.addComponentListener(componentListener);
-		}
+		});
+		componentListener.setListenerComponent(this);
+		browserWindow.addComponentListener(componentListener);
 	});
-	jsuis.Object.addProperties(jsuis.Frame,
-			new jsuis.Property("rootPane"),
-			new jsuis.Property("contentPane")
+	jsuis.Object.addProperties(jsuis.defaultlf.Frame,
+			new jsuis.Property("rootPane")
 	);
-	jsuis.Frame.prototype.add = function(component, constraints, index) {
+	jsuis.defaultlf.Frame.prototype.add = function(component, constraints, index) {
 		var contentPane = this.getContentPane();
 		contentPane.add(component, constraints, index);
 	}
-	jsuis.Frame.prototype.remove = function(component) {
+	jsuis.defaultlf.Frame.prototype.remove = function(component) {
 		var contentPane = this.getContentPane();
 		contentPane.remove(component);
 	}
-	jsuis.Frame.prototype.removeAll = function() {
+	jsuis.defaultlf.Frame.prototype.removeAll = function() {
 		var contentPane = this.getContentPane();
 		contentPane.removeAll();
 	}
-	jsuis.Frame.prototype.getLayout = function() {
+	jsuis.defaultlf.Frame.prototype.getLayeredPane = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getLayeredPane();
+	}
+	jsuis.defaultlf.Frame.prototype.setLayeredPane = function(contentPane) {
+		var rootPane = this.getRootPane();
+		rootPane.setLayeredPane(contentPane);
+		return this;
+	}
+	jsuis.defaultlf.Frame.prototype.getMenuBar = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getMenuBar();
+	}
+	jsuis.defaultlf.Frame.prototype.setMenuBar = function(menuBar) {
+		var rootPane = this.getRootPane();
+		rootPane.setMenuBar(menuBar);
+		return this;
+	}
+	jsuis.defaultlf.Frame.prototype.getContentPane = function() {
+		var rootPane = this.getRootPane();
+		return rootPane.getContentPane();
+	}
+	jsuis.defaultlf.Frame.prototype.setContentPane = function(contentPane) {
+		var rootPane = this.getRootPane();
+		rootPane.setContentPane(contentPane);
+		return this;
+	}
+	jsuis.defaultlf.Frame.prototype.getLayout = function() {
 		var contentPane = this.getContentPane();
 		return contentPane.getLayout();
 	}
-	jsuis.Frame.prototype.setLayout = function(layout) {
+	jsuis.defaultlf.Frame.prototype.setLayout = function(layout) {
 		var contentPane = this.getContentPane();
 		contentPane.setLayout(layout);
 		return this;
 	}
-	jsuis.Frame.prototype.validate = function() {
+	jsuis.defaultlf.Frame.prototype.validate = function() {
 		var parent = this.getParent();
 		if (!parent) {
 			return;
@@ -2818,30 +4101,30 @@ function nvl(value, defaultValue) {
 		SUPER.prototype.setHeight.call(this, parentElement.clientHeight);
 		SUPER.prototype.validate.call(this);
 	}
-	jsuis.Frame.prototype.doLayout = function() {
+	jsuis.defaultlf.Frame.prototype.doLayout = function() {
 		var layout = SUPER.prototype.getLayout.call(this);
 		if (layout) {
 			layout.layoutContainer(this);
 		}
 	}
-	jsuis.Frame.prototype.setVisible = function(visible) {
+	jsuis.defaultlf.Frame.prototype.setVisible = function(visible) {
 		SUPER.prototype.setVisible.call(this, visible);
 		if (visible) {
 			this.validate();
 		}
 		return this;
 	}
-	jsuis.Frame.prototype.getBackground = function() {
+	jsuis.defaultlf.Frame.prototype.getBackground = function() {
 		var contentPane = this.getContentPane();
 		return contentPane.getBackground();
 	}
-	jsuis.Frame.prototype.setBackground = function(background) {
+	jsuis.defaultlf.Frame.prototype.setBackground = function(background) {
 		var contentPane = this.getContentPane();
 		contentPane.setBackground(background);
 		return this;
 	}
-	jsuis.Frame.prototype.dispose = function() {
-		var browserWindow = jsuis.BrowserWindow.getInstance();
+	jsuis.defaultlf.Frame.prototype.dispose = function() {
+		var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 		var browserWindowComponentListeners = browserWindow.getComponentListeners();
 		for (var i = 0; i < browserWindowComponentListeners.length; i++) {
 			var browserWindowComponentListener = browserWindowComponentListeners[i];
@@ -2853,12 +4136,22 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.Label
+ * jsuis.defaultlf.Icon
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Label = jsuis.Object.extend(SUPER, function(text) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "text"));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Icon = jsuis.Object.extend(SUPER, function(element) {
+		SUPER.prototype.constructor.call(this, element);
+	});
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.Label
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Label = jsuis.Object.extend(SUPER, function(text) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "text"));
 		SUPER.prototype.setEnabled.call(this, false);
 		this.setText(nvl(text, ""));
 		this.setFont(new jsuis.Font("Arial", "bold", 12));
@@ -2866,50 +4159,43 @@ function nvl(value, defaultValue) {
 		this.setDisabledColor(jsuis.Color.Gray);
 		this.setSelectable(false);
 	});
-	jsuis.Object.addProperties(jsuis.Label,
+	jsuis.Object.addProperties(jsuis.defaultlf.Label,
 			new jsuis.Property("color"),
 			new jsuis.Property("disabledColor")
 	);
-	jsuis.Label.prototype.getText = function() {
+	jsuis.defaultlf.Label.prototype.getText = function() {
 		var element = this.getElement();
 		return element.textContent;
 	}
-	jsuis.Label.prototype.setText = function(text) {
+	jsuis.defaultlf.Label.prototype.setText = function(text) {
 		var element = this.getElement();
 		element.textContent = text;
 		return this;
 	}
-	jsuis.Label.prototype.getWidth = function() {
-		return this.getPreferredSize().getWidth();
-	}
-	jsuis.Label.prototype.setWidth = function(width) {
+	jsuis.defaultlf.Label.prototype.setWidth = function(width) {
+		this.width = width;
 		return this;
 	}
-	jsuis.Label.prototype.getHeight = function() {
-		return this.getPreferredSize().getHeight();
-	}
-	jsuis.Label.prototype.setHeight = function(height) {
+	jsuis.defaultlf.Label.prototype.setHeight = function(height) {
+		this.height = height;
 		return this;
 	}
-	jsuis.Label.prototype.getBackground = function() {
+	jsuis.defaultlf.Label.prototype.getBackground = function() {
 		SUPER.prototype.getForeground.call(this);
 	}
-	jsuis.Label.prototype.setBackground = function(background) {
+	jsuis.defaultlf.Label.prototype.setBackground = function(background) {
 		SUPER.prototype.setForeground.call(this, background);
 		return this;
 	}
-	jsuis.Label.prototype.getForeground = function() {
+	jsuis.defaultlf.Label.prototype.getForeground = function() {
 		SUPER.prototype.getBackground.call(this);
 	}
-	jsuis.Label.prototype.setForeground = function(foreground) {
+	jsuis.defaultlf.Label.prototype.setForeground = function(foreground) {
 		this.setColor(foreground);
 		SUPER.prototype.setBackground.call(this, foreground);
 		return this;
 	}
-	jsuis.Label.prototype.getEnabled = function() {
-		return this.enabled;
-	}
-	jsuis.Label.prototype.setEnabled = function(enabled) {
+	jsuis.defaultlf.Label.prototype.setEnabled = function(enabled) {
 		if (enabled) {
 			var color = this.getColor();
 			SUPER.prototype.setBackground.call(this, color);
@@ -2917,221 +4203,215 @@ function nvl(value, defaultValue) {
 			var disabledColor = this.getDisabledColor();
 			SUPER.prototype.setBackground.call(this, disabledColor);
 		}
+		var oldEnabled = this.isEnabled();
 		this.enabled = enabled;
+		this.firePropertyChange("enabled", oldEnabled, enabled);
 		return this;
 	}
-	jsuis.Label.prototype.validate = function() {
+	jsuis.defaultlf.Label.prototype.validate = function() {
 		var element = this.getElement();
-		this.setAttribute("transform", "translate(" + 0 + "," + (this.getY() - element.getBBox().y) + ")");
+		var outsets = this.getOutsets();
+		this.setAttribute("transform", "translate(" + 0 + ","
+				+ (this.getY() + outsets.getTop() - element.getBBox().y) + ")");
 		SUPER.prototype.validate.call(this);
 	}
 }) (jsuis);
 
 /**
- * jsuis.LineBorder
+ * jsuis.defaultlf.Line
  */
 (function(jsuis) {
-	var SUPER = jsuis.Border;
-	jsuis.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Line = jsuis.Object.extend(SUPER, function(x1, y1, x2, y2, color, thickness) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "line"));
+		this.setX1(nvl(x1, 0));
+		this.setY1(nvl(y1, 0));
+		this.setX2(nvl(x2, 0));
+		this.setY2(nvl(y2, 0));
+		this.setForeground(nvl(color, jsuis.Color.GRAY));
+		this.setThickness(nvl(thickness, 1));
+	});
+	jsuis.defaultlf.Line.prototype.getX1 = function() {
+		return this.x1 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setX1 = function(x1) {
+		this.setAttribute("x1", +nvl(x1, 0));
+		this.x1 = x1;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getY1 = function() {
+		return this.y1 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setY1 = function(y1) {
+		this.setAttribute("y1", +nvl(y1, 0));
+		this.y1 = y1;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getX2 = function() {
+		return this.x2 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setX2 = function(x2) {
+		this.setAttribute("x2", +nvl(x2, 0));
+		this.x2 = x2;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getY2 = function() {
+		return this.y2 || 0;
+	}
+	jsuis.defaultlf.Line.prototype.setY2 = function(y2) {
+		this.setAttribute("y2", +nvl(y2, 0));
+		this.y2 = y2;
+		return this;
+	}
+	jsuis.defaultlf.Line.prototype.getThickness = function() {
+		return this.thickness;
+	}
+	jsuis.defaultlf.Line.prototype.setThickness = function(thickness) {
+		this.setStyleProperty("stroke-width", thickness);
+		this.thickness = thickness;
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.LineBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Border;
+	jsuis.defaultlf.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
 		SUPER.prototype.constructor.call(this, color, thickness);
-		this.setColor(nvl(color, jsuis.Color.black));
+		this.setColor(nvl(color, jsuis.Color.GRAY));
 		this.setThickness(nvl(thickness, 1));
 		rx = nvl(rx, 0);
 		ry = nvl(ry, rx);
 		this.setRx(rx);
 		this.setRy(ry);
 	});
-	jsuis.Object.addProperties(jsuis.LineBorder,
+	jsuis.Object.addProperties(jsuis.defaultlf.LineBorder,
 			new jsuis.Property("color"),
 			new jsuis.Property("thickness"),
 			new jsuis.Property("rx"),
 			new jsuis.Property("ry")
 	);
-	jsuis.LineBorder.prototype.getBorderInsets = function(component) {
+	jsuis.defaultlf.LineBorder.prototype.getBorderInsets = function(component) {
 		var thickness = this.getThickness();
 		return new jsuis.Insets(thickness / 2, thickness / 2, thickness / 2, thickness / 2);
 	}
-	jsuis.LineBorder.prototype.getBorderOutsets = function(component) {
+	jsuis.defaultlf.LineBorder.prototype.getBorderOutsets = function(component) {
 		var thickness = this.getThickness();
 		return new jsuis.Insets(thickness / 2, thickness / 2, thickness / 2, thickness / 2);
 	}
-	jsuis.LineBorder.prototype.install = function(component) {
-		var shape = component.getShape();
-		if (!shape) {
+	jsuis.defaultlf.LineBorder.prototype.install = function(component) {
+		var target = component.getTarget();
+		if (!target) {
 			return;
 		}
 		var color = this.getColor();
-		shape.setForeground(color);
+		target.setForeground(color);
 		var thickness = this.getThickness();
-		shape.setStyleProperty("stroke-width", thickness);
+		target.setStyleProperty("stroke-width", thickness);
 		var rx = this.getRx();
-		shape.setAttribute("rx", rx);
+		target.setAttribute("rx", rx);
 		var ry = this.getRy();
-		shape.setAttribute("ry", ry);
+		target.setAttribute("ry", ry);
 	}
 }) (jsuis);
 
 /**
- * jsuis.MouseListener
+ * jsuis.defaultlf.Panel
  */
 (function(jsuis) {
-	var SUPER = jsuis.Listener;
-	jsuis.MouseListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
-	});
-	jsuis.MouseListener.prototype.mouseClicked = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseClicked) {
-			listener.mouseClicked.call(this, event);
-		}
-	}
-	jsuis.MouseListener.prototype.mousePressed = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mousePressed) {
-			listener.mousePressed.call(this, event);
-		}
-	}
-	jsuis.MouseListener.prototype.mouseReleased = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseReleased) {
-			listener.mouseReleased.call(this, event);
-		}
-	}
-	jsuis.MouseListener.prototype.mouseEntered = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseEntered) {
-			listener.mouseEntered.call(this, event);
-		}
-	}
-	jsuis.MouseListener.prototype.mouseExited = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseExited) {
-			listener.mouseExited.call(this, event);
-		}
-	}
-}) (jsuis);
-
-/**
- * jsuis.MouseMotionListener
- */
-(function(jsuis) {
-	var SUPER = jsuis.Listener;
-	jsuis.MouseMotionListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
-	});
-	jsuis.MouseMotionListener.prototype.mouseDragged = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseDragged) {
-			listener.mouseDragged.call(this, event);
-		}
-	}
-	jsuis.MouseMotionListener.prototype.mouseMoved = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseMoved) {
-			listener.mouseMoved.call(this, event);
-		}
-	}
-}) (jsuis);
-
-/**
- * jsuis.Panel
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout, shape) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "g"));
-		this.setShape(nvl(shape, new jsuis.Rect()));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Panel = jsuis.Object.extend(SUPER, function(layout) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "g"));
 		this.setLayout(layout !== undefined ? layout : new jsuis.FlowLayout());
+		this.setTarget(new jsuis.defaultlf.Rect());
 		this.setBackground(null);
 	});
-	jsuis.Object.addProperties(jsuis.Panel,
-			new jsuis.Property("shape")
-	);
-	jsuis.Panel.prototype.setShape = function(shape) {
-		var oldShape = this.getShape();
-		if (oldShape) {
-			this.removeChild(oldShape);
+	jsuis.defaultlf.Panel.prototype.getTarget = function() {
+		return this.target;
+	}
+	jsuis.defaultlf.Panel.prototype.setTarget = function(target) {
+		var oldTarget = this.getTarget();
+		if (oldTarget) {
+			this.removeChild(oldTarget);
 		}
-		if (shape) {
-			this.addChild(shape);
+		if (target) {
+			this.addChild(target);
 		}
-		this.shape = shape;
+		this.target = target;
 		return this;
 	}
-	jsuis.Panel.prototype.setX = function(x) {
+	jsuis.defaultlf.Panel.prototype.setX = function(x) {
 		this.setAttribute("transform", "translate(" + nvl(x, 0) + "," + this.getY() + ")");
-		var shape = this.getShape();
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		shape.setX(outsets.getLeft());
+		target.setX(outsets.getLeft());
 		this.x = x;
 		return this;
 	}
-	jsuis.Panel.prototype.setY = function(y) {
+	jsuis.defaultlf.Panel.prototype.setY = function(y) {
 		this.setAttribute("transform", "translate(" + this.getX() + "," + nvl(y, 0) + ")");
-		var shape = this.getShape();
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		shape.setY(outsets.getTop());
+		target.setY(outsets.getTop());
 		this.y = y;
 		return this;
 	}
-	jsuis.Panel.prototype.getWidth = function() {
-		var shape = this.getShape();
+	jsuis.defaultlf.Panel.prototype.getWidth = function() {
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		return shape.getWidth() + outsets.getLeft() + outsets.getRight();
+		return target.getWidth() + outsets.getLeft() + outsets.getRight();
 	}
-	jsuis.Panel.prototype.setWidth = function(width) {
-		var shape = this.getShape();
+	jsuis.defaultlf.Panel.prototype.setWidth = function(width) {
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		shape.setWidth(width - outsets.getLeft() - outsets.getRight());
+		target.setWidth(width - outsets.getLeft() - outsets.getRight());
 		return this;
 	}
-	jsuis.Panel.prototype.getHeight = function() {
-		var shape = this.getShape();
+	jsuis.defaultlf.Panel.prototype.getHeight = function() {
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		return shape.getHeight() + outsets.getTop() + outsets.getBottom();
+		return target.getHeight() + outsets.getTop() + outsets.getBottom();
 	}
-	jsuis.Panel.prototype.setHeight = function(height) {
-		var shape = this.getShape();
+	jsuis.defaultlf.Panel.prototype.setHeight = function(height) {
+		var target = this.getTarget();
 		var outsets = this.getOutsets();
-		shape.setHeight(height - outsets.getTop() - outsets.getBottom());
+		target.setHeight(height - outsets.getTop() - outsets.getBottom());
 		return this;
 	}
-	jsuis.Panel.prototype.setVisible = function(visible) {
-		var shape = this.getShape();
-		shape.setVisible(visible);
+	jsuis.defaultlf.Panel.prototype.setVisible = function(visible) {
+		var target = this.getTarget();
+		target.setVisible(visible);
 		SUPER.prototype.setVisible.call(this, visible);
 		return this;
 	}
-	jsuis.Panel.prototype.getBackground = function() {
-		var shape = this.getShape();
-		return shape.getBackground();
+	jsuis.defaultlf.Panel.prototype.getBackground = function() {
+		var target = this.getTarget();
+		return target.getBackground();
 	}
-	jsuis.Panel.prototype.setBackground = function(background) {
-		var shape = this.getShape();
-		shape.setBackground(background);
+	jsuis.defaultlf.Panel.prototype.setBackground = function(background) {
+		var target = this.getTarget();
+		target.setBackground(background);
 		return this;
-	}
-	jsuis.Panel.prototype.addMouseListener = function(mouseListener) {
-		var shape = this.getShape();
-		SUPER.prototype.addMouseListener.call(this, mouseListener, shape);
 	}
 }) (jsuis);
 
 /**
- * jsuis.Path
+ * jsuis.defaultlf.Path
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Path = jsuis.Object.extend(SUPER, function(d) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "path"));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Path = jsuis.Object.extend(SUPER, function(d) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "path"));
 		this.setAttribute("d", d);
 	});
-	jsuis.Path.prototype.setX = function(x) {
+	jsuis.defaultlf.Path.prototype.setX = function(x) {
 		this.setAttribute("transform", "translate(" + nvl(x, 0) + "," + this.getY() + ")");
 		this.x = x;
 		return this;
 	}
-	jsuis.Path.prototype.setY = function(y) {
+	jsuis.defaultlf.Path.prototype.setY = function(y) {
 		this.setAttribute("transform", "translate(" + this.getX() + "," + nvl(y, 0) + ")");
 		this.y = y;
 		return this;
@@ -3139,29 +4419,12 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.PropertyChangeListener
+ * jsuis.defaultlf.Rect
  */
 (function(jsuis) {
-	var SUPER = jsuis.Listener;
-	jsuis.PropertyChangeListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
-	});
-	jsuis.Object.addProperties(jsuis.PropertyChangeListener,
-			new jsuis.Property("propertyName")
-	);
-	jsuis.PropertyChangeListener.prototype.propertyChange = function(event) {
-		var listener = this.getListener();
-		listener.propertyChange.call(this, event);
-	}
-}) (jsuis);
-
-/**
- * jsuis.Rect
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Rect = jsuis.Object.extend(SUPER, function(x, y, width, height) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "rect"));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Rect = jsuis.Object.extend(SUPER, function(x, y, width, height) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "rect"));
 		this.setX(nvl(x, 0));
 		this.setY(nvl(y, 0));
 		this.setWidth(nvl(width, 0));
@@ -3170,12 +4433,120 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.Viewport
+ * jsuis.defaultlf.TextFieldEditor
  */
 (function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Viewport = jsuis.Object.extend(SUPER, function(view, viewBox) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.SVG, "svg"));
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.TextFieldEditor = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElement("input"));
+		this.setAttribute("type", "text");
+		this.setStyleProperty("position", "absolute");
+		this.setStyleProperty("padding", "0");
+		this.setStyleProperty("margin", "0");
+		this.setStyleProperty("border", "0");
+		this.setStyleProperty("outline", "none");
+		this.setStyleProperty("background-color", "transparent");
+		this.setVisible(false);
+		new jsuis.defaultlf.Component(document.body).add(this);
+		
+		this.addFocusListener(new jsuis.FocusListener({
+			focusLost: function(event) {
+				var textFieldEditor = event.getSource();
+				var textField = textFieldEditor.getTextField();
+				if (textField) {
+					textFieldEditor.uninstall(textField);
+				}
+			}
+		}));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor,
+			new jsuis.Property("textField")
+	);
+	var instance;
+	jsuis.defaultlf.TextFieldEditor.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.TextFieldEditor();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.install = function(textField) {
+		var oldTextField = this.getTextField();
+		if (oldTextField) {
+			this.uninstall(oldTextField);
+		}
+		if (textField) {
+			var label = textField.getLabel();
+			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
+			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
+			var bodyBoundingClientRect = document.body.getBoundingClientRect();
+			var dx = labelBoundingClientRect.left - textFieldBoundingClientRect.left;
+			var dy = labelBoundingClientRect.top - textFieldBoundingClientRect.top;
+			this.setBounds(new jsuis.Rectangle(
+					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
+					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
+			this.setFont(label.getFont());
+			this.setText(label.getText());
+			label.setStyleProperty("visibility", "hidden");
+			this.setVisible(true);
+		}
+		this.textField = textField;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.uninstall = function(textField) {
+		var label = textField.getLabel();
+		label.setText(this.getText());
+		this.setVisible(false);
+		label.setStyleProperty("visibility", "visible");
+		textField.setEditor(null);
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {
+		var element = this.getElement();
+		return element.value;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setText = function(text) {
+		var element = this.getElement();
+		element.value = nvl(text, "");
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setX = function(x) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("left", (+nvl(x, 0) + outsets.getLeft()) + "px");
+		this.x = x;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setY = function(y) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("top", (+nvl(y, 0) + outsets.getTop()) + "px");
+		this.y = y;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setWidth = function(width) {
+		var outsets = this.getOutsets();
+		width -= outsets.getLeft() + outsets.getRight();
+		if (width >= 0) {
+			this.setStyleProperty("width", width + "px");
+		}
+		this.width = width;
+		return this;
+	}
+	jsuis.defaultlf.TextFieldEditor.prototype.setHeight = function(height) {
+		var outsets = this.getOutsets();
+		height -= outsets.getTop() + outsets.getBottom();
+		if (height >= 0) {
+			this.setStyleProperty("height", height + "px");
+		}
+		this.height = height;
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.Viewport
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Viewport = jsuis.Object.extend(SUPER, function(view, viewBox) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
 		if ((view !== null) && (view !== undefined)) {
 			this.setView(view);
 		}
@@ -3184,20 +4555,20 @@ function nvl(value, defaultValue) {
 		}
 		this.setAttribute("preserveAspectRatio", "none");
 	});
-	jsuis.Object.addProperties(jsuis.Viewport,
+	jsuis.Object.addProperties(jsuis.defaultlf.Viewport,
 			new jsuis.Property("view"),
 			new jsuis.Property("viewPosition")
 	);
-	jsuis.Viewport.prototype.setView = function(view) {
+	jsuis.defaultlf.Viewport.prototype.setView = function(view) {
 		this.removeAll();
 		this.add(view);
 		this.view = view;
 		return this;
 	}
-	jsuis.Viewport.prototype.getViewBox = function() {
+	jsuis.defaultlf.Viewport.prototype.getViewBox = function() {
 		return this.viewBox || new jsuis.Rectangle();
 	}
-	jsuis.Viewport.prototype.setViewBox = function(viewBox) {
+	jsuis.defaultlf.Viewport.prototype.setViewBox = function(viewBox) {
 		this.viewBox = viewBox;
 		this.setAttribute("viewBox", viewBox.getX() + " " + viewBox.getY() + " " + viewBox.getWidth() + " " + viewBox.getHeight());
 		return this;
@@ -3205,13 +4576,12 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.Button
+ * jsuis.defaultlf.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, null);
-		this.setLayout(new jsuis.GridBagLayout());
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}
@@ -3220,13 +4590,16 @@ function nvl(value, defaultValue) {
 		}
 		this.setIconTextGap(4);
 		this.setPadding(new jsuis.Insets(2, 4));
-		this.setBorder(new jsuis.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		this.setForeground(jsuis.Color.Black);
-		// this.setDisabledColor(jsuis.Color.Gray);
 		var mouseListener = new jsuis.MouseListener({
+			mouseClicked: function(event) {
+				var button = event.getSource();
+				button.mouseClicked();
+			},
 			mousePressed: function(event) {
 				var button = event.getSource();
 				button.mousePressed();
@@ -3246,18 +4619,19 @@ function nvl(value, defaultValue) {
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.Button,
+	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor")
+			new jsuis.Property("rolloverColor"),
+			new jsuis.Property("group")
 	);
-	jsuis.Button.prototype.setText = function(text, textConstraints) {
+	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
 		if (!label) {
-			label = new jsuis.Label();
+			label = new jsuis.defaultlf.Label();
 			this.setLabel(label);
 			this.add(label, nvl(textConstraints, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)));
 		}
@@ -3272,14 +4646,14 @@ function nvl(value, defaultValue) {
 		}
 		return this;
 	}
-	jsuis.Button.prototype.getText = function() {
+	jsuis.defaultlf.Button.prototype.getText = function() {
 		var label = this.getLabel();
 		if (label) {
 			return label.getText();
 		}
 		return "";
 	}
-	jsuis.Button.prototype.setIcon = function(icon, iconConstraints) {
+	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
 		var oldIcon = this.getIcon();
 		if (oldIcon) {
 			this.remove(oldIcon);
@@ -3299,7 +4673,30 @@ function nvl(value, defaultValue) {
 		this.icon = icon;
 		return this;
 	}
-	jsuis.Button.prototype.setIconTextGap = function(iconTextGap) {
+	jsuis.defaultlf.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
 		var icon = this.getIcon();
 		var text = this.getText();
@@ -3311,56 +4708,196 @@ function nvl(value, defaultValue) {
 		this.iconTextGap = iconTextGap;
 		return this;
 	}
-	jsuis.Button.prototype.setBackground = function(background) {
+	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setColor(background);
-		this.setRolloverColor(background);
-		this.setPressedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
-	jsuis.Button.prototype.getForeground = function() {
+	jsuis.defaultlf.Button.prototype.setForeground = function(foreground) {
 		var label = this.getLabel();
-		return label.getForeground();
-	}
-	jsuis.Button.prototype.setForeground = function(foreground) {
-		var label = this.getLabel();
-		label.setForeground(foreground);
+		if (label) {
+			label.setForeground(foreground);
+		}
+		this.foreground = foreground;
 		return this;
 	}
-	jsuis.Button.prototype.setEnabled = function(enabled) {
+	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
 		var label = this.getLabel();
-		label.setEnabled(enabled);
+		if (label) {
+			label.setEnabled(enabled);
+		}
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
-	jsuis.Button.prototype.mousePressed = function() {
+	jsuis.defaultlf.Button.prototype.isSelected = function() {
+		return this.selected;
+	}
+	jsuis.defaultlf.Button.prototype.setSelected = function(selected) {
+		this.selected = selected;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.isRollover = function() {
+		return this.rollover;
+	}
+	jsuis.defaultlf.Button.prototype.setRollover = function(rollover) {
+		this.rollover = rollover;
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.paint = function() {
+		var color = this.getColor();
+		SUPER.prototype.setBackground.call(this, color);
+	}
+	jsuis.defaultlf.Button.prototype.paintPressed = function() {
 		var pressedColor = this.getPressedColor();
 		SUPER.prototype.setBackground.call(this, pressedColor);
 	}
-	jsuis.Button.prototype.mouseReleased = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
-	}
-	jsuis.Button.prototype.mouseEntered = function() {
-		var enabled = this.isEnabled();
+	jsuis.defaultlf.Button.prototype.paintRollover = function() {
 		var rolloverColor = this.getRolloverColor();
 		SUPER.prototype.setBackground.call(this, rolloverColor);
 	}
-	jsuis.Button.prototype.mouseExited = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
+	jsuis.defaultlf.Button.prototype.mouseClicked = function() {
+	}
+	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+		this.paintPressed();
+	}
+	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
+		var rollover = this.isRollover();
+		if (rollover) {
+			this.paintRollover();
+		} else {
+			this.paint();
+		}
+	}
+	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
+		this.paintRollover();
+		this.setRollover(true);
+	}
+	jsuis.defaultlf.Button.prototype.mouseExited = function() {
+		this.paint();
+		this.setRollover(false);
 	}
 }) (jsuis);
 
 /**
- * jsuis.LayeredPane
+ * jsuis.defaultlf.FocusEvent
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.LayeredPane = jsuis.Object.extend(SUPER, function() {
+	var SUPER = jsuis.defaultlf.ComponentEvent;
+	jsuis.defaultlf.FocusEvent = jsuis.Object.extend(SUPER, function(source, id, temporary, opposite) {
+		SUPER.prototype.constructor.call(this, source, id);
+		this.setTemporary(temporary);
+		this.setOpposite(opposite);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.FocusEvent,
+			new jsuis.Property("opposite")
+	);
+	jsuis.defaultlf.FocusEvent.prototype.setTemporary = function(opposite) {
+		this.opposite = opposite;
+	}
+	jsuis.defaultlf.FocusEvent.prototype.isTemporary = function() {
+		return this.opposite;
+	}
+	jsuis.defaultlf.FocusEvent.prototype.getOpposite = function() {
+		var opposite = this.opposite;
+		if (opposite) {
+			return opposite;
+		}
+		var domEvent = this.getDomEvent();
+		var relatedTarget = domEvent.relatedTarget;
+		if (relatedTarget) {
+			opposite = new jsuis.defaultlf.Component(relatedTarget);
+			this.setOpposite(opposite);
+		}
+		return opposite;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Icon;
+	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
+		this.setResource(resource);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
+			new jsuis.Property("resource")
+	);
+	jsuis.defaultlf.ImageIcon.prototype.setResource = function(resource) {
+		var element = this.getElement();
+		element.setAttributeNS('http://www.w3.org/1999/xlink','href', resource);
+		this.resource = resource;
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.InputEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.ComponentEvent;
+	jsuis.defaultlf.InputEvent = jsuis.Object.extend(SUPER, function(source, id,
+			when, modifiers) {
+		SUPER.prototype.constructor.call(this, source, id);
+		this.setWhen(when);
+		this.setModifiers(modifiers);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.InputEvent,
+			new jsuis.Property("when"),
+			new jsuis.Property("modifiers")
+	);
+	
+	jsuis.defaultlf.InputEvent.SHIFT_MASK = 1;
+	jsuis.defaultlf.InputEvent.CTRL_MASK = 2;
+	jsuis.defaultlf.InputEvent.META_MASK = 4;
+	jsuis.defaultlf.InputEvent.ALT_MASK = 8;
+	
+	jsuis.defaultlf.InputEvent.SHIFT_DOWN_MASK = 64;
+	jsuis.defaultlf.InputEvent.CTRL_DOWN_MASK = 128;
+	jsuis.defaultlf.InputEvent.META_DOWN_MASK = 256;
+	jsuis.defaultlf.InputEvent.ALT_DOWN_MASK = 512;
+	
+	jsuis.defaultlf.InputEvent.prototype.getWhen = function() {
+		var when = this.when;
+		if (when !== null && when !== undefined) {
+			return when;
+		}
+		var domEvent = this.getDomEvent();
+		if (domEvent) {
+			when = domEvent.timeStamp;
+		} else {
+			when = new Date().getTime();
+		}
+		this.setWhen(when);
+		return when;
+	}
+	jsuis.defaultlf.InputEvent.prototype.getModifiers = function() {
+		var modifiers = this.modifiers;
+		if (modifiers !== null && modifiers !== undefined) {
+			return modifiers;
+		}
+		var domEvent = this.getDomEvent();
+		if (domEvent) {
+			modifiers = (domEvent.shiftKey ? (jsuis.defaultlf.InputEvent.SHIFT_MASK | jsuis.defaultlf.InputEvent.SHIFT_DOWN_MASK) : 0)
+			| (domEvent.ctrlKey ? (jsuis.defaultlf.InputEvent.CTRL_MASK | jsuis.defaultlf.InputEvent.CTRL_DOWN_MASK) : 0)
+			| (domEvent.altKey ? (jsuis.defaultlf.InputEvent.ALT_MASK | jsuis.defaultlf.InputEvent.ALT_DOWN_MASK) : 0)
+			| (domEvent.metaKey ? (jsuis.defaultlf.InputEvent.META_MASK | jsuis.defaultlf.InputEvent.META_DOWN_MASK) : 0);
+			this.setModifiers(modifiers);
+		}
+		return modifiers;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.LayeredPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.LayeredPane = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, null);
 	});
-	jsuis.LayeredPane.prototype.add = function(component, constraints, index) {
+	jsuis.defaultlf.LayeredPane.prototype.add = function(component, constraints, index) {
 		index = nvl(index, 0);
 		var components = this.getComponents();
 		if (components.length === 0) {
@@ -3399,143 +4936,201 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.MouseEvent
+ * jsuis.defaultlf.MenuBar
  */
 (function(jsuis) {
-	var SUPER = jsuis.ComponentEvent;
-	jsuis.MouseEvent = jsuis.Object.extend(SUPER, function(component, id,
-			when, modifiers, x, y, xAbs, yAbs, clickCount, popupTrigger, button) {
-		SUPER.prototype.constructor.call(this, component, id, when, modifiers);
-		this.setX(x);
-		this.setY(y);
-		this.setXAbs(xAbs);
-		this.setYAbs(yAbs);
-		this.setClickCount(clickCount);
-		this.setPopupTrigger(popupTrigger);
-		this.setButton(button);
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.MenuBar = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
-	jsuis.Object.addProperties(jsuis.MouseEvent,
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("xAbs"),
-			new jsuis.Property("yAbs"),
-			new jsuis.Property("clickCount"),
-			new jsuis.Property("popupTrigger"),
-			new jsuis.Property("button")
+	jsuis.Object.addProperties(jsuis.defaultlf.MenuBar,
+			new jsuis.Property("selection")
 	);
-	jsuis.MouseEvent.prototype.getPoint = function() {
-		var x = this.x;
-		var y = this.y;
-		if (x !== null && x !== undefined && y !== null && y !== undefined) {
-			return new jsuis.Point(x, y);
+	jsuis.defaultlf.MenuBar.prototype.isSelected = function(menu) {
+		var selection = this.getSelection();
+		return (menu === selection);
+	}
+	jsuis.defaultlf.MenuBar.prototype.setSelected = function(menu) {
+		var selection = this.getSelection();
+		if (selection) {
+			selection.setSelected(false);
 		}
-		var domEvent = this.getDomEvent();
-		var source = this.getSource();
-		var boundingClientRect = source.getElement().getBoundingClientRect();
-		var outsets = source.getOutsets();
-		x = nvl(x, domEvent.clientX - boundingClientRect.left + outsets.getLeft());
-		y = nvl(y, domEvent.clientY - boundingClientRect.top + outsets.getTop());
-		this.setX(x).setY(y);
-		return new jsuis.Point(x, y);
-	}
-	jsuis.MouseEvent.prototype.getX = function() {
-		var point = this.getPoint();
-		return point.getX();
-	}
-	jsuis.MouseEvent.prototype.getY = function() {
-		var point = this.getPoint();
-		return point.getY();
-	}
-	jsuis.MouseEvent.prototype.getLocationOnScreen = function() {
-		var xAbs = this.xAbs;
-		var yAbs = this.yAbs;
-		if (xAbs !== null && xAbs !== undefined && yAbs !== null && yAbs !== undefined) {
-			return new jsuis.Point(xAbs, yAbs);
+		this.setSelection(menu);
+		if (menu) {
+			menu.setSelected(true);
 		}
-		var domEvent = this.getDomEvent();
-		xAbs = nvl(xAbs, domEvent.screenX);
-		yAbs = nvl(yAbs, domEvent.screenY);
-		this.setXAbs(xAbs).setYAbs(yAbs);
-		return new jsuis.Point(xAbs, yAbs);
-	}
-	jsuis.MouseEvent.prototype.getXOnScreen = function() {
-		var locationOnScreen = this.getLocationOnScreen();
-		return locationOnScreen.getX();
-	}
-	jsuis.MouseEvent.prototype.getYOnScreen = function() {
-		var locationOnScreen = this.getLocationOnScreen();
-		return locationOnScreen.getY();
-	}
-	jsuis.MouseEvent.prototype.getClickCount = function() {
-		var clickCount = this.clickCount;
-		if (clickCount !== null && clickCount !== undefined) {
-			return clickCount;
-		}
-		var domEvent = this.getDomEvent();
-		clickCount = domEvent.detail;
-		this.setClickCount(clickCount);
-		return clickCount;
-	}
-	jsuis.MouseEvent.prototype.getPopupTrigger = function() {
-		var popupTrigger = this.popupTrigger;
-		if (popupTrigger !== null && popupTrigger !== undefined) {
-			return popupTrigger;
-		}
-		var button = this.getButton();
-		popupTrigger = (button === 3);
-		this.setPopupTrigger(popupTrigger);
-		return popupTrigger;
-	}
-	jsuis.MouseEvent.prototype.getButton = function() {
-		var button = this.button;
-		if (button !== null && button !== undefined) {
-			return button;
-		}
-		var domEvent = this.getDomEvent();
-		button = domEvent.button + 1;
-		this.setButton(button);
-		return button;
+		return this;
 	}
 }) (jsuis);
 
 /**
- * jsuis.ScrollBar
+ * jsuis.defaultlf.PopupMenu
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.PopupMenu = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		orientation = nvl(orientation, jsuis.ScrollBar.VERTICAL);
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
+	});
+	jsuis.defaultlf.PopupMenu.prototype.add = function(component, constraints, index) {
+		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.NORTH), index);
+	}
+	jsuis.defaultlf.PopupMenu.prototype.show = function(invoker, x, y) {
+		var invokerX = 0;
+		var invokerY = 0;
+		var component = invoker;
+		while (component && !(component instanceof jsuis.defaultlf.Frame)) {
+			invokerX += component.getX();
+			invokerY += component.getY();
+			component = component.getParent();
+		}
+		if (!component) {
+			return;
+		}
+		var layeredPane = this.getParent();
+		if (!layeredPane) {
+			layeredPane = component.getLayeredPane();
+			layeredPane.add(this, jsuis.Constants.POPUP_LAYER);
+		}
+		this.setLocation(new jsuis.Point(invokerX + x, invokerY + y));
+		this.setVisible(true);
+	}
+	jsuis.defaultlf.PopupMenu.prototype.setVisible = function(visible) {
+		SUPER.prototype.setVisible.call(this, visible);
+		if (visible) {
+			this.setSize(this.getPreferredSize());
+			this.validate();
+		}
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.PopupMenuSeparator
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.PopupMenuSeparator = jsuis.Object.extend(SUPER, function(size) {
+		SUPER.prototype.constructor.call(this, null);
+		var line = new jsuis.defaultlf.Line();
+		this.setLine(line);
+		this.add(line);
+		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
+			new jsuis.Property("line")
+	);
+	jsuis.defaultlf.PopupMenuSeparator.prototype.doLayout = function() {
+		var popupMenu = this.getParent();
+		if (!popupMenu) {
+			return;
+		}
+		var width = this.getWidth();
+		var height = this.getHeight();
+		var line = this.getLine();
+		var y = height / 2;
+		line.setX1(0).setY1(y).setX2(width).setY2(y);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ScrollBar
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ScrollBar = jsuis.Object.extend(SUPER, function(orientation) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		orientation = nvl(orientation, jsuis.defaultlf.ScrollBar.VERTICAL);
 		this.setOrientation(orientation);
 		
-		var layeredPane = new jsuis.LayeredPane();
+		var layeredPane = new jsuis.defaultlf.LayeredPane();
 		this.add(layeredPane);
 		layeredPane.setLayout(new jsuis.BorderLayout());
 		
-		var scrollTrack = new jsuis.ScrollTrack(orientation);
+		var scrollTrack = new jsuis.defaultlf.ScrollTrack(orientation);
 		this.setScrollTrack(scrollTrack);
 		layeredPane.add(scrollTrack);
 		
-		var scrollThumb = new jsuis.ScrollThumb(orientation);
+		var scrollThumbPanel = new jsuis.defaultlf.Panel(null);
+		layeredPane.add(scrollThumbPanel);
+		
+		var scrollThumb = new jsuis.defaultlf.ScrollThumb(orientation);
 		this.setScrollThumb(scrollThumb);
-		layeredPane.add(scrollThumb);
+		scrollThumbPanel.add(scrollThumb);
 		scrollThumb.setBounds(new jsuis.Rectangle(0, 0, 16, 16));
 		
 		var decreaseButton;
 		var increaseButton;
 		if (orientation === jsuis.Constants.HORIZONTAL) {
-			decreaseButton = new jsuis.ScrollButton(jsuis.Constants.WEST);
+			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.WEST);
 			this.add(decreaseButton, jsuis.Constants.WEST);
-			increaseButton = new jsuis.ScrollButton(jsuis.Constants.EAST);
+			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.EAST);
 			this.add(increaseButton, jsuis.Constants.EAST);
 		} else {
-			decreaseButton = new jsuis.ScrollButton(jsuis.Constants.NORTH);
+			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.NORTH);
 			this.add(decreaseButton, jsuis.Constants.NORTH);
-			increaseButton = new jsuis.ScrollButton(jsuis.Constants.SOUTH);
+			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.SOUTH);
 			this.add(increaseButton, jsuis.Constants.SOUTH);
 		}
 		this.setDecreaseButton(decreaseButton);
 		this.setIncreaseButton(increaseButton);
+		
+		var scrollThumbMouseListener = new jsuis.MouseListener({
+			mousePressed: function(event) {
+				var scrollBar = this.getListenerComponent();
+				var point = event.getPoint();
+				scrollBar.setScrollThumbPressedPoint(point);
+			}
+		});
+		scrollThumbMouseListener.setListenerComponent(this);
+		scrollThumb.addMouseListener(scrollThumbMouseListener);
+		
+		var scrollThumbMouseMotionListener = new jsuis.MouseMotionListener({
+			mouseDragged: function(event) {
+				var scrollBar = this.getListenerComponent();
+				var point = event.getPoint();
+				var pressedPoint = scrollBar.getScrollThumbPressedPoint();
+				var scrollTrack = scrollBar.getScrollTrack();
+				var scrollThumb = scrollBar.getScrollThumb();
+				var extent = scrollBar.getExtent();
+				var maximum = scrollBar.getMaximum();
+				var orientation = scrollBar.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
+					var x = Math.min(Math.max(scrollThumb.getX() + dx, 0), maximumX);
+					scrollThumb.setX(x);
+					if (maximumX > 0) {
+						scrollBar.setValue((maximum - extent) * x / maximumX);
+					}
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
+					var y = Math.min(Math.max(scrollThumb.getY() + dy, 0), maximumY);
+					scrollThumb.setY(y);
+					if (maximumY > 0) {
+						scrollBar.setValue((maximum - extent) * y / maximumY);
+					}
+				}
+			}
+		});
+		scrollThumbMouseMotionListener.setListenerComponent(this);
+		scrollThumb.addMouseMotionListener(scrollThumbMouseMotionListener);
+		
+		var scrollThumbTouchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				scrollThumbMouseListener.mousePressed(event);
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				scrollThumbMouseMotionListener.mouseDragged(event);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		scrollThumb.addTouchListener(scrollThumbTouchListener);
 		
 		var scrollTrackMouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
@@ -3641,49 +5236,11 @@ function nvl(value, defaultValue) {
 		timerActionListener.setListenerComponent(this);
 		this.setTimerActionListener(timerActionListener);
 		
-		var timer = new jsuis.Timer(50, timerActionListener);
+		var timer = new jsuis.defaultlf.Timer(50, timerActionListener);
 		this.setTimer(timer);
 		timer.setInitialDelay(250);
-		
-		var mouseListener = new jsuis.MouseListener({
-			mousePressed: function(event) {
-				var scrollBar = this.getListenerComponent();
-				var point = event.getPoint();
-				scrollBar.setScrollThumbPressedPoint(point);
-			}
-		});
-		mouseListener.setListenerComponent(this);
-		scrollThumb.addMouseListener(mouseListener);
-		
-		var mouseMotionListener = new jsuis.MouseMotionListener({
-			mouseDragged: function(event) {
-				var scrollBar = this.getListenerComponent();
-				var point = event.getPoint();
-				var pressedPoint = scrollBar.getScrollThumbPressedPoint();
-				var scrollTrack = scrollBar.getScrollTrack();
-				var scrollThumb = scrollBar.getScrollThumb();
-				var extent = scrollBar.getExtent();
-				var maximum = scrollBar.getMaximum();
-				var orientation = scrollBar.getOrientation();
-				if (orientation === jsuis.Constants.HORIZONTAL) {
-					var dx = point.getX() - pressedPoint.getX();
-					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
-					var x = Math.min(Math.max(scrollThumb.getX() + dx, 0), maximumX);
-					scrollThumb.setX(x);
-					scrollBar.setValue((maximum - extent) * x / maximumX);
-				} else {
-					var dy = point.getY() - pressedPoint.getY();
-					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
-					var y = Math.min(Math.max(scrollThumb.getY() + dy, 0), maximumY);
-					scrollThumb.setY(y);
-					scrollBar.setValue((maximum - extent) * y / maximumY);
-				}
-			}
-		});
-		mouseMotionListener.setListenerComponent(this);
-		scrollThumb.addMouseMotionListener(mouseMotionListener);
 	});
-	jsuis.Object.addProperties(jsuis.ScrollBar,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollBar,
 			new jsuis.Property("orientation"),
 			new jsuis.Property("value"),
 			new jsuis.Property("extent"),
@@ -3700,31 +5257,31 @@ function nvl(value, defaultValue) {
 			new jsuis.Property("timerActionListener"),
 			new jsuis.Property("timer")
 	);
-	jsuis.ScrollBar.prototype.getValue = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getValue = function() {
 		return this.value || 0;
 	}
-	jsuis.ScrollBar.prototype.setValue = function(value) {
+	jsuis.defaultlf.ScrollBar.prototype.setValue = function(value) {
 		var oldValue = this.value;
 		this.value = value;
 		this.firePropertyChange("value", oldValue, value);
 		return this;
 	}
-	jsuis.ScrollBar.prototype.getExtent = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getExtent = function() {
 		return nvl(this.extent, 32);
 	}
-	jsuis.ScrollBar.prototype.getMinimum = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getMinimum = function() {
 		return nvl(this.minimum, 0);
 	}
-	jsuis.ScrollBar.prototype.getMaximum = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getMaximum = function() {
 		return nvl(this.maximum, 1);
 	}
-	jsuis.ScrollBar.prototype.getUnitIncrement = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getUnitIncrement = function() {
 		return nvl(this.unitIncrement, 16);
 	}
-	jsuis.ScrollBar.prototype.getBlockIncrement = function() {
+	jsuis.defaultlf.ScrollBar.prototype.getBlockIncrement = function() {
 		return nvl(this.blockIncrement, (this.getExtent() - this.getUnitIncrement()));
 	}
-	jsuis.ScrollBar.prototype.validate = function() {
+	jsuis.defaultlf.ScrollBar.prototype.validate = function() {
 		SUPER.prototype.validate.call(this);
 		var value = this.getValue();
 		var extent = this.getExtent();
@@ -3739,7 +5296,9 @@ function nvl(value, defaultValue) {
 			scrollThumbWidth = Math.min(Math.max(scrollThumbWidth,
 					scrollThumb.getMinimumSize().getWidth()), scrollTrackWidth);
 			var scrollThumbX = scrollTrackWidth - scrollThumbWidth;
-			if (value < (maximum - extent)) {
+			if ((maximum - minimum) === extent) {
+				scrollThumbX = 0;
+			} else if (value < (maximum - extent)) {
 				scrollThumbX = (scrollTrackWidth - scrollThumbWidth) * (value - minimum) / (maximum - minimum - extent);
 			}
 			scrollThumb.setBounds(new jsuis.Rectangle(Math.round(scrollThumbX), scrollThumb.getY(), Math.round(scrollThumbWidth), scrollThumb.getHeight()));
@@ -3749,7 +5308,9 @@ function nvl(value, defaultValue) {
 			scrollThumbHeight = Math.min(Math.max(scrollThumbHeight,
 					scrollThumb.getMinimumSize().getHeight()), scrollTrackHeight);
 			var scrollThumbY = scrollTrackHeight - scrollThumbHeight;
-			if (value < (maximum - extent)) {
+			if ((maximum - minimum) === extent) {
+				scrollThumbY = 0;
+			} else if (value < (maximum - extent)) {
 				scrollThumbY = (scrollTrackHeight - scrollThumbHeight) * (value - minimum) / (maximum - minimum - extent);
 			}
 			scrollThumb.setBounds(new jsuis.Rectangle(scrollThumb.getX(), Math.round(scrollThumbY), scrollThumb.getWidth(), Math.round(scrollThumbHeight)));
@@ -3759,34 +5320,34 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.ScrollButton
+ * jsuis.defaultlf.ScrollButton
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		this.setDirection(nvl(direction, jsuis.Constants.NORTH));
-		var shape;
+		var target;
 		var icon;
 		switch (direction) {
 		case jsuis.Constants.SOUTH:
-			shape = new jsuis.Path("M 0 -8 a 8 8 0 0 0 16 0 v 16 a 8 8 0 0 1 -16 0 z");
-			icon = new jsuis.Path("M 4 6 l -4 -6 h 8 z");
+			target = new jsuis.defaultlf.Path("M 0 -8 a 8 8 0 0 0 16 0 v 16 a 8 8 0 0 1 -16 0 z");
+			icon = new jsuis.defaultlf.Path("M 4 6 l -4 -6 h 8 z");
 			break;
 		case jsuis.Constants.EAST:
-			shape = new jsuis.Path("M -8 0 a 8 8 0 0 1 0 16 h 16 a 8 8 0 0 0 0 -16 z");
-			icon = new jsuis.Path("M 6 4 l -6 -4 v 8 z");
+			target = new jsuis.defaultlf.Path("M -8 0 a 8 8 0 0 1 0 16 h 16 a 8 8 0 0 0 0 -16 z");
+			icon = new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z");
 			break;
 		case jsuis.Constants.WEST:
-			shape = new jsuis.Path("M 24 0 a 8 8 0 0 0 0 16 h -16 a 8 8 0 0 1 0 -16 z");
-			icon = new jsuis.Path("M 0 4 l 6 -4 v 8 z");
+			target = new jsuis.defaultlf.Path("M 24 0 a 8 8 0 0 0 0 16 h -16 a 8 8 0 0 1 0 -16 z");
+			icon = new jsuis.defaultlf.Path("M 0 4 l 6 -4 v 8 z");
 			break;
 		case jsuis.Constants.NORTH:
 		default:
-			shape = new jsuis.Path("M 0 24 a 8 8 0 0 1 16 0 v -16 a 8 8 0 0 0 -16 0 z");
-			icon = new jsuis.Path("M 4 0 l -4 6 h 8 z");
+			target = new jsuis.defaultlf.Path("M 0 24 a 8 8 0 0 1 16 0 v -16 a 8 8 0 0 0 -16 0 z");
+			icon = new jsuis.defaultlf.Path("M 4 0 l -4 6 h 8 z");
 		}
-		this.setShape(shape);
+		this.setTarget(target);
 		icon.setEnabled(false);
 		this.add(icon);
 		this.setPreferredSize(new jsuis.Dimension(16, 16));
@@ -3819,7 +5380,7 @@ function nvl(value, defaultValue) {
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.ScrollButton,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollButton,
 			new jsuis.Property("direction"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
@@ -3828,20 +5389,20 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.ScrollThumb
+ * jsuis.defaultlf.ScrollThumb
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.ScrollThumb = jsuis.Object.extend(SUPER, function(orientation) {
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ScrollThumb = jsuis.Object.extend(SUPER, function(orientation) {
+		SUPER.prototype.constructor.call(this, null);
 		this.setOrientation(nvl(orientation, jsuis.Constants.VERTICAL));
-		this.setBorder(new jsuis.LineBorder(null, 0, 8));
+		this.setBorder(new jsuis.defaultlf.LineBorder(null, 0, 8));
 		this.setBackground(jsuis.Color.White.withAlpha(.4 * 255));
 	});
-	jsuis.Object.addProperties(jsuis.ScrollThumb,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollThumb,
 			new jsuis.Property("orientation")
 	);
-	jsuis.ScrollThumb.prototype.getMinimumSize = function() {
+	jsuis.defaultlf.ScrollThumb.prototype.getMinimumSize = function() {
 		var orientation = this.getOrientation();
 		if (orientation === jsuis.Constants.HORIZONTAL) {
 			return new jsuis.Dimension(32, 16);
@@ -3849,18 +5410,22 @@ function nvl(value, defaultValue) {
 			return new jsuis.Dimension(16, 32);
 		}
 	}
+	jsuis.defaultlf.ScrollThumb.prototype.setHeight = function(height) {
+		SUPER.prototype.setHeight.call(this, height);
+		return this;
+	}
 }) (jsuis);
 
 /**
- * jsuis.ScrollTrack
+ * jsuis.defaultlf.ScrollTrack
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.ScrollTrack = jsuis.Object.extend(SUPER, function(direction) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ScrollTrack = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, null);
 		direction = nvl(direction, jsuis.Constants.VERTICAL);
 		this.setDirection(direction);
-		this.setBorder(new jsuis.LineBorder(null, 0, 8));
+		this.setBorder(new jsuis.defaultlf.LineBorder(null, 0, 8));
 		this.setBackground(jsuis.Color.Black.withAlpha(.2 * 255));
 		if (direction === jsuis.Constants.HORIZONTAL) {
 			this.setMargin(new jsuis.Insets(0, -16));
@@ -3868,7 +5433,7 @@ function nvl(value, defaultValue) {
 			this.setMargin(new jsuis.Insets(-16, 0));
 		}
 	});
-	jsuis.Object.addProperties(jsuis.ScrollTrack,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollTrack,
 			new jsuis.Property("direction"),
 			new jsuis.Property("path"),
 			new jsuis.Property("viewport")
@@ -3876,26 +5441,632 @@ function nvl(value, defaultValue) {
 }) (jsuis);
 
 /**
- * jsuis.RootPane
+ * jsuis.defaultlf.SplitPane
  */
 (function(jsuis) {
-	var SUPER = jsuis.LayeredPane;
-	jsuis.RootPane = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this);
-		this.setLayout(new jsuis.BorderLayout());
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.SplitPane = jsuis.Object.extend(SUPER, function(orientation, leftComponent, rightComponent) {
+		SUPER.prototype.constructor.call(this, null);
+		orientation = nvl(orientation, jsuis.Constants.HORIZONTAL);
+		this.setOrientation(orientation);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		this.setLeftComponent(leftComponent || new jsuis.defaultlf.Button("Left"));
+		this.setRightComponent(rightComponent || new jsuis.defaultlf.Button("Right"));
+		var splitPaneDivider = new jsuis.defaultlf.SplitPaneDivider();
+		this.setDivider(splitPaneDivider);
+		this.add(splitPaneDivider);
+		this.setDividerSize(8);
+		this.setResizeWeight(0);
+		
+		var dividerMouseListener = new jsuis.MouseListener({
+			mousePressed: function(event) {
+				var splitPane = this.getListenerComponent();
+				var point = event.getPoint();
+				splitPane.setDividerPressedPoint(point);
+			}
+		});
+		dividerMouseListener.setListenerComponent(this);
+		splitPaneDivider.addMouseListener(dividerMouseListener);
+		
+		var dividerMouseMotionListener = new jsuis.MouseMotionListener({
+			mouseDragged: function(event) {
+				var splitPane = this.getListenerComponent();
+				var point = event.getPoint();
+				var pressedPoint = splitPane.getDividerPressedPoint();
+				var divider = splitPane.getDivider();
+				var orientation = splitPane.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = splitPane.getWidth() - divider.getWidth();
+					var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
+					splitPane.setDividerLocation(x);
+					splitPane.validate();
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = splitPane.getHeight() - divider.getHeight();
+					var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
+					splitPane.setDividerLocation(y);
+					splitPane.validate();
+				}
+			}
+		});
+		dividerMouseMotionListener.setListenerComponent(this);
+		splitPaneDivider.addMouseMotionListener(dividerMouseMotionListener);
+		
+		var dividerTouchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				dividerMouseListener.mousePressed(event);
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				dividerMouseMotionListener.mouseDragged(event);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		splitPaneDivider.addTouchListener(dividerTouchListener);
+		
+		var touchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				splitPane.setPressedPoint(point);
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				var splitPane = event.getSource();
+				var point = event.getPoint();
+				var pressedPoint = splitPane.getPressedPoint();
+				var divider = splitPane.getDivider();
+				var orientation = splitPane.getOrientation();
+				if (orientation === jsuis.Constants.HORIZONTAL) {
+					var dx = point.getX() - pressedPoint.getX();
+					var maximumX = splitPane.getWidth() - divider.getWidth();
+					var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
+					splitPane.setDividerLocation(x);
+					splitPane.validate();
+				} else {
+					var dy = point.getY() - pressedPoint.getY();
+					var maximumY = splitPane.getHeight() - divider.getHeight();
+					var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
+					splitPane.setDividerLocation(y);
+					splitPane.validate();
+				}
+				splitPane.setPressedPoint(point);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		this.addTouchListener(touchListener);
 	});
+	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane,
+			new jsuis.Property("orientation"),
+			new jsuis.Property("leftComponent"),
+			new jsuis.Property("rightComponent"),
+			new jsuis.Property("divider"),
+			new jsuis.Property("dividerLocation"),
+			new jsuis.Property("dividerSize"),
+			new jsuis.Property("dividerPressedPoint"),
+			new jsuis.Property("resizeWeight"),
+			new jsuis.Property("pressedPoint")
+	);
+	jsuis.defaultlf.SplitPane.prototype.setLeftComponent = function(leftComponent) {
+		var oldLeftComponent = this.getLeftComponent();
+		if (oldLeftComponent) {
+			this.remove(oldLeftComponent);
+		}
+		this.add(leftComponent);
+		this.leftComponent = leftComponent;
+		return this;
+	}
+	jsuis.defaultlf.SplitPane.prototype.setRightComponent = function(rightComponent) {
+		var oldRightComponent = this.getRightComponent();
+		if (oldRightComponent) {
+			this.remove(oldRightComponent);
+		}
+		this.add(rightComponent);
+		this.rightComponent = rightComponent;
+		return this;
+	}
+	jsuis.defaultlf.SplitPane.prototype.getTopComponent = function() {
+		return this.getLeftComponent();
+	}
+	jsuis.defaultlf.SplitPane.prototype.setTopComponent = function(topComponent) {
+		this.setLeftComponent(topComponent);
+		return this;
+	}
+	jsuis.defaultlf.SplitPane.prototype.getBottomComponent = function() {
+		return this.getRightComponent();
+	}
+	jsuis.defaultlf.SplitPane.prototype.setBottomComponent = function(bottomComponent) {
+		this.setRightComponent(bottomComponent);
+		return this;
+	}
+	jsuis.defaultlf.SplitPane.prototype.setDividerLocation = function(dividerLocation) {
+		this.dividerLocation = dividerLocation;
+		return this;
+	}
+	// TODO SplitPaneLayout
+	jsuis.defaultlf.SplitPane.prototype.doLayout = function() {
+		var x = 0;
+		var y = 0;
+		var width = this.getWidth();
+		var height = this.getHeight();
+		var insetsOutsets = this.getInsets().add(this.getOutsets());
+		x += insetsOutsets.getLeft();
+		y += insetsOutsets.getTop();
+		width -= insetsOutsets.getLeft() + insetsOutsets.getRight();
+		height -= insetsOutsets.getTop() + insetsOutsets.getBottom();
+		var firstComponent = this.getLeftComponent();
+		var firstComponentMinimumSize = firstComponent.getMinimumSize();
+		var secondComponent = this.getRightComponent();
+		var secondComponentMinimumSize = secondComponent.getMinimumSize();
+		var divider = this.getDivider();
+		var dividerLocation = this.getDividerLocation();
+		var dividerSize = this.getDividerSize();
+		var resizeWeight = Math.min(Math.max(this.getResizeWeight(), 0), 1);
+		var orientation = this.getOrientation();
+		if (orientation === jsuis.Constants.HORIZONTAL) {
+			var firstComponentMinimumWidth = firstComponentMinimumSize.getWidth();
+			var secondComponentMinimumWidth = secondComponentMinimumSize.getWidth();
+			var minimum = x + firstComponentMinimumWidth;
+			var maximum = x + width - secondComponentMinimumWidth - dividerSize;
+			var firstComponentWidth = firstComponentMinimumWidth;
+			if (dividerLocation !== null && dividerLocation !== undefined) {
+				dividerLocation = Math.min(Math.max(dividerLocation, minimum), maximum);
+				firstComponentWidth = dividerLocation - x;
+			} else {
+				var dwidth = width - firstComponentMinimumWidth - dividerSize - secondComponentMinimumWidth;
+				firstComponentWidth = firstComponentMinimumWidth + dwidth * resizeWeight;
+				this.setDividerLocation(x + firstComponentWidth);
+			}
+			firstComponent.setBounds(new jsuis.Rectangle(x, y, firstComponentWidth, height));
+			divider.setBounds(new jsuis.Rectangle(x + firstComponentWidth, y, dividerSize, height));
+			secondComponent.setBounds(new jsuis.Rectangle(x + firstComponentWidth + dividerSize, y, width - firstComponentWidth - dividerSize, height));
+		} else {
+			var firstComponentMinimumHeight = firstComponentMinimumSize.getHeight();
+			var secondComponentMinimumHeight = secondComponentMinimumSize.getHeight();
+			var minimum = y + firstComponentMinimumHeight;
+			var maximum = y + height - secondComponentMinimumHeight - dividerSize;
+			var firstComponentHeight = firstComponentMinimumHeight;
+			if (dividerLocation !== null && dividerLocation !== undefined) {
+				dividerLocation = Math.min(Math.max(dividerLocation, minimum), maximum);
+				firstComponentHeight = dividerLocation - y;
+			} else {
+				var dheight = height - firstComponentMinimumHeight - dividerSize - secondComponentMinimumHeight;
+				firstComponentHeight = firstComponentMinimumHeight + dheight * resizeWeight;
+				this.setDividerLocation(y + firstComponentHeight);
+			}
+			firstComponent.setBounds(new jsuis.Rectangle(x, y, width, firstComponentHeight));
+			divider.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight, width, dividerSize));
+			secondComponent.setBounds(new jsuis.Rectangle(x, y + firstComponentHeight + dividerSize, width, height - firstComponentHeight - dividerSize));
+		}
+	}
 }) (jsuis);
 
 /**
- * jsuis.ScrollPane
+ * jsuis.defaultlf.SplitPaneDivider
  */
 (function(jsuis) {
-	var SUPER = jsuis.LayeredPane;
-	jsuis.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.SplitPaneDivider = jsuis.Object.extend(SUPER, function(direction) {
+		SUPER.prototype.constructor.call(this, null);
+		direction = nvl(direction, jsuis.Constants.HORIZONTAL);
+		this.setDirection(direction);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		if (direction === jsuis.Constants.HORIZONTAL) {
+			this.setCursor(jsuis.Cursor.E_RESIZE_CURSOR);
+		} else {
+			this.setCursor(jsuis.Cursor.S_RESIZE_CURSOR);
+		}
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.SplitPaneDivider,
+			new jsuis.Property("direction")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TextField
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.TextField = jsuis.Object.extend(SUPER, function(text) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		var label = new jsuis.defaultlf.Label(text);
+		this.setLabel(label);
+		this.add(label);
+		label.setFill(jsuis.Constants.HORIZONTAL);
+		this.setPadding(new jsuis.Insets(2, 4));
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		var mouseListener = new jsuis.MouseListener({
+			mouseReleased: function(event) {
+				var source = event.getSource();
+				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
+				source.setEditor(textFieldEditor);
+				textFieldEditor.requestFocus();
+			}
+		});
+		this.addMouseListener(mouseListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TextField,
+			new jsuis.Property("label"),
+			new jsuis.Property("editor")
+	);
+	jsuis.defaultlf.TextField.prototype.setEditor = function(editor) {
+		if (editor) {
+			editor.install(this);
+		}
+		this.editor = editor;
+		return this;
+	}
+	jsuis.defaultlf.TextField.prototype.getText = function() {
+		var label = this.getLabel();
+		return label.getText();
+	}
+	jsuis.defaultlf.TextField.prototype.getFont = function() {
+		var label = this.getLabel();
+		return label.getFont();
+	}
+	jsuis.defaultlf.TextField.prototype.setFont = function(font) {
+		var label = this.getLabel();
+		label.setFont(font);
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ToolBar
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ToolBar = jsuis.Object.extend(SUPER, function(orientation) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout(2));
+		this.setOrientation(nvl(orientation, jsuis.Constants.HORIZONTAL));
+		this.setPadding(new jsuis.Insets(2));
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ToolBar,
+			new jsuis.Property("orientation")
+	);
+	jsuis.defaultlf.ToolBar.prototype.add = function(component, constraints, index) {
+		var orientation = this.getOrientation();
+		switch (orientation) {
+		case jsuis.Constants.VERTICAL:
+			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.NORTH), index);
+			break;
+		case jsuis.Constants.HORIZONTAL:
+		default:
+			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.WEST), index);
+		}
+	}
+	jsuis.defaultlf.ToolBar.prototype.addSeparator = function(size) {
+		this.add(new jsuis.defaultlf.TollBarSeparator(size));
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ToolBarSeparator
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ToolBarSeparator = jsuis.Object.extend(SUPER, function(size) {
+		SUPER.prototype.constructor.call(this, null);
+		var line = new jsuis.defaultlf.Line();
+		this.setLine(line);
+		this.add(line);
+		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ToolBarSeparator,
+			new jsuis.Property("line")
+	);
+	jsuis.defaultlf.ToolBarSeparator.prototype.validate = function() {
+		var toolBar = this.getParent();
+		if (!toolBar) {
+			return;
+		}
+		var width = this.getWidth();
+		var height = this.getWidth();
+		var line = this.getLine();
+		var toolBarOrientation = toolBar.getOrientantion();
+		if (toolBarOrientation === jsuis.Constants.VERTICAL) {
+			var y = height / 2 - line.getThickness() / 2;
+			line.setX1(0).setY1(y).setX2(width).setY2(y);
+		} else {
+			var x = width / 2 - line.getThickness() / 2;
+			line.setX1(x).setY1(0).setX2(x).setY2(height);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.Tree = jsuis.Object.extend(SUPER, function() {
+		// SUPER.prototype.constructor.call(this, null);
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
+		this.setModel(new jsuis.defaultlf.TreeModel());
+		this.setCellRenderer(new jsuis.defaultlf.TreeCellRenderer());
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Tree,
+			new jsuis.Property("model"),
+			new jsuis.Property("cellRenderer"),
+			new jsuis.Property("selection")
+	);
+	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.getRoot = function() {
+		var model = this.getModel();
+		return model.getRoot();
+	}
+	jsuis.defaultlf.Tree.prototype.setY = function(y) {
+		SUPER.prototype.setY.call(this, y);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.setHeight = function(height) {
+		SUPER.prototype.setHeight.call(this, height);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.validate = function() {
+		this.setLayoutBounds(null);
+		var treeCellRenderer = this.getCellRenderer();
+		var model = this.getModel();
+		var rows = model.getRows();
+		for (var i = 0; i < rows.length; i++) {
+			var treeNode = rows[i];
+			/*
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
+					treeNode.isSelected(), treeNode.isExpanded(), treeNode.isLeaf(), i, treeNode.hasFocus());
+			*/
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
+					false, false, treeNode.isLeaf(), i, false);
+			this.add(component, jsuis.Constants.NORTH);
+		}
+		this.doLayout();
+		var components = this.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			component.validate();
+		}
+	}
+	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
+		var selection = this.getSelection();
+		return (treeNode === selection);
+	}
+	jsuis.defaultlf.Tree.prototype.setSelected = function(treeNode) {
+		var selection = this.getSelection();
+		if (selection) {
+			selection.setSelected(false);
+		}
+		this.setSelection(treeNode);
+		if (treeNode) {
+			treeNode.setSelected(true);
+		}
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ActionEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.InputEvent;
+	jsuis.defaultlf.ActionEvent = jsuis.Object.extend(SUPER, function(source, id,
+			actionCommand, when, modifiers) {
+		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
+		this.setActionCommand(actionCommand);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ActionEvent,
+			new jsuis.Property("actionCommand")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.MenuItem
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, nvl(text, ""), icon);
+		this.setBorder(null);
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		this.addMouseListener(new jsuis.MouseListener({
+			mouseClicked: function(event) {
+				var menuItem = event.getSource();
+				if (menuItem instanceof jsuis.defaultlf.Menu) {
+					return;
+				}
+				var menu = menuItem.getParent();
+				var menuBar = menu.getParent();
+				menuBar.setSelected(null);
+			}
+		}));
+	});
+	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
+		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
+				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.MouseEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.InputEvent;
+	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(source, id,
+			when, modifiers, x, y, xAbs, yAbs, clickCount, popupTrigger, button) {
+		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
+		this.setX(x);
+		this.setY(y);
+		this.setXAbs(xAbs);
+		this.setYAbs(yAbs);
+		this.setClickCount(clickCount);
+		this.setPopupTrigger(popupTrigger);
+		this.setButton(button);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.MouseEvent,
+			new jsuis.Property("x"),
+			new jsuis.Property("y"),
+			new jsuis.Property("xAbs"),
+			new jsuis.Property("yAbs"),
+			new jsuis.Property("clickCount"),
+			new jsuis.Property("popupTrigger"),
+			new jsuis.Property("button")
+	);
+	jsuis.defaultlf.MouseEvent.prototype.getPoint = function() {
+		var x = this.x;
+		var y = this.y;
+		if (x !== null && x !== undefined && y !== null && y !== undefined) {
+			return new jsuis.Point(x, y);
+		}
+		var domEvent = this.getDomEvent();
+		var source = this.getSource();
+		var boundingClientRect = source.getElement().getBoundingClientRect();
+		var outsets = source.getOutsets();
+		x = nvl(x, domEvent.clientX - boundingClientRect.left + outsets.getLeft());
+		y = nvl(y, domEvent.clientY - boundingClientRect.top + outsets.getTop());
+		this.setX(x).setY(y);
+		return new jsuis.Point(x, y);
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getX = function() {
+		var point = this.getPoint();
+		return point.getX();
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getY = function() {
+		var point = this.getPoint();
+		return point.getY();
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getLocationOnScreen = function() {
+		var xAbs = this.xAbs;
+		var yAbs = this.yAbs;
+		if (xAbs !== null && xAbs !== undefined && yAbs !== null && yAbs !== undefined) {
+			return new jsuis.Point(xAbs, yAbs);
+		}
+		var domEvent = this.getDomEvent();
+		xAbs = nvl(xAbs, domEvent.screenX);
+		yAbs = nvl(yAbs, domEvent.screenY);
+		this.setXAbs(xAbs).setYAbs(yAbs);
+		return new jsuis.Point(xAbs, yAbs);
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getXOnScreen = function() {
+		var locationOnScreen = this.getLocationOnScreen();
+		return locationOnScreen.getX();
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getYOnScreen = function() {
+		var locationOnScreen = this.getLocationOnScreen();
+		return locationOnScreen.getY();
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getClickCount = function() {
+		var clickCount = this.clickCount;
+		if (clickCount !== null && clickCount !== undefined) {
+			return clickCount;
+		}
+		var domEvent = this.getDomEvent();
+		clickCount = domEvent.detail;
+		this.setClickCount(clickCount);
+		return clickCount;
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getPopupTrigger = function() {
+		var popupTrigger = this.popupTrigger;
+		if (popupTrigger !== null && popupTrigger !== undefined) {
+			return popupTrigger;
+		}
+		var button = this.getButton();
+		popupTrigger = (button === 3);
+		this.setPopupTrigger(popupTrigger);
+		return popupTrigger;
+	}
+	jsuis.defaultlf.MouseEvent.prototype.getButton = function() {
+		var button = this.button;
+		if (button !== null && button !== undefined) {
+			return button;
+		}
+		var domEvent = this.getDomEvent();
+		button = domEvent.button + 1;
+		this.setButton(button);
+		return button;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.RootPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.LayeredPane;
+	jsuis.defaultlf.RootPane = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+		var layeredPane = new jsuis.defaultlf.LayeredPane();
+		this.setLayeredPane(layeredPane);
+		this.add(layeredPane);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.RootPane,
+			new jsuis.Property("layeredPane"),
+			new jsuis.Property("menuBar"),
+			new jsuis.Property("contentPane")
+	);
+	jsuis.defaultlf.RootPane.prototype.setMenuBar = function(menuBar) {
+		var layeredPane = this.getLayeredPane();
+		var oldMenuBar = this.getMenuBar();
+		if (oldMenuBar) {
+			layeredPane.remove(oldMenuBar);
+		}
+		layeredPane.add(menuBar, jsuis.Constants.FRAME_CONTENT_LAYER);
+		this.menuBar = menuBar;
+		return this;
+	}
+	jsuis.defaultlf.RootPane.prototype.setContentPane = function(contentPane) {
+		var layeredPane = this.getLayeredPane();
+		var oldContentPane = this.getContentPane();
+		if (oldContentPane) {
+			layeredPane.remove(oldContentPane);
+		}
+		layeredPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
+		this.contentPane = contentPane;
+		return this;
+	}
+	// TODO RootPaneLayout
+	jsuis.defaultlf.RootPane.prototype.doLayout = function() {
+		var size = this.getSize();
+		var insetsOutsets = this.getInsets().add(this.getOutsets());
+		size = size.subtract(insetsOutsets.getDimension());
+		var layerePane = this.getLayeredPane();
+		layerePane.setSize(size);
+		var menuBar = this.getMenuBar();
+		var contentPane = this.getContentPane();
+		var x = insetsOutsets.getLeft();
+		var y = insetsOutsets.getTop();
+		var width = size.getWidth();
+		var height = size.getHeight();
+		if (menuBar) {
+			var menuBarPreferredSize = menuBar.getPreferredSize();
+			var menuBarPreferredHeight = menuBarPreferredSize.getHeight();
+			menuBar.setBounds(new jsuis.Rectangle(x, y, width, menuBarPreferredHeight));
+			y += menuBarPreferredHeight;
+			height -= menuBarPreferredHeight;
+		}
+		if (contentPane) {
+			contentPane.setBounds(new jsuis.Rectangle(x, y, width, height));
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ScrollPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.LayeredPane;
+	jsuis.defaultlf.ScrollPane = jsuis.Object.extend(SUPER, function(view, vsbPolicy, hsbPolicy) {
 		SUPER.prototype.constructor.call(this);
 		this.setLayout(new jsuis.BorderLayout());
 		
-		var viewport = new jsuis.Viewport();
+		var viewport = new jsuis.defaultlf.Viewport();
 		this.setViewport(viewport);
 		this.add(viewport);
 		
@@ -3907,11 +6078,11 @@ function nvl(value, defaultValue) {
 		hsbPolicy = nvl(hsbPolicy, jsuis.Constants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.setHsbPolicy(hsbPolicy);
 		
-		var scrollBarPanel = new jsuis.Panel(new jsuis.GridBagLayout());
+		var scrollBarPanel = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
 		this.setScrollBarPanel(scrollBarPanel);
 		this.add(scrollBarPanel);
 		
-		var verticalScrollBar = new jsuis.ScrollBar(jsuis.Constants.VERTICAL);
+		var verticalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.VERTICAL);
 		this.setVerticalScrollBar(verticalScrollBar);
 		scrollBarPanel.add(verticalScrollBar, new jsuis.GridBagConstraints()
 		.setGridx(1).setGridy(0).setWeighty(1)
@@ -3920,7 +6091,7 @@ function nvl(value, defaultValue) {
 			verticalScrollBar.setVisible(false);
 		}
 		
-		var horizontalScrollBar = new jsuis.ScrollBar(jsuis.Constants.HORIZONTAL);
+		var horizontalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.HORIZONTAL);
 		this.setHorizontalScrollBar(horizontalScrollBar);
 		scrollBarPanel.add(horizontalScrollBar, new jsuis.GridBagConstraints()
 		.setGridx(0).setGridy(1).setWeightx(1)
@@ -3929,10 +6100,59 @@ function nvl(value, defaultValue) {
 			horizontalScrollBar.setVisible(false);
 		}
 		
-		var central = new jsuis.Panel(null);
+		var central = new jsuis.defaultlf.Panel(null);
 		scrollBarPanel.add(central, new jsuis.GridBagConstraints()
 		.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
 		.setFill(jsuis.Constants.BOTH));
+		
+		var touchListener = new jsuis.TouchListener({
+			touchPressed: function(event) {
+				var scrollPane = this.getListenerComponent();
+				var point = event.getPoint();
+				scrollPane.setScrollThumbPressedPoint(point);
+				event.stopPropagation();
+			},
+			touchMoved: function(event) {
+				var scrollPane = this.getListenerComponent();
+				var point = event.getPoint();
+				var pressedPoint = scrollPane.getScrollThumbPressedPoint();
+				var view = scrollPane.getViewportView();
+				var verticalScrollBar = scrollPane.getVerticalScrollBar();
+				var verticalScrollBarVisible = verticalScrollBar.isVisible();
+				if (verticalScrollBarVisible) {
+					var scrollTrack = verticalScrollBar.getScrollTrack();
+					var scrollThumb = verticalScrollBar.getScrollThumb();
+					var extent = verticalScrollBar.getExtent();
+					var maximum = verticalScrollBar.getMaximum();
+					var dy = point.getY() - pressedPoint.getY();
+					var value = Math.min(Math.max(verticalScrollBar.getValue() - dy, 0), maximum - extent);
+					verticalScrollBar.setValue(value);
+					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
+					if (maximum > extent) {
+						scrollThumb.setY(value * maximumY / (maximum - extent));
+					}
+				}
+				var horizontalScrollBar = scrollPane.getHorizontalScrollBar();
+				var horizontalScrollBarVisible = horizontalScrollBar.isVisible();
+				if (horizontalScrollBarVisible) {
+					var scrollTrack = horizontalScrollBar.getScrollTrack();
+					var scrollThumb = horizontalScrollBar.getScrollThumb();
+					var extent = horizontalScrollBar.getExtent();
+					var maximum = horizontalScrollBar.getMaximum();
+					var dx = point.getX() - pressedPoint.getX();
+					var value = Math.min(Math.max(horizontalScrollBar.getValue() - dx, 0), maximum - extent);
+					horizontalScrollBar.setValue(value);
+					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
+					if (maximum > extent) {
+						scrollThumb.setX(value * maximumX / (maximum - extent));
+					}
+				}
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		touchListener.setListenerComponent(this);
+		viewport.addTouchListener(touchListener);
 		
 		verticalScrollBar.addPropertyChangeListener(new jsuis.PropertyChangeListener({
 			propertyChange: function(event) {
@@ -3954,24 +6174,26 @@ function nvl(value, defaultValue) {
 			}
 		}).setPropertyName("value").setListenerComponent(this));
 	});
-	jsuis.Object.addProperties(jsuis.ScrollPane,
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollPane,
 			new jsuis.Property("vsbPolicy"),
 			new jsuis.Property("hsbPolicy"),
 			new jsuis.Property("viewport"),
 			new jsuis.Property("scrollBarPanel"),
 			new jsuis.Property("verticalScrollBar"),
-			new jsuis.Property("horizontalScrollBar")
+			new jsuis.Property("horizontalScrollBar"),
+			new jsuis.Property("scrollThumbPressedPoint")
 	);
-	jsuis.ScrollPane.prototype.setViewportView = function(view) {
+	jsuis.defaultlf.ScrollPane.prototype.setViewportView = function(view) {
 		var viewport = this.getViewport();
 		viewport.setView(view);
 		return this;
 	}
-	jsuis.ScrollPane.prototype.getViewportView = function() {
+	jsuis.defaultlf.ScrollPane.prototype.getViewportView = function() {
 		var viewport = this.getViewport();
 		return viewport.getView();
 	}
-	jsuis.ScrollPane.prototype.validate = function() {
+	// TODO ScrollPaneLayout
+	jsuis.defaultlf.ScrollPane.prototype.doLayout = function() {
 		var size = this.getSize();
 		var insetsDimension = this.getInsets().getDimension();
 		var outsetsDimension = this.getOutsets().getDimension();
@@ -4023,6 +6245,8 @@ function nvl(value, defaultValue) {
 				}
 				break;
 			}
+			viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
+					height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
 			var viewWidth = Math.max(viewSize.getWidth(), viewMinimumSize.getWidth());
 			var viewHeight = Math.max(viewSize.getHeight(), viewMinimumSize.getHeight());
 			view.setSize(new jsuis.Dimension(viewWidth, viewHeight));
@@ -4031,13 +6255,227 @@ function nvl(value, defaultValue) {
 		}
 		horizontalScrollBar.setExtent(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0));
 		verticalScrollBar.setExtent(height- (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
-		horizontalScrollBar.setValue(Math.min(horizontalScrollBar.getValue(),
+		horizontalScrollBar.setValue(Math.min(Math.max(horizontalScrollBar.getValue(), horizontalScrollBar.getMinimum()),
 				horizontalScrollBar.getMaximum() - horizontalScrollBar.getExtent()));
-		verticalScrollBar.setValue(Math.min(verticalScrollBar.getValue(),
+		verticalScrollBar.setValue(Math.min(Math.max(verticalScrollBar.getValue(), verticalScrollBar.getMinimum()),
 				verticalScrollBar.getMaximum() - verticalScrollBar.getExtent()));
 		verticalScrollBar.setVisible(verticalScrollBarVisible);
 		horizontalScrollBar.setVisible(horizontalScrollBarVisible);
-		SUPER.prototype.validate.call(this);
+		SUPER.prototype.doLayout.call(this);
+	}
+	jsuis.defaultlf.ScrollPane.prototype.getMinimumSize = function() {
+		return new jsuis.Dimension(0, 0);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ToggleButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+	});
+	jsuis.defaultlf.ToggleButton.prototype.mousePressed = function() {
+		var selected = this.isSelected();
+		selected = !selected;
+		this.setSelected(selected);
+		if (selected) {
+			SUPER.prototype.mousePressed.call(this);
+		}
+	}
+	jsuis.defaultlf.ToggleButton.prototype.mouseReleased = function() {
+		var selected = this.isSelected();
+		if (!selected) {
+			SUPER.prototype.mouseReleased.call(this);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TouchEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.InputEvent;
+	jsuis.defaultlf.TouchEvent = jsuis.Object.extend(SUPER, function(source, id,
+			when, modifiers, touches) {
+		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
+		this.setTouches(touches);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TouchEvent,
+			new jsuis.Property("touches"),
+			new jsuis.Property("x"),
+			new jsuis.Property("y")
+	);
+	jsuis.defaultlf.TouchEvent.prototype.getTouches = function() {
+		var touches = this.touches;
+		if (touches !== null && touches !== undefined) {
+			return touches;
+		}
+		touches = [];
+		var domEvent = this.getDomEvent();
+		var touchList = domEvent.touches;
+		for (var i = 0; i < touchList.length; i++) {
+			touches.push(touchList.item(i));
+		}
+		this.setTouches(touches);
+		return touches;
+	}
+	jsuis.defaultlf.TouchEvent.prototype.getTouch = function() {
+		var source = this.getSource();
+		var target = source.getTarget();
+		var targetElement = target.getElement();
+		var touches = this.getTouches();
+		for (var i = 0; i < touches.length; i++) {
+			var touch = touches[i];
+			if (touch.target === targetElement || targetElement.contains(touch.target)) {
+				return touch;
+			}
+		}
+	}
+	jsuis.defaultlf.TouchEvent.prototype.getPoint = function() {
+		var x = this.x;
+		var y = this.y;
+		if (x !== null && x !== undefined && y !== null && y !== undefined) {
+			return new jsuis.Point(x, y);
+		}
+		var touch = this.getTouch();
+		var source = this.getSource();
+		var boundingClientRect = source.getElement().getBoundingClientRect();
+		var outsets = source.getOutsets();
+		x = nvl(x, touch.clientX - boundingClientRect.left + outsets.getLeft());
+		y = nvl(y, touch.clientY - boundingClientRect.top + outsets.getTop());
+		this.setX(x).setY(y);
+		return new jsuis.Point(x, y);
+	}
+	jsuis.defaultlf.TouchEvent.prototype.getX = function() {
+		var point = this.getPoint();
+		return point.getX();
+	}
+	jsuis.defaultlf.TouchEvent.prototype.getY = function() {
+		var point = this.getPoint();
+		return point.getY();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.Menu
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.MenuItem;
+	jsuis.defaultlf.Menu = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Menu,
+			new jsuis.Property("popupMenu")
+	);
+	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
+		var component = component.getPeer();
+		if ((component instanceof jsuis.defaultlf.MenuItem) ||
+				(component instanceof jsuis.defaultlf.PopupMenuSeparator)) {
+			var popupMenu = this.getPopupMenu();
+			if (!popupMenu) {
+				popupMenu = new jsuis.defaultlf.PopupMenu();
+				this.setPopupMenu(popupMenu);
+			}
+			popupMenu.add(component, constraints, index);
+			component.setParent(this);
+		} else {
+			SUPER.prototype.add.call(this, component, constraints, index);
+		}
+	}
+	jsuis.defaultlf.Menu.prototype.isPopupMenuVisible = function() {
+		var popupMenu = this.getPopupMenu();
+		return popupMenu.isVisible();
+	}
+	jsuis.defaultlf.Menu.prototype.setPopupMenuVisible = function(popupMenuVisible) {
+		var popupMenu = this.getPopupMenu();
+		if (!popupMenu) {
+			return;
+		}
+		if (popupMenuVisible) {
+			popupMenu.show(this, 0, this.getHeight());
+		} else {
+			popupMenu.setVisible(false);
+		}
+		return this;
+	}
+	jsuis.defaultlf.Menu.prototype.addSeparator = function() {
+		var separator = new jsuis.defaultlf.PopupMenuSeparator()
+		this.add(separator);
+	}
+	jsuis.defaultlf.Menu.prototype.setSelected = function(selected) {
+		this.setPopupMenuVisible(selected);
+		if (selected) {
+			this.paintPressed();
+		} else {
+			var rollover = this.isRollover();
+			if (rollover) {
+				this.paintRollover();
+			} else {
+				this.paint();
+			}
+		}
+		SUPER.prototype.setSelected.call(this, selected);
+		return this;
+	}
+	jsuis.defaultlf.Menu.prototype.hasChanged = function() {
+		return this.changed;
+	}
+	jsuis.defaultlf.Menu.prototype.setChanged = function(changed) {
+		this.changed = changed;
+		return this;
+	}
+	jsuis.defaultlf.Menu.prototype.mousePressed = function() {
+		this.setChanged(false);
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var selection = menuBar.getSelection();
+		if (!selection) {
+			menuBar.setSelected(this);
+			this.setChanged(true);
+		}
+	}
+	jsuis.defaultlf.Menu.prototype.mouseReleased = function() {
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var changed = this.hasChanged();
+		if (!changed) {
+			var selection = menuBar.getSelection();
+			if (selection) {
+				menuBar.setSelected(null);
+			}
+		}
+	}
+	jsuis.defaultlf.Menu.prototype.mouseEntered = function() {
+		var menuBar = this.getParent();
+		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
+			return;
+		}
+		var selection = menuBar.getSelection();
+		if (selection) {
+			menuBar.setSelected(this);
+		}
+		var selected = this.isSelected();
+		if (selected) {
+			this.paintPressed();
+		} else {
+			this.paintRollover();
+		}
+		this.setRollover(true);
+	}
+	jsuis.defaultlf.Menu.prototype.mouseExited = function() {
+		var selected = this.isSelected();
+		if (selected) {
+			this.paintPressed();
+		} else {
+			this.paint();
+		}
+		this.setRollover(false);
 	}
 }) (jsuis);
 

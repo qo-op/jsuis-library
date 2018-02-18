@@ -16,6 +16,10 @@
 			new jsuis.Property("hgap"),
 			new jsuis.Property("vgap")
 	);
+	jsuis.FlowLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.FlowLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -43,6 +47,29 @@
 		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
 		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
 		return new jsuis.Dimension(preferredLayoutWidth + 2 * hgap, preferredLayoutHeight + 2 * vgap);
+	}
+	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
+		this.layoutContainer(parent);
+		var minimumLayoutX = 0;
+		var minimumLayoutWidth = 0;
+		var minimumLayoutHeight = 0;
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var componentX = component.getX();
+			var componentY = component.getY();
+			var componentWidth = component.getWidth();
+			var componentHeight = component.getHeight();
+			minimumLayoutX = Math.min(minimumLayoutX, componentX);
+			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
+			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
+		}
+		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
 	}
 	jsuis.FlowLayout.prototype.layoutContainer = function(parent) {
 		var minX = 0;
@@ -130,28 +157,5 @@
 				}
 			}
 		}
-	}
-	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
-		this.layoutContainer(parent);
-		var minimumLayoutX = 0;
-		var minimumLayoutWidth = 0;
-		var minimumLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentX = component.getX();
-			var componentY = component.getY();
-			var componentWidth = component.getWidth();
-			var componentHeight = component.getHeight();
-			minimumLayoutX = Math.min(minimumLayoutX, componentX);
-			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
-			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
-		}
-		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
 	}
 }) (jsuis);

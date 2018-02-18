@@ -13,6 +13,9 @@
 		}
 		target.setStyleProperty("stroke-width", 0);
 	}
+	jsuis.defaultlf.Border.prototype.getPeer = function() {
+		return this;
+	}
 	jsuis.defaultlf.Border.prototype.getBorderInsets = function(component) {
 		return new jsuis.Insets();
 	}

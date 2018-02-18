@@ -378,6 +378,10 @@ jsuis.packages = [];
 		}
 		return comparator;
 	}
+	jsuis.BorderLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.BorderLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.BorderLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -424,6 +428,9 @@ jsuis.packages = [];
 		preferredLayoutWidth += parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight();
 		preferredLayoutHeight += parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
+	}
+	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
 	}
 	jsuis.BorderLayout.prototype.layoutContainer = function(parent) {
 		var x = 0;
@@ -499,12 +506,8 @@ jsuis.packages = [];
 			componentWidth -= hgap;
 			componentHeight -= vgap;
 			var rectangle = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			// component.setBounds(rectangle);
 			component.setMaximumLayoutBounds(rectangle);
 		}
-	}
-	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 }) (jsuis);
 
@@ -942,6 +945,10 @@ jsuis.packages = [];
 			new jsuis.Property("hgap"),
 			new jsuis.Property("vgap")
 	);
+	jsuis.FlowLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.FlowLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -969,6 +976,29 @@ jsuis.packages = [];
 		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
 		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
 		return new jsuis.Dimension(preferredLayoutWidth + 2 * hgap, preferredLayoutHeight + 2 * vgap);
+	}
+	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
+		this.layoutContainer(parent);
+		var minimumLayoutX = 0;
+		var minimumLayoutWidth = 0;
+		var minimumLayoutHeight = 0;
+		var hgap = this.getHgap();
+		var vgap = this.getVgap();
+		var components = parent.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			if (!component.isVisible()) {
+				continue;
+			}
+			var componentX = component.getX();
+			var componentY = component.getY();
+			var componentWidth = component.getWidth();
+			var componentHeight = component.getHeight();
+			minimumLayoutX = Math.min(minimumLayoutX, componentX);
+			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
+			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
+		}
+		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
 	}
 	jsuis.FlowLayout.prototype.layoutContainer = function(parent) {
 		var minX = 0;
@@ -1056,29 +1086,6 @@ jsuis.packages = [];
 				}
 			}
 		}
-	}
-	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
-		this.layoutContainer(parent);
-		var minimumLayoutX = 0;
-		var minimumLayoutWidth = 0;
-		var minimumLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentX = component.getX();
-			var componentY = component.getY();
-			var componentWidth = component.getWidth();
-			var componentHeight = component.getHeight();
-			minimumLayoutX = Math.min(minimumLayoutX, componentX);
-			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
-			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
-		}
-		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
 	}
 }) (jsuis);
 
@@ -1218,6 +1225,10 @@ jsuis.packages = [];
 			new jsuis.Property("weightxs"),
 			new jsuis.Property("weightys")
 	);
+	jsuis.GridBagLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.GridBagLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -1392,6 +1403,9 @@ jsuis.packages = [];
 		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
+	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
+	}
 	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
 		var preferredLayoutSize = this.preferredLayoutSize(parent);
 		var x = 0;
@@ -1495,9 +1509,6 @@ jsuis.packages = [];
 			}
 			component.setMaximumLayoutBounds(bounds);
 		}
-	}
-	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 }) (jsuis);
 
@@ -1762,6 +1773,35 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.TreeNode
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.TreeNode = jsuis.Object.extend(SUPER, function(userObject) {
+		SUPER.prototype.constructor.call(this);
+		this.setUserObject(userObject);
+	});
+	jsuis.Object.addProperties(jsuis.TreeNode,
+			new jsuis.Property("userObject"),
+			new jsuis.Property("children"),
+			new jsuis.Property("parent")
+	);
+	jsuis.TreeNode.prototype.add = function(treeNode) {
+		var children = this.getChildren();
+		if (!children) {
+			children = [];
+			this.setChildren(children);
+		}
+		children.push(treeNode);
+		treeNode.setParent(this);
+	}
+	jsuis.TreeNode.prototype.isLeaf = function() {
+		var children = this.getChildren();
+		return !children || !children.length;
+	}
+}) (jsuis);
+
+/**
  * jsuis.UIManager
  */
 (function(jsuis) {
@@ -1801,10 +1841,6 @@ jsuis.packages = [];
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Border());
 	});
-	jsuis.Border.prototype.install = function(component) {
-		var peer = this.getPeer();
-		peer.install(component);
-	}
 	jsuis.Border.prototype.getBorderInsets = function(component) {
 		var peer = this.getPeer();
 		return peer.getBorderInsets(component);
@@ -2197,13 +2233,39 @@ jsuis.packages = [];
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
 	});
+	jsuis.Object.addProperties(jsuis.Button,
+			new jsuis.Property("action"),
+			new jsuis.Property("propertyChangeListener")
+	);
 	jsuis.Object.addPeerProperties(jsuis.Button,
 			new jsuis.Property("text"),
 			new jsuis.Property("icon"),
-			new jsuis.Property("action"),
-			new jsuis.Property("group"),
-			new jsuis.Property("iconTextGap")
+			new jsuis.Property("iconTextGap"),
+			new jsuis.Property("group")
 	);
+	jsuis.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -2211,9 +2273,9 @@ jsuis.packages = [];
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.Frame = jsuis.Object.extend(SUPER, function() {
+	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Frame());
+		this.setPeer(new jsuis[lookAndFeel].Frame(title));
 	});
 	jsuis.Object.addPeerProperties(jsuis.Frame,
 			new jsuis.Property("layeredPane"),
@@ -2273,9 +2335,9 @@ jsuis.packages = [];
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout, target) {
+	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Panel(layout, target));
+		this.setPeer(new jsuis[lookAndFeel].Panel(layout));
 	});
 }) (jsuis);
 
@@ -2323,9 +2385,9 @@ jsuis.packages = [];
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.MenuBar = jsuis.Object.extend(SUPER, function(element) {
+	jsuis.MenuBar = jsuis.Object.extend(SUPER, function() {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].MenuBar(element));
+		this.setPeer(new jsuis[lookAndFeel].MenuBar());
 	});
 }) (jsuis);
 
@@ -2425,7 +2487,42 @@ jsuis.packages = [];
 	});
 	jsuis.ToolBar.prototype.addSeparator = function(size) {
 		var peer = this.getPeer();
-		peer.addSeperator(size);
+		peer.addSeparator(size);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.Tree = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Tree());
+	});
+	jsuis.Object.addPeerProperties(jsuis.Tree,
+			new jsuis.Property("model"),
+			new jsuis.Property("root")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.CheckBox
+ */
+(function(jsuis) {
+	var SUPER = jsuis.ToggleButton;
+	jsuis.CheckBox = jsuis.Object.extend(SUPER, function(text, icon, selected) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].CheckBox(text, icon, selected));
+	});
+	jsuis.CheckBox.prototype.isSelected = function() {
+		var peer = this.getPeer();
+		return peer.isSelected();
+	}
+	jsuis.CheckBox.prototype.setSelected = function(selected) {
+		var peer = this.getPeer();
+		peer.setSelected(selected);
+		return this;
 	}
 }) (jsuis);
 
@@ -2438,18 +2535,6 @@ jsuis.packages = [];
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Menu(layout, target));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Menu,
-			new jsuis.Property("popupMenu")
-	);
-	jsuis.Menu.prototype.isPopupMenuVisible = function() {
-		var peer = this.getPeer();
-		return peer.isPopupMenuVisible();
-	}
-	jsuis.Menu.prototype.setPopupMenuVisible = function(popupMenuVisible) {
-		var peer = this.getPeer();
-		peer.setPopupMenuVisible(popupMenuVisible);
-		return this;
-	}
 	jsuis.Menu.prototype.addSeparator = function() {
 		var peer = this.getPeer();
 		peer.addSeparator();
@@ -2478,6 +2563,9 @@ jsuis.packages.push(jsuis.defaultlf);
 			return;
 		}
 		target.setStyleProperty("stroke-width", 0);
+	}
+	jsuis.defaultlf.Border.prototype.getPeer = function() {
+		return this;
 	}
 	jsuis.defaultlf.Border.prototype.getBorderInsets = function(component) {
 		return new jsuis.Insets();
@@ -2763,6 +2851,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		element.removeChild(componentElement);
 	}
 	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
+		component = component.getPeer();
 		component.init();
 		var components = this.getComponents();
 		var referenceComponent = undefined;
@@ -2781,6 +2870,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		}
 	}
 	jsuis.defaultlf.Component.prototype.remove = function(component) {
+		component = component.getPeer();
 		this.removeChild(component);
 		component.setParent(undefined);
 		var components = this.getComponents();
@@ -3001,9 +3091,12 @@ jsuis.packages.push(jsuis.defaultlf);
 		return this.border;
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
+		if (border) {
+			border.getPeer().install(this);
+		} else {
+			new jsuis.defaultlf.Border().install(this);
+		}
 		this.border = border;
-		border = nvl(border, new jsuis.defaultlf.Border());
-		border.install(this);
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
@@ -3204,11 +3297,6 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.Component.prototype.setVisible = function(visible) {
 		this.setStyleProperty("display", visible ? "" : "none");
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.setVisible(visible);
-		}
 		this.visible = visible;
 		return this;
 	}
@@ -3799,6 +3887,100 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.TreeCellRenderer
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.TreeCellRenderer = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
+			tree, value, sel, expanded, leaf, row, hasFocus) {
+		var button = new jsuis.defaultlf.Button();
+		button.setText(nvl(value, "").toString(), new jsuis.GridBagConstraints().setGridx(2).setGridy(0)
+				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
+		/*
+		button.setIcon(icon, new jsuis.GridBagConstraints().setGridx(1).setGridy(0));
+		 */
+		var leftIcon = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
+		leftIcon.add(new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z"));
+		leftIcon.setPreferredSize(new jsuis.Dimension(16, 16));
+		button.add(leftIcon, new jsuis.GridBagConstraints().setGridx(0).setGridy(0));
+		button.setBorder(null);
+		button.setBackground(jsuis.Color.Black.withAlpha(0));
+		return button;
+	}
+	jsuis.defaultlf.TreeCellRenderer.prototype.add = function(component, constraints, index) {
+		var component = component.getPeer();
+		if (component instanceof jsuis.defaultlf.TreeNode) {
+			var panel = this.getPanel();
+			if (!panel) {
+				panel = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
+				this.setPanel(panel);
+				var parent = this.getParent();
+				if (parent instanceof jsuis.defaultlf.Tree) {
+					parent.add(panel, jsuis.Constants.NORTH);
+				} else {
+					var parentPanel = parent.getPanel();
+					var parentPanelComponents = parentPanel.getComponents();
+					parentPanel.add(panel, jsuis.Constants.NORTH, parentPanelComponents.indexOf(this) + 1);
+				}
+			}
+			panel.add(component, nvl(constraints, jsuis.Constants.NORTH), index);
+			var button = this.getButton();
+			var buttonPadding = button.getPadding();
+			component.getButton().setPadding(buttonPadding.add(new jsuis.Insets(0, 16, 0, 0)));
+			component.setParent(this);
+		} else {
+			SUPER.prototype.add.call(this, component, constraints, index);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TreeModel
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.TreeModel = jsuis.Object.extend(SUPER, function(root) {
+		SUPER.prototype.constructor.call(this);
+		this.setRoot(root);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TreeModel,
+			new jsuis.Property("root"),
+			new jsuis.Property("rows")
+	);
+	jsuis.defaultlf.TreeModel.prototype.setRoot = function(root) {
+		this.setRows(null);
+		this.root = root;
+		return this;
+	}
+	jsuis.defaultlf.TreeModel.prototype.getRows = function() {
+		var rows = this.rows;
+		if (!rows) {
+			rows = [];
+			this.setRows(rows);
+			var root = this.getRoot();
+			if (root) {
+				this.load(root);
+			}
+		}
+		return rows;
+	}
+	jsuis.defaultlf.TreeModel.prototype.load = function(node) {
+		var rows = this.getRows();
+		rows.push(node);
+		var children = node.getChildren();
+		if (children) {
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				this.load(child);
+			}
+		}
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.ClipPath
  */
 (function(jsuis) {
@@ -3838,9 +4020,8 @@ jsuis.packages.push(jsuis.defaultlf);
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Frame = jsuis.Object.extend(SUPER, function() {
+	jsuis.defaultlf.Frame = jsuis.Object.extend(SUPER, function(title) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "svg"));
-		this.setVisible(false);
 		SUPER.prototype.setLayout.call(this, new jsuis.BorderLayout());
 		var rootPane = new jsuis.defaultlf.RootPane();
 		this.setRootPane(rootPane);
@@ -4141,10 +4322,10 @@ jsuis.packages.push(jsuis.defaultlf);
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Panel = jsuis.Object.extend(SUPER, function(layout, target) {
+	jsuis.defaultlf.Panel = jsuis.Object.extend(SUPER, function(layout) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "g"));
-		this.setTarget(nvl(target, new jsuis.defaultlf.Rect()));
 		this.setLayout(layout !== undefined ? layout : new jsuis.FlowLayout());
+		this.setTarget(new jsuis.defaultlf.Rect());
 		this.setBackground(null);
 	});
 	jsuis.defaultlf.Panel.prototype.getTarget = function() {
@@ -4305,7 +4486,7 @@ jsuis.packages.push(jsuis.defaultlf);
 					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
-			label.getPeer().setStyleProperty("visibility", "hidden");
+			label.setStyleProperty("visibility", "hidden");
 			this.setVisible(true);
 		}
 		this.textField = textField;
@@ -4315,7 +4496,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		var label = textField.getLabel();
 		label.setText(this.getText());
 		this.setVisible(false);
-		label.getPeer().setStyleProperty("visibility", "visible");
+		label.setStyleProperty("visibility", "visible");
 		textField.setEditor(null);
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {
@@ -4441,13 +4622,11 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
-			new jsuis.Property("action"),
-			new jsuis.Property("group"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
 			new jsuis.Property("rolloverColor"),
-			new jsuis.Property("propertyChangeListener")
+			new jsuis.Property("group")
 	);
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
@@ -4825,6 +5004,34 @@ jsuis.packages.push(jsuis.defaultlf);
 			this.validate();
 		}
 		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.PopupMenuSeparator
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.PopupMenuSeparator = jsuis.Object.extend(SUPER, function(size) {
+		SUPER.prototype.constructor.call(this, null);
+		var line = new jsuis.defaultlf.Line();
+		this.setLine(line);
+		this.add(line);
+		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
+			new jsuis.Property("line")
+	);
+	jsuis.defaultlf.PopupMenuSeparator.prototype.doLayout = function() {
+		var popupMenu = this.getParent();
+		if (!popupMenu) {
+			return;
+		}
+		var width = this.getWidth();
+		var height = this.getHeight();
+		var line = this.getLine();
+		var y = height / 2;
+		line.setX1(0).setY1(y).setX2(width).setY2(y);
 	}
 }) (jsuis);
 
@@ -5465,7 +5672,7 @@ jsuis.packages.push(jsuis.defaultlf);
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.TextField = jsuis.Object.extend(SUPER, function(text) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		var label = new jsuis.Label(text);
+		var label = new jsuis.defaultlf.Label(text);
 		this.setLabel(label);
 		this.add(label);
 		label.setFill(jsuis.Constants.HORIZONTAL);
@@ -5573,6 +5780,79 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.Tree = jsuis.Object.extend(SUPER, function() {
+		// SUPER.prototype.constructor.call(this, null);
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
+		this.setModel(new jsuis.defaultlf.TreeModel());
+		this.setCellRenderer(new jsuis.defaultlf.TreeCellRenderer());
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Tree,
+			new jsuis.Property("model"),
+			new jsuis.Property("cellRenderer"),
+			new jsuis.Property("selection")
+	);
+	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.getRoot = function() {
+		var model = this.getModel();
+		return model.getRoot();
+	}
+	jsuis.defaultlf.Tree.prototype.setY = function(y) {
+		SUPER.prototype.setY.call(this, y);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.setHeight = function(height) {
+		SUPER.prototype.setHeight.call(this, height);
+		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.validate = function() {
+		this.setLayoutBounds(null);
+		var treeCellRenderer = this.getCellRenderer();
+		var model = this.getModel();
+		var rows = model.getRows();
+		for (var i = 0; i < rows.length; i++) {
+			var treeNode = rows[i];
+			/*
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
+					treeNode.isSelected(), treeNode.isExpanded(), treeNode.isLeaf(), i, treeNode.hasFocus());
+			*/
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
+					false, false, treeNode.isLeaf(), i, false);
+			this.add(component, jsuis.Constants.NORTH);
+		}
+		this.doLayout();
+		var components = this.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			component.validate();
+		}
+	}
+	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
+		var selection = this.getSelection();
+		return (treeNode === selection);
+	}
+	jsuis.defaultlf.Tree.prototype.setSelected = function(treeNode) {
+		var selection = this.getSelection();
+		if (selection) {
+			selection.setSelected(false);
+		}
+		this.setSelection(treeNode);
+		if (treeNode) {
+			treeNode.setSelected(true);
+		}
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.ActionEvent
  */
 (function(jsuis) {
@@ -5604,13 +5884,14 @@ jsuis.packages.push(jsuis.defaultlf);
 				}
 				var menu = menuItem.getParent();
 				var menuBar = menu.getParent();
-				menuBar.getPeer().setSelected(null);
+				menuBar.setSelected(null);
 			}
 		}));
 	});
 	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
 		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
 				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
+		return this;
 	}
 }) (jsuis);
 
@@ -5711,37 +5992,6 @@ jsuis.packages.push(jsuis.defaultlf);
 		button = domEvent.button + 1;
 		this.setButton(button);
 		return button;
-	}
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.PopupMenuSeparator
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.Button;
-	jsuis.defaultlf.PopupMenuSeparator = jsuis.Object.extend(SUPER, function(size) {
-		SUPER.prototype.constructor.call(this, null);
-		var line = new jsuis.defaultlf.Line();
-		this.setLine(line);
-		this.add(line);
-		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
-		this.setBorder(null);
-		this.setBackground(null);
-		this.setEnabled(false);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
-			new jsuis.Property("line")
-	);
-	jsuis.defaultlf.PopupMenuSeparator.prototype.doLayout = function() {
-		var popupMenu = this.getParent();
-		if (!popupMenu) {
-			return;
-		}
-		var width = this.getWidth();
-		var height = this.getHeight();
-		var line = this.getLine();
-		var y = height / 2;
-		line.setX1(0).setY1(y).setX2(width).setY2(y);
 	}
 }) (jsuis);
 
@@ -6120,9 +6370,9 @@ jsuis.packages.push(jsuis.defaultlf);
 			new jsuis.Property("popupMenu")
 	);
 	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
-		var componentPeer = component.getPeer();
-		if ((componentPeer instanceof jsuis.defaultlf.MenuItem) ||
-				(componentPeer instanceof jsuis.defaultlf.PopupMenuSeparator)) {
+		var component = component.getPeer();
+		if ((component instanceof jsuis.defaultlf.MenuItem) ||
+				(component instanceof jsuis.defaultlf.PopupMenuSeparator)) {
 			var popupMenu = this.getPopupMenu();
 			if (!popupMenu) {
 				popupMenu = new jsuis.defaultlf.PopupMenu();
@@ -6182,9 +6432,9 @@ jsuis.packages.push(jsuis.defaultlf);
 		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
 			return;
 		}
-		var selection = menuBar.getPeer().getSelection();
+		var selection = menuBar.getSelection();
 		if (!selection) {
-			menuBar.getPeer().setSelected(this);
+			menuBar.setSelected(this);
 			this.setChanged(true);
 		}
 	}
@@ -6195,9 +6445,9 @@ jsuis.packages.push(jsuis.defaultlf);
 		}
 		var changed = this.hasChanged();
 		if (!changed) {
-			var selection = menuBar.getPeer().getSelection();
+			var selection = menuBar.getSelection();
 			if (selection) {
-				menuBar.getPeer().setSelected(null);
+				menuBar.setSelected(null);
 			}
 		}
 	}
@@ -6206,9 +6456,9 @@ jsuis.packages.push(jsuis.defaultlf);
 		if (!(menuBar instanceof jsuis.defaultlf.MenuBar)) {
 			return;
 		}
-		var selection = menuBar.getPeer().getSelection();
+		var selection = menuBar.getSelection();
 		if (selection) {
-			menuBar.getPeer().setSelected(this);
+			menuBar.setSelected(this);
 		}
 		var selected = this.isSelected();
 		if (selected) {

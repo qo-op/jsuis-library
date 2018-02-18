@@ -37,6 +37,10 @@
 		}
 		return comparator;
 	}
+	jsuis.BorderLayout.prototype.addLayoutComponent = function(name, comp) {
+	}
+	jsuis.BorderLayout.prototype.removeLayoutComponent = function(comp) {
+	}
 	jsuis.BorderLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -83,6 +87,9 @@
 		preferredLayoutWidth += parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight();
 		preferredLayoutHeight += parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
+	}
+	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
 	}
 	jsuis.BorderLayout.prototype.layoutContainer = function(parent) {
 		var x = 0;
@@ -158,11 +165,7 @@
 			componentWidth -= hgap;
 			componentHeight -= vgap;
 			var rectangle = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			// component.setBounds(rectangle);
 			component.setMaximumLayoutBounds(rectangle);
 		}
-	}
-	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 }) (jsuis);

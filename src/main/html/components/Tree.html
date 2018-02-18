@@ -28,36 +28,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		return contentPane;
 	}
 	
-	menuExample = createExamplePanel("jsuis.Menu example");
-	menuExample.setLayout(new jsuis.BorderLayout());
+	treeExample = createExamplePanel("jsuis.Tree example");
+	treeExample.setLayout(new jsuis.BorderLayout());
 	
-	menuFrame = new jsuis.Frame();
-	menuExample.add(menuFrame);
+	tree = new jsuis.Tree();
+	treeExample.add(tree);
 	
-	menuBar = new jsuis.MenuBar();
-	menuFrame.setMenuBar(menuBar);
+	root = new jsuis.TreeNode("Root");
+	tree.setRoot(root);
 	
-	menu = new jsuis.Menu("A Menu");
-	menuBar.add(menu);
+	letters = new jsuis.TreeNode("Letters");
+	root.add(letters);
 	
-	textOnlyMenuItem = new jsuis.MenuItem("A text-only menu item");
-	menu.add(textOnlyMenuItem);
+	letterA = new jsuis.TreeNode("A");
+	letters.add(letterA);
 	
-	bothTextIconMenuItem = new jsuis.MenuItem("Both text and icon",
-			new jsuis.ImageIcon("/images/Star.svg").setPreferredSize(new jsuis.Dimension(16, 16)));
-	menu.add(bothTextIconMenuItem);
+	letterB = new jsuis.TreeNode("B");
+	letters.add(letterB);
 	
-	menu.addSeparator();
+	letterC = new jsuis.TreeNode("C");
+	letters.add(letterC);
 	
-	iconMenuItem = new jsuis.MenuItem(null,
-			new jsuis.ImageIcon("/images/Star.svg").setPreferredSize(new jsuis.Dimension(16, 16)));
-	menu.add(iconMenuItem);
+	numbers = new jsuis.TreeNode("Numbers");
+	root.add(numbers);
 	
-	anotherMenu = new jsuis.Menu("Another Menu");
-	menuBar.add(anotherMenu);
-	
-	cbMenuItem = new jsuis.MenuItem("Menu item");
-	anotherMenu.add(cbMenuItem);
+	numberOne = new jsuis.TreeNode("One");
+	numbers.add(numberOne);
 	
 	frame.setVisible(true);
 });

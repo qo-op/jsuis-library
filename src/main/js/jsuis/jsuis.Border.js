@@ -7,10 +7,6 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Border());
 	});
-	jsuis.Border.prototype.install = function(component) {
-		var peer = this.getPeer();
-		peer.install(component);
-	}
 	jsuis.Border.prototype.getBorderInsets = function(component) {
 		var peer = this.getPeer();
 		return peer.getBorderInsets(component);
