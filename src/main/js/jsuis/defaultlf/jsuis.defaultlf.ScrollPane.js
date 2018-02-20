@@ -26,8 +26,8 @@
 		var verticalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.VERTICAL);
 		this.setVerticalScrollBar(verticalScrollBar);
 		scrollBarPanel.add(verticalScrollBar, new jsuis.GridBagConstraints()
-		.setGridx(1).setGridy(0).setWeighty(1)
-		.setFill(jsuis.Constants.VERTICAL));
+				.setGridx(1).setGridy(0).setWeighty(1)
+				.setFill(jsuis.Constants.VERTICAL));
 		if (vsbPolicy !== jsuis.Constants.VERTICAL_SCROLLBAR_ALWAYS) {
 			verticalScrollBar.setVisible(false);
 		}
@@ -35,16 +35,16 @@
 		var horizontalScrollBar = new jsuis.defaultlf.ScrollBar(jsuis.Constants.HORIZONTAL);
 		this.setHorizontalScrollBar(horizontalScrollBar);
 		scrollBarPanel.add(horizontalScrollBar, new jsuis.GridBagConstraints()
-		.setGridx(0).setGridy(1).setWeightx(1)
-		.setFill(jsuis.Constants.HORIZONTAL));
+				.setGridx(0).setGridy(1).setWeightx(1)
+				.setFill(jsuis.Constants.HORIZONTAL));
 		if (hsbPolicy !== jsuis.Constants.HORIZONTAL_SCROLLBAR_ALWAYS) {
 			horizontalScrollBar.setVisible(false);
 		}
 		
 		var central = new jsuis.defaultlf.Panel(null);
 		scrollBarPanel.add(central, new jsuis.GridBagConstraints()
-		.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
-		.setFill(jsuis.Constants.BOTH));
+				.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
+				.setFill(jsuis.Constants.BOTH));
 		
 		var touchListener = new jsuis.TouchListener({
 			touchPressed: function(event) {

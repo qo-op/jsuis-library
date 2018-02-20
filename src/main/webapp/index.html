@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180219202328"></script>
+    <script src="/jsuis.js?20180221181623"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden; position: relative;">
 		<svg height="0" style="display: block;">
@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		panel.add(titledPanel);
 		var label = new jsuis.Label(title);
-		titledPanel.add(label, jsuis.Constants.NORTH);
-		label.setFill(jsuis.Constants.NONE)
+		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
@@ -48,16 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	borderLayoutExample.setLayout(new jsuis.BorderLayout());
 	
 	north = new jsuis.Button("North");
-	borderLayoutExample.add(north, jsuis.Constants.NORTH);
+	borderLayoutExample.add(north, jsuis.BorderConstraints.NORTH);
 	
 	south = new jsuis.Button("South");
-	borderLayoutExample.add(south, jsuis.Constants.SOUTH);
+	borderLayoutExample.add(south, jsuis.BorderConstraints.SOUTH);
 	
 	west = new jsuis.Button("West");
-	borderLayoutExample.add(west, jsuis.Constants.WEST);
+	borderLayoutExample.add(west, jsuis.BorderConstraints.WEST);
 	
 	east = new jsuis.Button("East");
-	borderLayoutExample.add(east, jsuis.Constants.EAST);
+	borderLayoutExample.add(east, jsuis.BorderConstraints.EAST);
 	
 	center = new jsuis.Button("Center");
 	borderLayoutExample.add(center);
@@ -90,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	gridBagLayoutExample.setLayout(new jsuis.GridBagLayout());
 	
 	gridBagConstraints = new jsuis.GridBagConstraints()
-	.setFill(jsuis.Constants.HORIZONTAL)
-	.setWeightx(.5);
+			.setFill(jsuis.Constants.HORIZONTAL)
+			.setWeightx(.5);
 	
 	button1 = new jsuis.Button("Button 1");
 	gridBagLayoutExample.add(button1, gridBagConstraints
@@ -199,11 +198,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		var layerPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		layerPanel.setBorder(new jsuis.LineBorder());
 		var label = new jsuis.Label(layerStrings[i]);
-		label.setFill(jsuis.Constants.NONE);
-		layerPanel.add(label, jsuis.Constants.NORTH);
+		layerPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
 		layerPanel.setBackground(layerColors[i]);
 		layerPanel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
-		layeredPane.add(layerPanel, i);
+		layeredPane.add(layerPanel, new jsuis.Constraints(i));
 		origin.x += offset;
 		origin.y += offset;
 	}
@@ -211,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
 	dukePanel.add(icon);
 	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
-	layeredPane.add(dukePanel, 0, 0);
+	layeredPane.add(dukePanel, new jsuis.Constraints(0), 0);
 	
 	/*
 	 * ScrollPane example
@@ -293,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBarExample.setLayout(new jsuis.BorderLayout());
 	
 	toolBar = new jsuis.ToolBar();
-	toolBarExample.add(toolBar, jsuis.Constants.NORTH);
+	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
 	
 	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg")
 			.setPreferredSize(new jsuis.Dimension(16, 16));

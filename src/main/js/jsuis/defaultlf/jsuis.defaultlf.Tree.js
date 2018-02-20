@@ -33,7 +33,6 @@
 		return this;
 	}
 	jsuis.defaultlf.Tree.prototype.validate = function() {
-		this.setLayoutBounds(null);
 		var treeCellRenderer = this.getCellRenderer();
 		var model = this.getModel();
 		var rows = model.getRows();
@@ -45,7 +44,7 @@
 			*/
 			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
 					false, false, treeNode.isLeaf(), i, false);
-			this.add(component, jsuis.Constants.NORTH);
+			this.add(component, jsuis.BorderConstraints.NORTH);
 		}
 		this.doLayout();
 		var components = this.getComponents();

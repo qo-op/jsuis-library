@@ -16,11 +16,11 @@
 		var orientation = this.getOrientation();
 		switch (orientation) {
 		case jsuis.Constants.VERTICAL:
-			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.NORTH), index);
+			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
 			break;
 		case jsuis.Constants.HORIZONTAL:
 		default:
-			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.WEST), index);
+			SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.BorderConstraints.WEST), index);
 		}
 	}
 	jsuis.defaultlf.ToolBar.prototype.addSeparator = function(size) {

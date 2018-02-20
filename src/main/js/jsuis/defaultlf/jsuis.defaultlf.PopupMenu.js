@@ -9,7 +9,7 @@
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
 	jsuis.defaultlf.PopupMenu.prototype.add = function(component, constraints, index) {
-		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constants.NORTH), index);
+		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
 	}
 	jsuis.defaultlf.PopupMenu.prototype.show = function(invoker, x, y) {
 		var invokerX = 0;
@@ -26,7 +26,7 @@
 		var layeredPane = this.getParent();
 		if (!layeredPane) {
 			layeredPane = component.getLayeredPane();
-			layeredPane.add(this, jsuis.Constants.POPUP_LAYER);
+			layeredPane.add(this, jsuis.Constraints.POPUP_LAYER);
 		}
 		this.setLocation(new jsuis.Point(invokerX + x, invokerY + y));
 		this.setVisible(true);

@@ -19,8 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		frame.add(titledPanel);
 		var label = new jsuis.Label(title);
-		titledPanel.add(label, jsuis.Constants.NORTH);
-		label.setFill(jsuis.Constants.NONE)
+		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));

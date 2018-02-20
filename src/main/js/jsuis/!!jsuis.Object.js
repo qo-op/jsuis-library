@@ -140,33 +140,6 @@
 		}
 		return target;
 	}
-	jsuis.Object.clone = function(value) {
-		if (value === undefined) {
-			return undefined;
-		} else if (jsuis.Object.isObject(value)) {
-			if (value.clone) {
-				return value.clone();
-			}
-			var clone = {};
-			var object = value;
-			for (var key in object) {
-				var value = object[key];
-				value = jsuis.Object.clone(value);
-				var method = "set" + key.charAt(0).toUpperCase() + key.slice(1);
-				if (clone[method]) {
-					clone[metodo](value);
-				} else {
-					clone[key] = value;
-				}
-			}
-			return clone;
-		} else {
-			return JSON.parse(JSON.stringify(value));
-		}
-	}
-	jsuis.Object.isObject = function(value) {
-		return (Object.prototype.toString.call(value) === "[object Object]");
-	}
 	jsuis.Object.isInt = function(value) {
 		var x;
 		if (isNaN(value)) {
@@ -182,6 +155,9 @@
 		}
 		x = parseFloat(value);
 		return (x | 0) !== x;
+	}
+	jsuis.Object.isObject = function(value) {
+		return (Object.prototype.toString.call(value) === "[object Object]");
 	}
 	jsuis.Object.isString = function(value) {
 		return (Object.prototype.toString.call(value) === "[object String]");

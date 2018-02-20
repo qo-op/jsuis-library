@@ -80,8 +80,19 @@
 			return;
 		}
 		var parentElement = parent.getElement();
-		SUPER.prototype.setWidth.call(this, parentElement.clientWidth);
-		SUPER.prototype.setHeight.call(this, parentElement.clientHeight);
+		var size = parent.getSize().subtract(
+				parent.getInsets().getDimension()).subtract(
+						parent.getOutsets().getDimension());
+		var width = size.getWidth();
+		if (width === 0) {
+			width = parentElement.clientWidth;
+		}
+		var height = size.getHeight();
+		if (height === 0) {
+			height = parentElement.clientHeight;
+		}
+		this.setWidth(width);
+		this.setHeight(height);
 		SUPER.prototype.validate.call(this);
 	}
 	jsuis.defaultlf.Frame.prototype.doLayout = function() {

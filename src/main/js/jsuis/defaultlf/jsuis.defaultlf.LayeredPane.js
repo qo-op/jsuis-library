@@ -17,8 +17,8 @@
 		var i = 0;
 		for (; i < components.length; i++) {
 			var referenceComponent = components[i];
-			referenceConstraints = referenceComponent.getConstraints();
-			if (constraints <= referenceConstraints) {
+			referenceConstraints = nvl(referenceComponent.getConstraints(), new jsuis.Constraints());
+			if (nvl(constraints, new jsuis.Constraints()).getLayer() <= referenceConstraints.getLayer()) {
 				break;
 			}
 		}
@@ -26,14 +26,14 @@
 			SUPER.prototype.add.call(this, component, constraints);
 			return;
 		}
-		if (constraints < referenceConstraints) {
+		if (nvl(constraints, new jsuis.Constraints()).getLayer() < referenceConstraints.getLayer()) {
 			SUPER.prototype.add.call(this, component, constraints, i);
 			return;
 		}
 		for (var j = i; j < components.length; j++) {
 			var referenceComponent = components[j];
-			referenceConstraints = referenceComponent.getConstraints();
-			if (referenceConstraints !== constraints) {
+			referenceConstraints = nvl(referenceComponent.getConstraints(), new jsuis.Constraints());
+			if (nvl(constraints, new jsuis.Constraints()).getLayer() !== referenceConstraints.getLayer()) {
 				break;
 			}
 		}

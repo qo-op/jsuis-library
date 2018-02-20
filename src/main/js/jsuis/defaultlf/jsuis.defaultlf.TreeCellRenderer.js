@@ -31,14 +31,14 @@
 				this.setPanel(panel);
 				var parent = this.getParent();
 				if (parent instanceof jsuis.defaultlf.Tree) {
-					parent.add(panel, jsuis.Constants.NORTH);
+					parent.add(panel, jsuis.BorderConstraints.NORTH);
 				} else {
 					var parentPanel = parent.getPanel();
 					var parentPanelComponents = parentPanel.getComponents();
-					parentPanel.add(panel, jsuis.Constants.NORTH, parentPanelComponents.indexOf(this) + 1);
+					parentPanel.add(panel, jsuis.BorderConstraints.NORTH, parentPanelComponents.indexOf(this) + 1);
 				}
 			}
-			panel.add(component, nvl(constraints, jsuis.Constants.NORTH), index);
+			panel.add(component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
 			var button = this.getButton();
 			var buttonPadding = button.getPadding();
 			component.getButton().setPadding(buttonPadding.add(new jsuis.Insets(0, 16, 0, 0)));

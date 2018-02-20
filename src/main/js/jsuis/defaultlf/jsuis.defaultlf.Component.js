@@ -21,9 +21,6 @@
 			new jsuis.Property("parent"),
 			new jsuis.Property("layout"),
 			new jsuis.Property("constraints"),
-			new jsuis.Property("layoutBounds"),
-			new jsuis.Property("anchor"),
-			new jsuis.Property("fill"),
 			new jsuis.Property("cursor"),
 			new jsuis.Property("target"),
 			new jsuis.Property("eventListeners"),
@@ -118,7 +115,12 @@
 	jsuis.defaultlf.Component.prototype.getPeer = function() {
 		return this;
 	}
-	jsuis.defaultlf.Component.prototype.addChild = function(component, referenceComponent) {
+	jsuis.defaultlf.Component.prototype.addChild = function(component, constraints, index) {
+		var components = this.getComponents();
+		var referenceComponent;
+		if (index !== undefined) {
+			referenceComponent = components[index];
+		}
 		var element = this.getElement();
 		var componentElement = component.getElement();
 		var referenceElement;
@@ -135,16 +137,15 @@
 	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
 		component = component.getPeer();
 		component.init();
-		var components = this.getComponents();
-		var referenceComponent = undefined;
-		if (index !== undefined) {
-			referenceComponent = components[index];
-		}
-		this.addChild(component, referenceComponent);
+		this.addChild(component, constraints, index);
 		if (constraints !== null && constraints !== undefined) {
-			component.setConstraints(jsuis.Object.clone(constraints));
+			if (constraints instanceof jsuis.Cloneable) {
+				constraints = constraints.clone();
+			}
+			component.setConstraints(constraints);
 		}
 		component.setParent(this);
+		var components = this.getComponents();
 		if (index !== undefined) {
 			components.splice(index, 0, component);
 		} else {
@@ -242,7 +243,8 @@
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getPreferredSize = function() {
-		var layoutPaddingMargin = this.getLayoutPadding().add(this.getLayoutMargin());
+		var constraints = nvl(this.getConstraints(), new jsuis.Constraints());
+		var layoutPaddingMargin = constraints.getPadding().add(constraints.getMargin());
 		var preferredSize = this.preferredSize;
 		if (preferredSize) {
 			return preferredSize.add(
@@ -286,13 +288,6 @@
 		this.setSize(rectangle.getDimension());
 		return this;
 	}
-	jsuis.defaultlf.Component.prototype.getMaximumLayoutBounds = function() {
-		return this.maximumLayoutBounds;
-	}
-	jsuis.defaultlf.Component.prototype.setMaximumLayoutBounds = function(maximumLayoutBounds) {
-		this.maximumLayoutBounds = maximumLayoutBounds ? maximumLayoutBounds.clone() : maximumLayoutBounds;
-		return this;
-	}
 	jsuis.defaultlf.Component.prototype.getPadding = function() {
 		if (!this.padding) {
 			this.padding = new jsuis.Insets();
@@ -331,44 +326,6 @@
 		}
 		return this;
 	}
-	jsuis.defaultlf.Component.prototype.getLayoutPadding = function() {
-		if (!this.layoutPadding) {
-			this.layoutPadding = new jsuis.Insets();
-		}
-		return this.layoutPadding.clone();
-	}
-	jsuis.defaultlf.Component.prototype.setLayoutPadding = function(layoutPadding) {
-		if (!this.layoutPadding || !layoutPadding) {
-			this.layoutPadding = new jsuis.Insets();
-		}
-		if (layoutPadding) {
-			this.layoutPadding
-			.setTop(layoutPadding.getTop())
-			.setLeft(layoutPadding.getLeft())
-			.setBottom(layoutPadding.getBottom())
-			.setRight(layoutPadding.getRight());
-		}
-		return this;
-	}
-	jsuis.defaultlf.Component.prototype.getLayoutMargin = function() {
-		if (!this.layoutMargin) {
-			this.layoutMargin = new jsuis.Insets();
-		}
-		return this.layoutMargin.clone();
-	}
-	jsuis.defaultlf.Component.prototype.setLayoutMargin = function(layoutMargin) {
-		if (!this.layoutMargin || !layoutMargin) {
-			this.layoutMargin = new jsuis.Insets();
-		}
-		if (layoutMargin) {
-			this.layoutMargin
-			.setTop(layoutMargin.getTop())
-			.setLeft(layoutMargin.getLeft())
-			.setBottom(layoutMargin.getBottom())
-			.setRight(layoutMargin.getRight());
-		}
-		return this;
-	}
 	jsuis.defaultlf.Component.prototype.getBorder = function() {
 		return this.border;
 	}
@@ -382,7 +339,8 @@
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
-		var insets = this.getPadding().add(this.getLayoutPadding());
+		var constraints = nvl(this.getConstraints(), new jsuis.Constraints());
+		var insets = this.getPadding().add(constraints.getPadding());
 		var border = this.getBorder();
 		if (border) {
 			return insets.add(border.getBorderInsets(this));
@@ -390,7 +348,8 @@
 		return insets;
 	}
 	jsuis.defaultlf.Component.prototype.getOutsets = function() {
-		var outsets = this.getMargin().add(this.getLayoutMargin());
+		var constraints = nvl(this.getConstraints(), new jsuis.Constraints());
+		var outsets = this.getMargin().add(constraints.getMargin());
 		var border = this.getBorder();
 		if (border) {
 			return outsets.add(border.getBorderOutsets(this));
@@ -405,7 +364,6 @@
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.validate = function() {
-		this.setLayoutBounds(null);
 		this.doLayout();
 		var components = this.getComponents();
 		for (var i = 0; i < components.length; i++) {
@@ -418,161 +376,6 @@
 		if (layout) {
 			layout.layoutContainer(this);
 		}
-	}
-	jsuis.defaultlf.Component.prototype.setLayoutBounds = function(layoutBounds) {
-		if (layoutBounds) {
-			this.setBounds(layoutBounds);
-			this.layoutBounds = layoutBounds;
-			return this;
-		}
-		var anchor = this.getAnchor();
-		var fill = this.getFill();
-		if (anchor || fill) {
-			anchor = nvl(anchor, jsuis.Constants.CENTER);
-			fill = nvl(fill, jsuis.Constants.NONE);
-			var maximumLayoutBounds = this.getMaximumLayoutBounds();
-			if (maximumLayoutBounds) {
-				var x = maximumLayoutBounds.getX();
-				var y = maximumLayoutBounds.getY();
-				var width = maximumLayoutBounds.getWidth();
-				var height = maximumLayoutBounds.getHeight();
-				if (fill !== jsuis.Constants.BOTH) {
-					var preferredSize = this.getPreferredSize();
-					var preferredWidth = preferredSize.getWidth();
-					var preferredHeight = preferredSize.getHeight();
-					switch (anchor) {
-					case jsuis.Constants.NORTH:
-					case jsuis.Constants.PAGE_START:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += (width - preferredWidth) / 2;
-							width = preferredWidth;
-						} else {
-							x += (width - preferredWidth) / 2;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.SOUTH:
-					case jsuis.Constants.PAGE_END:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += height - preferredHeight;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += (width - preferredWidth) / 2;
-							width = preferredWidth;
-						} else {
-							x += (width - preferredWidth) / 2;
-							y += height - preferredHeight;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.WEST:
-					case jsuis.Constants.LINE_START:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += (height - preferredHeight) / 2;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							width = preferredWidth;
-						} else {
-							y += (height - preferredHeight) / 2;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.EAST:
-					case jsuis.Constants.LINE_END:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += (height - preferredHeight) / 2;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += width - preferredWidth;
-							width = preferredWidth;
-						} else {
-							x += width - preferredWidth;
-							y += (height - preferredHeight) / 2;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.NORTHWEST:
-					case jsuis.Constants.NORTH_WEST:
-					case jsuis.Constants.FIRST_LINE_START:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							width = preferredWidth;
-						} else {
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.NORTHEAST:
-					case jsuis.Constants.NORTH_EAST:
-					case jsuis.Constants.FIRST_LINE_END:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += width - preferredWidth;
-							width = preferredWidth;
-						} else {
-							x += width - preferredWidth;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.SOUTHWEST:
-					case jsuis.Constants.SOUTH_WEST:
-					case jsuis.Constants.LAST_LINE_START:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += height - preferredHeight;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							width = preferredWidth;
-						} else {
-							y += height - preferredHeight;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.SOUTHEAST:
-					case jsuis.Constants.SOUTH_EAST:
-					case jsuis.Constants.LAST_LINE_END:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += height - preferredHeight;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += width - preferredWidth;
-							width = preferredWidth;
-						} else {
-							x += width - preferredWidth;
-							y += height - preferredHeight;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-						break;
-					case jsuis.Constants.CENTER:
-					default:
-						if (fill === jsuis.Constants.HORIZONTAL) {
-							y += (height - preferredHeight) / 2;
-							height = preferredHeight;
-						} else if (fill === jsuis.Constants.VERTICAL) {
-							x += (width - preferredWidth) / 2;
-							width = preferredWidth;
-						} else {
-							x += (width - preferredWidth) / 2;
-							y += (height - preferredHeight) / 2;
-							width = preferredWidth;
-							height = preferredHeight;
-						}
-					}
-				}
-				this.setBounds(new jsuis.Rectangle(Math.round(x), Math.round(y), width, height));
-			}
-		}
-		return this;
 	}
 	jsuis.defaultlf.Component.prototype.isVisible = function() {
 		return nvl(this.visible, true);

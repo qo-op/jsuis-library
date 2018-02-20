@@ -20,7 +20,7 @@
 		if (oldMenuBar) {
 			layeredPane.remove(oldMenuBar);
 		}
-		layeredPane.add(menuBar, jsuis.Constants.FRAME_CONTENT_LAYER);
+		layeredPane.add(menuBar, jsuis.Constraints.FRAME_CONTENT_LAYER);
 		this.menuBar = menuBar;
 		return this;
 	}
@@ -30,7 +30,7 @@
 		if (oldContentPane) {
 			layeredPane.remove(oldContentPane);
 		}
-		layeredPane.add(contentPane, jsuis.Constants.FRAME_CONTENT_LAYER);
+		layeredPane.add(contentPane, jsuis.Constraints.FRAME_CONTENT_LAYER);
 		this.contentPane = contentPane;
 		return this;
 	}

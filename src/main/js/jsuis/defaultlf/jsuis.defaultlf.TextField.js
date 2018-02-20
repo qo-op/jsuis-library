@@ -7,8 +7,7 @@
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		var label = new jsuis.defaultlf.Label(text);
 		this.setLabel(label);
-		this.add(label);
-		label.setFill(jsuis.Constants.HORIZONTAL);
+		this.add(label, new jsuis.BorderConstraints().setFill(jsuis.Constants.HORIZONTAL));
 		this.setPadding(new jsuis.Insets(2, 4));
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		this.setFont(new jsuis.Font("Arial", "normal", 12));

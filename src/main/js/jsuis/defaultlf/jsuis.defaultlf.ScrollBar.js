@@ -28,14 +28,14 @@
 		var increaseButton;
 		if (orientation === jsuis.Constants.HORIZONTAL) {
 			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.WEST);
-			this.add(decreaseButton, jsuis.Constants.WEST);
+			this.add(decreaseButton, jsuis.BorderConstraints.WEST);
 			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.EAST);
-			this.add(increaseButton, jsuis.Constants.EAST);
+			this.add(increaseButton, jsuis.BorderConstraints.EAST);
 		} else {
 			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.NORTH);
-			this.add(decreaseButton, jsuis.Constants.NORTH);
+			this.add(decreaseButton, jsuis.BorderConstraints.NORTH);
 			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.SOUTH);
-			this.add(increaseButton, jsuis.Constants.SOUTH);
+			this.add(increaseButton, jsuis.BorderConstraints.SOUTH);
 		}
 		this.setDecreaseButton(decreaseButton);
 		this.setIncreaseButton(increaseButton);

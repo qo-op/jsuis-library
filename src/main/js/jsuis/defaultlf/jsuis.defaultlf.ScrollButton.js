@@ -5,7 +5,7 @@
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
-		this.setDirection(nvl(direction, jsuis.Constants.NORTH));
+		this.setDirection(nvl(direction, jsuis.BorderConstraints.NORTH));
 		var target;
 		var icon;
 		switch (direction) {

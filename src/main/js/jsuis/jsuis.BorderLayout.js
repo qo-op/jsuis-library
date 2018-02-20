@@ -2,14 +2,14 @@
  * jsuis.BorderLayout
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
+	var SUPER = jsuis.Layout;
 	jsuis.BorderLayout = jsuis.Object.extend(SUPER, function(hgap, vgap, sort) {
 		SUPER.prototype.constructor.call(this);
 		hgap = nvl(hgap, 0);
 		vgap = nvl(vgap, hgap);
 		this.setHgap(hgap);
 		this.setVgap(vgap);
-		this.setSort(nvl(sort, true))
+		this.setSort(nvl(sort, true));
 	});
 	jsuis.Object.addProperties(jsuis.BorderLayout,
 			new jsuis.Property("hgap"),
@@ -20,14 +20,14 @@
 	jsuis.BorderLayout.getComparator = function() {
 		if (!comparator) {
 			comparator = function(a, b) {
-				if (nvl(a.getConstraints(), jsuis.Constants.CENTER) === jsuis.Constants.CENTER) {
-					if (nvl(b.getConstraints(), jsuis.Constants.CENTER) === jsuis.Constants.CENTER) {
+				if (nvl(a.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
+					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
 						return 0;
 					} else {
 						return 1;
 					}
 				} else {
-					if (nvl(b.getConstraints(), jsuis.Constants.CENTER) === jsuis.Constants.CENTER) {
+					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
 						return -1;
 					} else {
 						return 0;
@@ -36,10 +36,6 @@
 			};
 		}
 		return comparator;
-	}
-	jsuis.BorderLayout.prototype.addLayoutComponent = function(name, comp) {
-	}
-	jsuis.BorderLayout.prototype.removeLayoutComponent = function(comp) {
 	}
 	jsuis.BorderLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
@@ -61,8 +57,12 @@
 			var componentPreferredHeight = componentPreferredSize.getHeight();
 			componentPreferredWidth += hgap;
 			componentPreferredHeight += vgap;
-			var constraints = nvl(component.getConstraints(), jsuis.Constants.CENTER);
-			switch (constraints) {
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
+			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 			case jsuis.Constants.SOUTH:
 				preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredWidth);
@@ -87,9 +87,6 @@
 		preferredLayoutWidth += parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight();
 		preferredLayoutHeight += parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
-	}
-	jsuis.BorderLayout.prototype.minimumLayoutSize = function(parent) {
-		return this.preferredLayoutSize(parent);
 	}
 	jsuis.BorderLayout.prototype.layoutContainer = function(parent) {
 		var x = 0;
@@ -117,7 +114,6 @@
 			if (!component.isVisible()) {
 				continue;
 			}
-			component.setFill(nvl(component.getFill(), jsuis.Constants.BOTH));
 			var componentPreferredSize = component.getPreferredSize();
 			var componentPreferredWidth = componentPreferredSize.getWidth();
 			var componentPreferredHeight = componentPreferredSize.getHeight();
@@ -125,8 +121,12 @@
 			var componentY = 0;
 			var componentWidth = componentPreferredWidth + hgap;
 			var componentHeight = componentPreferredHeight + vgap;
-			var constraints = nvl(component.getConstraints(), jsuis.Constants.CENTER);
-			switch (constraints) {
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
+			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 				componentX = x;
 				componentY = y;
@@ -164,8 +164,9 @@
 			componentY -= vgap / 2;
 			componentWidth -= hgap;
 			componentHeight -= vgap;
-			var rectangle = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			component.setMaximumLayoutBounds(rectangle);
+			var bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+			constraints.setBounds(bounds);
 		}
+		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);

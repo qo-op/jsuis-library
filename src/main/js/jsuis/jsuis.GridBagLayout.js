@@ -2,7 +2,7 @@
  * jsuis.GridBagLayout
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
+	var SUPER = jsuis.Layout;
 	jsuis.GridBagLayout = jsuis.Object.extend(SUPER, function(hgap, vgap) {
 		SUPER.prototype.constructor.call(this);
 		hgap = nvl(hgap, 0);
@@ -18,10 +18,6 @@
 			new jsuis.Property("weightxs"),
 			new jsuis.Property("weightys")
 	);
-	jsuis.GridBagLayout.prototype.addLayoutComponent = function(name, comp) {
-	}
-	jsuis.GridBagLayout.prototype.removeLayoutComponent = function(comp) {
-	}
 	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -89,12 +85,7 @@
 			if (gridheight === jsuis.Constants.REMAINDER) {
 				constraints.setRemainderGridheight(maxGridy - gridy + 1);
 			}
-			var ipadx = constraints.getIpadx();
-			var ipady = constraints.getIpady();
-			component.setLayoutPadding(new jsuis.Insets(ipady, ipadx));
-			component.setLayoutMargin(constraints.getInsets());
 		}
-		
 		var widthComponents = components.slice();
 		var widths = [];
 		var weightxs = [];
@@ -285,10 +276,6 @@
 			}
 			var weightx = constraints.getWeightx();
 			var weighty = constraints.getWeighty();
-			var anchor = constraints.getAnchor();
-			component.setAnchor(anchor);
-			var fill = constraints.getFill();
-			component.setFill(fill);
 			var componentX = xs[gridx];
 			var componentY = ys[gridy];
 			var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
@@ -300,7 +287,8 @@
 			} else {
 				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
 			}
-			component.setMaximumLayoutBounds(bounds);
+			constraints.setBounds(bounds);
 		}
+		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);

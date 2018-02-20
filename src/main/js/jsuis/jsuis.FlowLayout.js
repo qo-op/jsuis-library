@@ -2,7 +2,7 @@
  * jsuis.FlowLayout
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
+	var SUPER = jsuis.Layout;
 	jsuis.FlowLayout = jsuis.Object.extend(SUPER, function(align, hgap, vgap) {
 		SUPER.prototype.constructor.call(this);
 		this.setAlign(nvl(align, jsuis.Constants.CENTER));
@@ -16,10 +16,6 @@
 			new jsuis.Property("hgap"),
 			new jsuis.Property("vgap")
 	);
-	jsuis.FlowLayout.prototype.addLayoutComponent = function(name, comp) {
-	}
-	jsuis.FlowLayout.prototype.removeLayoutComponent = function(comp) {
-	}
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -143,9 +139,12 @@
 					} else {
 						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
 					}
-					rowComponent.setBounds(bounds);
-					rowComponent.setMaximumLayoutBounds(bounds);
-					rowComponent.setAnchor(rowComponent.getAnchor() || jsuis.Constants.CENTER);
+					var constraints = rowComponent.getConstraints();
+					if (!constraints) {
+						constraints = new jsuis.Constraints();
+						rowComponent.setConstraints(constraints);
+					}
+					constraints.setBounds(bounds);
 				}
 				rowComponents.length = 0;
 				x = minX;
@@ -157,5 +156,6 @@
 				}
 			}
 		}
+		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);
