@@ -55,6 +55,25 @@
 		padding.setTop(ipady).setBottom(ipady);
 		return this;
 	}
+	jsuis.GridBagConstraints.prototype.withGridx = function(gridx) {
+		return this.clone().setGridx(gridx);
+	}
+	jsuis.GridBagConstraints.prototype.withGridy = function(gridy) {
+		return this.clone().setGridy(gridy);
+	}
+	jsuis.GridBagConstraints.prototype.withGridwidth = function(gridwidth) {
+		return this.clone().setGridwidth(gridwidth);
+	}
+	jsuis.GridBagConstraints.prototype.withGridheight = function(gridheight) {
+		return this.clone().setGridheight(gridheight);
+	}
+	jsuis.GridBagConstraints.prototype.withWeightx = function(weightx) {
+		return this.clone().setWeightx(weightx);
+	}
+	jsuis.GridBagConstraints.prototype.withWeighty = function(weighty) {
+		return this.clone().setWeighty(weighty);
+	}
+	
 	jsuis.GridBagConstraints.prototype.clone = function() {
 		return new jsuis.GridBagConstraints(
 				this.getGridx(), this.getGridy(), this.getGridwidth(), this.getGridheight(),

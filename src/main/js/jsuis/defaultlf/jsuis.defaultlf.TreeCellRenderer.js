@@ -9,15 +9,11 @@
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var button = new jsuis.defaultlf.Button();
-		button.setText(nvl(value, "").toString(), new jsuis.GridBagConstraints().setGridx(2).setGridy(0)
-				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
-		/*
-		button.setIcon(icon, new jsuis.GridBagConstraints().setGridx(1).setGridy(0));
-		 */
+		button.setText(nvl(value, "").toString(), jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.BOTH));
 		var leftIcon = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
 		leftIcon.add(new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z"));
 		leftIcon.setPreferredSize(new jsuis.Dimension(16, 16));
-		button.add(leftIcon, new jsuis.GridBagConstraints().setGridx(0).setGridy(0));
+		button.add(leftIcon, jsuis.BorderConstraints.WEST);
 		button.setBorder(null);
 		button.setBackground(jsuis.Color.Black.withAlpha(0));
 		return button;

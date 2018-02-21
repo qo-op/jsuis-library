@@ -20,14 +20,24 @@
 	jsuis.BorderLayout.getComparator = function() {
 		if (!comparator) {
 			comparator = function(a, b) {
-				if (nvl(a.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
-					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
+				var aConstraints = a.getConstraints();
+				if (!aConstraints) {
+					aConstraints = jsuis.BorderConstraints.CENTER.clone();
+					a.setConstraints(aConstraints);
+				}
+				var bConstraints = b.getConstraints();
+				if (!bConstraints) {
+					bConstraints = jsuis.BorderConstraints.CENTER.clone();
+					b.setConstraints(bConstraints);
+				}
+				if (aConstraints.getBorder() === jsuis.Constants.CENTER) {
+					if (bConstraints.getBorder() === jsuis.Constants.CENTER) {
 						return 0;
 					} else {
 						return 1;
 					}
 				} else {
-					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
+					if (bConstraints.getBorder() === jsuis.Constants.CENTER) {
 						return -1;
 					} else {
 						return 0;
@@ -49,6 +59,11 @@
 		}
 		for (var i = components.length - 1; i >= 0; i--) {
 			var component = components[i];
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
 			if (!component.isVisible()) {
 				continue;
 			}
@@ -57,11 +72,6 @@
 			var componentPreferredHeight = componentPreferredSize.getHeight();
 			componentPreferredWidth += hgap;
 			componentPreferredHeight += vgap;
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
-				component.setConstraints(constraints);
-			}
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 			case jsuis.Constants.SOUTH:
@@ -111,7 +121,12 @@
 		}
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
-			if (!component.isVisible()) {
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
+			if (!component.isVisible() && constraints.getBorder() !== jsuis.Constants.CENTER) {
 				continue;
 			}
 			var componentPreferredSize = component.getPreferredSize();
@@ -121,16 +136,13 @@
 			var componentY = 0;
 			var componentWidth = componentPreferredWidth + hgap;
 			var componentHeight = componentPreferredHeight + vgap;
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
-				component.setConstraints(constraints);
-			}
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 				componentX = x;
 				componentY = y;
 				componentWidth = width;
+				component.setWidth(componentWidth - hgap);
+				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				y += componentHeight;
 				height -= componentHeight;
 				break;
@@ -138,6 +150,8 @@
 				componentX = x;
 				componentY = y + height - componentHeight;
 				componentWidth = width;
+				component.setWidth(componentWidth - hgap);
+				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				height -= componentHeight;
 				break;
 			case jsuis.Constants.EAST:

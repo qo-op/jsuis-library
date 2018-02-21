@@ -427,7 +427,6 @@ jsuis.packages = [];
 	jsuis.Color.prototype.toString = function() {
 		return "rgba(" + this.getR() + "," + this.getG() + "," + this.getB() + "," + (this.getA() / 255) + ")";
 	}
-	
 	var COLORS = {
 			AliceBlue: jsuis.Color.getColor(0xF0F8FF),
 			AntiqueWhite: jsuis.Color.getColor(0xFAEBD7),
@@ -578,14 +577,12 @@ jsuis.packages = [];
 			Yellow: jsuis.Color.getColor(0xFFFF00),
 			YellowGreen: jsuis.Color.getColor(0x9ACD32)
 	};
-	
 	for (var key in COLORS) {
 		jsuis.Color[key] = COLORS[key];
 		jsuis.Color[key.toUpperCase()] = COLORS[key];
 		jsuis.Color[key.charAt(0).toLowerCase() + key.slice(1)] = COLORS[key];
 		jsuis.Color[key.replace(/([A-Z])/g, "_$1").slice(1).toUpperCase()] = COLORS[key];
 	}
-	
 }) (jsuis);
 
 /**
@@ -765,6 +762,26 @@ jsuis.packages = [];
 	jsuis.Font.ITALIC = "italic";
 	jsuis.Font.OBLIQUE = "oblique";
 	
+}) (jsuis);
+
+/**
+ * jsuis.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
+	});
+	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
+			new jsuis.Property("resource"),
+			new jsuis.Property("iconWidth"),
+			new jsuis.Property("iconHeight")
+	);
+	jsuis.ImageIcon.prototype.createComponent = function() {
+		var peer = this.getPeer();
+		return peer.createComponent();
+	}
 }) (jsuis);
 
 /**
@@ -1298,14 +1315,24 @@ jsuis.packages = [];
 	jsuis.BorderLayout.getComparator = function() {
 		if (!comparator) {
 			comparator = function(a, b) {
-				if (nvl(a.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
-					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
+				var aConstraints = a.getConstraints();
+				if (!aConstraints) {
+					aConstraints = jsuis.BorderConstraints.CENTER.clone();
+					a.setConstraints(aConstraints);
+				}
+				var bConstraints = b.getConstraints();
+				if (!bConstraints) {
+					bConstraints = jsuis.BorderConstraints.CENTER.clone();
+					b.setConstraints(bConstraints);
+				}
+				if (aConstraints.getBorder() === jsuis.Constants.CENTER) {
+					if (bConstraints.getBorder() === jsuis.Constants.CENTER) {
 						return 0;
 					} else {
 						return 1;
 					}
 				} else {
-					if (nvl(b.getConstraints(), jsuis.BorderConstraints.CENTER).getBorder() === jsuis.Constants.CENTER) {
+					if (bConstraints.getBorder() === jsuis.Constants.CENTER) {
 						return -1;
 					} else {
 						return 0;
@@ -1327,6 +1354,11 @@ jsuis.packages = [];
 		}
 		for (var i = components.length - 1; i >= 0; i--) {
 			var component = components[i];
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
 			if (!component.isVisible()) {
 				continue;
 			}
@@ -1335,11 +1367,6 @@ jsuis.packages = [];
 			var componentPreferredHeight = componentPreferredSize.getHeight();
 			componentPreferredWidth += hgap;
 			componentPreferredHeight += vgap;
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
-				component.setConstraints(constraints);
-			}
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 			case jsuis.Constants.SOUTH:
@@ -1389,7 +1416,12 @@ jsuis.packages = [];
 		}
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
-			if (!component.isVisible()) {
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = jsuis.BorderConstraints.CENTER.clone();
+				component.setConstraints(constraints);
+			}
+			if (!component.isVisible() && constraints.getBorder() !== jsuis.Constants.CENTER) {
 				continue;
 			}
 			var componentPreferredSize = component.getPreferredSize();
@@ -1399,16 +1431,13 @@ jsuis.packages = [];
 			var componentY = 0;
 			var componentWidth = componentPreferredWidth + hgap;
 			var componentHeight = componentPreferredHeight + vgap;
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
-				component.setConstraints(constraints);
-			}
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
 				componentX = x;
 				componentY = y;
 				componentWidth = width;
+				component.setWidth(componentWidth - hgap);
+				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				y += componentHeight;
 				height -= componentHeight;
 				break;
@@ -1416,6 +1445,8 @@ jsuis.packages = [];
 				componentX = x;
 				componentY = y + height - componentHeight;
 				componentWidth = width;
+				component.setWidth(componentWidth - hgap);
+				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				height -= componentHeight;
 				break;
 			case jsuis.Constants.EAST:
@@ -1460,6 +1491,7 @@ jsuis.packages = [];
 	});
 	jsuis.Object.addPeerProperties(jsuis.Component,
 			new jsuis.Property("element"),
+			new jsuis.Property("name"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),
 			new jsuis.Property("layout"),
@@ -1635,8 +1667,23 @@ jsuis.packages = [];
 			new jsuis.Property("border"),
 			new jsuis.Property("bounds")
 	);
+	jsuis.Constraints.prototype.withLayer = function(layer) {
+		return this.clone().setLayer(layer);
+	}
+	jsuis.Constraints.prototype.withAnchor = function(anchor) {
+		return this.clone().setAnchor(anchor);
+	}
 	jsuis.Constraints.prototype.withFill = function(fill) {
 		return this.clone().setFill(fill);
+	}
+	jsuis.Constraints.prototype.withMargin = function(margin) {
+		return this.clone().setMargin(margin);
+	}
+	jsuis.Constraints.prototype.withPadding = function(padding) {
+		return this.clone().setPadding(padding);
+	}
+	jsuis.Constraints.prototype.withBorder = function(border) {
+		return this.clone().setBorder(border);
 	}
 	jsuis.Constraints.prototype.clone = function() {
 		return new jsuis.Constraints(
@@ -1645,13 +1692,30 @@ jsuis.packages = [];
 				this.getBorder());
 	}
 	
-	jsuis.Constraints.FRAME_CONTENT_LAYER = new jsuis.Constraints(jsuis.Constants.FRAME_CONTENT_LAYER).setFill(jsuis.Constants.BOTH);
-	jsuis.Constraints.DEFAULT_LAYER = new jsuis.Constraints(jsuis.Constants.DEFAULT_LAYER).setFill(jsuis.Constants.BOTH);
-	jsuis.Constraints.PALETTE_LAYER = new jsuis.Constraints(jsuis.Constants.PALETTE_LAYER).setFill(jsuis.Constants.BOTH);
-	jsuis.Constraints.MODAL_LAYER = new jsuis.Constraints(jsuis.Constants.MODAL_LAYER).setFill(jsuis.Constants.BOTH);
-	jsuis.Constraints.POPUP_LAYER = new jsuis.Constraints(jsuis.Constants.POPUP_LAYER).setFill(jsuis.Constants.BOTH);
-	jsuis.Constraints.DRAG_LAYER = new jsuis.Constraints(jsuis.Constants.DRAG_LAYER).setFill(jsuis.Constants.BOTH);
+	jsuis.CONSTRAINTS = jsuis.Object.extend(jsuis.Constraints, function(
+			layer, anchor, fill, margin, padding, border) {
+		jsuis.Constraints.prototype.constructor.call(this,
+				layer, anchor, fill, margin, padding, border);
+	});
+	jsuis.Constraints.FRAME_CONTENT_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.FRAME_CONTENT_LAYER).withFill(jsuis.Constants.BOTH);
+	jsuis.Constraints.DEFAULT_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.DEFAULT_LAYER).withFill(jsuis.Constants.BOTH);
+	jsuis.Constraints.PALETTE_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.PALETTE_LAYER).withFill(jsuis.Constants.BOTH);
+	jsuis.Constraints.MODAL_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.MODAL_LAYER).withFill(jsuis.Constants.BOTH);
+	jsuis.Constraints.POPUP_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.POPUP_LAYER).withFill(jsuis.Constants.BOTH);
+	jsuis.Constraints.DRAG_LAYER = new jsuis.CONSTRAINTS(jsuis.Constants.DRAG_LAYER).withFill(jsuis.Constants.BOTH);
 	
+	jsuis.CONSTRAINTS.prototype.setLayer = function(layer) {
+	}
+	jsuis.CONSTRAINTS.prototype.setAnchor = function(anchor) {
+	}
+	jsuis.CONSTRAINTS.prototype.setFill = function(fill) {
+	}
+	jsuis.CONSTRAINTS.prototype.setMargin = function(margin) {
+	}
+	jsuis.CONSTRAINTS.prototype.setPadding = function(padding) {
+	}
+	jsuis.CONSTRAINTS.prototype.setBorder = function(border) {
+	}
 }) (jsuis);
 
 /**
@@ -1747,6 +1811,11 @@ jsuis.packages = [];
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = new jsuis.Constraints();
+				component.setConstraints(constraints);
+			}
 			if (!component.isVisible()) {
 				continue;
 			}
@@ -1796,10 +1865,6 @@ jsuis.packages = [];
 						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
 					}
 					var constraints = rowComponent.getConstraints();
-					if (!constraints) {
-						constraints = new jsuis.Constraints();
-						rowComponent.setConstraints(constraints);
-					}
 					constraints.setBounds(bounds);
 				}
 				rowComponents.length = 0;
@@ -1870,13 +1935,13 @@ jsuis.packages = [];
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
 			var constraints = component.getConstraints();
 			if (!constraints) {
 				constraints = new jsuis.GridBagConstraints();
 				component.setConstraints(constraints);
+			}
+			if (!component.isVisible()) {
+				continue;
 			}
 			var gridx = constraints.getGridx();
 			if (gridx === jsuis.Constants.RELATIVE) {
@@ -1969,6 +2034,15 @@ jsuis.packages = [];
 		this.setWidths(widths);
 		this.setWeightxs(weightxs);
 		
+		var x = 0;
+		var xs = [];
+		for (var i = 0; i < widths.length; i++) {
+			xs.push(x);
+			x += widths[i];
+		}
+		if (widths.length) {
+			xs.push(x);
+		}
 		var heightComponents = components.slice();
 		var heights = [];
 		var weightys = [];
@@ -1993,8 +2067,18 @@ jsuis.packages = [];
 				if ((gridy + gridheight - 1) !== i) {
 					continue;
 				}
+				var gridx = constraints.getGridx();
+				if (gridx === jsuis.Constants.RELATIVE) {
+					gridx = constraints.getRelativeGridx();
+				}
+				var gridwidth = constraints.getGridwidth();
+				if (gridwidth === jsuis.Constants.REMAINDER) {
+					gridwidth = constraints.getRemainderGridwidth();
+				}
 				var componentPreferredSize = component.getPreferredSize();
 				var height = componentPreferredSize.getHeight();
+				component.setWidth(xs[gridx + gridwidth] - xs[gridx]);
+				height = Math.max(height, component.getMinimumSize().getHeight());
 				var weighty = constraints.getWeighty();
 				for (var k = 1; k < gridheight; k++) {
 					height -= heights[i - k];
@@ -2094,10 +2178,10 @@ jsuis.packages = [];
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
+			var constraints = component.getConstraints();
 			if (!component.isVisible()) {
 				continue;
 			}
-			var constraints = component.getConstraints();
 			var gridx = constraints.getGridx();
 			if (gridx === jsuis.Constants.RELATIVE) {
 				gridx = constraints.getRelativeGridx();
@@ -2334,12 +2418,29 @@ jsuis.packages = [];
 				this.getLayer());
 	}
 	
-	jsuis.BorderConstraints.NORTH = new jsuis.BorderConstraints(jsuis.Constants.NORTH);
-	jsuis.BorderConstraints.SOUTH = new jsuis.BorderConstraints(jsuis.Constants.SOUTH);
-	jsuis.BorderConstraints.EAST = new jsuis.BorderConstraints(jsuis.Constants.EAST);
-	jsuis.BorderConstraints.WEST = new jsuis.BorderConstraints(jsuis.Constants.WEST);
-	jsuis.BorderConstraints.CENTER = new jsuis.BorderConstraints(jsuis.Constants.CENTER);
+	jsuis.BORDER_CONSTRAINTS = jsuis.Object.extend(jsuis.BorderConstraints, function(
+			border, anchor, fill, margin, padding, layer) {
+		jsuis.BorderConstraints.prototype.constructor.call(this,
+				border, anchor, fill, margin, padding, layer);
+	});
+	jsuis.BorderConstraints.NORTH = new jsuis.BORDER_CONSTRAINTS(jsuis.Constants.NORTH);
+	jsuis.BorderConstraints.SOUTH = new jsuis.BORDER_CONSTRAINTS(jsuis.Constants.SOUTH);
+	jsuis.BorderConstraints.EAST = new jsuis.BORDER_CONSTRAINTS(jsuis.Constants.EAST);
+	jsuis.BorderConstraints.WEST = new jsuis.BORDER_CONSTRAINTS(jsuis.Constants.WEST);
+	jsuis.BorderConstraints.CENTER = new jsuis.BORDER_CONSTRAINTS(jsuis.Constants.CENTER);
 	
+	jsuis.BORDER_CONSTRAINTS.prototype.setBorder = function(border) {
+	}
+	jsuis.BORDER_CONSTRAINTS.prototype.setAnchor = function(anchor) {
+	}
+	jsuis.BORDER_CONSTRAINTS.prototype.setFill = function(fill) {
+	}
+	jsuis.BORDER_CONSTRAINTS.prototype.setMargin = function(margin) {
+	}
+	jsuis.BORDER_CONSTRAINTS.prototype.setPadding = function(padding) {
+	}
+	jsuis.BORDER_CONSTRAINTS.prototype.setLayer = function(layer) {
+	}
 }) (jsuis);
 
 /**
@@ -2463,6 +2564,25 @@ jsuis.packages = [];
 		padding.setTop(ipady).setBottom(ipady);
 		return this;
 	}
+	jsuis.GridBagConstraints.prototype.withGridx = function(gridx) {
+		return this.clone().setGridx(gridx);
+	}
+	jsuis.GridBagConstraints.prototype.withGridy = function(gridy) {
+		return this.clone().setGridy(gridy);
+	}
+	jsuis.GridBagConstraints.prototype.withGridwidth = function(gridwidth) {
+		return this.clone().setGridwidth(gridwidth);
+	}
+	jsuis.GridBagConstraints.prototype.withGridheight = function(gridheight) {
+		return this.clone().setGridheight(gridheight);
+	}
+	jsuis.GridBagConstraints.prototype.withWeightx = function(weightx) {
+		return this.clone().setWeightx(weightx);
+	}
+	jsuis.GridBagConstraints.prototype.withWeighty = function(weighty) {
+		return this.clone().setWeighty(weighty);
+	}
+	
 	jsuis.GridBagConstraints.prototype.clone = function() {
 		return new jsuis.GridBagConstraints(
 				this.getGridx(), this.getGridy(), this.getGridwidth(), this.getGridheight(),
@@ -2471,17 +2591,6 @@ jsuis.packages = [];
 				this.getInsets(), this.getIpadx(), this.getIpady(),
 				this.getLayer());
 	}
-}) (jsuis);
-
-/**
- * jsuis.Icon
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Icon = jsuis.Object.extend(SUPER, function(element) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Icon(element));
-	});
 }) (jsuis);
 
 /**
@@ -2537,20 +2646,6 @@ jsuis.packages = [];
 	});
 	jsuis.Object.addPeerProperties(jsuis.TextField,
 			new jsuis.Property("text")
-	);
-}) (jsuis);
-
-/**
- * jsuis.ImageIcon
- */
-(function(jsuis) {
-	var SUPER = jsuis.Icon;
-	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
-	});
-	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
-			new jsuis.Property("resource")
 	);
 }) (jsuis);
 
@@ -2648,6 +2743,32 @@ jsuis.packages = [];
 			new jsuis.Property("dividerSize"),
 			new jsuis.Property("resizeWeight")
 	);
+}) (jsuis);
+
+/**
+ * jsuis.TabbedPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Panel;
+	jsuis.TabbedPane = jsuis.Object.extend(SUPER, function(tabPlacement) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].TabbedPane(tabPlacement));
+	});
+	jsuis.TabbedPane.prototype.addTab = function(title, icon, component, tip) {
+		var peer = this.getPeer();
+		peer.addTab(title, icon, component, tip);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.TabComponent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.TabComponent = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].TabComponent(text, icon));
+	});
 }) (jsuis);
 
 /**
@@ -3786,6 +3907,34 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
+		this.setResource(resource);
+		this.setIconWidth(nvl(iconWidth, 16));
+		this.setIconHeight(nvl(iconHeight, 16));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
+			new jsuis.Property("resource"),
+			new jsuis.Property("iconWidth"),
+			new jsuis.Property("iconHeight")
+	);
+	jsuis.defaultlf.ImageIcon.prototype.createComponent = function() {
+		var iconComponent = new jsuis.defaultlf.Component(document.createElementNS(jsuis.Constants.SVG, "image"));
+		var iconElement = iconComponent.getElement();
+		var resource = this.getResource();
+		iconElement.setAttributeNS('http://www.w3.org/1999/xlink', 'href', resource);
+		var iconWidth = this.getIconWidth();
+		var iconHeight = this.getIconHeight();
+		iconComponent.setPreferredSize(new jsuis.Dimension(iconWidth, iconHeight));
+		return iconComponent;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.Timer
  */
 (function(jsuis) {
@@ -3885,15 +4034,11 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var button = new jsuis.defaultlf.Button();
-		button.setText(nvl(value, "").toString(), new jsuis.GridBagConstraints().setGridx(2).setGridy(0)
-				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
-		/*
-		button.setIcon(icon, new jsuis.GridBagConstraints().setGridx(1).setGridy(0));
-		 */
+		button.setText(nvl(value, "").toString(), jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.BOTH));
 		var leftIcon = new jsuis.defaultlf.Panel(new jsuis.GridBagLayout());
 		leftIcon.add(new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z"));
 		leftIcon.setPreferredSize(new jsuis.Dimension(16, 16));
-		button.add(leftIcon, new jsuis.GridBagConstraints().setGridx(0).setGridy(0));
+		button.add(leftIcon, jsuis.BorderConstraints.WEST);
 		button.setBorder(null);
 		button.setBackground(jsuis.Color.Black.withAlpha(0));
 		return button;
@@ -4132,16 +4277,6 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		}
 	}
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.Icon
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Icon = jsuis.Object.extend(SUPER, function(element) {
-		SUPER.prototype.constructor.call(this, element);
-	});
 }) (jsuis);
 
 /**
@@ -4580,7 +4715,7 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}
@@ -4621,6 +4756,7 @@ jsuis.packages.push(jsuis.defaultlf);
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("iconComponent"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
@@ -4632,17 +4768,12 @@ jsuis.packages.push(jsuis.defaultlf);
 		if (!label) {
 			label = new jsuis.defaultlf.Label();
 			this.setLabel(label);
-			this.add(label, nvl(textConstraints, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)));
+			this.add(label, nvl(textConstraints,
+					jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
+		} else if (textConstraints) {
+			label.setConstraints(textConstraints);
 		}
 		label.setText(text);
-		var layout = this.getLayout();
-		var icon = this.getIcon();
-		if (icon && text) {
-			var iconTextGap = this.getIconTextGap();
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
-		}
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.getText = function() {
@@ -4653,57 +4784,22 @@ jsuis.packages.push(jsuis.defaultlf);
 		return "";
 	}
 	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
-		var oldIcon = this.getIcon();
-		if (oldIcon) {
-			this.remove(oldIcon);
+		var oldIconComponent = this.getIconComponent();
+		if (oldIconComponent) {
+			this.remove(oldIconComponent);
 		}
 		if (icon) {
-			icon.setEnabled(false);
-			this.add(icon, nvl(iconConstraints, new jsuis.GridBagConstraints().setGridx(0).setGridy(0)));
-		}
-		var layout = this.getLayout();
-		var text = this.getText();
-		if (icon && text) {
-			var iconTextGap = this.getIconTextGap();
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
+			var iconComponent = icon.createComponent();
+			this.setIconComponent(iconComponent);
+			this.add(iconComponent, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
+			iconComponent.setEnabled(false);
 		}
 		this.icon = icon;
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.setAction = function(action) {
-		var oldAction = this.getAction();
-		if (oldAction && oldAction !== action) {
-			this.removeActionListener(oldAction);
-			var propertyChangeListener = this.getPropertyChangeListener();
-			oldAction.removePropertyChangeListener(propertyChangeListener);
-		}
-		if (action) {
-			this.addActionListener(action);
-			var propertyChangeListener = new jsuis.PropertyChangeListener({
-				propertyChange: function(event) {
-					var button = this.getListenerComponent();
-					var enabled = event.getNewValue();
-					button.setEnabled(enabled);
-				}
-			});
-			propertyChangeListener.setPropertyName("enabled");
-			propertyChangeListener.setListenerComponent(this);
-			this.setPropertyChangeListener(propertyChangeListener);
-			action.addPropertyChangeListener(propertyChangeListener);
-		}
-		return this;
-	}
 	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
-		var icon = this.getIcon();
-		var text = this.getText();
-		if (icon && text) {
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
-		}
+		layout.setHgap(iconTextGap).setVgap(iconTextGap);
 		this.iconTextGap = iconTextGap;
 		return this;
 	}
@@ -4808,26 +4904,6 @@ jsuis.packages.push(jsuis.defaultlf);
 			this.setOpposite(opposite);
 		}
 		return opposite;
-	}
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.ImageIcon
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.Icon;
-	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
-		this.setResource(resource);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
-			new jsuis.Property("resource")
-	);
-	jsuis.defaultlf.ImageIcon.prototype.setResource = function(resource) {
-		var element = this.getElement();
-		element.setAttributeNS('http://www.w3.org/1999/xlink','href', resource);
-		this.resource = resource;
-		return this;
 	}
 }) (jsuis);
 
@@ -5665,6 +5741,80 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.TabbedPane
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.TabbedPane = jsuis.Object.extend(SUPER, function(tabPlacement) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		tabPlacement = nvl(tabPlacement, jsuis.Constants.TOP);
+		this.setTabPlacement(tabPlacement);
+		var tabPanel = new jsuis.defaultlf.Panel(new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
+		this.setTabPanel(tabPanel);
+		SUPER.prototype.add.call(this, tabPanel, jsuis.BorderConstraints.NORTH);
+		var cardPanel = new jsuis.defaultlf.LayeredPane();
+		this.setCardPanel(cardPanel);
+		SUPER.prototype.add.call(this, cardPanel);
+		cardPanel.setLayout(new jsuis.BorderLayout());
+		cardPanel.setBorder(new jsuis.LineBorder());
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
+			new jsuis.Property("tabPlacement"),
+			new jsuis.Property("tabPanel"),
+			new jsuis.Property("cardPanel"),
+			new jsuis.Property("selection")
+	);
+	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
+		var tabPanel = this.getTabPanel();
+		tabPanel.add(tabComponent);
+		var cardPanel = this.getCardPanel();
+		cardPanel.add(cardComponent);
+		cardComponent.setVisible(false);
+		var actionListener = new jsuis.ActionListener({
+			actionPerformed: function(event) {
+				var tabbedPane = this.getListenerComponent();
+				var tabComponent = event.getSource();
+				tabbedPane.setSelected(tabComponent);
+			}
+		});
+		actionListener.setListenerComponent(this);
+		tabComponent.addActionListener(actionListener);
+	}
+	jsuis.defaultlf.TabbedPane.prototype.setSelected = function(tabComponent) {
+		var tabPanel = this.getTabPanel();
+		var tabComponents = tabPanel.getComponents();
+		var cardPanel = this.getCardPanel();
+		var cardComponents = cardPanel.getComponents();
+		var oldSelection = this.getSelection();
+		if (oldSelection) {
+			oldSelection.setSelected(false);
+			var index = tabComponents.indexOf(oldSelection);
+			var cardComponent = cardComponents[index];
+			cardComponent.setVisible(false);
+		}
+		this.setSelection(tabComponent);
+		if (tabComponent) {
+			tabComponent.setSelected(true);
+			var index = tabComponents.indexOf(tabComponent);
+			var cardComponent = cardComponents[index];
+			cardComponent.setVisible(true);
+		}
+		return this;
+	}
+	jsuis.defaultlf.TabbedPane.prototype.validate = function() {
+		SUPER.prototype.validate.call(this);
+		var selection = this.getSelection();
+		if (!selection) {
+			var tabPanel = this.getTabPanel();
+			var components = tabPanel.getComponents();
+			if (components.length) {
+				this.setSelected(components[0]);
+			}
+		}
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.TextField
  */
 (function(jsuis) {
@@ -5885,11 +6035,6 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		}));
 	});
-	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
-		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
-				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
-		return this;
-	}
 }) (jsuis);
 
 /**
@@ -6262,6 +6407,48 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.ScrollPane.prototype.getMinimumSize = function() {
 		return new jsuis.Dimension(0, 0);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TabComponent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Button;
+	jsuis.defaultlf.TabComponent = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+		var target = new jsuis.defaultlf.Path("M 0 0");
+		this.setTarget(target);
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+	});
+	jsuis.defaultlf.TabComponent.prototype.setSelected = function(selected) {
+		SUPER.prototype.setSelected.call(this, selected);
+		this.validate();
+		return this;
+	}
+	jsuis.defaultlf.TabComponent.prototype.validate = function() {
+		var w = this.getWidth();
+		var h = this.getHeight();
+		var target = this.getTarget();
+		var selected = this.isSelected();
+		var d = "M 0 " + h + " l 2 -" + h + " l " + (w - 4) + " 0 l 2 " + h;
+		target.setAttribute("d", d);
+		if (selected) {
+			this.paint();
+		} else {
+			this.paintPressed();
+		}
+		SUPER.prototype.validate.call(this);
+	}
+	jsuis.defaultlf.TabComponent.prototype.mouseClicked = function() {
+	}
+	jsuis.defaultlf.TabComponent.prototype.mousePressed = function() {
+	}
+	jsuis.defaultlf.TabComponent.prototype.mouseReleased = function() {
+	}
+	jsuis.defaultlf.TabComponent.prototype.mouseEntered = function() {
+	}
+	jsuis.defaultlf.TabComponent.prototype.mouseExited = function() {
 	}
 }) (jsuis);
 

@@ -19,9 +19,4 @@
 			}
 		}));
 	});
-	jsuis.defaultlf.MenuItem.prototype.setText = function(text, textConstraints) {
-		SUPER.prototype.setText.call(this, text, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)
-				.setWeightx(1).setFill(jsuis.Constants.HORIZONTAL).setAnchor(jsuis.Constants.WEST));
-		return this;
-	}
 }) (jsuis);

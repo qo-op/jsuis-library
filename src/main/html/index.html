@@ -130,8 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");
@@ -181,8 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
 	layeredPaneExample.setLayout(new jsuis.BorderLayout());
 	
-	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg")
-			.setPreferredSize(new jsuis.Dimension(64, 64));
+	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg", 64, 64);
 	
 	layeredPane = new jsuis.LayeredPane();
 	layeredPaneExample.add(layeredPane);
@@ -207,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	
 	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
-	dukePanel.add(icon);
+	dukePanel.add(icon.createComponent());
 	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
 	layeredPane.add(dukePanel, new jsuis.Constraints(0), 0);
 	
@@ -293,18 +291,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBar = new jsuis.ToolBar();
 	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
 	previousButton = new jsuis.Button(null, previousButtonIcon);
 	toolBar.add(previousButton);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg", 16, 16);
 	upButton = new jsuis.Button(null, upButtonIcon);
 	toolBar.add(upButton);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg", 16, 16);
 	nextButton = new jsuis.Button(null, nextButtonIcon);
 	toolBar.add(nextButton);
 
@@ -352,6 +347,33 @@ document.addEventListener('DOMContentLoaded', function() {
 			contentPane.setBackground(jsuis.Color.Green);
 		}
 	}));
+	
+	/*
+	 * Menu TabbedPane
+	 */
+	tabbedPaneExample = createExamplePanel("jsuis.TabbedPane example");
+	tabbedPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	tabbedPane = new jsuis.TabbedPane();
+	tabbedPaneExample.add(tabbedPane);
+	tabbedPane.setPadding(new jsuis.Insets(1, 0, 0, 0));
+	
+	function makeTextPanel(text) {
+		var panel = new jsuis.Panel(new jsuis.GridBagLayout());
+		panel.add(new jsuis.Label(text));
+		return panel;
+	}
+	
+	icon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
+	
+	panel1 = makeTextPanel("Panel #1");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 1", icon), panel1);
+	
+	panel2 = makeTextPanel("Panel #2");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 2", icon), panel2);
+	
+	panel3 = makeTextPanel("Panel #3");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 3", icon), panel3);
 	
 	frame.setVisible(true);
 });

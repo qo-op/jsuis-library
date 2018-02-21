@@ -91,6 +91,11 @@
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
+			var constraints = component.getConstraints();
+			if (!constraints) {
+				constraints = new jsuis.Constraints();
+				component.setConstraints(constraints);
+			}
 			if (!component.isVisible()) {
 				continue;
 			}
@@ -140,10 +145,6 @@
 						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
 					}
 					var constraints = rowComponent.getConstraints();
-					if (!constraints) {
-						constraints = new jsuis.Constraints();
-						rowComponent.setConstraints(constraints);
-					}
 					constraints.setBounds(bounds);
 				}
 				rowComponents.length = 0;

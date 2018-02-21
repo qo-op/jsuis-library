@@ -30,13 +30,13 @@
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
 			var constraints = component.getConstraints();
 			if (!constraints) {
 				constraints = new jsuis.GridBagConstraints();
 				component.setConstraints(constraints);
+			}
+			if (!component.isVisible()) {
+				continue;
 			}
 			var gridx = constraints.getGridx();
 			if (gridx === jsuis.Constants.RELATIVE) {
@@ -129,6 +129,15 @@
 		this.setWidths(widths);
 		this.setWeightxs(weightxs);
 		
+		var x = 0;
+		var xs = [];
+		for (var i = 0; i < widths.length; i++) {
+			xs.push(x);
+			x += widths[i];
+		}
+		if (widths.length) {
+			xs.push(x);
+		}
 		var heightComponents = components.slice();
 		var heights = [];
 		var weightys = [];
@@ -153,8 +162,18 @@
 				if ((gridy + gridheight - 1) !== i) {
 					continue;
 				}
+				var gridx = constraints.getGridx();
+				if (gridx === jsuis.Constants.RELATIVE) {
+					gridx = constraints.getRelativeGridx();
+				}
+				var gridwidth = constraints.getGridwidth();
+				if (gridwidth === jsuis.Constants.REMAINDER) {
+					gridwidth = constraints.getRemainderGridwidth();
+				}
 				var componentPreferredSize = component.getPreferredSize();
 				var height = componentPreferredSize.getHeight();
+				component.setWidth(xs[gridx + gridwidth] - xs[gridx]);
+				height = Math.max(height, component.getMinimumSize().getHeight());
 				var weighty = constraints.getWeighty();
 				for (var k = 1; k < gridheight; k++) {
 					height -= heights[i - k];
@@ -254,10 +273,10 @@
 		var components = parent.getComponents();
 		for (var i = 0; i < components.length; i++) {
 			var component = components[i];
+			var constraints = component.getConstraints();
 			if (!component.isVisible()) {
 				continue;
 			}
-			var constraints = component.getConstraints();
 			var gridx = constraints.getGridx();
 			if (gridx === jsuis.Constants.RELATIVE) {
 				gridx = constraints.getRelativeGridx();

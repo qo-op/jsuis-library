@@ -9,6 +9,7 @@
 	});
 	jsuis.Object.addPeerProperties(jsuis.Component,
 			new jsuis.Property("element"),
+			new jsuis.Property("name"),
 			new jsuis.Property("components"),
 			new jsuis.Property("parent"),
 			new jsuis.Property("layout"),

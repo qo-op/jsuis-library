@@ -49,7 +49,6 @@
 	jsuis.Color.prototype.toString = function() {
 		return "rgba(" + this.getR() + "," + this.getG() + "," + this.getB() + "," + (this.getA() / 255) + ")";
 	}
-	
 	var COLORS = {
 			AliceBlue: jsuis.Color.getColor(0xF0F8FF),
 			AntiqueWhite: jsuis.Color.getColor(0xFAEBD7),
@@ -200,12 +199,10 @@
 			Yellow: jsuis.Color.getColor(0xFFFF00),
 			YellowGreen: jsuis.Color.getColor(0x9ACD32)
 	};
-	
 	for (var key in COLORS) {
 		jsuis.Color[key] = COLORS[key];
 		jsuis.Color[key.toUpperCase()] = COLORS[key];
 		jsuis.Color[key.charAt(0).toLowerCase() + key.slice(1)] = COLORS[key];
 		jsuis.Color[key.replace(/([A-Z])/g, "_$1").slice(1).toUpperCase()] = COLORS[key];
 	}
-	
 }) (jsuis);

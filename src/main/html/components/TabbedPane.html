@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?${date}"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+document.addEventListener('DOMContentLoaded', function() {
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	tabbedPaneExample = createExamplePanel("jsuis.TabbedPane example");
+	tabbedPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	tabbedPane = new jsuis.TabbedPane();
+	tabbedPaneExample.add(tabbedPane);
+	tabbedPane.setPadding(new jsuis.Insets(1, 0, 0, 0));
+	
+	function makeTextPanel(text) {
+		var panel = new jsuis.Panel(new jsuis.GridBagLayout());
+		panel.add(new jsuis.Label(text));
+		return panel;
+	}
+	
+	icon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
+	
+	panel1 = makeTextPanel("Panel #1");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 1", icon), panel1);
+	
+	panel2 = makeTextPanel("Panel #2");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 2", icon), panel2);
+	
+	panel3 = makeTextPanel("Panel #3");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 3", icon), panel3);
+	
+	panel4 = makeTextPanel("Panel #4");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 4", icon), panel4);
+	
+	panel5 = makeTextPanel("Panel #5");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 5", icon), panel5);
+	
+	panel6 = makeTextPanel("Panel #6");
+	tabbedPane.addTab(new jsuis.TabComponent("Tab 6", icon), panel6);
+	
+	frame.setVisible(true);
+});
+		</script>
+	</body>
+</html>

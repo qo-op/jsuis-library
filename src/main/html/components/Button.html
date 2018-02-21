@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg")
-			.setPreferredSize(new jsuis.Dimension(16, 16));
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");

@@ -4,7 +4,7 @@
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}
@@ -45,6 +45,7 @@
 	jsuis.Object.addProperties(jsuis.defaultlf.Button,
 			new jsuis.Property("label"),
 			new jsuis.Property("icon"),
+			new jsuis.Property("iconComponent"),
 			new jsuis.Property("iconTextGap"),
 			new jsuis.Property("color"),
 			new jsuis.Property("pressedColor"),
@@ -56,17 +57,12 @@
 		if (!label) {
 			label = new jsuis.defaultlf.Label();
 			this.setLabel(label);
-			this.add(label, nvl(textConstraints, new jsuis.GridBagConstraints().setGridx(1).setGridy(0)));
+			this.add(label, nvl(textConstraints,
+					jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
+		} else if (textConstraints) {
+			label.setConstraints(textConstraints);
 		}
 		label.setText(text);
-		var layout = this.getLayout();
-		var icon = this.getIcon();
-		if (icon && text) {
-			var iconTextGap = this.getIconTextGap();
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
-		}
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.getText = function() {
@@ -77,57 +73,22 @@
 		return "";
 	}
 	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
-		var oldIcon = this.getIcon();
-		if (oldIcon) {
-			this.remove(oldIcon);
+		var oldIconComponent = this.getIconComponent();
+		if (oldIconComponent) {
+			this.remove(oldIconComponent);
 		}
 		if (icon) {
-			icon.setEnabled(false);
-			this.add(icon, nvl(iconConstraints, new jsuis.GridBagConstraints().setGridx(0).setGridy(0)));
-		}
-		var layout = this.getLayout();
-		var text = this.getText();
-		if (icon && text) {
-			var iconTextGap = this.getIconTextGap();
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
+			var iconComponent = icon.createComponent();
+			this.setIconComponent(iconComponent);
+			this.add(iconComponent, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
+			iconComponent.setEnabled(false);
 		}
 		this.icon = icon;
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.setAction = function(action) {
-		var oldAction = this.getAction();
-		if (oldAction && oldAction !== action) {
-			this.removeActionListener(oldAction);
-			var propertyChangeListener = this.getPropertyChangeListener();
-			oldAction.removePropertyChangeListener(propertyChangeListener);
-		}
-		if (action) {
-			this.addActionListener(action);
-			var propertyChangeListener = new jsuis.PropertyChangeListener({
-				propertyChange: function(event) {
-					var button = this.getListenerComponent();
-					var enabled = event.getNewValue();
-					button.setEnabled(enabled);
-				}
-			});
-			propertyChangeListener.setPropertyName("enabled");
-			propertyChangeListener.setListenerComponent(this);
-			this.setPropertyChangeListener(propertyChangeListener);
-			action.addPropertyChangeListener(propertyChangeListener);
-		}
-		return this;
-	}
 	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
 		var layout = this.getLayout();
-		var icon = this.getIcon();
-		var text = this.getText();
-		if (icon && text) {
-			layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		} else {
-			layout.setHgap(0).setVgap(0);
-		}
+		layout.setHgap(iconTextGap).setVgap(iconTextGap);
 		this.iconTextGap = iconTextGap;
 		return this;
 	}
