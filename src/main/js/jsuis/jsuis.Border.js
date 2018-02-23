@@ -2,7 +2,7 @@
  * jsuis.Border
  */
 (function(jsuis) {
-	var SUPER = jsuis.Peer;
+	var SUPER = jsuis.Object;
 	jsuis.Border = jsuis.Object.extend(SUPER, function() {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Border());

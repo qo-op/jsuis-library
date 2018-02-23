@@ -2,7 +2,7 @@
  * jsuis.Component
  */
 (function(jsuis) {
-	var SUPER = jsuis.Peer;
+	var SUPER = jsuis.Object;
 	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Component(element));
@@ -34,13 +34,6 @@
 			new jsuis.Property("cursor"),
 			new jsuis.Property("actionCommand")
 	);
-	jsuis.Component.prototype.getPeer = function() {
-		return this.peer;
-	}
-	jsuis.Component.prototype.setPeer = function(peer) {
-		this.peer = peer;
-		return this;
-	}
 	jsuis.Component.prototype.add = function(component, constraints, index) {
 		var peer = this.getPeer();
 		peer.add(component, constraints, index);

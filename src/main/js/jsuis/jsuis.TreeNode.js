@@ -21,8 +21,27 @@
 		children.push(treeNode);
 		treeNode.setParent(this);
 	}
+	jsuis.TreeNode.prototype.getChildAt = function(index) {
+		var children = this.getChildren();
+		return children[index];
+	}
+	jsuis.TreeNode.prototype.getChildCount = function() {
+		var children = this.getChildren();
+		return children.length;
+	}
 	jsuis.TreeNode.prototype.isLeaf = function() {
 		var children = this.getChildren();
 		return !children || !children.length;
+	}
+	jsuis.TreeNode.prototype.getIndex = function(child) {
+		var children = this.getChildren();
+		return children.indexOf(child);
+	}
+	jsuis.TreeNode.prototype.toString = function() {
+		var userObject = this.getUserObject();
+		if (!userObject) {
+			return null;
+		}
+		return userObject.toString();
 	}
 }) (jsuis);

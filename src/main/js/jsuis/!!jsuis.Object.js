@@ -4,6 +4,7 @@
 (function(jsuis) {
 	jsuis.Object = function() {
 	}
+	/*
 	jsuis.Object.prototype.init = function() {
 		var properties = this.getProperties();
 		if (properties) {
@@ -23,6 +24,7 @@
 			}
 		}
 	}
+	*/
 	jsuis.Object.addProperties = function(constructor, properties) {
 		properties = Array.prototype.slice.call(arguments, 1);
 		for (var i = 0; i < properties.length; i++) {

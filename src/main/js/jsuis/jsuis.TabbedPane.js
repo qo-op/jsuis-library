@@ -7,8 +7,8 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].TabbedPane(tabPlacement));
 	});
-	jsuis.TabbedPane.prototype.addTab = function(title, icon, component, tip) {
+	jsuis.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
 		var peer = this.getPeer();
-		peer.addTab(title, icon, component, tip);
+		peer.addTab(tabComponent, cardComponent);
 	}
 }) (jsuis);

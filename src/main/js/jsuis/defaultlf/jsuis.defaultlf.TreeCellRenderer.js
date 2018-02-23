@@ -5,7 +5,14 @@
 	var SUPER = jsuis.Object;
 	jsuis.defaultlf.TreeCellRenderer = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
+		this.setRowHeight(18);
+		this.setLeafIcon(new jsuis.defaultlf.PathIcon("M 2.5 .5 l 7 0 l 4 4 l 0 11 l -11 0 z M 9.5 .5 l 0 4 l 4 0"));
 	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TreeCellRenderer,
+			new jsuis.Property("rowHeight"),
+			new jsuis.Property("leafIcon"),
+			new jsuis.Property("closedIcon")
+	);
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var button = new jsuis.defaultlf.Button();
@@ -18,29 +25,5 @@
 		button.setBackground(jsuis.Color.Black.withAlpha(0));
 		return button;
 	}
-	jsuis.defaultlf.TreeCellRenderer.prototype.add = function(component, constraints, index) {
-		var component = component.getPeer();
-		if (component instanceof jsuis.defaultlf.TreeNode) {
-			var panel = this.getPanel();
-			if (!panel) {
-				panel = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
-				this.setPanel(panel);
-				var parent = this.getParent();
-				if (parent instanceof jsuis.defaultlf.Tree) {
-					parent.add(panel, jsuis.BorderConstraints.NORTH);
-				} else {
-					var parentPanel = parent.getPanel();
-					var parentPanelComponents = parentPanel.getComponents();
-					parentPanel.add(panel, jsuis.BorderConstraints.NORTH, parentPanelComponents.indexOf(this) + 1);
-				}
-			}
-			panel.add(component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
-			var button = this.getButton();
-			var buttonPadding = button.getPadding();
-			component.getButton().setPadding(buttonPadding.add(new jsuis.Insets(0, 16, 0, 0)));
-			component.setParent(this);
-		} else {
-			SUPER.prototype.add.call(this, component, constraints, index);
-		}
-	}
+	
 }) (jsuis);

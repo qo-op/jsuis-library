@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	
 	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
-	dukePanel.add(icon.createComponent());
+	icon.paintIcon(dukePanel);
 	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
 	layeredPane.add(dukePanel, new jsuis.Constraints(0), 0);
 	

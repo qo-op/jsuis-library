@@ -74,12 +74,20 @@
 			componentPreferredHeight += vgap;
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
+			case jsuis.Constants.PAGE_START:
+			case jsuis.Constants.TOP:
 			case jsuis.Constants.SOUTH:
+			case jsuis.Constants.PAGE_END:
+			case jsuis.Constants.BOTTOM:
 				preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredWidth);
 				preferredLayoutHeight += componentPreferredHeight;
 				break;
-			case jsuis.Constants.EAST:
 			case jsuis.Constants.WEST:
+			case jsuis.Constants.LINE_START:
+			case jsuis.Constants.LEFT:
+			case jsuis.Constants.EAST:
+			case jsuis.Constants.LINE_END:
+			case jsuis.Constants.RIGHT:
 				preferredLayoutWidth += componentPreferredWidth;
 				preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredHeight);
 				break;
@@ -138,6 +146,8 @@
 			var componentHeight = componentPreferredHeight + vgap;
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
+			case jsuis.Constants.PAGE_START:
+			case jsuis.Constants.TOP:
 				componentX = x;
 				componentY = y;
 				componentWidth = width;
@@ -147,6 +157,8 @@
 				height -= componentHeight;
 				break;
 			case jsuis.Constants.SOUTH:
+			case jsuis.Constants.PAGE_END:
+			case jsuis.Constants.BOTTOM:
 				componentX = x;
 				componentY = y + height - componentHeight;
 				componentWidth = width;
@@ -154,17 +166,21 @@
 				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				height -= componentHeight;
 				break;
-			case jsuis.Constants.EAST:
-				componentX = x + width - componentWidth;
-				componentY = y;
-				componentHeight = height;
-				width -= componentWidth;
-				break;
 			case jsuis.Constants.WEST:
+			case jsuis.Constants.LINE_START:
+			case jsuis.Constants.LEFT:
 				componentX = x;
 				componentY = y;
 				componentHeight = height;
 				x += componentWidth;
+				width -= componentWidth;
+				break;
+			case jsuis.Constants.EAST:
+			case jsuis.Constants.LINE_END:
+			case jsuis.Constants.RIGHT:
+				componentX = x + width - componentWidth;
+				componentY = y;
+				componentHeight = height;
 				width -= componentWidth;
 				break;
 			case jsuis.Constants.CENTER:

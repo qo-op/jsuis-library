@@ -4,7 +4,21 @@
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		SUPER.prototype.constructor.call(this, null);
+		this.init(text, icon);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Button,
+			new jsuis.Property("label"),
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconComponent"),
+			new jsuis.Property("iconTextGap"),
+			new jsuis.Property("color"),
+			new jsuis.Property("pressedColor"),
+			new jsuis.Property("rolloverColor"),
+			new jsuis.Property("group")
+	);
+	jsuis.defaultlf.Button.prototype.init = function(text, icon) {
+		this.setLayout(new jsuis.BorderLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}
@@ -41,17 +55,7 @@
 			}
 		});
 		this.addMouseListener(mouseListener);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Button,
-			new jsuis.Property("label"),
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconComponent"),
-			new jsuis.Property("iconTextGap"),
-			new jsuis.Property("color"),
-			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor"),
-			new jsuis.Property("group")
-	);
+	}
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
 		if (!label) {
@@ -78,9 +82,8 @@
 			this.remove(oldIconComponent);
 		}
 		if (icon) {
-			var iconComponent = icon.createComponent();
+			var iconComponent = icon.paintIcon(this, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
 			this.setIconComponent(iconComponent);
-			this.add(iconComponent, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
 			iconComponent.setEnabled(false);
 		}
 		this.icon = icon;

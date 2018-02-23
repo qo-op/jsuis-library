@@ -136,7 +136,6 @@
 	}
 	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
 		component = component.getPeer();
-		component.init();
 		this.addChild(component, constraints, index);
 		if (constraints !== null && constraints !== undefined) {
 			if (constraints instanceof jsuis.Cloneable) {

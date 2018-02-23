@@ -9,25 +9,12 @@
 		this.setTabPlacement(tabPlacement);
 		var tabPanel = new jsuis.defaultlf.Panel(new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setTabPanel(tabPanel);
-		SUPER.prototype.add.call(this, tabPanel, jsuis.BorderConstraints.NORTH);
+		SUPER.prototype.add.call(this, tabPanel, new jsuis.BorderConstraints(tabPlacement));
 		var cardPanel = new jsuis.defaultlf.LayeredPane();
 		this.setCardPanel(cardPanel);
 		SUPER.prototype.add.call(this, cardPanel);
 		cardPanel.setLayout(new jsuis.BorderLayout());
 		cardPanel.setBorder(new jsuis.LineBorder());
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
-			new jsuis.Property("tabPlacement"),
-			new jsuis.Property("tabPanel"),
-			new jsuis.Property("cardPanel"),
-			new jsuis.Property("selection")
-	);
-	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
-		var tabPanel = this.getTabPanel();
-		tabPanel.add(tabComponent);
-		var cardPanel = this.getCardPanel();
-		cardPanel.add(cardComponent);
-		cardComponent.setVisible(false);
 		var actionListener = new jsuis.ActionListener({
 			actionPerformed: function(event) {
 				var tabbedPane = this.getListenerComponent();
@@ -36,6 +23,23 @@
 			}
 		});
 		actionListener.setListenerComponent(this);
+		this.setActionListener(actionListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
+			new jsuis.Property("tabPlacement"),
+			new jsuis.Property("tabPanel"),
+			new jsuis.Property("cardPanel"),
+			new jsuis.Property("selection"),
+			new jsuis.Property("actionListener")
+	);
+	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
+		var tabPanel = this.getTabPanel();
+		tabPanel.add(tabComponent);
+		var cardPanel = this.getCardPanel();
+		cardPanel.add(cardComponent);
+		cardComponent.setVisible(false);
+		var actionListener = this.getActionListener();
+		tabComponent.removeActionListener(actionListener);
 		tabComponent.addActionListener(actionListener);
 	}
 	jsuis.defaultlf.TabbedPane.prototype.setSelected = function(tabComponent) {

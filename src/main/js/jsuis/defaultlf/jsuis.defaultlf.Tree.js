@@ -4,38 +4,64 @@
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Tree = jsuis.Object.extend(SUPER, function() {
-		// SUPER.prototype.constructor.call(this, null);
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		SUPER.prototype.constructor.call(this, null);
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
-		this.setModel(new jsuis.defaultlf.TreeModel());
 		this.setCellRenderer(new jsuis.defaultlf.TreeCellRenderer());
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Tree,
 			new jsuis.Property("model"),
+			new jsuis.Property("rows"),
 			new jsuis.Property("cellRenderer"),
 			new jsuis.Property("selection")
 	);
-	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
-		var model = this.getModel();
-		model.setRoot(root);
-		return this;
-	}
 	jsuis.defaultlf.Tree.prototype.getRoot = function() {
 		var model = this.getModel();
 		return model.getRoot();
 	}
-	jsuis.defaultlf.Tree.prototype.setY = function(y) {
-		SUPER.prototype.setY.call(this, y);
+	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		this.setRows(null);
 		return this;
 	}
-	jsuis.defaultlf.Tree.prototype.setHeight = function(height) {
-		SUPER.prototype.setHeight.call(this, height);
+	jsuis.defaultlf.Tree.prototype.getRows = function() {
+		var rows = this.rows;
+		if (!rows) {
+			rows = [];
+			this.setRows(rows);
+			var root = this.getRoot();
+			if (root) {
+				this.load(root);
+			}
+		}
+		return rows;
+	}
+	jsuis.defaultlf.Tree.prototype.load = function(node) {
+		var rows = this.rows;
+		rows.push(node);
+		var children = node.getChildren();
+		if (children) {
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				this.load(child);
+			}
+		}
+	}
+	jsuis.defaultlf.Tree.prototype.getRowHeight = function() {
+		var cellRenderer = this.getCellRenderer();
+		return cellRenderer.getRowHeight();
+	}
+	jsuis.defaultlf.Tree.prototype.setRowHeight = function(rowHeight) {
+		var cellRenderer = this.getCellRenderer();
+		cellRenderer.setRowHeight(rowHeight);
 		return this;
 	}
 	jsuis.defaultlf.Tree.prototype.validate = function() {
+		var x = 0;
+		var y = 0;
 		var treeCellRenderer = this.getCellRenderer();
 		var model = this.getModel();
-		var rows = model.getRows();
+		var rows = this.getRows();
 		for (var i = 0; i < rows.length; i++) {
 			var treeNode = rows[i];
 			/*
@@ -44,7 +70,12 @@
 			*/
 			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
 					false, false, treeNode.isLeaf(), i, false);
-			this.add(component, jsuis.BorderConstraints.NORTH);
+			this.add(component);
+			var preferredSize = component.getPreferredSize();
+			var preferredHeight = preferredSize.getHeight();
+			component.setSize(preferredSize);
+			component.setLocation(new jsuis.Point(x, y));
+			y += preferredHeight;
 		}
 		this.doLayout();
 		var components = this.getComponents();
@@ -53,6 +84,7 @@
 			component.validate();
 		}
 	}
+	
 	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
 		var selection = this.getSelection();
 		return (treeNode === selection);

@@ -1,13 +1,9 @@
-/**
- * null value
- */
 function nvl(value, defaultValue) {
 	if ((value === null) || (value === undefined)) {
 		return defaultValue;
 	}
 	return value;
 }
-
 function println(text) {
 	console.log(text);
 }
@@ -29,6 +25,7 @@ jsuis.packages = [];
 (function(jsuis) {
 	jsuis.Object = function() {
 	}
+	/*
 	jsuis.Object.prototype.init = function() {
 		var properties = this.getProperties();
 		if (properties) {
@@ -48,6 +45,7 @@ jsuis.packages = [];
 			}
 		}
 	}
+	*/
 	jsuis.Object.addProperties = function(constructor, properties) {
 		properties = Array.prototype.slice.call(arguments, 1);
 		for (var i = 0; i < properties.length; i++) {
@@ -312,6 +310,25 @@ jsuis.packages = [];
 	jsuis.Property.prototype.setValue = function(value) {
 		this.value = value;
 		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Border
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Border = jsuis.Object.extend(SUPER, function() {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Border());
+	});
+	jsuis.Border.prototype.getBorderInsets = function(component) {
+		var peer = this.getPeer();
+		return peer.getBorderInsets(component);
+	}
+	jsuis.Border.prototype.getBorderOutsets = function(component) {
+		var peer = this.getPeer();
+		return peer.getBorderOutsets(component);
 	}
 }) (jsuis);
 
@@ -586,6 +603,140 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.Component
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Component(element));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Component,
+			new jsuis.Property("element"),
+			new jsuis.Property("name"),
+			new jsuis.Property("components"),
+			new jsuis.Property("parent"),
+			new jsuis.Property("layout"),
+			new jsuis.Property("constraints"),
+			new jsuis.Property("x"),
+			new jsuis.Property("y"),
+			new jsuis.Property("location"),
+			new jsuis.Property("width"),
+			new jsuis.Property("height"),
+			new jsuis.Property("size"),
+			new jsuis.Property("preferredSize"),
+			new jsuis.Property("minimumSize"),
+			new jsuis.Property("bounds"),
+			new jsuis.Property("padding"),
+			new jsuis.Property("margin"),
+			new jsuis.Property("border"),
+			new jsuis.Property("insets"),
+			new jsuis.Property("outsets"),
+			new jsuis.Property("background"),
+			new jsuis.Property("foreground"),
+			new jsuis.Property("font"),
+			new jsuis.Property("cursor"),
+			new jsuis.Property("actionCommand")
+	);
+	jsuis.Component.prototype.add = function(component, constraints, index) {
+		var peer = this.getPeer();
+		peer.add(component, constraints, index);
+	}
+	jsuis.Component.prototype.remove = function(component) {
+		var peer = this.getPeer();
+		peer.remove(component);
+	}
+	jsuis.Component.prototype.removeAll = function() {
+		var peer = this.getPeer();
+		peer.removeAll(component);
+	}
+	jsuis.Component.prototype.isLeftToRight = function() {
+		var peer = this.getPeer();
+		return peer.isLeftToRight();
+	}
+	jsuis.Component.prototype.setLeftToRight = function(leftToRight) {
+		var peer = this.getPeer();
+		peer.setLeftToRight(leftToRight);
+		return this;
+	}
+	jsuis.Component.prototype.validate = function() {
+		var peer = this.getPeer();
+		peer.validate();
+	}
+	jsuis.Component.prototype.isVisible = function() {
+		var peer = this.getPeer();
+		return peer.isVisible();
+	}
+	jsuis.Component.prototype.setVisible = function(visible) {
+		var peer = this.getPeer();
+		peer.setVisible(visible);
+		return this;
+	}
+	jsuis.Component.prototype.isEnabled = function() {
+		var peer = this.getPeer();
+		return peer.isEnabled();
+	}
+	jsuis.Component.prototype.setEnabled = function(enabled) {
+		var peer = this.getPeer();
+		peer.setEnabled(enabled);
+		return this;
+	}
+	jsuis.Component.prototype.isPressed = function() {
+		var peer = this.getPeer();
+		return peer.isPressed();
+	}
+	jsuis.Component.prototype.setPressed = function(pressed) {
+		var peer = this.getPeer();
+		peer.setPressed(pressed);
+		return this;
+	}
+	jsuis.Component.prototype.requestFocus = function() {
+		var peer = this.getPeer();
+		peer.requestFocus();
+	}
+	jsuis.Component.prototype.addComponentListener = function(componentListener) {
+		var peer = this.getPeer();
+		peer.addComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
+		var peer = this.getPeer();
+		peer.removeComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
+		var peer = this.getPeer();
+		peer.addMouseListener(mouseListener);
+	}
+	jsuis.Component.prototype.removeMouseListener = function(mouseListener) {
+		var peer = this.getPeer();
+		peer.removeMouseListener(mouseListener);
+	}
+	jsuis.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
+		var peer = this.getPeer();
+		peer.addMouseMotionListener(mouseMotionListener);
+	}
+	jsuis.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
+		var peer = this.getPeer();
+		peer.removeMouseMotionListener(mouseMotionListener);
+	}
+	jsuis.Component.prototype.addFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.addFocusListener(focusListener);
+	}
+	jsuis.Component.prototype.removeFocusListener = function(focusListener) {
+		var peer = this.getPeer();
+		peer.removeFocusListener(focusListener);
+	}
+	jsuis.Component.prototype.addActionListener = function(actionListener) {
+		var peer = this.getPeer();
+		peer.addActionListener(actionListener);
+	}
+	jsuis.Component.prototype.removeActionListener = function(actionListener) {
+		var peer = this.getPeer();
+		peer.removeActionListener(actionListener);
+	}
+}) (jsuis);
+
+/**
  * jsuis.Constants
  */
 (function(jsuis) {
@@ -765,22 +916,19 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.ImageIcon
+ * jsuis.Icon
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
+	jsuis.Icon = jsuis.Object.extend(SUPER, function() {
 	});
-	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
-			new jsuis.Property("resource"),
+	jsuis.Object.addPeerProperties(jsuis.Icon,
 			new jsuis.Property("iconWidth"),
 			new jsuis.Property("iconHeight")
 	);
-	jsuis.ImageIcon.prototype.createComponent = function() {
+	jsuis.Icon.prototype.paintIcon = function(component, constraints) {
 		var peer = this.getPeer();
-		return peer.createComponent();
+		return peer.paintIcon(component, constraints);
 	}
 }) (jsuis);
 
@@ -1052,22 +1200,6 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.Peer
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.Peer = jsuis.Object.extend(SUPER, function() {
-	});
-	jsuis.Peer.prototype.getPeer = function() {
-		return this.peer;
-	}
-	jsuis.Peer.prototype.setPeer = function(peer) {
-		this.peer = peer;
-		return this;
-	}
-}) (jsuis);
-
-/**
  * jsuis.Point
  */
 (function(jsuis) {
@@ -1215,6 +1347,38 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.TreeModel
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.TreeModel = jsuis.Object.extend(SUPER, function(root) {
+		SUPER.prototype.constructor.call(this);
+		this.setRoot(nvl(root, new jsuis.TreeNode()));
+	});
+	jsuis.Object.addProperties(jsuis.TreeModel,
+			new jsuis.Property("root")
+	);
+	jsuis.TreeModel.prototype.getChild = function(parent, index) {
+		return parent.getChildAt(index);
+	}
+	jsuis.TreeModel.prototype.getChildCount = function(parent) {
+		return parent.getChildCount();
+	}
+	jsuis.TreeModel.prototype.isLeaf = function(node) {
+		return node.isLeaf();
+	}
+	jsuis.TreeModel.prototype.valueForPathChanged = function(path, newValue) {
+	}
+	jsuis.TreeModel.prototype.getIndexOfChild = function(parent, child) {
+		return parent.getIndex(child);
+	}
+	jsuis.TreeModel.prototype.addTreeModelListener = function(treeModelListener) {
+	}
+	jsuis.TreeModel.prototype.removeTreeModelListener = function(treeModelListener) {
+	}
+}) (jsuis);
+
+/**
  * jsuis.TreeNode
  */
 (function(jsuis) {
@@ -1237,9 +1401,28 @@ jsuis.packages = [];
 		children.push(treeNode);
 		treeNode.setParent(this);
 	}
+	jsuis.TreeNode.prototype.getChildAt = function(index) {
+		var children = this.getChildren();
+		return children[index];
+	}
+	jsuis.TreeNode.prototype.getChildCount = function() {
+		var children = this.getChildren();
+		return children.length;
+	}
 	jsuis.TreeNode.prototype.isLeaf = function() {
 		var children = this.getChildren();
 		return !children || !children.length;
+	}
+	jsuis.TreeNode.prototype.getIndex = function(child) {
+		var children = this.getChildren();
+		return children.indexOf(child);
+	}
+	jsuis.TreeNode.prototype.toString = function() {
+		var userObject = this.getUserObject();
+		if (!userObject) {
+			return null;
+		}
+		return userObject.toString();
 	}
 }) (jsuis);
 
@@ -1271,25 +1454,6 @@ jsuis.packages = [];
 	jsuis.ActionListener.prototype.actionPerformed = function(event) {
 		var listener = this.getListener();
 		listener.actionPerformed.call(this, event);
-	}
-}) (jsuis);
-
-/**
- * jsuis.Border
- */
-(function(jsuis) {
-	var SUPER = jsuis.Peer;
-	jsuis.Border = jsuis.Object.extend(SUPER, function() {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Border());
-	});
-	jsuis.Border.prototype.getBorderInsets = function(component) {
-		var peer = this.getPeer();
-		return peer.getBorderInsets(component);
-	}
-	jsuis.Border.prototype.getBorderOutsets = function(component) {
-		var peer = this.getPeer();
-		return peer.getBorderOutsets(component);
 	}
 }) (jsuis);
 
@@ -1369,12 +1533,20 @@ jsuis.packages = [];
 			componentPreferredHeight += vgap;
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
+			case jsuis.Constants.PAGE_START:
+			case jsuis.Constants.TOP:
 			case jsuis.Constants.SOUTH:
+			case jsuis.Constants.PAGE_END:
+			case jsuis.Constants.BOTTOM:
 				preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredWidth);
 				preferredLayoutHeight += componentPreferredHeight;
 				break;
-			case jsuis.Constants.EAST:
 			case jsuis.Constants.WEST:
+			case jsuis.Constants.LINE_START:
+			case jsuis.Constants.LEFT:
+			case jsuis.Constants.EAST:
+			case jsuis.Constants.LINE_END:
+			case jsuis.Constants.RIGHT:
 				preferredLayoutWidth += componentPreferredWidth;
 				preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredHeight);
 				break;
@@ -1433,6 +1605,8 @@ jsuis.packages = [];
 			var componentHeight = componentPreferredHeight + vgap;
 			switch (constraints.getBorder()) {
 			case jsuis.Constants.NORTH:
+			case jsuis.Constants.PAGE_START:
+			case jsuis.Constants.TOP:
 				componentX = x;
 				componentY = y;
 				componentWidth = width;
@@ -1442,6 +1616,8 @@ jsuis.packages = [];
 				height -= componentHeight;
 				break;
 			case jsuis.Constants.SOUTH:
+			case jsuis.Constants.PAGE_END:
+			case jsuis.Constants.BOTTOM:
 				componentX = x;
 				componentY = y + height - componentHeight;
 				componentWidth = width;
@@ -1449,17 +1625,21 @@ jsuis.packages = [];
 				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				height -= componentHeight;
 				break;
-			case jsuis.Constants.EAST:
-				componentX = x + width - componentWidth;
-				componentY = y;
-				componentHeight = height;
-				width -= componentWidth;
-				break;
 			case jsuis.Constants.WEST:
+			case jsuis.Constants.LINE_START:
+			case jsuis.Constants.LEFT:
 				componentX = x;
 				componentY = y;
 				componentHeight = height;
 				x += componentWidth;
+				width -= componentWidth;
+				break;
+			case jsuis.Constants.EAST:
+			case jsuis.Constants.LINE_END:
+			case jsuis.Constants.RIGHT:
+				componentX = x + width - componentWidth;
+				componentY = y;
+				componentHeight = height;
 				width -= componentWidth;
 				break;
 			case jsuis.Constants.CENTER:
@@ -1481,143 +1661,46 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.Component
+ * jsuis.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.Peer;
-	jsuis.Component = jsuis.Object.extend(SUPER, function(element) {
+	var SUPER = jsuis.Component;
+	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Component(element));
+		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Component,
-			new jsuis.Property("element"),
-			new jsuis.Property("name"),
-			new jsuis.Property("components"),
-			new jsuis.Property("parent"),
-			new jsuis.Property("layout"),
-			new jsuis.Property("constraints"),
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("location"),
-			new jsuis.Property("width"),
-			new jsuis.Property("height"),
-			new jsuis.Property("size"),
-			new jsuis.Property("preferredSize"),
-			new jsuis.Property("minimumSize"),
-			new jsuis.Property("bounds"),
-			new jsuis.Property("padding"),
-			new jsuis.Property("margin"),
-			new jsuis.Property("border"),
-			new jsuis.Property("insets"),
-			new jsuis.Property("outsets"),
-			new jsuis.Property("background"),
-			new jsuis.Property("foreground"),
-			new jsuis.Property("font"),
-			new jsuis.Property("cursor"),
-			new jsuis.Property("actionCommand")
+	jsuis.Object.addProperties(jsuis.Button,
+			new jsuis.Property("action"),
+			new jsuis.Property("propertyChangeListener")
 	);
-	jsuis.Component.prototype.getPeer = function() {
-		return this.peer;
-	}
-	jsuis.Component.prototype.setPeer = function(peer) {
-		this.peer = peer;
+	jsuis.Object.addPeerProperties(jsuis.Button,
+			new jsuis.Property("text"),
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconTextGap"),
+			new jsuis.Property("group")
+	);
+	jsuis.Button.prototype.setAction = function(action) {
+		var oldAction = this.getAction();
+		if (oldAction && oldAction !== action) {
+			this.removeActionListener(oldAction);
+			var propertyChangeListener = this.getPropertyChangeListener();
+			oldAction.removePropertyChangeListener(propertyChangeListener);
+		}
+		if (action) {
+			this.addActionListener(action);
+			var propertyChangeListener = new jsuis.PropertyChangeListener({
+				propertyChange: function(event) {
+					var button = this.getListenerComponent();
+					var enabled = event.getNewValue();
+					button.setEnabled(enabled);
+				}
+			});
+			propertyChangeListener.setPropertyName("enabled");
+			propertyChangeListener.setListenerComponent(this);
+			this.setPropertyChangeListener(propertyChangeListener);
+			action.addPropertyChangeListener(propertyChangeListener);
+		}
 		return this;
-	}
-	jsuis.Component.prototype.add = function(component, constraints, index) {
-		var peer = this.getPeer();
-		peer.add(component, constraints, index);
-	}
-	jsuis.Component.prototype.remove = function(component) {
-		var peer = this.getPeer();
-		peer.remove(component);
-	}
-	jsuis.Component.prototype.removeAll = function() {
-		var peer = this.getPeer();
-		peer.removeAll(component);
-	}
-	jsuis.Component.prototype.isLeftToRight = function() {
-		var peer = this.getPeer();
-		return peer.isLeftToRight();
-	}
-	jsuis.Component.prototype.setLeftToRight = function(leftToRight) {
-		var peer = this.getPeer();
-		peer.setLeftToRight(leftToRight);
-		return this;
-	}
-	jsuis.Component.prototype.validate = function() {
-		var peer = this.getPeer();
-		peer.validate();
-	}
-	jsuis.Component.prototype.isVisible = function() {
-		var peer = this.getPeer();
-		return peer.isVisible();
-	}
-	jsuis.Component.prototype.setVisible = function(visible) {
-		var peer = this.getPeer();
-		peer.setVisible(visible);
-		return this;
-	}
-	jsuis.Component.prototype.isEnabled = function() {
-		var peer = this.getPeer();
-		return peer.isEnabled();
-	}
-	jsuis.Component.prototype.setEnabled = function(enabled) {
-		var peer = this.getPeer();
-		peer.setEnabled(enabled);
-		return this;
-	}
-	jsuis.Component.prototype.isPressed = function() {
-		var peer = this.getPeer();
-		return peer.isPressed();
-	}
-	jsuis.Component.prototype.setPressed = function(pressed) {
-		var peer = this.getPeer();
-		peer.setPressed(pressed);
-		return this;
-	}
-	jsuis.Component.prototype.requestFocus = function() {
-		var peer = this.getPeer();
-		peer.requestFocus();
-	}
-	jsuis.Component.prototype.addComponentListener = function(componentListener) {
-		var peer = this.getPeer();
-		peer.addComponentListener(componentListener);
-	}
-	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
-		var peer = this.getPeer();
-		peer.removeComponentListener(componentListener);
-	}
-	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
-		var peer = this.getPeer();
-		peer.addMouseListener(mouseListener);
-	}
-	jsuis.Component.prototype.removeMouseListener = function(mouseListener) {
-		var peer = this.getPeer();
-		peer.removeMouseListener(mouseListener);
-	}
-	jsuis.Component.prototype.addMouseMotionListener = function(mouseMotionListener) {
-		var peer = this.getPeer();
-		peer.addMouseMotionListener(mouseMotionListener);
-	}
-	jsuis.Component.prototype.removeMouseMotionListener = function(mouseMotionListener) {
-		var peer = this.getPeer();
-		peer.removeMouseMotionListener(mouseMotionListener);
-	}
-	jsuis.Component.prototype.addFocusListener = function(focusListener) {
-		var peer = this.getPeer();
-		peer.addFocusListener(focusListener);
-	}
-	jsuis.Component.prototype.removeFocusListener = function(focusListener) {
-		var peer = this.getPeer();
-		peer.removeFocusListener(focusListener);
-	}
-	jsuis.Component.prototype.addActionListener = function(actionListener) {
-		var peer = this.getPeer();
-		peer.addActionListener(actionListener);
-	}
-	jsuis.Component.prototype.removeActionListener = function(actionListener) {
-		var peer = this.getPeer();
-		peer.removeActionListener(actionListener);
 	}
 }) (jsuis);
 
@@ -1900,6 +1983,26 @@ jsuis.packages = [];
 		if (listener && listener.focusLost) {
 			listener.focusLost.call(this, event);
 		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.Frame
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Frame(title));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Frame,
+			new jsuis.Property("layeredPane"),
+			new jsuis.Property("menuBar"),
+			new jsuis.Property("contentPane")
+	);
+	jsuis.Frame.prototype.dispose = function() {
+		var peer = this.getPeer();
+		peer.dispose();
 	}
 }) (jsuis);
 
@@ -2218,6 +2321,51 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Icon;
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource, iconWidth, iconHeight));
+	});
+	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
+			new jsuis.Property("resource")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.Label
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Label = jsuis.Object.extend(SUPER, function(text) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Label(text));
+	});
+	jsuis.Object.addPeerProperties(jsuis.Label,
+			new jsuis.Property("text")
+	);
+}) (jsuis);
+
+/**
+ * jsuis.LineBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Border;
+	jsuis.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].LineBorder(color, thickness, rx, ry));
+	});
+	jsuis.Object.addPeerProperties(jsuis.LineBorder,
+			new jsuis.Property("color"),
+			new jsuis.Property("thickness"),
+			new jsuis.Property("rx"),
+			new jsuis.Property("ry")
+	);
+}) (jsuis);
+
+/**
  * jsuis.MouseAdapter
  */
 (function(jsuis) {
@@ -2332,6 +2480,17 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
+ * jsuis.Panel
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Panel(layout));
+	});
+}) (jsuis);
+
+/**
  * jsuis.PropertyChangeListener
  */
 (function(jsuis) {
@@ -2346,6 +2505,20 @@ jsuis.packages = [];
 		var listener = this.getListener();
 		listener.propertyChange.call(this, event);
 	}
+}) (jsuis);
+
+/**
+ * jsuis.TextField
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.TextField = jsuis.Object.extend(SUPER, function(text) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].TextField(text));
+	});
+	jsuis.Object.addPeerProperties(jsuis.TextField,
+			new jsuis.Property("text")
+	);
 }) (jsuis);
 
 /**
@@ -2444,70 +2617,6 @@ jsuis.packages = [];
 }) (jsuis);
 
 /**
- * jsuis.Button
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
-	});
-	jsuis.Object.addProperties(jsuis.Button,
-			new jsuis.Property("action"),
-			new jsuis.Property("propertyChangeListener")
-	);
-	jsuis.Object.addPeerProperties(jsuis.Button,
-			new jsuis.Property("text"),
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconTextGap"),
-			new jsuis.Property("group")
-	);
-	jsuis.Button.prototype.setAction = function(action) {
-		var oldAction = this.getAction();
-		if (oldAction && oldAction !== action) {
-			this.removeActionListener(oldAction);
-			var propertyChangeListener = this.getPropertyChangeListener();
-			oldAction.removePropertyChangeListener(propertyChangeListener);
-		}
-		if (action) {
-			this.addActionListener(action);
-			var propertyChangeListener = new jsuis.PropertyChangeListener({
-				propertyChange: function(event) {
-					var button = this.getListenerComponent();
-					var enabled = event.getNewValue();
-					button.setEnabled(enabled);
-				}
-			});
-			propertyChangeListener.setPropertyName("enabled");
-			propertyChangeListener.setListenerComponent(this);
-			this.setPropertyChangeListener(propertyChangeListener);
-			action.addPropertyChangeListener(propertyChangeListener);
-		}
-		return this;
-	}
-}) (jsuis);
-
-/**
- * jsuis.Frame
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Frame(title));
-	});
-	jsuis.Object.addPeerProperties(jsuis.Frame,
-			new jsuis.Property("layeredPane"),
-			new jsuis.Property("menuBar"),
-			new jsuis.Property("contentPane")
-	);
-	jsuis.Frame.prototype.dispose = function() {
-		var peer = this.getPeer();
-		peer.dispose();
-	}
-}) (jsuis);
-
-/**
  * jsuis.GridBagConstraints
  */
 (function(jsuis) {
@@ -2591,62 +2700,6 @@ jsuis.packages = [];
 				this.getInsets(), this.getIpadx(), this.getIpady(),
 				this.getLayer());
 	}
-}) (jsuis);
-
-/**
- * jsuis.Label
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Label = jsuis.Object.extend(SUPER, function(text) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Label(text));
-	});
-	jsuis.Object.addPeerProperties(jsuis.Label,
-			new jsuis.Property("text")
-	);
-}) (jsuis);
-
-/**
- * jsuis.LineBorder
- */
-(function(jsuis) {
-	var SUPER = jsuis.Border;
-	jsuis.LineBorder = jsuis.Object.extend(SUPER, function(color, thickness, rx, ry) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].LineBorder(color, thickness, rx, ry));
-	});
-	jsuis.Object.addPeerProperties(jsuis.LineBorder,
-			new jsuis.Property("color"),
-			new jsuis.Property("thickness"),
-			new jsuis.Property("rx"),
-			new jsuis.Property("ry")
-	);
-}) (jsuis);
-
-/**
- * jsuis.Panel
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.Panel = jsuis.Object.extend(SUPER, function(layout) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Panel(layout));
-	});
-}) (jsuis);
-
-/**
- * jsuis.TextField
- */
-(function(jsuis) {
-	var SUPER = jsuis.Component;
-	jsuis.TextField = jsuis.Object.extend(SUPER, function(text) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].TextField(text));
-	});
-	jsuis.Object.addPeerProperties(jsuis.TextField,
-			new jsuis.Property("text")
-	);
 }) (jsuis);
 
 /**
@@ -2754,9 +2807,9 @@ jsuis.packages = [];
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].TabbedPane(tabPlacement));
 	});
-	jsuis.TabbedPane.prototype.addTab = function(title, icon, component, tip) {
+	jsuis.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
 		var peer = this.getPeer();
-		peer.addTab(title, icon, component, tip);
+		peer.addTab(tabComponent, cardComponent);
 	}
 }) (jsuis);
 
@@ -2802,14 +2855,24 @@ jsuis.packages = [];
  */
 (function(jsuis) {
 	var SUPER = jsuis.Panel;
-	jsuis.Tree = jsuis.Object.extend(SUPER, function() {
+	jsuis.Tree = jsuis.Object.extend(SUPER, function(model) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Tree());
+		this.setModel(nvl(model, new jsuis.TreeModel()));
 	});
 	jsuis.Object.addPeerProperties(jsuis.Tree,
 			new jsuis.Property("model"),
 			new jsuis.Property("root")
 	);
+	jsuis.Tree.prototype.isRootVisible = function() {
+		var peer = this.getPeer();
+		return peer.isRootVisible();
+	}
+	jsuis.Tree.prototype.setRootVisible = function(rootVisible) {
+		var peer = this.getPeer();
+		peer.setRootVisible(rootVisible);
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -3160,7 +3223,6 @@ jsuis.packages.push(jsuis.defaultlf);
 	}
 	jsuis.defaultlf.Component.prototype.add = function(component, constraints, index) {
 		component = component.getPeer();
-		component.init();
 		this.addChild(component, constraints, index);
 		if (constraints !== null && constraints !== undefined) {
 			if (constraints instanceof jsuis.Cloneable) {
@@ -3907,31 +3969,19 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
- * jsuis.defaultlf.ImageIcon
+ * jsuis.defaultlf.Icon
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
-		this.setResource(resource);
-		this.setIconWidth(nvl(iconWidth, 16));
-		this.setIconHeight(nvl(iconHeight, 16));
+	jsuis.defaultlf.Icon = jsuis.Object.extend(SUPER, function(iconWidth, iconHeight) {
+		SUPER.prototype.constructor.call(this);
+		this.setIconWidth(iconWidth);
+		this.setIconHeight(iconHeight);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
-			new jsuis.Property("resource"),
+	jsuis.Object.addProperties(jsuis.defaultlf.Icon,
 			new jsuis.Property("iconWidth"),
 			new jsuis.Property("iconHeight")
 	);
-	jsuis.defaultlf.ImageIcon.prototype.createComponent = function() {
-		var iconComponent = new jsuis.defaultlf.Component(document.createElementNS(jsuis.Constants.SVG, "image"));
-		var iconElement = iconComponent.getElement();
-		var resource = this.getResource();
-		iconElement.setAttributeNS('http://www.w3.org/1999/xlink', 'href', resource);
-		var iconWidth = this.getIconWidth();
-		var iconHeight = this.getIconHeight();
-		iconComponent.setPreferredSize(new jsuis.Dimension(iconWidth, iconHeight));
-		return iconComponent;
-	}
 }) (jsuis);
 
 /**
@@ -4030,7 +4080,14 @@ jsuis.packages.push(jsuis.defaultlf);
 	var SUPER = jsuis.Object;
 	jsuis.defaultlf.TreeCellRenderer = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
+		this.setRowHeight(18);
+		this.setLeafIcon(new jsuis.defaultlf.PathIcon("M 2.5 .5 l 7 0 l 4 4 l 0 11 l -11 0 z M 9.5 .5 l 0 4 l 4 0"));
 	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TreeCellRenderer,
+			new jsuis.Property("rowHeight"),
+			new jsuis.Property("leafIcon"),
+			new jsuis.Property("closedIcon")
+	);
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var button = new jsuis.defaultlf.Button();
@@ -4043,74 +4100,7 @@ jsuis.packages.push(jsuis.defaultlf);
 		button.setBackground(jsuis.Color.Black.withAlpha(0));
 		return button;
 	}
-	jsuis.defaultlf.TreeCellRenderer.prototype.add = function(component, constraints, index) {
-		var component = component.getPeer();
-		if (component instanceof jsuis.defaultlf.TreeNode) {
-			var panel = this.getPanel();
-			if (!panel) {
-				panel = new jsuis.defaultlf.Panel(new jsuis.BorderLayout());
-				this.setPanel(panel);
-				var parent = this.getParent();
-				if (parent instanceof jsuis.defaultlf.Tree) {
-					parent.add(panel, jsuis.BorderConstraints.NORTH);
-				} else {
-					var parentPanel = parent.getPanel();
-					var parentPanelComponents = parentPanel.getComponents();
-					parentPanel.add(panel, jsuis.BorderConstraints.NORTH, parentPanelComponents.indexOf(this) + 1);
-				}
-			}
-			panel.add(component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
-			var button = this.getButton();
-			var buttonPadding = button.getPadding();
-			component.getButton().setPadding(buttonPadding.add(new jsuis.Insets(0, 16, 0, 0)));
-			component.setParent(this);
-		} else {
-			SUPER.prototype.add.call(this, component, constraints, index);
-		}
-	}
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.TreeModel
- */
-(function(jsuis) {
-	var SUPER = jsuis.Object;
-	jsuis.defaultlf.TreeModel = jsuis.Object.extend(SUPER, function(root) {
-		SUPER.prototype.constructor.call(this);
-		this.setRoot(root);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TreeModel,
-			new jsuis.Property("root"),
-			new jsuis.Property("rows")
-	);
-	jsuis.defaultlf.TreeModel.prototype.setRoot = function(root) {
-		this.setRows(null);
-		this.root = root;
-		return this;
-	}
-	jsuis.defaultlf.TreeModel.prototype.getRows = function() {
-		var rows = this.rows;
-		if (!rows) {
-			rows = [];
-			this.setRows(rows);
-			var root = this.getRoot();
-			if (root) {
-				this.load(root);
-			}
-		}
-		return rows;
-	}
-	jsuis.defaultlf.TreeModel.prototype.load = function(node) {
-		var rows = this.getRows();
-		rows.push(node);
-		var children = node.getChildren();
-		if (children) {
-			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				this.load(child);
-			}
-		}
-	}
+	
 }) (jsuis);
 
 /**
@@ -4122,9 +4112,9 @@ jsuis.packages.push(jsuis.defaultlf);
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "clipPath"));
 		this.setId(jsuis.defaultlf.ClipPath.next());
 	});
-	jsuis.defaultlf.ClipPath.sequence = 0;
+	var sequence = 0;
 	jsuis.defaultlf.ClipPath.next = function() {
-		return "ClipPath-" + jsuis.defaultlf.ClipPath.sequence++;
+		return "ClipPath-" + sequence++;
 	};
 }) (jsuis);
 
@@ -4276,6 +4266,33 @@ jsuis.packages.push(jsuis.defaultlf);
 				browserWindow.removeComponentListener(browserWindowComponentListener);
 			}
 		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ImageIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Icon;
+	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
+		SUPER.prototype.constructor.call(this);
+		this.setResource(resource);
+		this.setIconWidth(nvl(iconWidth, 16));
+		this.setIconHeight(nvl(iconHeight, 16));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
+			new jsuis.Property("resource")
+	);
+	jsuis.defaultlf.ImageIcon.prototype.paintIcon = function(component, constraints) {
+		var iconComponent = new jsuis.defaultlf.Component(document.createElementNS(jsuis.Constants.SVG, "image"));
+		var iconElement = iconComponent.getElement();
+		var resource = this.getResource();
+		iconElement.setAttributeNS("http://www.w3.org/1999/xlink", "href", resource);
+		var iconWidth = this.getIconWidth();
+		var iconHeight = this.getIconHeight();
+		iconComponent.setPreferredSize(new jsuis.Dimension(iconWidth, iconHeight));
+		component.add(iconComponent, constraints);
+		return iconComponent;
 	}
 }) (jsuis);
 
@@ -4553,6 +4570,26 @@ jsuis.packages.push(jsuis.defaultlf);
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.PathIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Icon;
+	jsuis.defaultlf.PathIcon = jsuis.Object.extend(SUPER, function(resource) {
+		SUPER.prototype.constructor.call(this);
+		this.setResource(resource);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.PathIcon,
+			new jsuis.Property("resource")
+	);
+	jsuis.defaultlf.PathIcon.prototype.paintIcon = function(component, constraints) {
+		var resource = this.getResource();
+		var iconComponent = new jsuis.defaultlf.Path(resource);
+		component.add(iconComponent, constraints);
+		return iconComponent;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.Rect
  */
 (function(jsuis) {
@@ -4715,7 +4752,21 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		SUPER.prototype.constructor.call(this, null);
+		this.init(text, icon);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Button,
+			new jsuis.Property("label"),
+			new jsuis.Property("icon"),
+			new jsuis.Property("iconComponent"),
+			new jsuis.Property("iconTextGap"),
+			new jsuis.Property("color"),
+			new jsuis.Property("pressedColor"),
+			new jsuis.Property("rolloverColor"),
+			new jsuis.Property("group")
+	);
+	jsuis.defaultlf.Button.prototype.init = function(text, icon) {
+		this.setLayout(new jsuis.BorderLayout());
 		if ((text !== null) && (text !== undefined)) {
 			this.setText(text);
 		}
@@ -4752,17 +4803,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		});
 		this.addMouseListener(mouseListener);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Button,
-			new jsuis.Property("label"),
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconComponent"),
-			new jsuis.Property("iconTextGap"),
-			new jsuis.Property("color"),
-			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor"),
-			new jsuis.Property("group")
-	);
+	}
 	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
 		var label = this.getLabel();
 		if (!label) {
@@ -4789,9 +4830,8 @@ jsuis.packages.push(jsuis.defaultlf);
 			this.remove(oldIconComponent);
 		}
 		if (icon) {
-			var iconComponent = icon.createComponent();
+			var iconComponent = icon.paintIcon(this, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
 			this.setIconComponent(iconComponent);
-			this.add(iconComponent, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
 			iconComponent.setEnabled(false);
 		}
 		this.icon = icon;
@@ -5751,25 +5791,12 @@ jsuis.packages.push(jsuis.defaultlf);
 		this.setTabPlacement(tabPlacement);
 		var tabPanel = new jsuis.defaultlf.Panel(new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setTabPanel(tabPanel);
-		SUPER.prototype.add.call(this, tabPanel, jsuis.BorderConstraints.NORTH);
+		SUPER.prototype.add.call(this, tabPanel, new jsuis.BorderConstraints(tabPlacement));
 		var cardPanel = new jsuis.defaultlf.LayeredPane();
 		this.setCardPanel(cardPanel);
 		SUPER.prototype.add.call(this, cardPanel);
 		cardPanel.setLayout(new jsuis.BorderLayout());
 		cardPanel.setBorder(new jsuis.LineBorder());
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
-			new jsuis.Property("tabPlacement"),
-			new jsuis.Property("tabPanel"),
-			new jsuis.Property("cardPanel"),
-			new jsuis.Property("selection")
-	);
-	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
-		var tabPanel = this.getTabPanel();
-		tabPanel.add(tabComponent);
-		var cardPanel = this.getCardPanel();
-		cardPanel.add(cardComponent);
-		cardComponent.setVisible(false);
 		var actionListener = new jsuis.ActionListener({
 			actionPerformed: function(event) {
 				var tabbedPane = this.getListenerComponent();
@@ -5778,6 +5805,23 @@ jsuis.packages.push(jsuis.defaultlf);
 			}
 		});
 		actionListener.setListenerComponent(this);
+		this.setActionListener(actionListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
+			new jsuis.Property("tabPlacement"),
+			new jsuis.Property("tabPanel"),
+			new jsuis.Property("cardPanel"),
+			new jsuis.Property("selection"),
+			new jsuis.Property("actionListener")
+	);
+	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
+		var tabPanel = this.getTabPanel();
+		tabPanel.add(tabComponent);
+		var cardPanel = this.getCardPanel();
+		cardPanel.add(cardComponent);
+		cardComponent.setVisible(false);
+		var actionListener = this.getActionListener();
+		tabComponent.removeActionListener(actionListener);
 		tabComponent.addActionListener(actionListener);
 	}
 	jsuis.defaultlf.TabbedPane.prototype.setSelected = function(tabComponent) {
@@ -5933,38 +5977,64 @@ jsuis.packages.push(jsuis.defaultlf);
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Tree = jsuis.Object.extend(SUPER, function() {
-		// SUPER.prototype.constructor.call(this, null);
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		SUPER.prototype.constructor.call(this, null);
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
-		this.setModel(new jsuis.defaultlf.TreeModel());
 		this.setCellRenderer(new jsuis.defaultlf.TreeCellRenderer());
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Tree,
 			new jsuis.Property("model"),
+			new jsuis.Property("rows"),
 			new jsuis.Property("cellRenderer"),
 			new jsuis.Property("selection")
 	);
-	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
-		var model = this.getModel();
-		model.setRoot(root);
-		return this;
-	}
 	jsuis.defaultlf.Tree.prototype.getRoot = function() {
 		var model = this.getModel();
 		return model.getRoot();
 	}
-	jsuis.defaultlf.Tree.prototype.setY = function(y) {
-		SUPER.prototype.setY.call(this, y);
+	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		this.setRows(null);
 		return this;
 	}
-	jsuis.defaultlf.Tree.prototype.setHeight = function(height) {
-		SUPER.prototype.setHeight.call(this, height);
+	jsuis.defaultlf.Tree.prototype.getRows = function() {
+		var rows = this.rows;
+		if (!rows) {
+			rows = [];
+			this.setRows(rows);
+			var root = this.getRoot();
+			if (root) {
+				this.load(root);
+			}
+		}
+		return rows;
+	}
+	jsuis.defaultlf.Tree.prototype.load = function(node) {
+		var rows = this.rows;
+		rows.push(node);
+		var children = node.getChildren();
+		if (children) {
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				this.load(child);
+			}
+		}
+	}
+	jsuis.defaultlf.Tree.prototype.getRowHeight = function() {
+		var cellRenderer = this.getCellRenderer();
+		return cellRenderer.getRowHeight();
+	}
+	jsuis.defaultlf.Tree.prototype.setRowHeight = function(rowHeight) {
+		var cellRenderer = this.getCellRenderer();
+		cellRenderer.setRowHeight(rowHeight);
 		return this;
 	}
 	jsuis.defaultlf.Tree.prototype.validate = function() {
+		var x = 0;
+		var y = 0;
 		var treeCellRenderer = this.getCellRenderer();
 		var model = this.getModel();
-		var rows = model.getRows();
+		var rows = this.getRows();
 		for (var i = 0; i < rows.length; i++) {
 			var treeNode = rows[i];
 			/*
@@ -5973,7 +6043,12 @@ jsuis.packages.push(jsuis.defaultlf);
 			*/
 			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
 					false, false, treeNode.isLeaf(), i, false);
-			this.add(component, jsuis.BorderConstraints.NORTH);
+			this.add(component);
+			var preferredSize = component.getPreferredSize();
+			var preferredHeight = preferredSize.getHeight();
+			component.setSize(preferredSize);
+			component.setLocation(new jsuis.Point(x, y));
+			y += preferredHeight;
 		}
 		this.doLayout();
 		var components = this.getComponents();
@@ -5982,6 +6057,7 @@ jsuis.packages.push(jsuis.defaultlf);
 			component.validate();
 		}
 	}
+	
 	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
 		var selection = this.getSelection();
 		return (treeNode === selection);
