@@ -1,28 +1,26 @@
 /**
- * jsuis.Frame
+ * jsuis.Dialog
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.Frame = jsuis.Object.extend(SUPER, function(title) {
+	jsuis.Dialog = jsuis.Object.extend(SUPER, function(title) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Frame(title));
+		this.setPeer(new jsuis[lookAndFeel].Dialog(title));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Frame, {
+	jsuis.Object.addPeerProperties(jsuis.Dialog, {
 		layeredPane: null,
-		menuBar: null,
 		contentPane: null,
 		visible: false
 	});
-	jsuis.Frame.prototype.pack = function() {
+	jsuis.Dialog.prototype.pack = function() {
 		var peer = this.getPeer();
 		peer.pack();
 	}
-	// TODO
-	jsuis.Frame.prototype.setLocationRelativeTo = function(component) {
+	jsuis.Dialog.prototype.setLocationRelativeTo = function(component) {
 		var peer = this.getPeer();
 		peer.setLocationRelativeTo(component);
 	}
-	jsuis.Frame.prototype.dispose = function() {
+	jsuis.Dialog.prototype.dispose = function() {
 		var peer = this.getPeer();
 		peer.dispose();
 	}

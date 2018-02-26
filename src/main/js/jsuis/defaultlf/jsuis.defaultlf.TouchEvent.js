@@ -8,11 +8,11 @@
 		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
 		this.setTouches(touches);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TouchEvent,
-			new jsuis.Property("touches"),
-			new jsuis.Property("x"),
-			new jsuis.Property("y")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.TouchEvent, {
+		touches: null,
+		x: 0,
+		y: 0
+	});
 	jsuis.defaultlf.TouchEvent.prototype.getTouches = function() {
 		var touches = this.touches;
 		if (touches !== null && touches !== undefined) {

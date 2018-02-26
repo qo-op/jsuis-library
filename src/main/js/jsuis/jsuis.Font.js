@@ -9,11 +9,11 @@
 		this.setStyle(style);
 		this.setSize(size);
 	});
-	jsuis.Object.addProperties(jsuis.Font,
-			new jsuis.Property("name"),
-			new jsuis.Property("style"),
-			new jsuis.Property("size")
-	);
+	jsuis.Object.addProperties(jsuis.Font, {
+		name: null,
+		style: null,
+		size: 0
+	});
 	
 	jsuis.Font.NORMAL = "normal";
 	jsuis.Font.ITALIC = "italic";

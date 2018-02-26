@@ -7,11 +7,12 @@
 		SUPER.prototype.constructor.call(this);
 		this.setUserObject(userObject);
 	});
-	jsuis.Object.addProperties(jsuis.TreeNode,
-			new jsuis.Property("userObject"),
-			new jsuis.Property("children"),
-			new jsuis.Property("parent")
-	);
+	jsuis.Object.addProperties(jsuis.TreeNode, {
+		userObject: null,
+		map: null,
+		children: null,
+		parent: null
+	});
 	jsuis.TreeNode.prototype.add = function(treeNode) {
 		var children = this.getChildren();
 		if (!children) {

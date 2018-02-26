@@ -10,9 +10,9 @@
 		this.add(line);
 		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator,
-			new jsuis.Property("line")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.PopupMenuSeparator, {
+		line: null
+	});
 	jsuis.defaultlf.PopupMenuSeparator.prototype.doLayout = function() {
 		var popupMenu = this.getParent();
 		if (!popupMenu) {

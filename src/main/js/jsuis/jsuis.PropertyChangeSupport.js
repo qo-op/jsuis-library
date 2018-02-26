@@ -7,10 +7,10 @@
 		this.setSource(source);
 		this.setPropertyChangeListeners({});
 	});
-	jsuis.Object.addProperties(jsuis.PropertyChangeSupport,
-			new jsuis.Property("source"),
-			new jsuis.Property("propertyChangeListeners")
-	);
+	jsuis.Object.addProperties(jsuis.PropertyChangeSupport, {
+		source: null,
+		propertyChangeListeners: null
+	});
 	jsuis.PropertyChangeSupport.prototype.addPropertyChangeListener = function(propertyChangeListener) {
 		var propertyName = propertyChangeListener.getPropertyName() || "";
 		var propertyChangeListeners = this.getPropertyChangeListeners(propertyName);

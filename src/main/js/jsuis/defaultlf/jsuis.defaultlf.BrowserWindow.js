@@ -24,12 +24,12 @@
 			}
 		});
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow,
-			new jsuis.Property("eventListeners"),
-			new jsuis.Property("componentListeners"),
-			new jsuis.Property("mouseListeners"),
-			new jsuis.Property("mouseMotionListeners")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow, {
+		eventListeners: null,
+		componentListeners: null,
+		mouseListeners: null,
+		mouseMotionListeners: null
+	});
 	var instance;
 	jsuis.defaultlf.BrowserWindow.getInstance = function() {
 		if (!instance) {

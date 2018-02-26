@@ -9,9 +9,9 @@
 		this.setPadding(new jsuis.Insets(2));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ToolBar,
-			new jsuis.Property("orientation")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ToolBar, {
+		orientation: null
+	});
 	jsuis.defaultlf.ToolBar.prototype.add = function(component, constraints, index) {
 		var orientation = this.getOrientation();
 		switch (orientation) {

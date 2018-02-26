@@ -7,8 +7,8 @@
 		SUPER.prototype.constructor.call(this);
 		this.setListener(listener);
 	});
-	jsuis.Object.addProperties(jsuis.Listener,
-			new jsuis.Property("listener"),
-			new jsuis.Property("listenerComponent")
-	);
+	jsuis.Object.addProperties(jsuis.Listener, {
+		listener: null,
+		listenerComponent: null
+	});
 }) (jsuis);

@@ -8,10 +8,10 @@
 		this.setX(nvl(x, 0));
 		this.setY(nvl(y, 0));
 	});
-	jsuis.Object.addProperties(jsuis.Point,
-			new jsuis.Property("x"),
-			new jsuis.Property("y")
-	);
+	jsuis.Object.addProperties(jsuis.Point, {
+		x: 0,
+		y: 0
+	});
 	jsuis.Point.prototype.add = function(point) {
 		this.setX(this.getX() + point.getX());
 		this.setY(this.getY() + point.getY());

@@ -25,13 +25,13 @@
 		actionListener.setListenerComponent(this);
 		this.setActionListener(actionListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane,
-			new jsuis.Property("tabPlacement"),
-			new jsuis.Property("tabPanel"),
-			new jsuis.Property("cardPanel"),
-			new jsuis.Property("selection"),
-			new jsuis.Property("actionListener")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane, {
+		tabPlacement: null,
+		tabPanel: null,
+		cardPanel: null,
+		selection: null,
+		actionListener: null
+	});
 	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
 		var tabPanel = this.getTabPanel();
 		tabPanel.add(tabComponent);

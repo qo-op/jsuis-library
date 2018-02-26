@@ -9,11 +9,11 @@
 		this.setLayeredPane(layeredPane);
 		this.add(layeredPane);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.RootPane,
-			new jsuis.Property("layeredPane"),
-			new jsuis.Property("menuBar"),
-			new jsuis.Property("contentPane")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.RootPane, {
+		layeredPane: null,
+		menuBar: null,
+		contentPane: null
+	});
 	jsuis.defaultlf.RootPane.prototype.setMenuBar = function(menuBar) {
 		var layeredPane = this.getLayeredPane();
 		var oldMenuBar = this.getMenuBar();

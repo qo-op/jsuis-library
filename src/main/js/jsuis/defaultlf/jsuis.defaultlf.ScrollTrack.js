@@ -15,9 +15,7 @@
 			this.setMargin(new jsuis.Insets(-16, 0));
 		}
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ScrollTrack,
-			new jsuis.Property("direction"),
-			new jsuis.Property("path"),
-			new jsuis.Property("viewport")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollTrack, {
+		direction: null
+	});
 }) (jsuis);

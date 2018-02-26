@@ -25,9 +25,9 @@
 			}
 		}));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor,
-			new jsuis.Property("textField")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor, {
+		textField: null
+	});
 	var instance;
 	jsuis.defaultlf.TextFieldEditor.getInstance = function() {
 		if (!instance) {

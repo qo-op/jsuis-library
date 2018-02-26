@@ -14,15 +14,15 @@
 		this.setPopupTrigger(popupTrigger);
 		this.setButton(button);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.MouseEvent,
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("xAbs"),
-			new jsuis.Property("yAbs"),
-			new jsuis.Property("clickCount"),
-			new jsuis.Property("popupTrigger"),
-			new jsuis.Property("button")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.MouseEvent, {
+		x: 0,
+		y: 0,
+		xAbs: 0,
+		yAbs: 0,
+		clickCount: 0,
+		popupTrigger: null,
+		button: null
+	});
 	jsuis.defaultlf.MouseEvent.prototype.getPoint = function() {
 		var x = this.x;
 		var y = this.y;

@@ -97,17 +97,17 @@
 		});
 		this.addTouchListener(touchListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane,
-			new jsuis.Property("orientation"),
-			new jsuis.Property("leftComponent"),
-			new jsuis.Property("rightComponent"),
-			new jsuis.Property("divider"),
-			new jsuis.Property("dividerLocation"),
-			new jsuis.Property("dividerSize"),
-			new jsuis.Property("dividerPressedPoint"),
-			new jsuis.Property("resizeWeight"),
-			new jsuis.Property("pressedPoint")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane, {
+		orientation: null,
+		leftComponent: null,
+		rightComponent: null,
+		divider: null,
+		dividerLocation: null,
+		dividerSize: null,
+		dividerPressedPoint: null,
+		resizeWeight: 0,
+		pressedPoint: null
+	});
 	jsuis.defaultlf.SplitPane.prototype.setLeftComponent = function(leftComponent) {
 		var oldLeftComponent = this.getLeftComponent();
 		if (oldLeftComponent) {

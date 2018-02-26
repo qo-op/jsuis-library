@@ -13,10 +13,10 @@
 		}
 		this.setAttribute("preserveAspectRatio", "none");
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Viewport,
-			new jsuis.Property("view"),
-			new jsuis.Property("viewPosition")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Viewport, {
+		view: null,
+		viewPosition: null
+	});
 	jsuis.defaultlf.Viewport.prototype.setView = function(view) {
 		this.removeAll();
 		this.add(view);

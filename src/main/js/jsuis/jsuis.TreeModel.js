@@ -7,9 +7,9 @@
 		SUPER.prototype.constructor.call(this);
 		this.setRoot(nvl(root, new jsuis.TreeNode()));
 	});
-	jsuis.Object.addProperties(jsuis.TreeModel,
-			new jsuis.Property("root")
-	);
+	jsuis.Object.addProperties(jsuis.TreeModel, {
+		root: null
+	});
 	jsuis.TreeModel.prototype.getChild = function(parent, index) {
 		return parent.getChildAt(index);
 	}

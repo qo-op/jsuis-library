@@ -7,7 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource, iconWidth, iconHeight));
 	});
-	jsuis.Object.addPeerProperties(jsuis.ImageIcon,
-			new jsuis.Property("resource")
-	);
+	jsuis.Object.addPeerProperties(jsuis.ImageIcon, {
+		resource: null
+	});
 }) (jsuis);

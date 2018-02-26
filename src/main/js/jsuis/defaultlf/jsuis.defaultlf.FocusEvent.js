@@ -8,9 +8,9 @@
 		this.setTemporary(temporary);
 		this.setOpposite(opposite);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.FocusEvent,
-			new jsuis.Property("opposite")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.FocusEvent, {
+		opposite: null
+	});
 	jsuis.defaultlf.FocusEvent.prototype.setTemporary = function(opposite) {
 		this.opposite = opposite;
 	}

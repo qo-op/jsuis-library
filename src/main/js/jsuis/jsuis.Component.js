@@ -7,33 +7,34 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Component(element));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Component,
-			new jsuis.Property("element"),
-			new jsuis.Property("name"),
-			new jsuis.Property("components"),
-			new jsuis.Property("parent"),
-			new jsuis.Property("layout"),
-			new jsuis.Property("constraints"),
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("location"),
-			new jsuis.Property("width"),
-			new jsuis.Property("height"),
-			new jsuis.Property("size"),
-			new jsuis.Property("preferredSize"),
-			new jsuis.Property("minimumSize"),
-			new jsuis.Property("bounds"),
-			new jsuis.Property("padding"),
-			new jsuis.Property("margin"),
-			new jsuis.Property("border"),
-			new jsuis.Property("insets"),
-			new jsuis.Property("outsets"),
-			new jsuis.Property("background"),
-			new jsuis.Property("foreground"),
-			new jsuis.Property("font"),
-			new jsuis.Property("cursor"),
-			new jsuis.Property("actionCommand")
-	);
+	jsuis.Object.addPeerProperties(jsuis.Component, {
+		element: null,
+		name: null,
+		components: null,
+		parent: null,
+		layout: null,
+		constraints: null,
+		x: 0,
+		y: 0,
+		location: null,
+		width: 0,
+		height: 0,
+		size: null,
+		preferredSize: null,
+		minimumSize: null,
+		bounds: null,
+		padding: null,
+		margin: null,
+		border: null,
+		insets: null,
+		outsets: null,
+		background: null,
+		foreground: null,
+		font: null,
+		icon: null,
+		cursor: null,
+		actionCommand: null
+	});
 	jsuis.Component.prototype.add = function(component, constraints, index) {
 		var peer = this.getPeer();
 		peer.add(component, constraints, index);

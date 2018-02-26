@@ -4,47 +4,67 @@
 (function(jsuis) {
 	jsuis.Object = function() {
 	}
-	/*
-	jsuis.Object.prototype.init = function() {
-		var properties = this.getProperties();
-		if (properties) {
-			for (var i = 0; i < properties.length; i++) {
-				var property = properties[i];
-				var value = property.getValue();
-				if (value !== undefined) {
-					value = jsuis.Object.clone(value);
-					var key = property.getKey();
-					var set = "set" + key.charAt(0).toUpperCase() + key.slice(1);
-					if (this[set]) {
-						this[set](value);
-					} else {
-						this[key] = value;
-					}
-				}
+	jsuis.Object.prototype.init = function(defaults, values) {
+		for (var key in defaults) {
+			var value = defaults[key];
+			if (key in values) {
+				value = values[key];
 			}
+			var set = "set" + key.charAt(0).toUpperCase() + key.slice(1);
+			this[set](value);
+		}
+		for (var key in values) {
+			if (key in defaults) {
+				continue;
+			}
+			var value = values[key];
+			var set = "set" + key.charAt(0).toUpperCase() + key.slice(1);
+			this[set](value);
 		}
 	}
-	*/
 	jsuis.Object.addProperties = function(constructor, properties) {
-		properties = Array.prototype.slice.call(arguments, 1);
-		for (var i = 0; i < properties.length; i++) {
-			var property = properties[i];
-			jsuis.Object.addProperty(constructor, property);
+		for (var key in properties) {
+			var value = properties[key];
+			jsuis.Object.addProperty(constructor, key, value);
 		}
 	}
-	jsuis.Object.addProperty = function(constructor, property) {
-		var key = property.getKey();
+	jsuis.Object.addProperty = function(constructor, key, value) {
 		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
-		get += function() {
-			return this.key;
-		};
-		get = get.replace(/key/g, key);
-		try {
-			eval(get);
-		} catch (e) {
-			println(get);
-			println(e.stack);
+		if (value === true || value === false) {
+			var is = jsuis.Object.getClassName(constructor) + ".prototype.is" + method + " = ";
+			is += function() {
+				return this.key;
+			};
+			is = is.replace(/key/g, key);
+			try {
+				eval(is);
+			} catch (e) {
+				println(is);
+				println(e.stack);
+			}
+			var has = jsuis.Object.getClassName(constructor) + ".prototype.has" + method + " = ";
+			has += function() {
+				return this.key;
+			};
+			has = has.replace(/key/g, key);
+			try {
+				eval(has);
+			} catch (e) {
+				println(has);
+				println(e.stack);
+			}
+		} else {
+			var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+			get += function() {
+				return this.key;
+			};
+			get = get.replace(/key/g, key);
+			try {
+				eval(get);
+			} catch (e) {
+				println(get);
+				println(e.stack);
+			}
 		}
 		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
@@ -58,30 +78,54 @@
 			println(set);
 			println(e.stack);
 		}
-		var properties = constructor.properties;
-		if (!properties) {
-			properties = [];
-			constructor.properties = properties;
-		}
-		properties.push(property);
 	}
 	jsuis.Object.addPeerProperties = function(constructor, properties) {
-		properties = Array.prototype.slice.call(arguments, 1);
-		for (var i = 0; i < properties.length; i++) {
-			var property = properties[i];
-			jsuis.Object.addPeerProperty(constructor, property);
+		for (var key in properties) {
+			var value = properties[key];
+			jsuis.Object.addPeerProperty(constructor, key, value);
 		}
 	}
-	jsuis.Object.addPeerProperty = function(constructor, property) {
-		var key = property.getKey();
+	jsuis.Object.addPeerProperty = function(constructor, key, value) {
 		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
-		get += function() {
-			var peer = this.getPeer();
-			return peer.getmethod();
-		};
-		get = get.replace("peer.getmethod", "peer.get" + method);
-		eval(get);
+		if (value === true || value === false) {
+			var is = jsuis.Object.getClassName(constructor) + ".prototype.is" + method + " = ";
+			is += function() {
+				var peer = this.getPeer();
+				return peer.ismethod();
+			};
+			is = is.replace("peer.ismethod", "peer.is" + method);
+			try {
+				eval(is);
+			} catch (e) {
+				println(is);
+				println(e.stack);
+			}
+			var has = jsuis.Object.getClassName(constructor) + ".prototype.has" + method + " = ";
+			has += function() {
+				var peer = this.getPeer();
+				return peer.hasmethod();
+			};
+			has = has.replace("peer.hasmethod", "peer.has" + method);
+			try {
+				eval(has);
+			} catch (e) {
+				println(has);
+				println(e.stack);
+			}
+		} else {
+			var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+			get += function() {
+				var peer = this.getPeer();
+				return peer.getmethod();
+			};
+			get = get.replace("peer.getmethod", "peer.get" + method);
+			try {
+				eval(get);
+			} catch (e) {
+				println(get);
+				println(e.stack);
+			}
+		}
 		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			var peer = this.getPeer();
@@ -90,31 +134,60 @@
 		};
 		set = set.replace(/key/g, key);
 		set = set.replace("peer.setmethod", "peer.set" + method);
-		eval(set);
-		var properties = constructor.properties;
-		if (!properties) {
-			properties = [];
-			constructor.properties = properties;
+		try {
+			eval(set);
+		} catch (e) {
+			println(set);
+			println(e.stack);
 		}
-		properties.push(property);
 	}
 	jsuis.Object.addElementProperties = function(constructor, properties) {
-		properties = Array.prototype.slice.call(arguments, 1);
-		for (var i = 0; i < properties.length; i++) {
-			var property = properties[i];
-			jsuis.Object.addElementProperty(constructor, property);
+		for (var key in properties) {
+			var value = properties[key];
+			jsuis.Object.addElementProperty(constructor, key, value);
 		}
 	}
-	jsuis.Object.addElementProperty = function(constructor, property) {
-		var key = property.getKey();
+	jsuis.Object.addElementProperty = function(constructor, key, value) {
 		var method = key.charAt(0).toUpperCase() + key.slice(1);
-		var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
-		get += function() {
-			var element = this.getElement();
-			return element.getmethod();
-		};
-		get = get.replace("element.getmethod", "element.get" + method);
-		eval(get);
+		if (value === true || value === false) {
+			var is = jsuis.Object.getClassName(constructor) + ".prototype.is" + method + " = ";
+			is += function() {
+				var element = this.getElement();
+				return element.ismethod();
+			};
+			is = is.replace("element.ismethod", "element.is" + method);
+			try {
+				eval(is);
+			} catch (e) {
+				println(is);
+				println(e.stack);
+			}
+			var has = jsuis.Object.getClassName(constructor) + ".prototype.has" + method + " = ";
+			has += function() {
+				var element = this.getElement();
+				return element.hasmethod();
+			};
+			has = has.replace("element.hasmethod", "element.has" + method);
+			try {
+				eval(has);
+			} catch (e) {
+				println(has);
+				println(e.stack);
+			}
+		} else {
+			var get = jsuis.Object.getClassName(constructor) + ".prototype.get" + method + " = ";
+			get += function() {
+				var element = this.getElement();
+				return element.getmethod();
+			};
+			get = get.replace("element.getmethod", "element.get" + method);
+			try {
+				eval(get);
+			} catch (e) {
+				println(get);
+				println(e.stack);
+			}
+		}
 		var set = jsuis.Object.getClassName(constructor) + ".prototype.set" + method + " = ";
 		set += function(key) {
 			var element = this.getElement();
@@ -123,13 +196,12 @@
 		};
 		set = set.replace(/key/g, key);
 		set = set.replace("element.setmethod", "element.set" + method);
-		eval(set);
-		var properties = constructor.properties;
-		if (!properties) {
-			properties = [];
-			constructor.properties = properties;
+		try {
+			eval(set);
+		} catch (e) {
+			println(set);
+			println(e.stack);
 		}
-		properties.push(property);
 	}
 	jsuis.Object.extend = function(source, target) {
 		var object = function() {};
@@ -207,13 +279,6 @@
 		var constructor = this.getConstructor();
 		return jsuis.Object.getClassName(constructor);
 	}
-	jsuis.Object.prototype.getElement = function() {
-		return this.element;
-	}
-	jsuis.Object.prototype.setElement = function(element) {
-		this.element = element;
-		return this;
-	}
 	jsuis.Object.prototype.getPeer = function() {
 		return this.peer;
 	}
@@ -221,14 +286,12 @@
 		this.peer = peer;
 		return this;
 	}
-	jsuis.Object.prototype.setProperties = function(properties) {
-		var constructor = this.getConstructor();
-		constructor.properties = properties;
-		return this;
+	jsuis.Object.prototype.getElement = function() {
+		return this.element;
 	}
-	jsuis.Object.prototype.getProperties = function() {
-		var constructor = this.getConstructor();
-		return constructor.properties;
+	jsuis.Object.prototype.setElement = function(element) {
+		this.element = element;
+		return this;
 	}
 	jsuis.Object.prototype.getPropertyChangeSupport = function() {
 		var propertyChangeSupport = this.propertyChangeSupport;

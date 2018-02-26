@@ -15,4 +15,8 @@
 		var peer = this.getPeer();
 		return peer.getBorderOutsets(component);
 	}
+	jsuis.Border.prototype.paintBorder = function(component, constraints) {
+		var peer = this.getPeer();
+		return peer.paintBorder(component, constraints);
+	}
 }) (jsuis);

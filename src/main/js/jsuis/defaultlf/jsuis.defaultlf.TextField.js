@@ -21,10 +21,10 @@
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TextField,
-			new jsuis.Property("label"),
-			new jsuis.Property("editor")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.TextField, {
+		label: null,
+		editor: null
+	});
 	jsuis.defaultlf.TextField.prototype.setEditor = function(editor) {
 		if (editor) {
 			editor.install(this);

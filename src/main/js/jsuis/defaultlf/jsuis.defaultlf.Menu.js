@@ -6,9 +6,9 @@
 	jsuis.defaultlf.Menu = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, text, icon);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Menu,
-			new jsuis.Property("popupMenu")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Menu, {
+		popupMenu: null
+	});
 	jsuis.defaultlf.Menu.prototype.add = function(component, constraints, index) {
 		var component = component.getPeer();
 		if ((component instanceof jsuis.defaultlf.MenuItem) ||

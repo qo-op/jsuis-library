@@ -12,10 +12,11 @@
 		this.setDisabledColor(jsuis.Color.Gray);
 		this.setSelectable(false);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Label,
-			new jsuis.Property("color"),
-			new jsuis.Property("disabledColor")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Label, {
+		text: null,
+		color: null,
+		disabledColor: null
+	});
 	jsuis.defaultlf.Label.prototype.getText = function() {
 		var element = this.getElement();
 		return element.textContent;

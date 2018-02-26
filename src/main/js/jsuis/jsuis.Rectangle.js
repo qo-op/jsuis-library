@@ -10,12 +10,12 @@
 		this.setWidth(nvl(width, 0));
 		this.setHeight(nvl(height, 0));
 	});
-	jsuis.Object.addProperties(jsuis.Rectangle,
-			new jsuis.Property("x"),
-			new jsuis.Property("y"),
-			new jsuis.Property("width"),
-			new jsuis.Property("height")
-	);
+	jsuis.Object.addProperties(jsuis.Rectangle, {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0
+	});
 	jsuis.Rectangle.prototype.getPoint = function() {
 		return new jsuis.Point(this.getX(), this.getY());
 	}

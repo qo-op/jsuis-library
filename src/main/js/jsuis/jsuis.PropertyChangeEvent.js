@@ -10,10 +10,10 @@
 		this.setOldValue(oldValue);
 		this.setNewValue(newValue);
 	});
-	jsuis.Object.addProperties(jsuis.PropertyChangeEvent,
-			new jsuis.Property("source"),
-			new jsuis.Property("propertyName"),
-			new jsuis.Property("oldValue"),
-			new jsuis.Property("newValue")
-	);
+	jsuis.Object.addProperties(jsuis.PropertyChangeEvent, {
+		source: null,
+		propertyName: null,
+		oldValue: null,
+		newValue: null
+	});
 }) (jsuis);

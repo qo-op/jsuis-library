@@ -10,12 +10,12 @@
 		this.setB(nvl(b, 0));
 		this.setA(nvl(a, 255));
 	});
-	jsuis.Object.addProperties(jsuis.Color,
-			new jsuis.Property("r"),
-			new jsuis.Property("g"),
-			new jsuis.Property("b"),
-			new jsuis.Property("a")
-	);
+	jsuis.Object.addProperties(jsuis.Color, {
+		r: 0,
+		g: 0,
+		b: 0,
+		a: 0
+	});
 	jsuis.Color.getColor = function(rgb, a) {
 		return new jsuis.Color((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 0) & 0xFF, a);
 	}

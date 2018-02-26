@@ -33,7 +33,7 @@ public class Build {
 		for (File file : files) {
 			BufferedReader bufferedReader = null;
 			try {
-				bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO-8859-1"));
+				bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 				String line = null;
 				while ((line = bufferedReader.readLine()) != null) {
 					Matcher matcher = pattern.matcher(line);
@@ -81,11 +81,11 @@ public class Build {
     public static void join(File destination, List<File> files) throws IOException {
     	BufferedWriter bufferedWriter = null;
     	try {
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destination, true), "ISO-8859-1"));
+			bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destination, true), "UTF-8"));
             for (File file : files) {
     			BufferedReader bufferedReader = null;
     			try {
-    				bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO-8859-1"));
+    				bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
     				IOUtils.copy(bufferedReader, bufferedWriter);
 					bufferedWriter.write("\n");
     			} finally {
@@ -145,7 +145,7 @@ public class Build {
 		 */
 		File jsuis = new File(output, "jsuis.js");
 		System.out.println("Cleaning jsuis.js...");
-		FileUtils.writeStringToFile(jsuis, "", "ISO-8859-1");
+		FileUtils.writeStringToFile(jsuis, "", "UTF-8");
 		System.out.println("Getting jsuis files...");
 		List<File> jsuisFiles = new ArrayList<File>();
 		jsuisFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis"), new String[] { "js" }, false));
@@ -165,7 +165,7 @@ public class Build {
 		/*
 		 * versions/jsuis-version.js
 		 */
-		String version = FileUtils.readFileToString(new File("version.txt"), "ISO-8859-1");
+		String version = FileUtils.readFileToString(new File("version.txt"), "UTF-8");
 		File jsuisVersion = new File("versions/jsuis-" + version + ".js");
 		FileUtils.copyFile(jsuis, jsuisVersion);
 		

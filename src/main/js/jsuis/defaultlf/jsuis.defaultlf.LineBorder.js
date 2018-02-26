@@ -12,12 +12,12 @@
 		this.setRx(rx);
 		this.setRy(ry);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.LineBorder,
-			new jsuis.Property("color"),
-			new jsuis.Property("thickness"),
-			new jsuis.Property("rx"),
-			new jsuis.Property("ry")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.LineBorder, {
+		color: null,
+		thickness: 0,
+		rx: 0,
+		ry: 0
+	});
 	jsuis.defaultlf.LineBorder.prototype.getBorderInsets = function(component) {
 		var thickness = this.getThickness();
 		return new jsuis.Insets(thickness / 2, thickness / 2, thickness / 2, thickness / 2);
@@ -26,7 +26,7 @@
 		var thickness = this.getThickness();
 		return new jsuis.Insets(thickness / 2, thickness / 2, thickness / 2, thickness / 2);
 	}
-	jsuis.defaultlf.LineBorder.prototype.install = function(component) {
+	jsuis.defaultlf.LineBorder.prototype.paintBorder = function(component) {
 		var target = component.getTarget();
 		if (!target) {
 			return;

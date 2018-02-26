@@ -7,16 +7,16 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Button(text, icon));
 	});
-	jsuis.Object.addProperties(jsuis.Button,
-			new jsuis.Property("action"),
-			new jsuis.Property("propertyChangeListener")
-	);
-	jsuis.Object.addPeerProperties(jsuis.Button,
-			new jsuis.Property("text"),
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconTextGap"),
-			new jsuis.Property("group")
-	);
+	jsuis.Object.addProperties(jsuis.Button, {
+		action: null,
+		propertyChangeListener: null
+	});
+	jsuis.Object.addPeerProperties(jsuis.Button, {
+		text: null,
+		icon: null,
+		iconTextGap: null,
+		group: null
+	});
 	jsuis.Button.prototype.setAction = function(action) {
 		var oldAction = this.getAction();
 		if (oldAction && oldAction !== action) {

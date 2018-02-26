@@ -11,11 +11,11 @@
 		this.setHgap(hgap);
 		this.setVgap(vgap);
 	});
-	jsuis.Object.addProperties(jsuis.FlowLayout,
-			new jsuis.Property("align"),
-			new jsuis.Property("hgap"),
-			new jsuis.Property("vgap")
-	);
+	jsuis.Object.addProperties(jsuis.FlowLayout, {
+		align: null,
+		hgap: 0,
+		vgap: 0
+	});
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;

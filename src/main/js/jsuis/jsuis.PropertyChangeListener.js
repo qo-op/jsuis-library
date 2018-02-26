@@ -6,9 +6,9 @@
 	jsuis.PropertyChangeListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
 	});
-	jsuis.Object.addProperties(jsuis.PropertyChangeListener,
-			new jsuis.Property("propertyName")
-	);
+	jsuis.Object.addProperties(jsuis.PropertyChangeListener, {
+		propertyName: null
+	});
 	jsuis.PropertyChangeListener.prototype.propertyChange = function(event) {
 		var listener = this.getListener();
 		listener.propertyChange.call(this, event);

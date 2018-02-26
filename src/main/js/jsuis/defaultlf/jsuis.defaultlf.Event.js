@@ -8,11 +8,11 @@
 		this.setSource(source);
 		this.setId(id);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Event,
-			new jsuis.Property("domEvent"),
-			new jsuis.Property("source"),
-			new jsuis.Property("id")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Event, {
+		domEvent: null,
+		source: null,
+		id: null
+	});
 	
 	jsuis.defaultlf.Event.prototype.setComponent = jsuis.defaultlf.Event.prototype.setSource;
 	jsuis.defaultlf.Event.prototype.getComponent = jsuis.defaultlf.Event.prototype.getSource;

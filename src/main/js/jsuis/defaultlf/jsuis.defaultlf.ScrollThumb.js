@@ -9,9 +9,9 @@
 		this.setBorder(new jsuis.defaultlf.LineBorder(null, 0, 8));
 		this.setBackground(jsuis.Color.White.withAlpha(.4 * 255));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ScrollThumb,
-			new jsuis.Property("orientation")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollThumb, {
+		orientation: null
+	});
 	jsuis.defaultlf.ScrollThumb.prototype.getMinimumSize = function() {
 		var orientation = this.getOrientation();
 		if (orientation === jsuis.Constants.HORIZONTAL) {

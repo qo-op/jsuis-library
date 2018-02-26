@@ -10,14 +10,14 @@
 		this.setHgap(hgap);
 		this.setVgap(vgap);
 	});
-	jsuis.Object.addProperties(jsuis.GridBagLayout,
-			new jsuis.Property("hgap"),
-			new jsuis.Property("vgap"),
-			new jsuis.Property("widths"),
-			new jsuis.Property("heights"),
-			new jsuis.Property("weightxs"),
-			new jsuis.Property("weightys")
-	);
+	jsuis.Object.addProperties(jsuis.GridBagLayout, {
+		hgap: 0,
+		vgap: 0,
+		widths: null,
+		heights: null,
+		weightxs: null,
+		weightys: null
+	});
 	jsuis.GridBagLayout.prototype.preferredLayoutSize = function(parent) {
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
@@ -172,7 +172,7 @@
 				}
 				var componentPreferredSize = component.getPreferredSize();
 				var height = componentPreferredSize.getHeight();
-				component.setWidth(xs[gridx + gridwidth] - xs[gridx]);
+				component.setSize(new jsuis.Dimension(xs[gridx + gridwidth] - xs[gridx], height));
 				height = Math.max(height, component.getMinimumSize().getHeight());
 				var weighty = constraints.getWeighty();
 				for (var k = 1; k < gridheight; k++) {

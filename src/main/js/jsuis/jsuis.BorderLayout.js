@@ -11,11 +11,11 @@
 		this.setVgap(vgap);
 		this.setSort(nvl(sort, true));
 	});
-	jsuis.Object.addProperties(jsuis.BorderLayout,
-			new jsuis.Property("hgap"),
-			new jsuis.Property("vgap"),
-			new jsuis.Property("sort")
-	);
+	jsuis.Object.addProperties(jsuis.BorderLayout, {
+		hgap: 0,
+		vgap: 0,
+		sort: false
+	});
 	var comparator;
 	jsuis.BorderLayout.getComparator = function() {
 		if (!comparator) {
@@ -53,7 +53,7 @@
 		var hgap = this.getHgap();
 		var vgap = this.getVgap();
 		var components = parent.getComponents().slice();
-		var sort = this.getSort();
+		var sort = this.isSort();
 		if (sort) {
 			components.sort(jsuis.BorderLayout.getComparator());
 		}
@@ -123,7 +123,7 @@
 		width += hgap;
 		height += vgap;
 		var components = parent.getComponents().slice();
-		var sort = this.getSort();
+		var sort = this.isSort();
 		if (sort) {
 			components.sort(jsuis.BorderLayout.getComparator());
 		}
@@ -151,7 +151,7 @@
 				componentX = x;
 				componentY = y;
 				componentWidth = width;
-				component.setWidth(componentWidth - hgap);
+				component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
 				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				y += componentHeight;
 				height -= componentHeight;
@@ -162,7 +162,7 @@
 				componentX = x;
 				componentY = y + height - componentHeight;
 				componentWidth = width;
-				component.setWidth(componentWidth - hgap);
+				component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
 				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
 				height -= componentHeight;
 				break;

@@ -14,7 +14,7 @@
 			this.setCursor(jsuis.Cursor.S_RESIZE_CURSOR);
 		}
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.SplitPaneDivider,
-			new jsuis.Property("direction")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.SplitPaneDivider, {
+		direction: null
+	});
 }) (jsuis);

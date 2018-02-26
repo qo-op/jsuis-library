@@ -9,9 +9,9 @@
 		this.setIconWidth(nvl(iconWidth, 16));
 		this.setIconHeight(nvl(iconHeight, 16));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon,
-			new jsuis.Property("resource")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon, {
+		resource: null
+	})
 	jsuis.defaultlf.ImageIcon.prototype.paintIcon = function(component, constraints) {
 		var iconComponent = new jsuis.defaultlf.Component(document.createElementNS(jsuis.Constants.SVG, "image"));
 		var iconElement = iconComponent.getElement();

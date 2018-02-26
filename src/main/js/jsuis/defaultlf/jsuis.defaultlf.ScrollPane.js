@@ -115,15 +115,15 @@
 			}
 		}).setPropertyName("value").setListenerComponent(this));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ScrollPane,
-			new jsuis.Property("vsbPolicy"),
-			new jsuis.Property("hsbPolicy"),
-			new jsuis.Property("viewport"),
-			new jsuis.Property("scrollBarPanel"),
-			new jsuis.Property("verticalScrollBar"),
-			new jsuis.Property("horizontalScrollBar"),
-			new jsuis.Property("scrollThumbPressedPoint")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollPane, {
+		vsbPolicy: null,
+		hsbPolicy: null,
+		viewport: null,
+		scrollBarPanel: null,
+		verticalScrollBar: null,
+		horizontalScrollBar: null,
+		scrollThumbPressedPoint: null
+	});
 	jsuis.defaultlf.ScrollPane.prototype.setViewportView = function(view) {
 		var viewport = this.getViewport();
 		viewport.setView(view);

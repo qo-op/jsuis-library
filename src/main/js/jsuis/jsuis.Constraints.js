@@ -13,15 +13,15 @@
 		this.setPadding(nvl(padding, new jsuis.Insets()));
 		this.setBorder(nvl(border, jsuis.Constants.CENTER));
 	});
-	jsuis.Object.addProperties(jsuis.Constraints,
-			new jsuis.Property("layer"),
-			new jsuis.Property("anchor"),
-			new jsuis.Property("fill"),
-			new jsuis.Property("margin"),
-			new jsuis.Property("padding"),
-			new jsuis.Property("border"),
-			new jsuis.Property("bounds")
-	);
+	jsuis.Object.addProperties(jsuis.Constraints, {
+		layer: null,
+		anchor: null,
+		fill: null,
+		margin: null,
+		padding: null,
+		border: null,
+		bounds: null
+	});
 	jsuis.Constraints.prototype.withLayer = function(layer) {
 		return this.clone().setLayer(layer);
 	}

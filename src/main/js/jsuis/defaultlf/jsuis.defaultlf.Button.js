@@ -7,24 +7,20 @@
 		SUPER.prototype.constructor.call(this, null);
 		this.init(text, icon);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Button,
-			new jsuis.Property("label"),
-			new jsuis.Property("icon"),
-			new jsuis.Property("iconComponent"),
-			new jsuis.Property("iconTextGap"),
-			new jsuis.Property("color"),
-			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor"),
-			new jsuis.Property("group")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
+		text: null,
+		icon: null,
+		iconTextGap: 0,
+		label: null,
+		releasedColor: null,
+		rolloverColor: null,
+		pressedColor: null,
+		group: null
+	});
 	jsuis.defaultlf.Button.prototype.init = function(text, icon) {
 		this.setLayout(new jsuis.BorderLayout());
-		if ((text !== null) && (text !== undefined)) {
-			this.setText(text);
-		}
-		if ((icon !== null) && (icon !== undefined)) {
-			this.setIcon(icon);
-		}
+		this.setText(text);
+		this.setIcon(icon);
 		this.setIconTextGap(4);
 		this.setPadding(new jsuis.Insets(2, 4));
 		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
@@ -32,6 +28,7 @@
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		this.setForeground(jsuis.Color.Black);
+		
 		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {
 				var button = event.getSource();
@@ -56,19 +53,6 @@
 		});
 		this.addMouseListener(mouseListener);
 	}
-	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
-		var label = this.getLabel();
-		if (!label) {
-			label = new jsuis.defaultlf.Label();
-			this.setLabel(label);
-			this.add(label, nvl(textConstraints,
-					jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
-		} else if (textConstraints) {
-			label.setConstraints(textConstraints);
-		}
-		label.setText(text);
-		return this;
-	}
 	jsuis.defaultlf.Button.prototype.getText = function() {
 		var label = this.getLabel();
 		if (label) {
@@ -76,17 +60,23 @@
 		}
 		return "";
 	}
+	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
+		if (text) {
+			var label = this.getLabel();
+			if (!label) {
+				label = new jsuis.defaultlf.Label();
+				this.setLabel(label);
+				this.add(label, nvl(textConstraints,
+						jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
+			} else if (textConstraints) {
+				label.setConstraints(textConstraints);
+			}
+			label.setText(text);
+		}
+		return this;
+	}
 	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
-		var oldIconComponent = this.getIconComponent();
-		if (oldIconComponent) {
-			this.remove(oldIconComponent);
-		}
-		if (icon) {
-			var iconComponent = icon.paintIcon(this, nvl(iconConstraints, jsuis.BorderConstraints.WEST));
-			this.setIconComponent(iconComponent);
-			iconComponent.setEnabled(false);
-		}
-		this.icon = icon;
+		SUPER.prototype.setIcon.call(this, icon, nvl(iconConstraints, jsuis.BorderConstraints.WEST.withFill(jsuis.Constants.NONE)));
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
@@ -96,7 +86,7 @@
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
-		this.setColor(background);
+		this.setReleasedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
 		return this;
 	}
@@ -131,8 +121,8 @@
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.paint = function() {
-		var color = this.getColor();
-		SUPER.prototype.setBackground.call(this, color);
+		var releasedColor = this.getReleasedColor();
+		SUPER.prototype.setBackground.call(this, releasedColor);
 	}
 	jsuis.defaultlf.Button.prototype.paintPressed = function() {
 		var pressedColor = this.getPressedColor();

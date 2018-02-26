@@ -11,15 +11,15 @@
 		this.setInitialDelay(delay);
 		this.setRepeats(true);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Timer,
-			new jsuis.Property("actionListeners"),
-			new jsuis.Property("delay"),
-			new jsuis.Property("actionListener"),
-			new jsuis.Property("initialDelay"),
-			new jsuis.Property("timeout"),
-			new jsuis.Property("interval"),
-			new jsuis.Property("actionCommand")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Timer, {
+		actionListeners: null,
+		delay: 0,
+		actionListener: null,
+		initialDelay: 0,
+		timeout: null,
+		interval: null,
+		actionCommand: null
+	});
 	jsuis.defaultlf.Timer.prototype.addActionListener = function(actionListener) {
 		var actionListeners = this.getActionListeners();
 		actionListeners.push(actionListener);

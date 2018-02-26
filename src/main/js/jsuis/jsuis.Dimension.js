@@ -10,10 +10,10 @@
 		this.setWidth(width);
 		this.setHeight(height);
 	});
-	jsuis.Object.addProperties(jsuis.Dimension,
-			new jsuis.Property("width"),
-			new jsuis.Property("height")
-	);
+	jsuis.Object.addProperties(jsuis.Dimension, {
+		width: 0,
+		height: 0
+	});
 	jsuis.Dimension.prototype.add = function(dimension) {
 		var width = this.getWidth() + dimension.getWidth();
 		var height = this.getHeight() + dimension.getHeight();

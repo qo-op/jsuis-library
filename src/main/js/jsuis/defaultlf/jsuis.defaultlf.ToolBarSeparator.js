@@ -10,9 +10,9 @@
 		this.add(line);
 		this.setPreferredSize(nvl(size, new jsuis.Dimension(5, 5)));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ToolBarSeparator,
-			new jsuis.Property("line")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ToolBarSeparator, {
+		line: null
+	});
 	jsuis.defaultlf.ToolBarSeparator.prototype.validate = function() {
 		var toolBar = this.getParent();
 		if (!toolBar) {

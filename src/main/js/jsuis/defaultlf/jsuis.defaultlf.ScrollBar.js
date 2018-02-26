@@ -203,23 +203,23 @@
 		this.setTimer(timer);
 		timer.setInitialDelay(250);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ScrollBar,
-			new jsuis.Property("orientation"),
-			new jsuis.Property("value"),
-			new jsuis.Property("extent"),
-			new jsuis.Property("minimum"),
-			new jsuis.Property("maximum"),
-			new jsuis.Property("increment"),
-			new jsuis.Property("unitIncrement"),
-			new jsuis.Property("blockIncrement"),
-			new jsuis.Property("scrollTrack"),
-			new jsuis.Property("increaseButton"),
-			new jsuis.Property("decreaseButton"),
-			new jsuis.Property("scrollThumb"),
-			new jsuis.Property("scrollThumbPressedPoint"),
-			new jsuis.Property("timerActionListener"),
-			new jsuis.Property("timer")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollBar, {
+		orientation: null,
+		value: 0,
+		extent: 0,
+		minimum: 0,
+		maximum: 0,
+		increment: 0,
+		unitIncrement: 0,
+		blockIncrement: 0,
+		scrollTrack: null,
+		increaseButton: null,
+		decreaseButton: null,
+		scrollThumb: null,
+		scrollThumbPressedPoint: null,
+		timerActionListener: null,
+		timer: null
+	});
 	jsuis.defaultlf.ScrollBar.prototype.getValue = function() {
 		return this.value || 0;
 	}

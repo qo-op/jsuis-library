@@ -9,10 +9,10 @@
 		this.setWhen(when);
 		this.setModifiers(modifiers);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.InputEvent,
-			new jsuis.Property("when"),
-			new jsuis.Property("modifiers")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.InputEvent, {
+		when: 0,
+		modifiers: 0
+	});
 	
 	jsuis.defaultlf.InputEvent.SHIFT_MASK = 1;
 	jsuis.defaultlf.InputEvent.CTRL_MASK = 2;

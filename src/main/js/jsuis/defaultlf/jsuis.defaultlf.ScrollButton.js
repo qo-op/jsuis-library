@@ -31,10 +31,10 @@
 		this.add(icon);
 		this.setPreferredSize(new jsuis.Dimension(16, 16));
 		var color = jsuis.Color.Black.withAlpha(.1 * 255);
-		this.setColor(color);
+		this.setBackground(color);
+		this.setReleasedColor(color);
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
-		this.setBackground(color);
 		var mouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
 				var source = event.getSource();
@@ -43,8 +43,8 @@
 			},
 			mouseReleased: function(event) {
 				var source = event.getSource();
-				var color = source.getColor();
-				source.setBackground(color);
+				var releasedColor = source.getReleasedColor();
+				source.setBackground(releasedColor);
 			},
 			mouseEntered: function(event) {
 				var source = event.getSource();
@@ -53,16 +53,16 @@
 			},
 			mouseExited: function(event) {
 				var source = event.getSource();
-				var color = source.getColor();
-				source.setBackground(color);
+				var releasedColor = source.getReleasedColor();
+				source.setBackground(releasedColor);
 			}
 		});
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ScrollButton,
-			new jsuis.Property("direction"),
-			new jsuis.Property("color"),
-			new jsuis.Property("pressedColor"),
-			new jsuis.Property("rolloverColor")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ScrollButton, {
+		direction: null,
+		releasedColor: null,
+		rolloverColor: null,
+		pressedColor: null
+	});
 }) (jsuis);

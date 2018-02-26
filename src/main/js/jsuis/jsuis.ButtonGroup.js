@@ -7,10 +7,10 @@
 		SUPER.prototype.constructor.call(this);
 		this.setButtons([]);
 	});
-	jsuis.Object.addProperties(jsuis.ButtonGroup,
-			new jsuis.Property("buttons"),
-			new jsuis.Property("selection")
-	);
+	jsuis.Object.addProperties(jsuis.ButtonGroup, {
+		buttons: null,
+		selection: null
+	});
 	jsuis.ButtonGroup.prototype.add = function(button) {
 		var buttons = this.getButtons();
 		buttons.push(button);

@@ -18,18 +18,18 @@
 		this.setWeightx(nvl(weightx, 0));
 		this.setWeighty(nvl(weighty, 0));
 	});
-	jsuis.Object.addProperties(jsuis.GridBagConstraints,
-			new jsuis.Property("gridx"),
-			new jsuis.Property("gridy"),
-			new jsuis.Property("gridwidth"),
-			new jsuis.Property("gridheight"),
-			new jsuis.Property("weightx"),
-			new jsuis.Property("weighty"),
-			new jsuis.Property("relativeGridx"),
-			new jsuis.Property("relativeGridy"),
-			new jsuis.Property("remainderGridwidth"),
-			new jsuis.Property("remainderGridheight")
-	);
+	jsuis.Object.addProperties(jsuis.GridBagConstraints, {
+		gridx: 0,
+		gridy: 0,
+		gridwidth: 0,
+		gridheight: 0,
+		weightx: 0,
+		weighty: 0,
+		relativeGridx: 0,
+		relativeGridy: 0,
+		remainderGridwidth: 0,
+		remainderGridheight: 0
+	});
 	jsuis.GridBagConstraints.prototype.getInsets = function() {
 		return this.getMargin();
 	}

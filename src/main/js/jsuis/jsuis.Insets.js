@@ -14,12 +14,12 @@
 		this.setBottom(bottom);
 		this.setRight(right);
 	});
-	jsuis.Object.addProperties(jsuis.Insets,
-			new jsuis.Property("top"),
-			new jsuis.Property("left"),
-			new jsuis.Property("bottom"),
-			new jsuis.Property("right")
-	);
+	jsuis.Object.addProperties(jsuis.Insets, {
+		top: 0,
+		left: 0,
+		bottom: 0,
+		right: 0
+	});
 	jsuis.Insets.prototype.getPoint = function() {
 		return new jsuis.Point(this.getLeft(), this.getTop());
 	}

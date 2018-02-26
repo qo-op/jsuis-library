@@ -7,7 +7,7 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].TextField(text));
 	});
-	jsuis.Object.addPeerProperties(jsuis.TextField,
-			new jsuis.Property("text")
-	);
+	jsuis.Object.addPeerProperties(jsuis.TextField, {
+		text: null
+	});
 }) (jsuis);

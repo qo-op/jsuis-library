@@ -8,12 +8,12 @@
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 		this.setCellRenderer(new jsuis.defaultlf.TreeCellRenderer());
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Tree,
-			new jsuis.Property("model"),
-			new jsuis.Property("rows"),
-			new jsuis.Property("cellRenderer"),
-			new jsuis.Property("selection")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Tree, {
+		model: null,
+		rows: null,
+		cellRenderer: null,
+		selection: null
+	});
 	jsuis.defaultlf.Tree.prototype.getRoot = function() {
 		var model = this.getModel();
 		return model.getRoot();
@@ -59,7 +59,10 @@
 	jsuis.defaultlf.Tree.prototype.validate = function() {
 		var x = 0;
 		var y = 0;
-		var treeCellRenderer = this.getCellRenderer();
+		var cellRenderer = this.getCellRenderer();
+		
+		println("cellRenderer=" + cellRenderer);
+		
 		var model = this.getModel();
 		var rows = this.getRows();
 		for (var i = 0; i < rows.length; i++) {
@@ -68,7 +71,7 @@
 			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
 					treeNode.isSelected(), treeNode.isExpanded(), treeNode.isLeaf(), i, treeNode.hasFocus());
 			*/
-			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
+			var component = cellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
 					false, false, treeNode.isLeaf(), i, false);
 			this.add(component);
 			var preferredSize = component.getPreferredSize();

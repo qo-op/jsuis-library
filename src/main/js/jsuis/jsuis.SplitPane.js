@@ -7,14 +7,14 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].SplitPane(orientation, leftComponent, rightComponent));
 	});
-	jsuis.Object.addPeerProperties(jsuis.SplitPane,
-			new jsuis.Property("orientation"),
-			new jsuis.Property("leftComponent"),
-			new jsuis.Property("rightComponent"),
-			new jsuis.Property("topComponent"),
-			new jsuis.Property("bottomComponent"),
-			new jsuis.Property("dividerLocation"),
-			new jsuis.Property("dividerSize"),
-			new jsuis.Property("resizeWeight")
-	);
+	jsuis.Object.addPeerProperties(jsuis.SplitPane, {
+		orientation: null,
+		leftComponent: null,
+		rightComponent: null,
+		topComponent: null,
+		bottomComponent: null,
+		dividerLocation: 0,
+		dividerSize: 0,
+		resizeWeight: 0
+	});
 }) (jsuis);

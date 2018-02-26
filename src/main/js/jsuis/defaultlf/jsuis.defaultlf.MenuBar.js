@@ -7,9 +7,9 @@
 		SUPER.prototype.constructor.call(this, new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.MenuBar,
-			new jsuis.Property("selection")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.MenuBar, {
+		selection: null
+	});
 	jsuis.defaultlf.MenuBar.prototype.isSelected = function(menu) {
 		var selection = this.getSelection();
 		return (menu === selection);

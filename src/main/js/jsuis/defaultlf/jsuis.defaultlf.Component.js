@@ -16,23 +16,25 @@
 		this.setFocusListeners([]);
 		this.setActionListeners([]);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Component,
-			new jsuis.Property("components"),
-			new jsuis.Property("parent"),
-			new jsuis.Property("layout"),
-			new jsuis.Property("constraints"),
-			new jsuis.Property("cursor"),
-			new jsuis.Property("target"),
-			new jsuis.Property("eventListeners"),
-			new jsuis.Property("componentListeners"),
-			new jsuis.Property("mouseListeners"),
-			new jsuis.Property("mouseMotionListeners"),
-			new jsuis.Property("touchListeners"),
-			new jsuis.Property("focusListeners"),
-			new jsuis.Property("actionListeners"),
-			new jsuis.Property("actionCommand"),
-			new jsuis.Property("action")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Component, {
+		components: null,
+		parent: null,
+		layout: null,
+		constraints: null,
+		icon: null,
+		iconComponent: null,
+		cursor: null,
+		target: null,
+		eventListeners: null,
+		componentListeners: null,
+		mouseListeners: null,
+		mouseMotionListeners: null,
+		touchListeners: null,
+		focusListeners: null,
+		actionListeners: null,
+		actionCommand: null,
+		action: null
+	});
 	jsuis.defaultlf.Component.prototype.addClass = function(name) {
 		var value = this.getAttribute("class");
 		var classes = value ? value.split(" ") : [];
@@ -330,9 +332,9 @@
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
 		if (border) {
-			border.getPeer().install(this);
+			border.getPeer().paintBorder(this);
 		} else {
-			new jsuis.defaultlf.Border().install(this);
+			new jsuis.defaultlf.Border().paintBorder(this);
 		}
 		this.border = border;
 		return this;
@@ -388,16 +390,16 @@
 		return this.background;
 	}
 	jsuis.defaultlf.Component.prototype.setBackground = function(background) {
-		this.background = background;
 		this.setStyleProperty("fill", nvl(background, "none").toString());
+		this.background = background;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getForeground = function() {
 		return this.foreground;
 	}
 	jsuis.defaultlf.Component.prototype.setForeground = function(foreground) {
-		this.foreground = foreground;
 		this.setStyleProperty("stroke", nvl(foreground, "none").toString());
+		this.foreground = foreground;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getFont = function() {
@@ -411,6 +413,19 @@
 			this.setStyleProperty("font-size", font.getSize() + "px");
 		}
 		this.font = font;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.setIcon = function(icon, iconConstraints) {
+		var oldIconComponent = this.getIconComponent();
+		if (oldIconComponent) {
+			this.remove(oldIconComponent);
+		}
+		if (icon) {
+			var iconComponent = icon.paintIcon(this, iconConstraints);
+			this.setIconComponent(iconComponent);
+			iconComponent.setEnabled(false);
+		}
+		this.icon = icon;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getCursor = function() {

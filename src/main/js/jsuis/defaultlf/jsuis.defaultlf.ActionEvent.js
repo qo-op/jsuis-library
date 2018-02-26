@@ -8,7 +8,7 @@
 		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
 		this.setActionCommand(actionCommand);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ActionEvent,
-			new jsuis.Property("actionCommand")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.ActionEvent, {
+		actionCommand: null
+	});
 }) (jsuis);

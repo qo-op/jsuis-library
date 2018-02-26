@@ -23,9 +23,9 @@
 		componentListener.setListenerComponent(this);
 		browserWindow.addComponentListener(componentListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Frame,
-			new jsuis.Property("rootPane")
-	);
+	jsuis.Object.addProperties(jsuis.defaultlf.Frame, {
+		rootPane: null
+	});
 	jsuis.defaultlf.Frame.prototype.add = function(component, constraints, index) {
 		var contentPane = this.getContentPane();
 		contentPane.add(component, constraints, index);

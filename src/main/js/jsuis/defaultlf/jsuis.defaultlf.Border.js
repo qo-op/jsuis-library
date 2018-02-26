@@ -6,7 +6,7 @@
 	jsuis.defaultlf.Border = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
 	});
-	jsuis.defaultlf.Border.prototype.install = function(component) {
+	jsuis.defaultlf.Border.prototype.paintBorder = function(component) {
 		var target = component.getTarget();
 		if (!target) {
 			return;
