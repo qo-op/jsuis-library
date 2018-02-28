@@ -13,7 +13,6 @@
 		rightComponent: null,
 		topComponent: null,
 		bottomComponent: null,
-		dividerLocation: 0,
 		dividerSize: 0,
 		resizeWeight: 0
 	});

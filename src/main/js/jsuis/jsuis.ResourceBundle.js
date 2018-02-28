@@ -4,15 +4,34 @@
 (function(jsuis) {
 	var SUPER = jsuis.Object;
 	jsuis.ResourceBundle = jsuis.Object.extend(SUPER, function() {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ResourceBundle());
 	});
+	jsuis.Object.addProperties(jsuis.ResourceBundle, {
+		parent: null
+	});
+	var bundles = [];
 	jsuis.ResourceBundle.getBundle = function(baseName, locale) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		return jsuis[lookAndFeel].ResourceBundle.getBundle(baseName, locale);
+		if (!locale) {
+			locale = jsuis.Locale.getDefault();
+		}
+		var name = baseName + "_" + locale;
+		var bundle = bundles[name];
+		if (bundle) {
+			return bundle;
+		}
+		var baseBundle = eval(baseName + ".getInstance()");
+		try {
+			bundle = eval(name + ".getInstance()");
+		} catch (e) {
+		}
+		if (bundle) {
+			bundle.setParent(baseBundle);
+		} else {
+			bundle = baseBundle;
+		}
+		bundles[name] = bundle;
+		return bundle;
 	}
 	jsuis.ResourceBundle.prototype.getString = function(key) {
-		var peer = this.getPeer();
-		return peer.getString(key);
+		return key;
 	}
 }) (jsuis);

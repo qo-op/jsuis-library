@@ -3,10 +3,16 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Path = jsuis.Object.extend(SUPER, function(d) {
+	jsuis.defaultlf.Path = jsuis.Object.extend(SUPER, function(resource) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "path"));
-		this.setAttribute("d", d);
+		if (resource) {
+			this.setResource(resource);
+		}
 	});
+	jsuis.defaultlf.Path.prototype.setResource = function(resource) {
+		this.setAttribute("d", resource);
+		return this;
+	}
 	jsuis.defaultlf.Path.prototype.setX = function(x) {
 		this.setAttribute("transform", "translate(" + nvl(x, 0) + "," + this.getY() + ")");
 		this.x = x;

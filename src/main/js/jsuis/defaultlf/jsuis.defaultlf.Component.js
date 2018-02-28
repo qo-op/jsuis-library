@@ -22,7 +22,7 @@
 		layout: null,
 		constraints: null,
 		icon: null,
-		iconComponent: null,
+		image: null,
 		cursor: null,
 		target: null,
 		eventListeners: null,
@@ -415,15 +415,16 @@
 		this.font = font;
 		return this;
 	}
-	jsuis.defaultlf.Component.prototype.setIcon = function(icon, iconConstraints) {
-		var oldIconComponent = this.getIconComponent();
-		if (oldIconComponent) {
-			this.remove(oldIconComponent);
-		}
+	jsuis.defaultlf.Component.prototype.setIcon = function(icon, constraints) {
 		if (icon) {
-			var iconComponent = icon.paintIcon(this, iconConstraints);
-			this.setIconComponent(iconComponent);
-			iconComponent.setEnabled(false);
+			var image = this.getImage();
+			if (!image) {
+				image = new jsuis.defaultlf.Image();
+				this.setImage(image);
+				this.add(image, constraints);
+				image.setEnabled(false);
+			}
+			icon.paintIcon(this);
 		}
 		this.icon = icon;
 		return this;

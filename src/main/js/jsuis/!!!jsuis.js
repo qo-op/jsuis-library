@@ -4,6 +4,12 @@ function nvl(value, defaultValue) {
 	}
 	return value;
 }
+function uvl(value, defaultValue) {
+	if (value === undefined) {
+		return defaultValue;
+	}
+	return value;
+}
 function println(text) {
 	console.log(text);
 }

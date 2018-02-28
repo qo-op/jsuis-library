@@ -323,4 +323,4 @@
 	jsuis.Object.prototype.toString = function() {
 		return this.getClassName();
 	}
-})(jsuis);
+}) (jsuis);
