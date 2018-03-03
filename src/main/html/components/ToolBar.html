@@ -33,15 +33,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBar = new jsuis.ToolBar();
 	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg");
 	previousButton = new jsuis.Button(null, previousButtonIcon);
 	toolBar.add(previousButton);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg", 16, 16);
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg");
 	upButton = new jsuis.Button(null, upButtonIcon);
 	toolBar.add(upButton);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg", 16, 16);
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg");
 	nextButton = new jsuis.Button(null, nextButtonIcon);
 	toolBar.add(nextButton);
 	

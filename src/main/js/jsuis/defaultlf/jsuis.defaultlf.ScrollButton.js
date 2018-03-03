@@ -2,33 +2,15 @@
  * jsuis.defaultlf.ScrollButton
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Panel;
+	var SUPER = jsuis.defaultlf.LayeredPane;
 	jsuis.defaultlf.ScrollButton = jsuis.Object.extend(SUPER, function(direction) {
-		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
-		this.setDirection(nvl(direction, jsuis.BorderConstraints.NORTH));
-		var target;
-		var icon;
-		switch (direction) {
-		case jsuis.Constants.SOUTH:
-			target = new jsuis.defaultlf.Path("M 0 -8 a 8 8 0 0 0 16 0 v 16 a 8 8 0 0 1 -16 0 z");
-			icon = new jsuis.defaultlf.Path("M 4 6 l -4 -6 h 8 z");
-			break;
-		case jsuis.Constants.EAST:
-			target = new jsuis.defaultlf.Path("M -8 0 a 8 8 0 0 1 0 16 h 16 a 8 8 0 0 0 0 -16 z");
-			icon = new jsuis.defaultlf.Path("M 6 4 l -6 -4 v 8 z");
-			break;
-		case jsuis.Constants.WEST:
-			target = new jsuis.defaultlf.Path("M 24 0 a 8 8 0 0 0 0 16 h -16 a 8 8 0 0 1 0 -16 z");
-			icon = new jsuis.defaultlf.Path("M 0 4 l 6 -4 v 8 z");
-			break;
-		case jsuis.Constants.NORTH:
-		default:
-			target = new jsuis.defaultlf.Path("M 0 24 a 8 8 0 0 1 16 0 v -16 a 8 8 0 0 0 -16 0 z");
-			icon = new jsuis.defaultlf.Path("M 4 0 l -4 6 h 8 z");
-		}
-		this.setTarget(target);
-		icon.setEnabled(false);
-		this.add(icon);
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setDirection(direction);
+		this.setBorder(new jsuis.defaultlf.ScrollButtonBorder(direction));
+		var arrow = new jsuis.defaultlf.Panel();
+		arrow.setBorder(new jsuis.defaultlf.ScrollButtonArrowBorder(direction));
+		arrow.setBackground(jsuis.Color.Black);
+		this.add(arrow);
 		this.setPreferredSize(new jsuis.Dimension(16, 16));
 		var color = jsuis.Color.Black.withAlpha(.1 * 255);
 		this.setBackground(color);

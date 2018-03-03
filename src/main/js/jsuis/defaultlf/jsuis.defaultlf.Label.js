@@ -5,7 +5,10 @@
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Label = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, null);
-		this.init(text, icon);
+		this.setLayout(new jsuis.BorderLayout());
+		this.setText(text);
+		this.setIcon(icon);
+		this.setIconTextGap(4);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Label, {
 		text: null,
@@ -13,12 +16,6 @@
 		iconTextGap: 0,
 		label: null,
 	});
-	jsuis.defaultlf.Label.prototype.init = function(text, icon) {
-		this.setLayout(new jsuis.BorderLayout());
-		this.setText(text);
-		this.setIcon(icon);
-		this.setIconTextGap(4);
-	}
 	jsuis.defaultlf.Label.prototype.getText = function() {
 		var label = this.getLabel();
 		if (label) {

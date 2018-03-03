@@ -4,8 +4,6 @@
 (function(jsuis) {
 	var SUPER = jsuis.Object;
 	jsuis.Border = jsuis.Object.extend(SUPER, function() {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Border());
 	});
 	jsuis.Border.prototype.getBorderInsets = function(component) {
 		var peer = this.getPeer();
@@ -15,8 +13,8 @@
 		var peer = this.getPeer();
 		return peer.getBorderOutsets(component);
 	}
-	jsuis.Border.prototype.paintBorder = function(component, constraints) {
+	jsuis.Border.prototype.paintBorder = function(component) {
 		var peer = this.getPeer();
-		return peer.paintBorder(component, constraints);
+		return peer.paintBorder(component);
 	}
 }) (jsuis);

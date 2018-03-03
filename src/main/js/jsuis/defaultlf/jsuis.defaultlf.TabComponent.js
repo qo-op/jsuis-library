@@ -5,22 +5,21 @@
 	var SUPER = jsuis.defaultlf.Button;
 	jsuis.defaultlf.TabComponent = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, text, icon);
-		var target = new jsuis.defaultlf.Path("M 0 0");
-		this.setTarget(target);
-		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setMargin(new jsuis.Insets(0, -3.5));
+		this.setBorder(new jsuis.defaultlf.TabComponentBorder());
+		this.setBackground(jsuis.Color.LightGray);
+		this.setRolloverColor(jsuis.Color.LightGray);
+		this.setPressedColor(jsuis.Color.Gray);
 	});
 	jsuis.defaultlf.TabComponent.prototype.setSelected = function(selected) {
 		SUPER.prototype.setSelected.call(this, selected);
-		this.validate();
+		var border = this.getBorder();
+		border.paintBorder(this);
 		return this;
 	}
+	/*
 	jsuis.defaultlf.TabComponent.prototype.validate = function() {
-		var w = this.getWidth();
-		var h = this.getHeight();
-		var target = this.getTarget();
 		var selected = this.isSelected();
-		var d = "M 0 " + h + " l 2 -" + h + " l " + (w - 4) + " 0 l 2 " + h;
-		target.setAttribute("d", d);
 		if (selected) {
 			this.paint();
 		} else {
@@ -28,6 +27,7 @@
 		}
 		SUPER.prototype.validate.call(this);
 	}
+	*/
 	jsuis.defaultlf.TabComponent.prototype.mouseClicked = function() {
 	}
 	jsuis.defaultlf.TabComponent.prototype.mousePressed = function() {

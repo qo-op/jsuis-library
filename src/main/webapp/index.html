@@ -2,11 +2,16 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180303074011"></script>
+    <script src="/jsuis.js?20180304223201"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden; position: relative;">
 		<svg height="0" style="display: block;">
 			<defs>
+				<image id="/images/Star.svg" xlink:href="/images/Star.svg"/>
+				<image id="/images/Duke_(Java_mascot)_waving.svg" xlink:href="/images/Duke_(Java_mascot)_waving.svg"/>
+				<image id="/images/Previous.svg" xlink:href="/images/Previous.svg"/>
+				<image id="/images/Up.svg" xlink:href="/images/Up.svg"/>
+				<image id="/images/Next.svg" xlink:href="/images/Next.svg"/>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
 					<stop offset="0%" style="stop-color: rgb(255, 255, 255);"/>
 					<stop offset="100%" style="stop-color: rgb(0, 128, 128);"/>
@@ -130,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	buttonExample = createExamplePanel("jsuis.Button example");
 	
-	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
+	middleButtonIcon = new jsuis.ImageIcon("/images/Star.svg");
 	
 	b1 = new jsuis.Button("Disable middle button");
 	b1.setActionCommand("disable");
@@ -171,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	labelExample = createExamplePanel("jsuis.Label example");
 	labelExample.setLayout(new jsuis.GridBagLayout());
 	
-	label = new jsuis.Label("Hello, World!", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	label = new jsuis.Label("Hello, World!", new jsuis.ImageIcon("/images/Star.svg"));
 	labelExample.add(label);
 	
 	/*
@@ -180,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	layeredPaneExample = createExamplePanel("jsuis.LayeredPane example");
 	layeredPaneExample.setLayout(new jsuis.BorderLayout());
 	
-	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg", 64, 64);
+	icon = new jsuis.ImageIcon("/images/Duke_(Java_mascot)_waving.svg");
 	
 	layeredPane = new jsuis.LayeredPane();
 	layeredPaneExample.add(layeredPane);
@@ -291,15 +296,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBar = new jsuis.ToolBar();
 	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
 	
-	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg");
 	previousButton = new jsuis.Button(null, previousButtonIcon);
 	toolBar.add(previousButton);
 	
-	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg", 16, 16);
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg");
 	upButton = new jsuis.Button(null, upButtonIcon);
 	toolBar.add(upButton);
 	
-	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg", 16, 16);
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg");
 	nextButton = new jsuis.Button(null, nextButtonIcon);
 	toolBar.add(nextButton);
 
@@ -356,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	tabbedPane = new jsuis.TabbedPane();
 	tabbedPaneExample.add(tabbedPane);
-	tabbedPane.setPadding(new jsuis.Insets(1, 0, 0, 0));
 	
 	function makeTextPanel(text) {
 		var panel = new jsuis.Panel(new jsuis.GridBagLayout());
@@ -364,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		return panel;
 	}
 	
-	icon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
+	icon = new jsuis.ImageIcon("/images/Star.svg");
 	
 	panel1 = makeTextPanel("Panel #1");
 	tabbedPane.addTab(new jsuis.TabComponent("Tab 1", icon), panel1);

@@ -23,6 +23,7 @@
 		constraints: null,
 		image: null,
 		cursor: null,
+		graphics: null,
 		target: null,
 		eventListeners: null,
 		componentListeners: null,
@@ -214,24 +215,24 @@
 		return this.width || 0;
 	}
 	jsuis.defaultlf.Component.prototype.setWidth = function(width) {
+		this.width = width;
 		var outsets = this.getOutsets();
 		width -= outsets.getLeft() + outsets.getRight();
 		if (width >= 0) {
 			this.setAttribute("width", width);
 		}
-		this.width = width;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getHeight = function() {
 		return this.height || 0;
 	}
 	jsuis.defaultlf.Component.prototype.setHeight = function(height) {
+		this.height = height;
 		var outsets = this.getOutsets();
 		height -= outsets.getTop() + outsets.getBottom();
 		if (height >= 0) {
 			this.setAttribute("height", height);
 		}
-		this.height = height;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getSize = function() {
@@ -330,12 +331,12 @@
 		return this.border;
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
-		if (border) {
-			border.getPeer().paintBorder(this);
-		} else {
-			new jsuis.defaultlf.Border().paintBorder(this);
-		}
 		this.border = border;
+		border = nvl(border, new jsuis.defaultlf.Border());
+		var graphics = this.getGraphics();
+		if (graphics) {
+			border.paintBorder(this);
+		}
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
@@ -458,9 +459,6 @@
 	jsuis.defaultlf.Component.prototype.requestFocus = function() {
 		var element = this.getElement();
 		element.focus();
-	}
-	jsuis.defaultlf.Component.prototype.getTarget = function() {
-		return this;
 	}
 	jsuis.defaultlf.Component.prototype.addComponentListener = function(componentListener) {
 		var componentListeners = this.getComponentListeners();

@@ -3,9 +3,9 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.Icon;
-	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, iconWidth, iconHeight) {
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource, iconWidth, iconHeight));
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
 	});
 	jsuis.Object.addPeerProperties(jsuis.ImageIcon, {
 		resource: null

@@ -5,17 +5,6 @@
 	var SUPER = jsuis.defaultlf.Label;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, text, icon);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
-		selected: false,
-		rollover: false,
-		releasedColor: null,
-		rolloverColor: null,
-		pressedColor: null,
-		group: null
-	});
-	jsuis.defaultlf.Button.prototype.init = function(text, icon) {
-		SUPER.prototype.init.call(this, text, icon);
 		this.setPadding(new jsuis.Insets(2, 4));
 		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
@@ -45,7 +34,15 @@
 			}
 		});
 		this.addMouseListener(mouseListener);
-	}
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
+		selected: false,
+		rollover: false,
+		releasedColor: null,
+		rolloverColor: null,
+		pressedColor: null,
+		group: null
+	});
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setReleasedColor(background);
 		SUPER.prototype.setBackground.call(this, background);

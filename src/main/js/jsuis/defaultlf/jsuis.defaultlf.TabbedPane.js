@@ -9,6 +9,7 @@
 		this.setTabPlacement(tabPlacement);
 		var tabPanel = new jsuis.defaultlf.Panel(new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
 		this.setTabPanel(tabPanel);
+		tabPanel.setPadding(new jsuis.Insets(0, 5));
 		SUPER.prototype.add.call(this, tabPanel, new jsuis.BorderConstraints(tabPlacement));
 		var cardPanel = new jsuis.defaultlf.LayeredPane();
 		this.setCardPanel(cardPanel);
