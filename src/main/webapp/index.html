@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180302152354"></script>
+    <script src="/jsuis.js?20180303074011"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden; position: relative;">
 		<svg height="0" style="display: block;">
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	labelExample = createExamplePanel("jsuis.Label example");
 	labelExample.setLayout(new jsuis.GridBagLayout());
 	
-	label = new jsuis.Label("Hello, World!");
+	label = new jsuis.Label("Hello, World!", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
 	labelExample.add(label);
 	
 	/*
@@ -204,10 +204,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		origin.y += offset;
 	}
 	
-	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
-	dukePanel.setIcon(icon);
-	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
-	layeredPane.add(dukePanel, new jsuis.Constraints(0), 0);
+	dukeLabel = new jsuis.Label();
+	dukeLabel.setIcon(icon);
+	dukeLabel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
+	layeredPane.add(dukeLabel, new jsuis.Constraints(0), 0);
 	
 	/*
 	 * ScrollPane example

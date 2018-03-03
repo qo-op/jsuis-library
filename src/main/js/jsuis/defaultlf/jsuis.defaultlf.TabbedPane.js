@@ -42,6 +42,17 @@
 		tabComponent.removeActionListener(actionListener);
 		tabComponent.addActionListener(actionListener);
 	}
+	jsuis.defaultlf.TabbedPane.prototype.getTabCount = function() {
+		var tabPanel = this.getTabPanel();
+		return tabPanel.getComponents().length;
+	}
+	jsuis.defaultlf.TabbedPane.prototype.getTabComponentAt = function(index) {
+		var tabPanel = this.getTabPanel();
+		var tabComponents = tabPanel.getComponents();
+		if (tabComponents) {
+			return tabComponents[index];
+		}
+	}
 	jsuis.defaultlf.TabbedPane.prototype.setSelected = function(tabComponent) {
 		var tabPanel = this.getTabPanel();
 		var tabComponents = tabPanel.getComponents();

@@ -2,32 +2,25 @@
  * jsuis.defaultlf.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Panel;
+	var SUPER = jsuis.defaultlf.Label;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, null);
-		this.init(text, icon);
+		SUPER.prototype.constructor.call(this, text, icon);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
-		text: null,
-		icon: null,
-		iconTextGap: 0,
-		label: null,
+		selected: false,
+		rollover: false,
 		releasedColor: null,
 		rolloverColor: null,
 		pressedColor: null,
 		group: null
 	});
 	jsuis.defaultlf.Button.prototype.init = function(text, icon) {
-		this.setLayout(new jsuis.BorderLayout());
-		this.setText(text);
-		this.setIcon(icon);
-		this.setIconTextGap(4);
+		SUPER.prototype.init.call(this, text, icon);
 		this.setPadding(new jsuis.Insets(2, 4));
 		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
-		this.setForeground(jsuis.Color.Black);
 		
 		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {
@@ -53,49 +46,9 @@
 		});
 		this.addMouseListener(mouseListener);
 	}
-	jsuis.defaultlf.Button.prototype.getText = function() {
-		var label = this.getLabel();
-		if (label) {
-			return label.getText();
-		}
-		return "";
-	}
-	jsuis.defaultlf.Button.prototype.setText = function(text, textConstraints) {
-		if (text) {
-			var label = this.getLabel();
-			if (!label) {
-				label = new jsuis.defaultlf.Label();
-				this.setLabel(label);
-				this.add(label, nvl(textConstraints,
-						jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
-			} else if (textConstraints) {
-				label.setConstraints(textConstraints);
-			}
-			label.setText(text);
-		}
-		return this;
-	}
-	jsuis.defaultlf.Button.prototype.setIcon = function(icon, iconConstraints) {
-		SUPER.prototype.setIcon.call(this, icon, nvl(iconConstraints, jsuis.BorderConstraints.WEST.withFill(jsuis.Constants.NONE)));
-		return this;
-	}
-	jsuis.defaultlf.Button.prototype.setIconTextGap = function(iconTextGap) {
-		var layout = this.getLayout();
-		layout.setHgap(iconTextGap).setVgap(iconTextGap);
-		this.iconTextGap = iconTextGap;
-		return this;
-	}
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setReleasedColor(background);
 		SUPER.prototype.setBackground.call(this, background);
-		return this;
-	}
-	jsuis.defaultlf.Button.prototype.setForeground = function(foreground) {
-		var label = this.getLabel();
-		if (label) {
-			label.setForeground(foreground);
-		}
-		this.foreground = foreground;
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
@@ -104,20 +57,6 @@
 			label.setEnabled(enabled);
 		}
 		SUPER.prototype.setEnabled.call(this, enabled);
-		return this;
-	}
-	jsuis.defaultlf.Button.prototype.isSelected = function() {
-		return this.selected;
-	}
-	jsuis.defaultlf.Button.prototype.setSelected = function(selected) {
-		this.selected = selected;
-		return this;
-	}
-	jsuis.defaultlf.Button.prototype.isRollover = function() {
-		return this.rollover;
-	}
-	jsuis.defaultlf.Button.prototype.setRollover = function(rollover) {
-		this.rollover = rollover;
 		return this;
 	}
 	jsuis.defaultlf.Button.prototype.paint = function() {

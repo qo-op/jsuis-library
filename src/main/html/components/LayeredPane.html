@@ -54,10 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		origin.y += offset;
 	}
 	
-	dukePanel = new jsuis.Panel(new jsuis.BorderLayout());
-	dukePanel.setIcon(icon);
-	dukePanel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
-	layeredPane.add(dukePanel, new jsuis.Constraints(0), 0);
+	dukeLabel = new jsuis.Label();
+	dukeLabel.setIcon(icon);
+	dukeLabel.setBounds(new jsuis.Rectangle(155 - 32, 10, 64, 64));
+	layeredPane.add(dukeLabel, new jsuis.Constraints(0), 0);
 	
 	frame.setVisible(true);
 });

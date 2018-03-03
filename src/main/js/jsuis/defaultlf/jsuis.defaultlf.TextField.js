@@ -5,7 +5,7 @@
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.TextField = jsuis.Object.extend(SUPER, function(text) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		var label = new jsuis.defaultlf.Label(text);
+		var label = new jsuis.defaultlf.Text(text);
 		this.setLabel(label);
 		this.add(label, new jsuis.BorderConstraints().setFill(jsuis.Constants.HORIZONTAL));
 		this.setPadding(new jsuis.Insets(2, 4));

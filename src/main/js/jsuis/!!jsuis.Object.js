@@ -248,29 +248,21 @@
 	jsuis.Object.isArray = function(value) {
 		return (Object.prototype.toString.call(value) === "[object Array]");
 	}
-	jsuis.Object.getClassName = function(constructor, prefix, jsuisPackage) {
+	jsuis.Object.getClassName = function(constructor) {
 		var className = constructor.className;
 		if (className) {
 			return className;
 		}
-		var prefix = prefix || "jsuis";
-		var jsuisPackage = jsuisPackage || jsuis;
-		for (name in jsuisPackage) {
-			if (constructor === jsuisPackage[name]) {
+		// un pour tous, tous pour un
+		for (var prefix in jsuis.packages) {
+			var p = jsuis.packages[prefix];
+			for (name in p) {
+				var c = p[name];
 				var className = prefix + "." + name;
-				constructor.className = className;
-				return className;
-			}
-			var object = jsuisPackage[name];
-			if (jsuis.packages.indexOf(object) === -1) {
-				continue;
-			}
-			var className = jsuis.Object.getClassName(constructor, prefix + "." + name, object);
-			if (className) {
-				constructor.className = className;
-				return className;
+				c.className = className;
 			}
 		}
+		return constructor.className;
 	}
 	jsuis.Object.prototype.getConstructor = function() {
 		return this.constructor;

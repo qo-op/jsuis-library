@@ -2,71 +2,87 @@
  * jsuis.defaultlf.Label
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Label = jsuis.Object.extend(SUPER, function(text) {
-		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "text"));
-		SUPER.prototype.setEnabled.call(this, false);
-		this.setText(nvl(text, ""));
-		this.setFont(new jsuis.Font("Arial", "bold", 12));
-		this.setForeground(jsuis.Color.Black);
-		this.setDisabledColor(jsuis.Color.Gray);
-		this.setSelectable(false);
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.Label = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, null);
+		this.init(text, icon);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Label, {
 		text: null,
-		color: null,
-		disabledColor: null
+		icon: null,
+		iconTextGap: 0,
+		label: null,
 	});
+	jsuis.defaultlf.Label.prototype.init = function(text, icon) {
+		this.setLayout(new jsuis.BorderLayout());
+		this.setText(text);
+		this.setIcon(icon);
+		this.setIconTextGap(4);
+	}
 	jsuis.defaultlf.Label.prototype.getText = function() {
-		var element = this.getElement();
-		return element.textContent;
+		var label = this.getLabel();
+		if (label) {
+			return label.getText();
+		}
+		return "";
 	}
-	jsuis.defaultlf.Label.prototype.setText = function(text) {
-		var element = this.getElement();
-		element.textContent = text;
+	jsuis.defaultlf.Label.prototype.setText = function(text, textConstraints) {
+		if (text) {
+			var label = this.getLabel();
+			if (!label) {
+				label = new jsuis.defaultlf.Text();
+				this.setLabel(label);
+				this.add(label, nvl(textConstraints,
+						jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
+			} else if (textConstraints) {
+				label.setConstraints(textConstraints);
+			}
+			label.setText(text);
+		}
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.setWidth = function(width) {
-		this.width = width;
+	jsuis.defaultlf.Label.prototype.setIcon = function(icon, constraints) {
+		if (icon) {
+			var image = this.getImage();
+			if (!image) {
+				image = new jsuis.defaultlf.Image();
+				this.setImage(image);
+				this.add(image, nvl(constraints, jsuis.BorderConstraints.WEST.withFill(jsuis.Constants.NONE)));
+				image.setEnabled(false);
+			}
+			icon.paintIcon(this);
+		}
+		this.icon = icon;
 		return this;
 	}
-	jsuis.defaultlf.Label.prototype.setHeight = function(height) {
-		this.height = height;
+	jsuis.defaultlf.Label.prototype.setIconTextGap = function(iconTextGap) {
+		var layout = this.getLayout();
+		layout.setHgap(iconTextGap).setVgap(iconTextGap);
+		this.iconTextGap = iconTextGap;
 		return this;
-	}
-	jsuis.defaultlf.Label.prototype.getBackground = function() {
-		SUPER.prototype.getForeground.call(this);
-	}
-	jsuis.defaultlf.Label.prototype.setBackground = function(background) {
-		SUPER.prototype.setForeground.call(this, background);
-		return this;
-	}
-	jsuis.defaultlf.Label.prototype.getForeground = function() {
-		SUPER.prototype.getBackground.call(this);
 	}
 	jsuis.defaultlf.Label.prototype.setForeground = function(foreground) {
-		this.setColor(foreground);
-		SUPER.prototype.setBackground.call(this, foreground);
+		var label = this.getLabel();
+		if (label) {
+			label.setForeground(foreground);
+		}
+		this.foreground = foreground;
+		return this;
+	}
+	jsuis.defaultlf.Label.prototype.setFont = function(font) {
+		var label = this.getLabel();
+		if (label) {
+			label.setFont(font);
+		}
+		this.font = font;
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.setEnabled = function(enabled) {
-		if (enabled) {
-			var color = this.getColor();
-			SUPER.prototype.setBackground.call(this, color);
-		} else {
-			var disabledColor = this.getDisabledColor();
-			SUPER.prototype.setBackground.call(this, disabledColor);
+		var label = this.getLabel();
+		if (label) {
+			label.setEnabled(enabled);
 		}
-		var oldEnabled = this.isEnabled();
-		this.enabled = enabled;
-		this.firePropertyChange("enabled", oldEnabled, enabled);
+		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
-	}
-	jsuis.defaultlf.Label.prototype.validate = function() {
-		var element = this.getElement();
-		var outsets = this.getOutsets();
-		this.setAttribute("transform", "translate(" + 0 + ","
-				+ (this.getY() + outsets.getTop() - element.getBBox().y) + ")");
-		SUPER.prototype.validate.call(this);
 	}
 }) (jsuis);

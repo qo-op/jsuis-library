@@ -21,7 +21,6 @@
 		parent: null,
 		layout: null,
 		constraints: null,
-		icon: null,
 		image: null,
 		cursor: null,
 		target: null,
@@ -413,20 +412,6 @@
 			this.setStyleProperty("font-size", font.getSize() + "px");
 		}
 		this.font = font;
-		return this;
-	}
-	jsuis.defaultlf.Component.prototype.setIcon = function(icon, constraints) {
-		if (icon) {
-			var image = this.getImage();
-			if (!image) {
-				image = new jsuis.defaultlf.Image();
-				this.setImage(image);
-				this.add(image, constraints);
-				image.setEnabled(false);
-			}
-			icon.paintIcon(this);
-		}
-		this.icon = icon;
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getCursor = function() {

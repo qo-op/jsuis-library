@@ -17,10 +17,10 @@ function println(text) {
 /**
  * jsuis
  */
-jsuis = {
-};
+jsuis = {};
 
 /**
  * jsuis.packages
  */
-jsuis.packages = [];
+jsuis.packages = {};
+jsuis.packages["jsuis"] = jsuis;

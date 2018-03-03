@@ -8,6 +8,7 @@
 		this.setPeer(new jsuis[lookAndFeel].Frame(title));
 	});
 	jsuis.Object.addPeerProperties(jsuis.Frame, {
+		title: null,
 		layeredPane: null,
 		menuBar: null,
 		contentPane: null,

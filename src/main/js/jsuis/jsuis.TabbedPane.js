@@ -11,4 +11,12 @@
 		var peer = this.getPeer();
 		peer.addTab(tabComponent, cardComponent);
 	}
+	jsuis.TabbedPane.prototype.getTabCount = function() {
+		var peer = this.getPeer();
+		return peer.getTabCount();
+	}
+	jsuis.TabbedPane.prototype.getTabComponentAt = function(index) {
+		var peer = this.getPeer();
+		return peer.getTabComponentAt(index);
+	}
 }) (jsuis);
