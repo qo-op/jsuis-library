@@ -5,11 +5,6 @@
     <script src="/jsuis.js?${date}"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
-		<svg height="0" style="display: block;">
-			<defs>
-				<image id="/images/Star.svg" xlink:href="/images/Star.svg"/>
-			</defs>
-		</svg>
 		<div id="container" style="height: 100vh;"></div>
 		<script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -44,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		return panel;
 	}
 	
-	icon = new jsuis.ImageIcon("/images/Star.svg");
+	icon = new jsuis.ImageIcon("/images/Star.svg", 16, 16);
 	
 	panel1 = makeTextPanel("Panel #1");
 	tabbedPane.addTab(new jsuis.TabComponent("Tab 1", icon), panel1);

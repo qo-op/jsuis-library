@@ -2533,12 +2533,14 @@ jsuis.packages["jsuis"] = jsuis;
  */
 (function(jsuis) {
 	var SUPER = jsuis.Icon;
-	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, width, height) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource));
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource, width, height));
 	});
 	jsuis.Object.addPeerProperties(jsuis.ImageIcon, {
-		resource: null
+		resource: null,
+		width: 0,
+		height: 0
 	});
 }) (jsuis);
 
@@ -4576,17 +4578,24 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Icon;
-	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource) {
+	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource, width, height) {
 		SUPER.prototype.constructor.call(this);
 		this.setResource(resource);
+		this.setWidth(nvl(width, 0));
+		this.setHeight(nvl(height, 0));
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon, {
-		resource: null
+		resource: null,
+		width: 0,
+		height: 0
 	});
 	jsuis.defaultlf.ImageIcon.prototype.paintIcon = function(component) {
 		var image = component.getImage();
 		var resource = this.getResource();
 		image.setResource(resource);
+		var width = this.getWidth();
+		var height = this.getHeight();
+		image.setPreferredSize(new jsuis.Dimension(width, height));
 	}
 }) (jsuis);
 
