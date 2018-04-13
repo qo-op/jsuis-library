@@ -7,6 +7,7 @@
 		SUPER.prototype.constructor.call(this);
 	});
 	
+	jsuis.Cursor.COPY = "copy";
 	jsuis.Cursor.CROSSHAIR_CURSOR = "crosshair";
 	jsuis.Cursor.DEFAULT_CURSOR = "default";
 	jsuis.Cursor.E_RESIZE_CURSOR = "e-resize";

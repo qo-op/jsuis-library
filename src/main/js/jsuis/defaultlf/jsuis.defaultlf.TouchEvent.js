@@ -29,15 +29,16 @@
 	}
 	jsuis.defaultlf.TouchEvent.prototype.getTouch = function() {
 		var source = this.getSource();
-		var target = source.getTarget();
-		var targetElement = target.getElement();
+		var graphics = source.getGraphics();
+		var graphicsElement = graphics.getElement();
 		var touches = this.getTouches();
 		for (var i = 0; i < touches.length; i++) {
 			var touch = touches[i];
-			if (touch.target === targetElement || targetElement.contains(touch.target)) {
+			if (touch.target === graphicsElement || graphicsElement.contains(touch.target)) {
 				return touch;
 			}
 		}
+		return touches[0];
 	}
 	jsuis.defaultlf.TouchEvent.prototype.getPoint = function() {
 		var x = this.x;

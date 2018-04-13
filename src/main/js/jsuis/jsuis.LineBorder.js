@@ -13,4 +13,8 @@
 		rx: 0,
 		ry: 0
 	});
+	jsuis.LineBorder.prototype.getBorderInsets = function(component) {
+		var thickness = this.getThickness();
+		return new jsuis.Insets(thickness, thickness, thickness, thickness);
+	}
 }) (jsuis);

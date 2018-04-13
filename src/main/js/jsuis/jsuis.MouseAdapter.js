@@ -7,31 +7,31 @@
 		SUPER.prototype.constructor.call(this, listener);
 	});
 	jsuis.MouseAdapter.prototype.mouseClicked = function(event) {
-		var listener = this.getAdapter();
+		var listener = this.getListener();
 		if (listener && listener.mouseClicked) {
 			listener.mouseClicked.call(this, event);
 		}
 	}
 	jsuis.MouseAdapter.prototype.mousePressed = function(event) {
-		var listener = this.getAdapter();
+		var listener = this.getListener();
 		if (listener && listener.mousePressed) {
 			listener.mousePressed.call(this, event);
 		}
 	}
 	jsuis.MouseAdapter.prototype.mouseReleased = function(event) {
-		var listener = this.getAdapter();
+		var listener = this.getListener();
 		if (listener && listener.mouseReleased) {
 			listener.mouseReleased.call(this, event);
 		}
 	}
 	jsuis.MouseAdapter.prototype.mouseEntered = function(event) {
-		var listener = this.getAdapter();
+		var listener = this.getListener();
 		if (listener && listener.mouseEntered) {
 			listener.mouseEntered.call(this, event);
 		}
 	}
 	jsuis.MouseAdapter.prototype.mouseExited = function(event) {
-		var listener = this.getAdapter();
+		var listener = this.getListener();
 		if (listener && listener.mouseExited) {
 			listener.mouseExited.call(this, event);
 		}

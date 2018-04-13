@@ -74,19 +74,26 @@
 		this.paintPressed();
 	}
 	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
+		/*
 		var rollover = this.isRollover();
 		if (rollover) {
 			this.paintRollover();
 		} else {
 			this.paint();
 		}
+		*/
+		this.paint();
 	}
 	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
+		/*
 		this.paintRollover();
 		this.setRollover(true);
+		*/
 	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
+		/*
 		this.paint();
 		this.setRollover(false);
+		*/
 	}
 }) (jsuis);

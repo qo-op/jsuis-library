@@ -45,4 +45,8 @@
 			peer.expandRow(i);
 		}
 	}
+	jsuis.Tree.prototype.getNodeForLocation = function(x, y) {
+		var peer = this.getPeer();
+		return peer.getNodeForLocation(x, y);
+	}
 }) (jsuis);

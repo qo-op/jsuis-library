@@ -23,6 +23,12 @@
 		this.view = view;
 		return this;
 	}
+	jsuis.defaultlf.Viewport.prototype.getGraphics = function() {
+		var view = this.getView();
+		if (view) {
+			return view.getPeer().getGraphics();
+		}
+	}
 	jsuis.defaultlf.Viewport.prototype.getViewBox = function() {
 		return this.viewBox || new jsuis.Rectangle();
 	}
