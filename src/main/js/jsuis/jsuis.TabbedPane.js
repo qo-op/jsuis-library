@@ -19,4 +19,12 @@
 		var peer = this.getPeer();
 		return peer.getTabComponentAt(index);
 	}
+	jsuis.TabbedPane.prototype.getComponentAt = function(index) {
+		var peer = this.getPeer();
+		return peer.getComponentAt(index);
+	}
+	jsuis.TabbedPane.prototype.getSelectedIndex = function() {
+		var peer = this.getPeer();
+		return peer.getSelectedIndex();
+	}
 }) (jsuis);

@@ -6,19 +6,19 @@
 	jsuis.TreeNode = jsuis.Object.extend(SUPER, function(userObject) {
 		SUPER.prototype.constructor.call(this);
 		this.setUserObject(userObject);
+		this.setChildren([]);
 	});
 	jsuis.Object.addProperties(jsuis.TreeNode, {
 		userObject: null,
 		map: null,
 		children: null,
-		parent: null
+		parent: null,
+		expanded: false,
+		size: null,
+		location: null
 	});
 	jsuis.TreeNode.prototype.add = function(treeNode) {
 		var children = this.getChildren();
-		if (!children) {
-			children = [];
-			this.setChildren(children);
-		}
 		children.push(treeNode);
 		treeNode.setParent(this);
 	}

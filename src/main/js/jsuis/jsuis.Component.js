@@ -11,7 +11,7 @@
 		element: null,
 		name: null,
 		components: null,
-		parent: null,
+		// parent: null,
 		layout: null,
 		constraints: null,
 		x: 0,
@@ -28,6 +28,7 @@
 		border: null,
 		insets: null,
 		outsets: null,
+		opaque: null,
 		background: null,
 		foreground: null,
 		font: null,
@@ -45,7 +46,7 @@
 	}
 	jsuis.Component.prototype.removeAll = function() {
 		var peer = this.getPeer();
-		peer.removeAll(component);
+		peer.removeAll();
 	}
 	jsuis.Component.prototype.isLeftToRight = function() {
 		var peer = this.getPeer();
@@ -59,6 +60,10 @@
 	jsuis.Component.prototype.validate = function() {
 		var peer = this.getPeer();
 		peer.validate();
+	}
+	jsuis.Component.prototype.repaint = function() {
+		var peer = this.getPeer();
+		peer.repaint();
 	}
 	jsuis.Component.prototype.isVisible = function() {
 		var peer = this.getPeer();
@@ -98,6 +103,14 @@
 	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
 		var peer = this.getPeer();
 		peer.removeComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.addMouseAdapter = function(mouseAdapter) {
+		var peer = this.getPeer();
+		peer.addMouseAdapter(mouseAdapter);
+	}
+	jsuis.Component.prototype.removeMouseAdapter = function(mouseAdapter) {
+		var peer = this.getPeer();
+		peer.removeMouseAdapter(mouseAdapter);
 	}
 	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
 		var peer = this.getPeer();

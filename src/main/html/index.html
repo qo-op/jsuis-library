@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}));
 	
 	/*
-	 * Menu TabbedPane
+	 * TabbedPane example
 	 */
 	tabbedPaneExample = createExamplePanel("jsuis.TabbedPane example");
 	tabbedPaneExample.setLayout(new jsuis.BorderLayout());
@@ -373,6 +373,42 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	panel3 = makeTextPanel("Panel #3");
 	tabbedPane.addTab(new jsuis.TabComponent("Tab 3", icon), panel3);
+	
+	/*
+	 * Tree example
+	 */
+	treeExample = createExamplePanel("jsuis.Tree example");
+	treeExample.setLayout(new jsuis.BorderLayout());
+	
+	tree = new jsuis.Tree();
+	treeExample.add(tree);
+	
+	root = new jsuis.TreeNode("Root");
+	tree.setRoot(root);
+	
+	letters = new jsuis.TreeNode("Letters");
+	root.add(letters);
+	
+	letterA = new jsuis.TreeNode("A");
+	letters.add(letterA);
+	
+	letterB = new jsuis.TreeNode("B");
+	letters.add(letterB);
+	
+	letterC = new jsuis.TreeNode("C");
+	letters.add(letterC);
+	
+	numbers = new jsuis.TreeNode("Numbers");
+	root.add(numbers);
+	
+	numberOne = new jsuis.TreeNode("One");
+	numbers.add(numberOne);
+	
+	cellRenderer = tree.getCellRenderer();
+	cellRenderer.setIcon("close", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	cellRenderer.setIcon("open", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	
+	tree.expandAll();
 	
 	frame.setVisible(true);
 });

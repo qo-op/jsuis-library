@@ -35,15 +35,19 @@
 		var peer = this.getPeer();
 		peer.expandRow(row);
 	}
+	jsuis.Tree.prototype.expandNode = function(node) {
+		var peer = this.getPeer();
+		peer.expandNode(node);
+	}
+	/*
 	jsuis.Tree.prototype.getRowCount = function() {
 		var peer = this.getPeer();
 		return peer.getRowCount();
 	}
-	jsuis.Tree.prototype.expand = function() {
+	*/
+	jsuis.Tree.prototype.expandAll = function() {
 		var peer = this.getPeer();
-		for (var i = 0; i < peer.getRowCount(); i++) {
-			peer.expandRow(i);
-		}
+		peer.expandAll();
 	}
 	jsuis.Tree.prototype.getNodeForLocation = function(x, y) {
 		var peer = this.getPeer();

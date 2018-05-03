@@ -10,7 +10,6 @@
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Tree, {
 		model: null,
-		rows: null,
 		cellRenderer: null,
 		selection: null
 	});
@@ -21,31 +20,27 @@
 	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
 		var model = this.getModel();
 		model.setRoot(root);
-		this.setRows(null);
 		return this;
 	}
-	jsuis.defaultlf.Tree.prototype.getRows = function() {
-		var rows = this.rows;
-		if (!rows) {
+	jsuis.defaultlf.Tree.prototype.getRows = function(node, rows) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		if (node === root) {
 			rows = [];
-			this.setRows(rows);
-			var root = this.getRoot();
-			if (root) {
-				this.load(root);
+		}
+		rows.push(node);
+		if (node.isExpanded()) {
+			var children = node.getChildren();
+			if (children) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					this.getRows(child, rows);
+				}
 			}
 		}
 		return rows;
-	}
-	jsuis.defaultlf.Tree.prototype.load = function(node) {
-		var rows = this.rows;
-		rows.push(node);
-		var children = node.getChildren();
-		if (children) {
-			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				this.load(child);
-			}
-		}
 	}
 	jsuis.defaultlf.Tree.prototype.getRowHeight = function() {
 		var cellRenderer = this.getCellRenderer();
@@ -60,47 +55,65 @@
 		var x = 0;
 		var y = 0;
 		var cellRenderer = this.getCellRenderer();
-		
-		println("cellRenderer=" + cellRenderer);
-		
 		var model = this.getModel();
 		var rows = this.getRows();
 		for (var i = 0; i < rows.length; i++) {
-			var treeNode = rows[i];
+			var node = rows[i];
 			/*
-			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
-					treeNode.isSelected(), treeNode.isExpanded(), treeNode.isLeaf(), i, treeNode.hasFocus());
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					node.isSelected(), node.isExpanded(), node.isLeaf(), i, node.hasFocus());
 			*/
-			var component = cellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
-					false, false, treeNode.isLeaf(), i, false);
+			var component = cellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					false, node.isExpanded(), node.isLeaf(), i, false);
 			this.add(component);
 			var preferredSize = component.getPreferredSize();
+			node.setSize(preferredSize);
+			var parent = node.getParent();
+			if (parent) {
+				var parentLocation = parent.getLocation();
+				if (parentLocation) {
+					x = parentLocation.getX();
+				}
+				x += 16;
+			}
+			var location = new jsuis.Point(x, y);
+			node.setLocation(location);
 			var preferredHeight = preferredSize.getHeight();
-			component.setSize(preferredSize);
-			component.setLocation(new jsuis.Point(x, y));
 			y += preferredHeight;
+			component.setSize(node.getSize());
+			component.setLocation(location);
 		}
-		this.doLayout();
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.validate();
-		}
+		SUPER.prototype.validate.call(this);
 	}
 	
-	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
+	jsuis.defaultlf.Tree.prototype.isSelected = function(node) {
 		var selection = this.getSelection();
-		return (treeNode === selection);
+		return (node === selection);
 	}
-	jsuis.defaultlf.Tree.prototype.setSelected = function(treeNode) {
+	jsuis.defaultlf.Tree.prototype.setSelected = function(node) {
 		var selection = this.getSelection();
 		if (selection) {
 			selection.setSelected(false);
 		}
-		this.setSelection(treeNode);
-		if (treeNode) {
-			treeNode.setSelected(true);
+		this.setSelection(node);
+		if (node) {
+			node.setSelected(true);
 		}
 		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.expandNode = function(node) {
+		node.setExpanded(true);
+	}
+	jsuis.defaultlf.Tree.prototype.expandAll = function(node) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		this.expandNode(node);
+		var childCount = node.getChildCount();
+		for (var i = 0; i < childCount; i++) {
+			var child = node.getChildAt(i);
+			this.expandAll(child);
+		}
 	}
 }) (jsuis);

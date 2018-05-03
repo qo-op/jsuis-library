@@ -702,7 +702,7 @@ jsuis.packages["jsuis"] = jsuis;
 		element: null,
 		name: null,
 		components: null,
-		parent: null,
+		// parent: null,
 		layout: null,
 		constraints: null,
 		x: 0,
@@ -719,6 +719,7 @@ jsuis.packages["jsuis"] = jsuis;
 		border: null,
 		insets: null,
 		outsets: null,
+		opaque: null,
 		background: null,
 		foreground: null,
 		font: null,
@@ -736,7 +737,7 @@ jsuis.packages["jsuis"] = jsuis;
 	}
 	jsuis.Component.prototype.removeAll = function() {
 		var peer = this.getPeer();
-		peer.removeAll(component);
+		peer.removeAll();
 	}
 	jsuis.Component.prototype.isLeftToRight = function() {
 		var peer = this.getPeer();
@@ -750,6 +751,10 @@ jsuis.packages["jsuis"] = jsuis;
 	jsuis.Component.prototype.validate = function() {
 		var peer = this.getPeer();
 		peer.validate();
+	}
+	jsuis.Component.prototype.repaint = function() {
+		var peer = this.getPeer();
+		peer.repaint();
 	}
 	jsuis.Component.prototype.isVisible = function() {
 		var peer = this.getPeer();
@@ -789,6 +794,14 @@ jsuis.packages["jsuis"] = jsuis;
 	jsuis.Component.prototype.removeComponentListener = function(componentListener) {
 		var peer = this.getPeer();
 		peer.removeComponentListener(componentListener);
+	}
+	jsuis.Component.prototype.addMouseAdapter = function(mouseAdapter) {
+		var peer = this.getPeer();
+		peer.addMouseAdapter(mouseAdapter);
+	}
+	jsuis.Component.prototype.removeMouseAdapter = function(mouseAdapter) {
+		var peer = this.getPeer();
+		peer.removeMouseAdapter(mouseAdapter);
 	}
 	jsuis.Component.prototype.addMouseListener = function(mouseListener) {
 		var peer = this.getPeer();
@@ -1516,19 +1529,19 @@ jsuis.packages["jsuis"] = jsuis;
 	jsuis.TreeNode = jsuis.Object.extend(SUPER, function(userObject) {
 		SUPER.prototype.constructor.call(this);
 		this.setUserObject(userObject);
+		this.setChildren([]);
 	});
 	jsuis.Object.addProperties(jsuis.TreeNode, {
 		userObject: null,
 		map: null,
 		children: null,
-		parent: null
+		parent: null,
+		expanded: false,
+		size: null,
+		location: null
 	});
 	jsuis.TreeNode.prototype.add = function(treeNode) {
 		var children = this.getChildren();
-		if (!children) {
-			children = [];
-			this.setChildren(children);
-		}
 		children.push(treeNode);
 		treeNode.setParent(this);
 	}
@@ -2040,6 +2053,30 @@ jsuis.packages["jsuis"] = jsuis;
 	jsuis.Dialog.prototype.dispose = function() {
 		var peer = this.getPeer();
 		peer.dispose();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.EmptyBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Border;
+	jsuis.EmptyBorder = jsuis.Object.extend(SUPER, function(top, left, bottom, right) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].EmptyBorder(top, left, bottom, right));
+	});
+	jsuis.Object.addPeerProperties(jsuis.EmptyBorder, {
+		top: 0,
+		left: 0,
+		bottom: 0,
+		right: 0
+	});
+	jsuis.EmptyBorder.prototype.getBorderInsets = function(component) {
+		var top = this.getTop();
+		var left = this.getLeft();
+		var bottom = this.getBottom();
+		var right = this.getRight();
+		return new jsuis.Insets(top, left, bottom, right);
 	}
 }) (jsuis);
 
@@ -2795,9 +2832,6 @@ jsuis.packages["jsuis"] = jsuis;
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Panel(layout));
 	});
-	jsuis.Object.addPeerProperties(jsuis.Panel, {
-		opaque: null
-	});
 }) (jsuis);
 
 /**
@@ -3128,6 +3162,14 @@ jsuis.packages["jsuis"] = jsuis;
 		var peer = this.getPeer();
 		return peer.getTabComponentAt(index);
 	}
+	jsuis.TabbedPane.prototype.getComponentAt = function(index) {
+		var peer = this.getPeer();
+		return peer.getComponentAt(index);
+	}
+	jsuis.TabbedPane.prototype.getSelectedIndex = function() {
+		var peer = this.getPeer();
+		return peer.getSelectedIndex();
+	}
 }) (jsuis);
 
 /**
@@ -3204,15 +3246,19 @@ jsuis.packages["jsuis"] = jsuis;
 		var peer = this.getPeer();
 		peer.expandRow(row);
 	}
+	jsuis.Tree.prototype.expandNode = function(node) {
+		var peer = this.getPeer();
+		peer.expandNode(node);
+	}
+	/*
 	jsuis.Tree.prototype.getRowCount = function() {
 		var peer = this.getPeer();
 		return peer.getRowCount();
 	}
-	jsuis.Tree.prototype.expand = function() {
+	*/
+	jsuis.Tree.prototype.expandAll = function() {
 		var peer = this.getPeer();
-		for (var i = 0; i < peer.getRowCount(); i++) {
-			peer.expandRow(i);
-		}
+		peer.expandAll();
 	}
 	jsuis.Tree.prototype.getNodeForLocation = function(x, y) {
 		var peer = this.getPeer();
@@ -4449,9 +4495,19 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var treeCellRendererComponent = new jsuis.defaultlf.Button();
-		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.BOTH));
 		treeCellRendererComponent.setBorder(null);
 		treeCellRendererComponent.setBackground(jsuis.Color.Black.withAlpha(0));
+		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.BOTH));
+		var icon;
+		if (icon) {
+			treeCellRendererComponent.setIcon(this.getIcon(icon));
+		} else if (leaf) {
+			treeCellRendererComponent.setIcon(this.getIcon("leaf"));
+		} else if (expanded) {
+			treeCellRendererComponent.setIcon(this.getIcon("open"));
+		} else {
+			treeCellRendererComponent.setIcon(this.getIcon("closed"));
+		}
 		return treeCellRendererComponent;
 	}
 }) (jsuis);
@@ -6371,7 +6427,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Tree, {
 		model: null,
-		rows: null,
 		cellRenderer: null,
 		selection: null
 	});
@@ -6382,31 +6437,27 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Tree.prototype.setRoot = function(root) {
 		var model = this.getModel();
 		model.setRoot(root);
-		this.setRows(null);
 		return this;
 	}
-	jsuis.defaultlf.Tree.prototype.getRows = function() {
-		var rows = this.rows;
-		if (!rows) {
+	jsuis.defaultlf.Tree.prototype.getRows = function(node, rows) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		if (node === root) {
 			rows = [];
-			this.setRows(rows);
-			var root = this.getRoot();
-			if (root) {
-				this.load(root);
+		}
+		rows.push(node);
+		if (node.isExpanded()) {
+			var children = node.getChildren();
+			if (children) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					this.getRows(child, rows);
+				}
 			}
 		}
 		return rows;
-	}
-	jsuis.defaultlf.Tree.prototype.load = function(node) {
-		var rows = this.rows;
-		rows.push(node);
-		var children = node.getChildren();
-		if (children) {
-			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				this.load(child);
-			}
-		}
 	}
 	jsuis.defaultlf.Tree.prototype.getRowHeight = function() {
 		var cellRenderer = this.getCellRenderer();
@@ -6421,48 +6472,66 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		var x = 0;
 		var y = 0;
 		var cellRenderer = this.getCellRenderer();
-		
-		println("cellRenderer=" + cellRenderer);
-		
 		var model = this.getModel();
 		var rows = this.getRows();
 		for (var i = 0; i < rows.length; i++) {
-			var treeNode = rows[i];
+			var node = rows[i];
 			/*
-			var component = treeCellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
-					treeNode.isSelected(), treeNode.isExpanded(), treeNode.isLeaf(), i, treeNode.hasFocus());
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					node.isSelected(), node.isExpanded(), node.isLeaf(), i, node.hasFocus());
 			*/
-			var component = cellRenderer.getTreeCellRendererComponent(this, treeNode.getUserObject(),
-					false, false, treeNode.isLeaf(), i, false);
+			var component = cellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					false, node.isExpanded(), node.isLeaf(), i, false);
 			this.add(component);
 			var preferredSize = component.getPreferredSize();
+			node.setSize(preferredSize);
+			var parent = node.getParent();
+			if (parent) {
+				var parentLocation = parent.getLocation();
+				if (parentLocation) {
+					x = parentLocation.getX();
+				}
+				x += 16;
+			}
+			var location = new jsuis.Point(x, y);
+			node.setLocation(location);
 			var preferredHeight = preferredSize.getHeight();
-			component.setSize(preferredSize);
-			component.setLocation(new jsuis.Point(x, y));
 			y += preferredHeight;
+			component.setSize(node.getSize());
+			component.setLocation(location);
 		}
-		this.doLayout();
-		var components = this.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			component.validate();
-		}
+		SUPER.prototype.validate.call(this);
 	}
 	
-	jsuis.defaultlf.Tree.prototype.isSelected = function(treeNode) {
+	jsuis.defaultlf.Tree.prototype.isSelected = function(node) {
 		var selection = this.getSelection();
-		return (treeNode === selection);
+		return (node === selection);
 	}
-	jsuis.defaultlf.Tree.prototype.setSelected = function(treeNode) {
+	jsuis.defaultlf.Tree.prototype.setSelected = function(node) {
 		var selection = this.getSelection();
 		if (selection) {
 			selection.setSelected(false);
 		}
-		this.setSelection(treeNode);
-		if (treeNode) {
-			treeNode.setSelected(true);
+		this.setSelection(node);
+		if (node) {
+			node.setSelected(true);
 		}
 		return this;
+	}
+	jsuis.defaultlf.Tree.prototype.expandNode = function(node) {
+		node.setExpanded(true);
+	}
+	jsuis.defaultlf.Tree.prototype.expandAll = function(node) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		this.expandNode(node);
+		var childCount = node.getChildCount();
+		for (var i = 0; i < childCount; i++) {
+			var child = node.getChildAt(i);
+			this.expandAll(child);
+		}
 	}
 }) (jsuis);
 
@@ -6557,27 +6626,20 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.paintPressed();
 	}
 	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
-		/*
 		var rollover = this.isRollover();
 		if (rollover) {
 			this.paintRollover();
 		} else {
 			this.paint();
 		}
-		*/
-		this.paint();
 	}
 	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
-		/*
 		this.paintRollover();
 		this.setRollover(true);
-		*/
 	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
-		/*
 		this.paint();
 		this.setRollover(false);
-		*/
 	}
 }) (jsuis);
 

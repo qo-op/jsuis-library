@@ -54,6 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	numberOne = new jsuis.TreeNode("One");
 	numbers.add(numberOne);
 	
+	cellRenderer = tree.getCellRenderer();
+	cellRenderer.setIcon("close", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	cellRenderer.setIcon("open", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	
+	tree.expandAll();
+	
 	frame.setVisible(true);
 });
 		</script>
