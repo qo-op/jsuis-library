@@ -752,9 +752,9 @@ jsuis.packages["jsuis"] = jsuis;
 		var peer = this.getPeer();
 		peer.validate();
 	}
-	jsuis.Component.prototype.repaint = function() {
+	jsuis.Component.prototype.paint = function() {
 		var peer = this.getPeer();
-		peer.repaint();
+		peer.paint();
 	}
 	jsuis.Component.prototype.isVisible = function() {
 		var peer = this.getPeer();
@@ -1656,6 +1656,25 @@ jsuis.packages["jsuis"] = jsuis;
 		var listener = this.getListener();
 		listener.actionPerformed.call(this, event);
 	}
+}) (jsuis);
+
+/**
+ * jsuis.ArrowBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Border;
+	jsuis.ArrowBorder = jsuis.Object.extend(SUPER, function(color, thickness, x1, y1, x2, y2) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ArrowBorder(color, thickness, x1, y1, x2, y2));
+	});
+	jsuis.Object.addPeerProperties(jsuis.ArrowBorder, {
+		color: null,
+		thickness: 0,
+		x1: 0,
+		y1: 0,
+		x2: 0,
+		y2: 0
+	});
 }) (jsuis);
 
 /**

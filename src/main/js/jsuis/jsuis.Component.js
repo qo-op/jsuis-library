@@ -61,9 +61,9 @@
 		var peer = this.getPeer();
 		peer.validate();
 	}
-	jsuis.Component.prototype.repaint = function() {
+	jsuis.Component.prototype.paint = function() {
 		var peer = this.getPeer();
-		peer.repaint();
+		peer.paint();
 	}
 	jsuis.Component.prototype.isVisible = function() {
 		var peer = this.getPeer();
