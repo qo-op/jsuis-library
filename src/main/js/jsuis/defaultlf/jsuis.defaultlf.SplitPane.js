@@ -51,51 +51,55 @@
 		dividerMouseMotionListener.setListenerComponent(this);
 		splitPaneDivider.addMouseMotionListener(dividerMouseMotionListener);
 		
-		var dividerTouchListener = new jsuis.TouchListener({
-			touchPressed: function(event) {
-				dividerMouseListener.mousePressed(event);
-				event.stopPropagation();
-			},
-			touchMoved: function(event) {
-				dividerMouseMotionListener.mouseDragged(event);
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-		splitPaneDivider.addTouchListener(dividerTouchListener);
-		
-		var touchListener = new jsuis.TouchListener({
-			touchPressed: function(event) {
-				var splitPane = event.getSource();
-				var point = event.getPoint();
-				splitPane.setPressedPoint(point);
-				event.stopPropagation();
-			},
-			touchMoved: function(event) {
-				var splitPane = event.getSource();
-				var point = event.getPoint();
-				var pressedPoint = splitPane.getPressedPoint();
-				var divider = splitPane.getDivider();
-				var orientation = splitPane.getOrientation();
-				if (orientation === jsuis.Constants.HORIZONTAL) {
-					var dx = point.getX() - pressedPoint.getX();
-					var maximumX = splitPane.getWidth() - divider.getWidth();
-					var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
-					splitPane.setDividerLocation(x);
-					splitPane.validate();
-				} else {
-					var dy = point.getY() - pressedPoint.getY();
-					var maximumY = splitPane.getHeight() - divider.getHeight();
-					var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
-					splitPane.setDividerLocation(y);
-					splitPane.validate();
+		if (!("onpointerdown" in window)) {
+			var dividerTouchListener = new jsuis.TouchListener({
+				touchPressed: function(event) {
+					dividerMouseListener.mousePressed(event);
+					event.stopPropagation();
+				},
+				touchMoved: function(event) {
+					dividerMouseMotionListener.mouseDragged(event);
+					event.preventDefault();
+					event.stopPropagation();
 				}
-				splitPane.setPressedPoint(point);
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-		this.addTouchListener(touchListener);
+			});
+			splitPaneDivider.addTouchListener(dividerTouchListener);
+			
+			// TODO: check if the following lines are usefull or not
+			var touchListener = new jsuis.TouchListener({
+				touchPressed: function(event) {
+					var splitPane = this.getListenerComponent();
+					var point = event.getPoint();
+					splitPane.setPressedPoint(point);
+					event.stopPropagation();
+				},
+				touchMoved: function(event) {
+					var splitPane = this.getListenerComponent();
+					var point = event.getPoint();
+					var pressedPoint = splitPane.getPressedPoint();
+					var divider = splitPane.getDivider();
+					var orientation = splitPane.getOrientation();
+					if (orientation === jsuis.Constants.HORIZONTAL) {
+						var dx = point.getX() - pressedPoint.getX();
+						var maximumX = splitPane.getWidth() - divider.getWidth();
+						var x = Math.min(Math.max(divider.getX() + dx, 0), maximumX);
+						splitPane.setDividerLocation(x);
+						splitPane.validate();
+					} else {
+						var dy = point.getY() - pressedPoint.getY();
+						var maximumY = splitPane.getHeight() - divider.getHeight();
+						var y = Math.min(Math.max(divider.getY() + dy, 0), maximumY);
+						splitPane.setDividerLocation(y);
+						splitPane.validate();
+					}
+					splitPane.setPressedPoint(point);
+					event.preventDefault();
+					event.stopPropagation();
+				}
+			});
+			touchListener.setListenerComponent(this);
+			this.addTouchListener(touchListener);
+		}
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.SplitPane, {
 		orientation: null,

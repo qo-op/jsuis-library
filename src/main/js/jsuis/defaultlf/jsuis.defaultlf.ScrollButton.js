@@ -19,26 +19,27 @@
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
 		var mouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {
-				var source = event.getSource();
-				var pressedColor = source.getPressedColor();
-				source.setBackground(pressedColor);
+				var scrollButton = this.getListenerComponent();
+				var pressedColor = scrollButton.getPressedColor();
+				scrollButton.setBackground(pressedColor);
 			},
 			mouseReleased: function(event) {
-				var source = event.getSource();
-				var releasedColor = source.getReleasedColor();
-				source.setBackground(releasedColor);
+				var scrollButton = this.getListenerComponent();
+				var releasedColor = scrollButton.getReleasedColor();
+				scrollButton.setBackground(releasedColor);
 			},
 			mouseEntered: function(event) {
-				var source = event.getSource();
-				var rolloverColor = source.getRolloverColor();
-				source.setBackground(rolloverColor);
+				var scrollButton = this.getListenerComponent();
+				var rolloverColor = scrollButton.getRolloverColor();
+				scrollButton.setBackground(rolloverColor);
 			},
 			mouseExited: function(event) {
-				var source = event.getSource();
-				var releasedColor = source.getReleasedColor();
-				source.setBackground(releasedColor);
+				var scrollButton = this.getListenerComponent();
+				var releasedColor = scrollButton.getReleasedColor();
+				scrollButton.setBackground(releasedColor);
 			}
 		});
+		mouseListener.setListenerComponent(this);
 		this.addMouseListener(mouseListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ScrollButton, {

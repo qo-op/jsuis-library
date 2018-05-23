@@ -13,26 +13,27 @@
 		
 		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {
-				var button = event.getSource();
+				var button = this.getListenerComponent();
 				button.mouseClicked();
 			},
 			mousePressed: function(event) {
-				var button = event.getSource();
+				var button = this.getListenerComponent();
 				button.mousePressed();
 			},
 			mouseReleased: function(event) {
-				var button = event.getSource();
+				var button = this.getListenerComponent();
 				button.mouseReleased();
 			},
 			mouseEntered: function(event) {
-				var button = event.getSource();
+				var button = this.getListenerComponent();
 				button.mouseEntered();
 			},
 			mouseExited: function(event) {
-				var button = event.getSource();
+				var button = this.getListenerComponent();
 				button.mouseExited();
 			}
 		});
+		mouseListener.setListenerComponent(this);
 		this.addMouseListener(mouseListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Button, {

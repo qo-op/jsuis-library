@@ -4,7 +4,7 @@
 		<title>jsuis</title>
     <script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden; position: relative;">
+	<body style="margin: 0; overflow: hidden; position: relative; touch-action: none;">
 		<svg height="0" style="display: block;">
 			<defs>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		panel.add(titledPanel);
 		var label = new jsuis.Label(title);
-		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
@@ -47,16 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	borderLayoutExample.setLayout(new jsuis.BorderLayout());
 	
 	north = new jsuis.Button("North");
-	borderLayoutExample.add(north, jsuis.BorderConstraints.NORTH);
+	borderLayoutExample.add(north, jsuis.Constraints.NORTH);
 	
 	south = new jsuis.Button("South");
-	borderLayoutExample.add(south, jsuis.BorderConstraints.SOUTH);
+	borderLayoutExample.add(south, jsuis.Constraints.SOUTH);
 	
 	west = new jsuis.Button("West");
-	borderLayoutExample.add(west, jsuis.BorderConstraints.WEST);
+	borderLayoutExample.add(west, jsuis.Constraints.WEST);
 	
 	east = new jsuis.Button("East");
-	borderLayoutExample.add(east, jsuis.BorderConstraints.EAST);
+	borderLayoutExample.add(east, jsuis.Constraints.EAST);
 	
 	center = new jsuis.Button("Center");
 	borderLayoutExample.add(center);
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var layerPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		layerPanel.setBorder(new jsuis.LineBorder());
 		var label = new jsuis.Label(layerStrings[i]);
-		layerPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		layerPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		layerPanel.setBackground(layerColors[i]);
 		layerPanel.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
 		layeredPane.add(layerPanel, new jsuis.Constraints(i));
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBarExample.setLayout(new jsuis.BorderLayout());
 	
 	toolBar = new jsuis.ToolBar();
-	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
+	toolBarExample.add(toolBar, jsuis.Constraints.NORTH);
 	
 	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
 	previousButton = new jsuis.Button(null, previousButtonIcon);
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	numbers.add(numberOne);
 	
 	cellRenderer = tree.getCellRenderer();
-	cellRenderer.setIcon("close", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	cellRenderer.setIcon("closed", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
 	cellRenderer.setIcon("open", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
 	
 	tree.expandAll();

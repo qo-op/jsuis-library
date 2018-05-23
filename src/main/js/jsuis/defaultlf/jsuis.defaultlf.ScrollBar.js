@@ -28,14 +28,14 @@
 		var increaseButton;
 		if (orientation === jsuis.Constants.HORIZONTAL) {
 			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.WEST);
-			this.add(decreaseButton, jsuis.BorderConstraints.WEST);
+			this.add(decreaseButton, jsuis.Constraints.WEST);
 			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.EAST);
-			this.add(increaseButton, jsuis.BorderConstraints.EAST);
+			this.add(increaseButton, jsuis.Constraints.EAST);
 		} else {
 			decreaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.NORTH);
-			this.add(decreaseButton, jsuis.BorderConstraints.NORTH);
+			this.add(decreaseButton, jsuis.Constraints.NORTH);
 			increaseButton = new jsuis.defaultlf.ScrollButton(jsuis.Constants.SOUTH);
-			this.add(increaseButton, jsuis.BorderConstraints.SOUTH);
+			this.add(increaseButton, jsuis.Constraints.SOUTH);
 		}
 		this.setDecreaseButton(decreaseButton);
 		this.setIncreaseButton(increaseButton);
@@ -82,18 +82,20 @@
 		scrollThumbMouseMotionListener.setListenerComponent(this);
 		scrollThumb.addMouseMotionListener(scrollThumbMouseMotionListener);
 		
-		var scrollThumbTouchListener = new jsuis.TouchListener({
-			touchPressed: function(event) {
-				scrollThumbMouseListener.mousePressed(event);
-				event.stopPropagation();
-			},
-			touchMoved: function(event) {
-				scrollThumbMouseMotionListener.mouseDragged(event);
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-		scrollThumb.addTouchListener(scrollThumbTouchListener);
+		if (!("onpointerdown" in window)) {
+			var scrollThumbTouchListener = new jsuis.TouchListener({
+				touchPressed: function(event) {
+					scrollThumbMouseListener.mousePressed(event);
+					event.stopPropagation();
+				},
+				touchMoved: function(event) {
+					scrollThumbMouseMotionListener.mouseDragged(event);
+					event.preventDefault();
+					event.stopPropagation();
+				}
+			});
+			scrollThumb.addTouchListener(scrollThumbTouchListener);
+		}
 		
 		var scrollTrackMouseListener = new jsuis.MouseListener({
 			mousePressed: function(event) {

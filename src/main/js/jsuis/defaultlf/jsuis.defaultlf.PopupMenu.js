@@ -9,7 +9,7 @@
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 	});
 	jsuis.defaultlf.PopupMenu.prototype.add = function(component, constraints, index) {
-		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.BorderConstraints.NORTH), index);
+		SUPER.prototype.add.call(this, component, nvl(constraints, jsuis.Constraints.NORTH), index);
 	}
 	jsuis.defaultlf.PopupMenu.prototype.show = function(invoker, x, y) {
 		var invokerX = 0;

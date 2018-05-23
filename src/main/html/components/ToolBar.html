@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		frame.add(titledPanel);
 		var label = new jsuis.Label(title);
-		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	toolBarExample.setLayout(new jsuis.BorderLayout());
 	
 	toolBar = new jsuis.ToolBar();
-	toolBarExample.add(toolBar, jsuis.BorderConstraints.NORTH);
+	toolBarExample.add(toolBar, jsuis.Constraints.NORTH);
 	
 	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
 	previousButton = new jsuis.Button(null, previousButtonIcon);

@@ -10,14 +10,13 @@
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
-		
-		this.setEventListener("mousedown", function(domEvent) {
+		this.setEventListener("pointerdown", function(domEvent) {
 			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
 		});
-		this.setEventListener("mouseup", function(domEvent) {
+		this.setEventListener("pointerup", function(domEvent) {
 			jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
 		});
-		this.setEventListener("mousemove", function(domEvent) {
+		this.setEventListener("pointermove", function(domEvent) {
 			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
 			if (browserWindow.isPressed()) {
 				browserWindow.fireMouseDragged(domEvent);

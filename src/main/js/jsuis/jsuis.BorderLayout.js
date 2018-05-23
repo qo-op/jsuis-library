@@ -22,12 +22,12 @@
 			comparator = function(a, b) {
 				var aConstraints = a.getConstraints();
 				if (!aConstraints) {
-					aConstraints = jsuis.BorderConstraints.CENTER.clone();
+					aConstraints = jsuis.Constraints.CENTER.clone();
 					a.setConstraints(aConstraints);
 				}
 				var bConstraints = b.getConstraints();
 				if (!bConstraints) {
-					bConstraints = jsuis.BorderConstraints.CENTER.clone();
+					bConstraints = jsuis.Constraints.CENTER.clone();
 					b.setConstraints(bConstraints);
 				}
 				if (aConstraints.getBorder() === jsuis.Constants.CENTER) {
@@ -61,7 +61,7 @@
 			var component = components[i];
 			var constraints = component.getConstraints();
 			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
+				constraints = jsuis.Constraints.CENTER.clone();
 				component.setConstraints(constraints);
 			}
 			if (!component.isVisible()) {
@@ -131,7 +131,7 @@
 			var component = components[i];
 			var constraints = component.getConstraints();
 			if (!constraints) {
-				constraints = jsuis.BorderConstraints.CENTER.clone();
+				constraints = jsuis.Constraints.CENTER.clone();
 				component.setConstraints(constraints);
 			}
 			if (!component.isVisible() && constraints.getBorder() !== jsuis.Constants.CENTER) {

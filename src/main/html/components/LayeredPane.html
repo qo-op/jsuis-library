@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
 		frame.add(titledPanel);
 		var label = new jsuis.Label(title);
-		titledPanel.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
 		titledPanel.add(contentPane);
 		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var layerPane = new jsuis.Panel(new jsuis.BorderLayout());
 		layerPane.setBorder(new jsuis.LineBorder());
 		var label = new jsuis.Label(layerStrings[i]);
-		layerPane.add(label, jsuis.BorderConstraints.NORTH.withFill(jsuis.Constants.NONE));
+		layerPane.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		layerPane.setBackground(layerColors[i]);
 		layerPane.setBounds(new jsuis.Rectangle(origin.x, origin.y, 145, 145));
 		layeredPane.add(layerPane, new jsuis.Constraints(i));

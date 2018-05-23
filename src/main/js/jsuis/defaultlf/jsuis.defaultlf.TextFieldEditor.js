@@ -15,15 +15,17 @@
 		this.setVisible(false);
 		new jsuis.defaultlf.Component(document.body).add(this);
 		
-		this.addFocusListener(new jsuis.FocusListener({
+		var focusListener = new jsuis.FocusListener({
 			focusLost: function(event) {
-				var textFieldEditor = event.getSource();
+				var textFieldEditor = this.getListenerComponent();
 				var textField = textFieldEditor.getTextField();
 				if (textField) {
 					textFieldEditor.uninstall(textField);
 				}
 			}
-		}));
+		});
+		focusListener.setListenerComponent(this);
+		this.addFocusListener(focusListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor, {
 		textField: null

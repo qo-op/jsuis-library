@@ -34,7 +34,7 @@
 		var touches = this.getTouches();
 		for (var i = 0; i < touches.length; i++) {
 			var touch = touches[i];
-			if (touch.target === graphicsElement || graphicsElement.contains(touch.target)) {
+			if (touch.target === graphicsElement) {
 				return touch;
 			}
 		}

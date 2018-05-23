@@ -29,8 +29,7 @@
 			if (!label) {
 				label = new jsuis.defaultlf.Text();
 				this.setLabel(label);
-				this.add(label, nvl(textConstraints,
-						jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.NONE)));
+				this.add(label, nvl(textConstraints, jsuis.Constraints.CENTER.withFill(jsuis.Constants.NONE)));
 			} else if (textConstraints) {
 				label.setConstraints(textConstraints);
 			}
@@ -44,7 +43,7 @@
 			if (!image) {
 				image = new jsuis.defaultlf.Image();
 				this.setImage(image);
-				this.add(image, nvl(constraints, jsuis.BorderConstraints.WEST.withFill(jsuis.Constants.NONE)));
+				this.add(image, nvl(constraints, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE)));
 				image.setEnabled(false);
 			}
 			icon.paintIcon(this);

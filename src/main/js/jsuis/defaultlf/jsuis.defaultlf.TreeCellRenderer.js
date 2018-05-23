@@ -33,7 +33,7 @@
 		var treeCellRendererComponent = new jsuis.defaultlf.Button();
 		treeCellRendererComponent.setBorder(null);
 		treeCellRendererComponent.setBackground(jsuis.Color.Black.withAlpha(0));
-		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.BorderConstraints.CENTER.withFill(jsuis.Constants.BOTH));
+		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.Constraints.CENTER.withFill(jsuis.Constants.BOTH));
 		var icon;
 		if (icon) {
 			treeCellRendererComponent.setIcon(this.getIcon(icon));

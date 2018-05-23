@@ -3,11 +3,12 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.Dialog = jsuis.Object.extend(SUPER, function(title) {
+	jsuis.Dialog = jsuis.Object.extend(SUPER, function(owner, modal) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Dialog(title));
+		this.setPeer(new jsuis[lookAndFeel].Dialog(owner, modal));
 	});
 	jsuis.Object.addPeerProperties(jsuis.Dialog, {
+		title: null,
 		layeredPane: null,
 		contentPane: null,
 		visible: false

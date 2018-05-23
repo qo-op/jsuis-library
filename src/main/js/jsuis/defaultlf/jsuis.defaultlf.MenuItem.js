@@ -7,9 +7,9 @@
 		SUPER.prototype.constructor.call(this, nvl(text, ""), icon);
 		this.setBorder(null);
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
-		this.addMouseListener(new jsuis.MouseListener({
+		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {
-				var menuItem = event.getSource();
+				var menuItem = this.getListenerComponent();
 				if (menuItem instanceof jsuis.defaultlf.Menu) {
 					return;
 				}
@@ -17,6 +17,8 @@
 				var menuBar = menu.getParent();
 				menuBar.setSelected(null);
 			}
-		}));
+		});
+		mouseListener.setListenerComponent(this);
+		this.addMouseListener(mouseListener);
 	});
 }) (jsuis);

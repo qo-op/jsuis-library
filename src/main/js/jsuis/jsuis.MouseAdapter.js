@@ -4,48 +4,39 @@
 (function(jsuis) {
 	var SUPER = jsuis.Listener;
 	jsuis.MouseAdapter = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].MouseAdapter(listener));
+	});
+	jsuis.Object.addPeerProperties(jsuis.MouseAdapter, {
+		listener: null,
+		listenerComponent: null
 	});
 	jsuis.MouseAdapter.prototype.mouseClicked = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseClicked) {
-			listener.mouseClicked.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseClicked(event);
 	}
 	jsuis.MouseAdapter.prototype.mousePressed = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mousePressed) {
-			listener.mousePressed.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mousePressed(event);
 	}
 	jsuis.MouseAdapter.prototype.mouseReleased = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseReleased) {
-			listener.mouseReleased.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseReleased(event);
 	}
 	jsuis.MouseAdapter.prototype.mouseEntered = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseEntered) {
-			listener.mouseEntered.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseEntered(event);
 	}
 	jsuis.MouseAdapter.prototype.mouseExited = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseExited) {
-			listener.mouseExited.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseExited(event);
 	}
 	jsuis.MouseAdapter.prototype.mouseDragged = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseDragged) {
-			listener.mouseDragged.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseDragged(event);
 	}
 	jsuis.MouseAdapter.prototype.mouseMoved = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.mouseMoved) {
-			listener.mouseMoved.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.mouseMoved(event);
 	}
 }) (jsuis);

@@ -67,17 +67,6 @@
 		var computedStyle = getComputedStyle(element);
 		return computedStyle[property];
 	}
-	/*
-	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
-		var element = this.getElement();
-		return element["on" + type];
-	}
-	jsuis.defaultlf.Component.prototype.setEventListener = function(type, listener) {
-		var element = this.getElement();
-		element["on" + type] = listener;
-		return this;
-	}
-	*/
 	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
 		return eventListeners["on" + type];
@@ -534,9 +523,9 @@
 			}
 		}
 		if (listener.mousePressed || listener.mouseReleased || listener.mouseDragged) {
-			var onmousedown = this.getEventListener("mousedown");
+			var onmousedown = this.getEventListener("pointerdown");
 			if (!onmousedown) {
-				this.setEventListener("mousedown", function(event) {
+				this.setEventListener("pointerdown", function(event) {
 					component.fireMousePressed(event);
 				});
 			}
@@ -563,25 +552,25 @@
 			}
 		}
 		if (listener.mouseEntered) {
-			var onmouseenter = this.getEventListener("mouseenter");
+			var onmouseenter = this.getEventListener("pointerenter");
 			if (!onmouseenter) {
-				this.setEventListener("mouseenter", function(event) {
+				this.setEventListener("pointerenter", function(event) {
 					component.fireMouseEntered(event);
 				});
 			}
 		}
 		if (listener.mouseExited) {
-			var onmouseleave = this.getEventListener("mouseleave");
+			var onmouseleave = this.getEventListener("pointerleave");
 			if (!onmouseleave) {
-				this.setEventListener("mouseleave", function(event) {
+				this.setEventListener("pointerleave", function(event) {
 					component.fireMouseExited(event);
 				});
 			}
 		}
 		if (listener.mouseMoved) {
-			var onmousemove = this.getEventListener("mousemove");
+			var onmousemove = this.getEventListener("pointermove");
 			if (!onmousemove) {
-				this.setEventListener("mousemove", function(event) {
+				this.setEventListener("pointermove", function(event) {
 					component.fireMouseMoved(event);
 				});
 			}

@@ -46,54 +46,58 @@
 				.setGridx(0).setGridy(0).setWeightx(1).setWeighty(1)
 				.setFill(jsuis.Constants.BOTH));
 		
-		var touchListener = new jsuis.TouchListener({
-			touchPressed: function(event) {
-				var scrollPane = this.getListenerComponent();
-				var point = event.getPoint();
-				scrollPane.setScrollThumbPressedPoint(point);
-				event.stopPropagation();
-			},
-			touchMoved: function(event) {
-				var scrollPane = this.getListenerComponent();
-				var point = event.getPoint();
-				var pressedPoint = scrollPane.getScrollThumbPressedPoint();
-				var view = scrollPane.getViewportView();
-				var verticalScrollBar = scrollPane.getVerticalScrollBar();
-				var verticalScrollBarVisible = verticalScrollBar.isVisible();
-				if (verticalScrollBarVisible) {
-					var scrollTrack = verticalScrollBar.getScrollTrack();
-					var scrollThumb = verticalScrollBar.getScrollThumb();
-					var extent = verticalScrollBar.getExtent();
-					var maximum = verticalScrollBar.getMaximum();
-					var dy = point.getY() - pressedPoint.getY();
-					var value = Math.min(Math.max(verticalScrollBar.getValue() - dy, 0), maximum - extent);
-					verticalScrollBar.setValue(value);
-					var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
-					if (maximum > extent) {
-						scrollThumb.setY(value * maximumY / (maximum - extent));
+		if (!("onpointerdown" in window)) {
+			
+			// TODO: check if the following lines are usefull or not
+			var touchListener = new jsuis.TouchListener({
+				touchPressed: function(event) {
+					var scrollPane = this.getListenerComponent();
+					var point = event.getPoint();
+					scrollPane.setScrollThumbPressedPoint(point);
+					event.stopPropagation();
+				},
+				touchMoved: function(event) {
+					var scrollPane = this.getListenerComponent();
+					var point = event.getPoint();
+					var pressedPoint = scrollPane.getScrollThumbPressedPoint();
+					var view = scrollPane.getViewportView();
+					var verticalScrollBar = scrollPane.getVerticalScrollBar();
+					var verticalScrollBarVisible = verticalScrollBar.isVisible();
+					if (verticalScrollBarVisible) {
+						var scrollTrack = verticalScrollBar.getScrollTrack();
+						var scrollThumb = verticalScrollBar.getScrollThumb();
+						var extent = verticalScrollBar.getExtent();
+						var maximum = verticalScrollBar.getMaximum();
+						var dy = point.getY() - pressedPoint.getY();
+						var value = Math.min(Math.max(verticalScrollBar.getValue() - dy, 0), maximum - extent);
+						verticalScrollBar.setValue(value);
+						var maximumY = scrollTrack.getHeight() - scrollThumb.getHeight();
+						if (maximum > extent) {
+							scrollThumb.setY(value * maximumY / (maximum - extent));
+						}
 					}
-				}
-				var horizontalScrollBar = scrollPane.getHorizontalScrollBar();
-				var horizontalScrollBarVisible = horizontalScrollBar.isVisible();
-				if (horizontalScrollBarVisible) {
-					var scrollTrack = horizontalScrollBar.getScrollTrack();
-					var scrollThumb = horizontalScrollBar.getScrollThumb();
-					var extent = horizontalScrollBar.getExtent();
-					var maximum = horizontalScrollBar.getMaximum();
-					var dx = point.getX() - pressedPoint.getX();
-					var value = Math.min(Math.max(horizontalScrollBar.getValue() - dx, 0), maximum - extent);
-					horizontalScrollBar.setValue(value);
-					var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
-					if (maximum > extent) {
-						scrollThumb.setX(value * maximumX / (maximum - extent));
+					var horizontalScrollBar = scrollPane.getHorizontalScrollBar();
+					var horizontalScrollBarVisible = horizontalScrollBar.isVisible();
+					if (horizontalScrollBarVisible) {
+						var scrollTrack = horizontalScrollBar.getScrollTrack();
+						var scrollThumb = horizontalScrollBar.getScrollThumb();
+						var extent = horizontalScrollBar.getExtent();
+						var maximum = horizontalScrollBar.getMaximum();
+						var dx = point.getX() - pressedPoint.getX();
+						var value = Math.min(Math.max(horizontalScrollBar.getValue() - dx, 0), maximum - extent);
+						horizontalScrollBar.setValue(value);
+						var maximumX = scrollTrack.getWidth() - scrollThumb.getWidth();
+						if (maximum > extent) {
+							scrollThumb.setX(value * maximumX / (maximum - extent));
+						}
 					}
+					event.preventDefault();
+					event.stopPropagation();
 				}
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-		touchListener.setListenerComponent(this);
-		viewport.addTouchListener(touchListener);
+			});
+			touchListener.setListenerComponent(this);
+			viewport.addTouchListener(touchListener);
+		}
 		
 		verticalScrollBar.addPropertyChangeListener(new jsuis.PropertyChangeListener({
 			propertyChange: function(event) {

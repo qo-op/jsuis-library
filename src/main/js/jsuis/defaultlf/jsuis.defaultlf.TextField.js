@@ -13,12 +13,13 @@
 		this.setFont(new jsuis.Font("Arial", "normal", 12));
 		var mouseListener = new jsuis.MouseListener({
 			mouseReleased: function(event) {
-				var source = event.getSource();
+				var textField = this.getListenerComponent();
 				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
-				source.setEditor(textFieldEditor);
+				textField.setEditor(textFieldEditor);
 				textFieldEditor.requestFocus();
 			}
 		});
+		mouseListener.setListenerComponent(this);
 		this.addMouseListener(mouseListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.TextField, {

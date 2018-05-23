@@ -214,6 +214,52 @@
 		}
 		return target;
 	}
+	jsuis.Object.merge = function() {
+		var object = {};
+		for (var i = 0; i < arguments.length; i++) {
+			var source = arguments[i];
+			for (var key in source) {
+				object[key] = source[key];
+			}
+		}
+		return object;
+	}
+	jsuis.Object.create = function(proto) {
+		if (jsuis.Object.isObject(proto)) {
+			var source = function() {};
+			source.prototype = {};
+			for (var key in proto) {
+				var value = proto[key];
+				if (jsuis.Object.isFunction(value)) {
+					source.prototype[key] = value;
+				}
+			}
+			var object = new source();
+			for (var key in proto) {
+				var value = proto[key];
+				if (!jsuis.Object.isFunction(value)) {
+					object[key] = jsuis.Object.create(value);
+				}
+			}
+			return object;
+		}
+		if (jsuis.Object.isArray(proto)) {
+			var array = [];
+			for (var i = 0; i < proto.length; i++) {
+				array.push(jsuis.Object.create(proto[i]));
+			}
+			return array;
+		}
+		return JSON.parse(JSON.stringify(proto));
+	}
+	jsuis.Object.values = function(object) {
+		var values = [];
+		for (var key in object) {
+			var value = object[key];
+			values.push(value);
+		}
+		return values;
+	}
 	jsuis.Object.isInt = function(value) {
 		var x;
 		if (isNaN(value)) {
@@ -229,6 +275,9 @@
 		}
 		x = parseFloat(value);
 		return (x | 0) !== x;
+	}
+	jsuis.Object.isBoolean = function(value) {
+		return (typeof value === "boolean");
 	}
 	jsuis.Object.isObject = function(value) {
 		return (Object.prototype.toString.call(value) === "[object Object]");
@@ -256,7 +305,7 @@
 		// un pour tous, tous pour un
 		for (var prefix in jsuis.packages) {
 			var p = jsuis.packages[prefix];
-			for (name in p) {
+			for (var name in p) {
 				var c = p[name];
 				var className = prefix + "." + name;
 				c.className = className;

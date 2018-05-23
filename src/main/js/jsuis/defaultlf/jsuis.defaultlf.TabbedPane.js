@@ -11,11 +11,11 @@
 		this.setTabPanel(tabPanel);
 		tabPanel.setPadding(new jsuis.Insets(0, 5));
 		SUPER.prototype.add.call(this, tabPanel, new jsuis.BorderConstraints(tabPlacement));
-		var cardPanel = new jsuis.defaultlf.LayeredPane();
-		this.setCardPanel(cardPanel);
-		SUPER.prototype.add.call(this, cardPanel);
-		cardPanel.setLayout(new jsuis.BorderLayout());
-		cardPanel.setBorder(new jsuis.LineBorder());
+		var cardPane = new jsuis.defaultlf.LayeredPane();
+		this.setCardPane(cardPane);
+		SUPER.prototype.add.call(this, cardPane);
+		cardPane.setLayout(new jsuis.BorderLayout());
+		cardPane.setBorder(new jsuis.LineBorder());
 		var actionListener = new jsuis.ActionListener({
 			actionPerformed: function(event) {
 				var tabbedPane = this.getListenerComponent();
@@ -29,15 +29,15 @@
 	jsuis.Object.addProperties(jsuis.defaultlf.TabbedPane, {
 		tabPlacement: null,
 		tabPanel: null,
-		cardPanel: null,
+		cardPane: null,
 		selection: null,
 		actionListener: null
 	});
 	jsuis.defaultlf.TabbedPane.prototype.addTab = function(tabComponent, cardComponent) {
 		var tabPanel = this.getTabPanel();
 		tabPanel.add(tabComponent);
-		var cardPanel = this.getCardPanel();
-		cardPanel.add(cardComponent);
+		var cardPane = this.getCardPane();
+		cardPane.add(cardComponent);
 		cardComponent.setVisible(false);
 		var actionListener = this.getActionListener();
 		tabComponent.removeActionListener(actionListener);
@@ -57,8 +57,8 @@
 	jsuis.defaultlf.TabbedPane.prototype.setSelected = function(tabComponent) {
 		var tabPanel = this.getTabPanel();
 		var tabComponents = tabPanel.getComponents();
-		var cardPanel = this.getCardPanel();
-		var cardComponents = cardPanel.getComponents();
+		var cardPane = this.getCardPane();
+		var cardComponents = cardPane.getComponents();
 		var oldSelection = this.getSelection();
 		if (oldSelection) {
 			oldSelection.setSelected(false);
