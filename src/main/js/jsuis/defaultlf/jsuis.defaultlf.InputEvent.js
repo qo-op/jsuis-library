@@ -3,11 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.ComponentEvent;
-	jsuis.defaultlf.InputEvent = jsuis.Object.extend(SUPER, function(source, id,
-			when, modifiers) {
-		SUPER.prototype.constructor.call(this, source, id);
-		this.setWhen(when);
-		this.setModifiers(modifiers);
+	jsuis.defaultlf.InputEvent = jsuis.Object.extend(SUPER, function(event) {
+		SUPER.prototype.constructor.call(this, event);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.InputEvent, {
 		when: 0,
@@ -29,7 +26,7 @@
 		if (when !== null && when !== undefined) {
 			return when;
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		if (domEvent) {
 			when = domEvent.timeStamp;
 		} else {
@@ -43,7 +40,7 @@
 		if (modifiers !== null && modifiers !== undefined) {
 			return modifiers;
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		if (domEvent) {
 			modifiers = (domEvent.shiftKey ? (jsuis.defaultlf.InputEvent.SHIFT_MASK | jsuis.defaultlf.InputEvent.SHIFT_DOWN_MASK) : 0)
 			| (domEvent.ctrlKey ? (jsuis.defaultlf.InputEvent.CTRL_MASK | jsuis.defaultlf.InputEvent.CTRL_DOWN_MASK) : 0)

@@ -3,13 +3,11 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.Object;
-	jsuis.defaultlf.Event = jsuis.Object.extend(SUPER, function(source, id) {
+	jsuis.defaultlf.Event = jsuis.Object.extend(SUPER, function(event) {
 		SUPER.prototype.constructor.call(this);
-		this.setSource(source);
-		this.setId(id);
+		this.setElement(event);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Event, {
-		domEvent: null,
 		source: null,
 		id: null
 	});
@@ -18,16 +16,16 @@
 	jsuis.defaultlf.Event.prototype.getComponent = jsuis.defaultlf.Event.prototype.getSource;
 	
 	jsuis.defaultlf.Event.prototype.preventDefault = function() {
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			domEvent.preventDefault();
+		var element = this.getElement();
+		if (element) {
+			element.preventDefault();
 		}
 	}
 	
 	jsuis.defaultlf.Event.prototype.stopPropagation = function() {
-		var domEvent = this.getDomEvent();
-		if (domEvent) {
-			domEvent.stopPropagation();
+		var element = this.getElement();
+		if (element) {
+			element.stopPropagation();
 		}
 	}
 }) (jsuis);

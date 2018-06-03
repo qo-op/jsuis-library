@@ -3,16 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.InputEvent;
-	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(source, id,
-			when, modifiers, x, y, xAbs, yAbs, clickCount, popupTrigger, button) {
-		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
-		this.setX(x);
-		this.setY(y);
-		this.setXAbs(xAbs);
-		this.setYAbs(yAbs);
-		this.setClickCount(clickCount);
-		this.setPopupTrigger(popupTrigger);
-		this.setButton(button);
+	jsuis.defaultlf.MouseEvent = jsuis.Object.extend(SUPER, function(event) {
+		SUPER.prototype.constructor.call(this, event);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.MouseEvent, {
 		x: 0,
@@ -29,7 +21,7 @@
 		if (x !== null && x !== undefined && y !== null && y !== undefined) {
 			return new jsuis.Point(x, y);
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		var source = this.getSource();
 		var boundingClientRect = source.getElement().getBoundingClientRect();
 		var outsets = source.getOutsets();
@@ -52,7 +44,7 @@
 		if (xAbs !== null && xAbs !== undefined && yAbs !== null && yAbs !== undefined) {
 			return new jsuis.Point(xAbs, yAbs);
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		xAbs = nvl(xAbs, domEvent.screenX);
 		yAbs = nvl(yAbs, domEvent.screenY);
 		this.setXAbs(xAbs).setYAbs(yAbs);
@@ -71,7 +63,7 @@
 		if (clickCount !== null && clickCount !== undefined) {
 			return clickCount;
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		clickCount = domEvent.detail;
 		this.setClickCount(clickCount);
 		return clickCount;
@@ -91,7 +83,7 @@
 		if (button !== null && button !== undefined) {
 			return button;
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		button = domEvent.button + 1;
 		this.setButton(button);
 		return button;

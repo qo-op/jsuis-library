@@ -3,10 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.InputEvent;
-	jsuis.defaultlf.TouchEvent = jsuis.Object.extend(SUPER, function(source, id,
-			when, modifiers, touches) {
-		SUPER.prototype.constructor.call(this, source, id, when, modifiers);
-		this.setTouches(touches);
+	jsuis.defaultlf.TouchEvent = jsuis.Object.extend(SUPER, function(event) {
+		SUPER.prototype.constructor.call(this, event);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.TouchEvent, {
 		touches: null,
@@ -19,7 +17,7 @@
 			return touches;
 		}
 		touches = [];
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		var touchList = domEvent.touches;
 		for (var i = 0; i < touchList.length; i++) {
 			touches.push(touchList.item(i));

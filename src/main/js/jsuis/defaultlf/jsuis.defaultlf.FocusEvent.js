@@ -3,10 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.ComponentEvent;
-	jsuis.defaultlf.FocusEvent = jsuis.Object.extend(SUPER, function(source, id, temporary, opposite) {
-		SUPER.prototype.constructor.call(this, source, id);
-		this.setTemporary(temporary);
-		this.setOpposite(opposite);
+	jsuis.defaultlf.FocusEvent = jsuis.Object.extend(SUPER, function(event) {
+		SUPER.prototype.constructor.call(this, event);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.FocusEvent, {
 		opposite: null
@@ -22,7 +20,7 @@
 		if (opposite) {
 			return opposite;
 		}
-		var domEvent = this.getDomEvent();
+		var domEvent = this.getElement();
 		var relatedTarget = domEvent.relatedTarget;
 		if (relatedTarget) {
 			opposite = new jsuis.defaultlf.Component(relatedTarget);

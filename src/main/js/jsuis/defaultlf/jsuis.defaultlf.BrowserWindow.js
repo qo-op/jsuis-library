@@ -10,18 +10,39 @@
 		this.setComponentListeners([]);
 		this.setMouseListeners([]);
 		this.setMouseMotionListeners([]);
-		this.setEventListener("pointerdown", function(domEvent) {
-			jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
-		});
-		this.setEventListener("pointerup", function(domEvent) {
-			jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
-		});
-		this.setEventListener("pointermove", function(domEvent) {
-			var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
-			if (browserWindow.isPressed()) {
-				browserWindow.fireMouseDragged(domEvent);
-			}
-		});
+		if ("onpointerdown" in window) {
+			this.setEventListener("pointerdown", function(domEvent) {
+				jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
+			});
+		} else {
+			this.setEventListener("mousedown", function(domEvent) {
+				jsuis.defaultlf.BrowserWindow.getInstance().fireMousePressed(domEvent);
+			});
+		}
+		if ("onpointerup" in window) {
+			this.setEventListener("pointerup", function(domEvent) {
+				jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
+			});
+		} else {
+			this.setEventListener("mouseup", function(domEvent) {
+				jsuis.defaultlf.BrowserWindow.getInstance().fireMouseReleased(domEvent);
+			});
+		}
+		if ("onpointermove" in window) {
+			this.setEventListener("pointermove", function(domEvent) {
+				var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+				if (browserWindow.isPressed()) {
+					browserWindow.fireMouseDragged(domEvent);
+				}
+			});
+		} else {
+			this.setEventListener("mousemove", function(domEvent) {
+				var browserWindow = jsuis.defaultlf.BrowserWindow.getInstance();
+				if (browserWindow.isPressed()) {
+					browserWindow.fireMouseDragged(domEvent);
+				}
+			});
+		}
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.BrowserWindow, {
 		eventListeners: null,
@@ -80,7 +101,7 @@
 		}
 	}
 	jsuis.defaultlf.BrowserWindow.prototype.fireComponentResized = function(domEvent) {
-		var event = new jsuis.defaultlf.ComponentEvent(this, jsuis.Constants.COMPONENT_RESIZED).setDomEvent(domEvent);
+		var event = new jsuis.defaultlf.ComponentEvent(domEvent).setSource(this).setId(jsuis.Constants.COMPONENT_RESIZED);
 		var componentListeners = this.getComponentListeners();
 		for (var i = 0; i < componentListeners.length; i++) {
 			var componentListener = componentListeners[i];
@@ -110,7 +131,7 @@
 	}
 	jsuis.defaultlf.BrowserWindow.prototype.fireMouseReleased = function(domEvent) {
 		this.setPressed(false);
-		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_RELEASED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(domEvent).setSource(this).setId(jsuis.Constants.MOUSE_RELEASED);
 		var mouseListeners = this.getMouseListeners();
 		for (var i = 0; i < mouseListeners.length; i++) {
 			var mouseListener = mouseListeners[i];
@@ -129,7 +150,7 @@
 		}
 	}
 	jsuis.defaultlf.BrowserWindow.prototype.fireMouseDragged = function(domEvent) {
-		var mouseEvent = new jsuis.defaultlf.MouseEvent(this, jsuis.Constants.MOUSE_DRAGGED).setDomEvent(domEvent);
+		var mouseEvent = new jsuis.defaultlf.MouseEvent(domEvent).setSource(this).setId(jsuis.Constants.MOUSE_DRAGGED);
 		var mouseMotionListeners = this.getMouseMotionListeners();
 		for (var i = 0; i < mouseMotionListeners.length; i++) {
 			var mouseMotionListener = mouseMotionListeners[i];
