@@ -2,14 +2,10 @@
  * jsuis.MouseListener
  */
 (function(jsuis) {
-	var SUPER = jsuis.Object;
+	var SUPER = jsuis.Listener;
 	jsuis.MouseListener = jsuis.Object.extend(SUPER, function(listener) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].MouseListener(listener));
-	});
-	jsuis.Object.addPeerProperties(jsuis.MouseListener, {
-		listener: null,
-		listenerComponent: null
 	});
 	jsuis.MouseListener.prototype.mouseClicked = function(event) {
 		var peer = this.getPeer();

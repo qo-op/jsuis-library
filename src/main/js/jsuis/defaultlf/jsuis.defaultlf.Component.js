@@ -322,10 +322,7 @@
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
 		this.border = border;
 		border = nvl(border, new jsuis.defaultlf.Border());
-		var graphics = this.getGraphics();
-		if (graphics) {
-			border.paintBorder(this);
-		}
+		border.paintBorder(this);
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
@@ -367,6 +364,17 @@
 			layout.layoutContainer(this);
 		}
 	}
+	jsuis.defaultlf.Component.prototype.paint = function() {
+		var border = this.getBorder();
+		if (border) {
+			border.paintBorder(this);
+		}
+		var components = this.getComponents();
+		for (var i = 0; i < components.length; i++) {
+			var component = components[i];
+			component.paint();
+		}
+	}
 	jsuis.defaultlf.Component.prototype.isVisible = function() {
 		return nvl(this.visible, true);
 	}
@@ -381,6 +389,7 @@
 	jsuis.defaultlf.Component.prototype.setBackground = function(background) {
 		this.setStyleProperty("fill", nvl(background, "none").toString());
 		this.background = background;
+		this.paint();
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getForeground = function() {
@@ -389,6 +398,7 @@
 	jsuis.defaultlf.Component.prototype.setForeground = function(foreground) {
 		this.setStyleProperty("stroke", nvl(foreground, "none").toString());
 		this.foreground = foreground;
+		this.paint();
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getFont = function() {

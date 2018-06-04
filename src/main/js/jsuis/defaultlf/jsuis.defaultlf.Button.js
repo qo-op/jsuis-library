@@ -57,7 +57,7 @@
 		SUPER.prototype.setEnabled.call(this, enabled);
 		return this;
 	}
-	jsuis.defaultlf.Button.prototype.paint = function() {
+	jsuis.defaultlf.Button.prototype.paintReleased = function() {
 		var releasedColor = this.getReleasedColor();
 		SUPER.prototype.setBackground.call(this, releasedColor);
 	}
@@ -79,7 +79,7 @@
 		if (rollover) {
 			this.paintRollover();
 		} else {
-			this.paint();
+			this.paintReleased();
 		}
 	}
 	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
@@ -87,7 +87,7 @@
 		this.setRollover(true);
 	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
-		this.paint();
+		this.paintReleased();
 		this.setRollover(false);
 	}
 }) (jsuis);

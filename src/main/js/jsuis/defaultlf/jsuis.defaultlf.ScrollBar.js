@@ -257,6 +257,9 @@
 		var orientation = this.getOrientation();
 		if (orientation === jsuis.Constants.HORIZONTAL) {
 			var scrollTrackWidth = scrollTrack.getWidth();
+			if (scrollTrackWidth < 0) {
+				scrollTrackWidth = 0;
+			}
 			var scrollThumbWidth = scrollTrackWidth * (extent / (maximum - minimum));
 			scrollThumbWidth = Math.min(Math.max(scrollThumbWidth,
 					scrollThumb.getMinimumSize().getWidth()), scrollTrackWidth);
@@ -269,6 +272,9 @@
 			scrollThumb.setBounds(new jsuis.Rectangle(Math.round(scrollThumbX), scrollThumb.getY(), Math.round(scrollThumbWidth), scrollThumb.getHeight()));
 		} else {
 			var scrollTrackHeight = scrollTrack.getHeight();
+			if (scrollTrackHeight < 0) {
+				scrollTrackHeight = 0;
+			}
 			var scrollThumbHeight = scrollTrackHeight * (extent / (maximum - minimum));
 			scrollThumbHeight = Math.min(Math.max(scrollThumbHeight,
 					scrollThumb.getMinimumSize().getHeight()), scrollTrackHeight);

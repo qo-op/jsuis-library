@@ -4,30 +4,23 @@
 (function(jsuis) {
 	var SUPER = jsuis.Listener;
 	jsuis.TouchListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].TouchListener(listener));
 	});
 	jsuis.TouchListener.prototype.touchPressed = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.touchPressed) {
-			listener.touchPressed.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.touchPressed(event);
 	}
 	jsuis.TouchListener.prototype.touchReleased = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.touchReleased) {
-			listener.touchReleased.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.touchReleased(event);
 	}
 	jsuis.TouchListener.prototype.touchMoved = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.touchMoved) {
-			listener.touchMoved.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.touchMoved(event);
 	}
 	jsuis.TouchListener.prototype.touchDragged = function(event) {
-		var listener = this.getListener();
-		if (listener && listener.touchDragged) {
-			listener.touchDragged.call(this, event);
-		}
+		var peer = this.getPeer();
+		peer.touchDragged(event);
 	}
 }) (jsuis);

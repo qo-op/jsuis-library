@@ -14,36 +14,48 @@
 		if (!parent) {
 			return;
 		}
-		var parentComponents = parent.getComponents();
-		var index = parentComponents.indexOf(component);
-		var graphics = component.getGraphics();
-		graphics.setForeground(jsuis.Color.Gray);
+		var width = component.getWidth();
+		var height = component.getHeight();
+		if (!width || !height) {
+			return;
+		}
 		var selected = component.isSelected();
+		var background;
 		if (selected) {
-			graphics.setBackground(jsuis.Color.LightGray);
+			background = jsuis.Color.getColor(0xEEEEEE);
 		} else {
-			graphics.setBackground(jsuis.Color.LightSlateGray);
+			background = jsuis.Color.LightSlateGray;
 		}
-		var width = graphics.getWidth();
-		var height = graphics.getHeight();
-		var x1 = 6.5;
-		var y1 = height - .5;
-		if (selected || !index) {
-			x1 = .5;
+		var foreground = jsuis.Color.Gray;
+		var thickness = 1;
+		var graphics = component.getGraphics();
+		var p = [
+			{ x: thickness / 2, y: height },
+			{ x: thickness / 2 + 2, y: thickness / 2 },
+			{ x: width - thickness / 2 - 2, y: thickness / 2 },
+			{ x: width - thickness / 2, y: height }
+		];
+		var points = this.pointsToString(p);
+		graphics
+			.select("polyline")
+			.data([ { points: points, fill: nvl(background, "none").toString(), stroke: nvl(foreground, "none").toString(), strokeWidth: thickness } ])
+			.enter().append("polyline")
+			.all()
+				.setAttribute("points", function(d) { return d.points; })
+				.setStyleProperty("fill", function(d) { return d.fill; })
+				.setStyleProperty("stroke", function(d) { return d.stroke; })
+				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; });
+	}
+	jsuis.defaultlf.TabComponentBorder.prototype.pointsToString = function(points) {
+		var string = "";
+		for (var i = 0; i < points.length; i++) {
+			var point = points[i];
+			string += point.x;
+			string += ",";
+			string += point.y;
+			string += " ";
 		}
-		var x2 = 3.5;
-		var y2 = height / 2 + .5;
-		var x3 = 6.5;
-		var y3 = 1.5;
-		var x4 = width - x3;
-		var y4 = y3;
-		var x5 = width -.5;
-		var y5 = y1;
-		graphics.setResource("Mx1,y1Lx2,y2Lx3,y3Lx4,y4Lx5,y5"
-				.replace(/x1/g, x1).replace(/y1/g, y1)
-				.replace(/x2/g, x2).replace(/y2/g, y2)
-				.replace(/x3/g, x3).replace(/y3/g, y3)
-				.replace(/x4/g, x4).replace(/y4/g, y4)
-				.replace(/x5/g, x5).replace(/y5/g, y5));
+		string = string.trim();
+		return string;
 	}
 }) (jsuis);

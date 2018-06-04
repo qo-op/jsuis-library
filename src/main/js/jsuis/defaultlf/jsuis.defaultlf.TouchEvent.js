@@ -27,12 +27,11 @@
 	}
 	jsuis.defaultlf.TouchEvent.prototype.getTouch = function() {
 		var source = this.getSource();
-		var graphics = source.getGraphics();
-		var graphicsElement = graphics.getElement();
+		var sourceElement = source.getElement();
 		var touches = this.getTouches();
 		for (var i = 0; i < touches.length; i++) {
 			var touch = touches[i];
-			if (touch.target === graphicsElement) {
+			if (touch.target === sourceElement) {
 				return touch;
 			}
 		}

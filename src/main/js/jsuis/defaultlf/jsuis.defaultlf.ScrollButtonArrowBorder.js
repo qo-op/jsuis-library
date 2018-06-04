@@ -10,21 +10,35 @@
 		direction: null
 	});
 	jsuis.defaultlf.ScrollButtonArrowBorder.prototype.paintBorder = function(component) {
-		var graphics = component.getGraphics();
+		var width = component.getWidth();
+		var height = component.getHeight();
+		/*
+		if (!width || !height) {
+			return;
+		}
+		*/
+		var d;
 		var direction = this.getDirection();
 		switch (direction) {
 		case jsuis.Constants.SOUTH:
-			graphics.setResource("M8,11l-4,-6h8Z");
+			d = "M8,11l-4,-6h8Z";
 			break;
 		case jsuis.Constants.EAST:
-			graphics.setResource("M11,8l-6,-4v8Z");
+			d = "M11,8l-6,-4v8Z";
 			break;
 		case jsuis.Constants.WEST:
-			graphics.setResource("M5,8l6,-4v8Z");
+			d = "M5,8l6,-4v8Z";
 			break;
 		case jsuis.Constants.NORTH:
 		default:
-			graphics.setResource("M8,5l-4,6h8Z");
+			d = "M8,5l-4,6h8Z";
 		}
+		var graphics = component.getGraphics();
+		graphics
+			.select("path")
+			.data([ d ])
+			.enter().append("path")
+			.all()
+				.setAttribute("d", function(d) { return d; });
 	}
 }) (jsuis);

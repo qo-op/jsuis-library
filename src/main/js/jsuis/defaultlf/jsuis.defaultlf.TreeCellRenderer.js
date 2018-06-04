@@ -31,7 +31,7 @@
 	jsuis.defaultlf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
 			tree, value, sel, expanded, leaf, row, hasFocus) {
 		var treeCellRendererComponent = new jsuis.defaultlf.Button();
-		treeCellRendererComponent.setBorder(null);
+		treeCellRendererComponent.setBorder(new jsuis.defaultlf.Border());
 		treeCellRendererComponent.setBackground(jsuis.Color.Black.withAlpha(0));
 		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.Constraints.CENTER.withFill(jsuis.Constants.BOTH));
 		var icon;

@@ -53,7 +53,7 @@
 			if (rollover) {
 				this.paintRollover();
 			} else {
-				this.paint();
+				this.paintReleased();
 			}
 		}
 		SUPER.prototype.setSelected.call(this, selected);
@@ -113,7 +113,7 @@
 		if (selected) {
 			this.paintPressed();
 		} else {
-			this.paint();
+			this.paintReleased();
 		}
 		this.setRollover(false);
 	}

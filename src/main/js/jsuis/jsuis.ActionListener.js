@@ -4,10 +4,11 @@
 (function(jsuis) {
 	var SUPER = jsuis.Listener;
 	jsuis.ActionListener = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].ActionListener(listener));
 	});
 	jsuis.ActionListener.prototype.actionPerformed = function(event) {
-		var listener = this.getListener();
-		listener.actionPerformed.call(this, event);
+		var peer = this.getPeer();
+		peer.actionPerformed(event);
 	}
 }) (jsuis);

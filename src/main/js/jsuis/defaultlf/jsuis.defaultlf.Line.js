@@ -3,14 +3,8 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Line = jsuis.Object.extend(SUPER, function(x1, y1, x2, y2, color, thickness) {
+	jsuis.defaultlf.Line = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "line"));
-		this.setX1(nvl(x1, 0));
-		this.setY1(nvl(y1, 0));
-		this.setX2(nvl(x2, 0));
-		this.setY2(nvl(y2, 0));
-		this.setForeground(nvl(color, jsuis.Color.GRAY));
-		this.setThickness(nvl(thickness, 1));
 	});
 	jsuis.defaultlf.Line.prototype.getX1 = function() {
 		return this.x1 || 0;

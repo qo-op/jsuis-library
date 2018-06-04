@@ -9,7 +9,8 @@
 	});
 	jsuis.Object.addPeerProperties(jsuis.TextPane, {
 		text: null,
-		editable: false
+		editable: false,
+		highlighter: false
 	});
 	jsuis.TextPane.prototype.append = function(text) {
 		var peer = this.getPeer();

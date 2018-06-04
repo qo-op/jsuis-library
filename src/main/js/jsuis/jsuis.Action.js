@@ -4,15 +4,10 @@
 (function(jsuis) {
 	var SUPER = jsuis.ActionListener;
 	jsuis.Action = jsuis.Object.extend(SUPER, function(listener) {
-		SUPER.prototype.constructor.call(this, listener);
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Action(listener));
 	});
-	jsuis.Action.prototype.isEnabled = function() {
-		return this.enabled;
-	}
-	jsuis.Action.prototype.setEnabled = function(enabled) {
-		var oldEnabled = this.enabled;
-		this.enabled = enabled;
-		this.firePropertyChange("enabled", oldEnabled, enabled);
-		return this;
-	}
+	jsuis.Object.addPeerProperties(jsuis.Action, {
+		enabled: false
+	});
 }) (jsuis);

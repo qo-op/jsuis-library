@@ -3,11 +3,23 @@
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Rect = jsuis.Object.extend(SUPER, function(x, y, width, height) {
+	jsuis.defaultlf.Rect = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "rect"));
-		this.setX(nvl(x, 0));
-		this.setY(nvl(y, 0));
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
 	});
+	jsuis.defaultlf.Rect.prototype.getRx = function() {
+		return this.rx || 0;
+	}
+	jsuis.defaultlf.Rect.prototype.setRx = function(rx) {
+		this.setAttribute("rx", +nvl(rx, 0));
+		this.rx = rx;
+		return this;
+	}
+	jsuis.defaultlf.Rect.prototype.getRy = function() {
+		return this.ry || 0;
+	}
+	jsuis.defaultlf.Rect.prototype.setRy = function(ry) {
+		this.setAttribute("ry", +nvl(ry, 0));
+		this.ry = ry;
+		return this;
+	}
 }) (jsuis);

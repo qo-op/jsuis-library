@@ -7,10 +7,6 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].MouseAdapter(listener));
 	});
-	jsuis.Object.addPeerProperties(jsuis.MouseAdapter, {
-		listener: null,
-		listenerComponent: null
-	});
 	jsuis.MouseAdapter.prototype.mouseClicked = function(event) {
 		var peer = this.getPeer();
 		peer.mouseClicked(event);

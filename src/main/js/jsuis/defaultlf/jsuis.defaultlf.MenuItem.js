@@ -5,7 +5,7 @@
 	var SUPER = jsuis.defaultlf.Button;
 	jsuis.defaultlf.MenuItem = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, nvl(text, ""), icon);
-		this.setBorder(null);
+		this.setBorder(new jsuis.defaultlf.Border());
 		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {

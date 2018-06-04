@@ -17,17 +17,6 @@
 		border.paintBorder(this);
 		return this;
 	}
-	/*
-	jsuis.defaultlf.TabComponent.prototype.validate = function() {
-		var selected = this.isSelected();
-		if (selected) {
-			this.paint();
-		} else {
-			this.paintPressed();
-		}
-		SUPER.prototype.validate.call(this);
-	}
-	*/
 	jsuis.defaultlf.TabComponent.prototype.mouseClicked = function() {
 	}
 	jsuis.defaultlf.TabComponent.prototype.mousePressed = function() {

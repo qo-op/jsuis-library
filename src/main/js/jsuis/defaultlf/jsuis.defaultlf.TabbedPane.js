@@ -7,15 +7,14 @@
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		tabPlacement = nvl(tabPlacement, jsuis.Constants.TOP);
 		this.setTabPlacement(tabPlacement);
-		var tabPanel = new jsuis.defaultlf.Panel(new jsuis.FlowLayout(jsuis.Constants.LEFT, 0));
+		var tabPanel = new jsuis.defaultlf.TabPanel();
 		this.setTabPanel(tabPanel);
-		tabPanel.setPadding(new jsuis.Insets(0, 5));
+		tabPanel.setPadding(new jsuis.Insets(0, 2));
 		SUPER.prototype.add.call(this, tabPanel, new jsuis.BorderConstraints(tabPlacement));
 		var cardPane = new jsuis.defaultlf.LayeredPane();
 		this.setCardPane(cardPane);
 		SUPER.prototype.add.call(this, cardPane);
 		cardPane.setLayout(new jsuis.BorderLayout());
-		cardPane.setBorder(new jsuis.LineBorder());
 		var actionListener = new jsuis.ActionListener({
 			actionPerformed: function(event) {
 				var tabbedPane = this.getListenerComponent();
