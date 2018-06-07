@@ -2,7 +2,7 @@
  * jsuis.defaultlf.Button
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Label;
+	var SUPER = jsuis.defaultlf.AbstractButton;
 	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, text, icon);
 		this.setPadding(new jsuis.Insets(2, 4));
@@ -10,39 +10,11 @@
 		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
 		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
 		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
-		
-		var mouseListener = new jsuis.MouseListener({
-			mouseClicked: function(event) {
-				var button = this.getListenerComponent();
-				button.mouseClicked();
-			},
-			mousePressed: function(event) {
-				var button = this.getListenerComponent();
-				button.mousePressed();
-			},
-			mouseReleased: function(event) {
-				var button = this.getListenerComponent();
-				button.mouseReleased();
-			},
-			mouseEntered: function(event) {
-				var button = this.getListenerComponent();
-				button.mouseEntered();
-			},
-			mouseExited: function(event) {
-				var button = this.getListenerComponent();
-				button.mouseExited();
-			}
-		});
-		mouseListener.setListenerComponent(this);
-		this.addMouseListener(mouseListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
-		selected: false,
-		rollover: false,
 		releasedColor: null,
 		rolloverColor: null,
-		pressedColor: null,
-		group: null
+		pressedColor: null
 	});
 	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
 		this.setReleasedColor(background);
@@ -84,10 +56,8 @@
 	}
 	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
 		this.paintRollover();
-		this.setRollover(true);
 	}
 	jsuis.defaultlf.Button.prototype.mouseExited = function() {
 		this.paintReleased();
-		this.setRollover(false);
 	}
 }) (jsuis);

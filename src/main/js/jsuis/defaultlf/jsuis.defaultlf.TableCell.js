@@ -1,9 +1,9 @@
 /**
- * jsuis.defaultlf.TextField
+ * jsuis.defaultlf.TableCell
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
-	jsuis.defaultlf.TextField = jsuis.Object.extend(SUPER, function(text) {
+	jsuis.defaultlf.TableCell = jsuis.Object.extend(SUPER, function(text) {
 		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
 		var label = new jsuis.defaultlf.Text(text);
 		this.setLabel(label);
@@ -13,39 +13,39 @@
 		this.setFont(new jsuis.Font("Arial", "normal", 12));
 		var mouseListener = new jsuis.MouseListener({
 			mouseReleased: function(event) {
-				var textField = this.getListenerComponent();
-				var textFieldEditor = jsuis.defaultlf.TextFieldEditor.getInstance();
-				textField.setEditor(textFieldEditor);
-				textFieldEditor.requestFocus();
+				var tableCell = this.getListenerComponent();
+				var tableCellEditor = jsuis.defaultlf.TableCellEditor.getInstance();
+				tableCell.setEditor(tableCellEditor);
+				tableCellEditor.requestFocus();
 			}
 		});
 		mouseListener.setListenerComponent(this);
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TextField, {
+	jsuis.Object.addProperties(jsuis.defaultlf.TableCell, {
 		editor: null,
 		label: null
 	});
-	jsuis.defaultlf.TextField.prototype.setEditor = function(editor) {
+	jsuis.defaultlf.TableCell.prototype.setEditor = function(editor) {
 		if (editor) {
 			editor.install(this);
 		}
 		this.editor = editor;
 		return this;
 	}
-	jsuis.defaultlf.TextField.prototype.getText = function() {
+	jsuis.defaultlf.TableCell.prototype.getText = function() {
 		var label = this.getLabel();
 		return label.getText();
 	}
-	jsuis.defaultlf.TextField.prototype.setText = function(text) {
+	jsuis.defaultlf.TableCell.prototype.setText = function(text) {
 		var label = this.getLabel();
 		return label.setText(text);
 	}
-	jsuis.defaultlf.TextField.prototype.getFont = function() {
+	jsuis.defaultlf.TableCell.prototype.getFont = function() {
 		var label = this.getLabel();
 		return label.getFont();
 	}
-	jsuis.defaultlf.TextField.prototype.setFont = function(font) {
+	jsuis.defaultlf.TableCell.prototype.setFont = function(font) {
 		var label = this.getLabel();
 		label.setFont(font);
 		return this;

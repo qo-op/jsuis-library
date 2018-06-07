@@ -9,8 +9,10 @@
 	});
 	jsuis.Object.addPeerProperties(jsuis.Table, {
 		columns: null,
+		values: null,
 		rowCount: 0,
-		columnCount: 0
+		columnCount: 0,
+		rowHeight: 0
 	});
 	jsuis.Table.prototype.getValueAt = function(row, column) {
 		var peer = this.getPeer();

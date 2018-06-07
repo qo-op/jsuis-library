@@ -34,12 +34,23 @@
 		return (button === selection);
 	}
 	jsuis.ButtonGroup.prototype.setSelected = function(button) {
-		var oldSelection = this.getSelection();
-		if (oldSelection) {
-			oldSelection.setSelected(false);
+		var selection = this.getSelection();
+		if (selection === button) {
+			return;
+		}
+		if (selection) {
+			selection.setSelected(false);
+		} else {
+			var buttons = this.getButtons();
+			for (var i = 0; i < buttons.length; i++) {
+				var b = buttons[i];
+				if (b !== button) {
+					b.setSelected(false);
+				}
+			}
 		}
 		this.setSelection(button);
-		if (button) {
+		if (button && !button.isSelected()) {
 			button.setSelected(true);
 		}
 		return this;

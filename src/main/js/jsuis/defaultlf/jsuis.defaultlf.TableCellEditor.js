@@ -1,9 +1,9 @@
 /**
- * jsuis.defaultlf.TextFieldEditor
+ * jsuis.defaultlf.TableCellEditor
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.TextFieldEditor = jsuis.Object.extend(SUPER, function() {
+	jsuis.defaultlf.TableCellEditor = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, document.createElement("input"));
 		this.setAttribute("type", "text");
 		this.setStyleProperty("position", "absolute");
@@ -16,78 +16,78 @@
 		new jsuis.defaultlf.Component(document.body).add(this);
 		var focusListener = new jsuis.FocusListener({
 			focusLost: function(event) {
-				var textFieldEditor = this.getListenerComponent();
-				var textField = textFieldEditor.getTextField();
-				if (textField) {
-					textFieldEditor.uninstall(textField);
+				var tableCellEditor = this.getListenerComponent();
+				var tableCell = tableCellEditor.getTableCell();
+				if (tableCell) {
+					tableCellEditor.uninstall(tableCell);
 				}
 			}
 		});
 		focusListener.setListenerComponent(this);
 		this.addFocusListener(focusListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TextFieldEditor, {
-		textField: null
+	jsuis.Object.addProperties(jsuis.defaultlf.TableCellEditor, {
+		tableCell: null
 	});
 	var instance;
-	jsuis.defaultlf.TextFieldEditor.getInstance = function() {
+	jsuis.defaultlf.TableCellEditor.getInstance = function() {
 		if (!instance) {
-			instance = new jsuis.defaultlf.TextFieldEditor();
+			instance = new jsuis.defaultlf.TableCellEditor();
 		}
 		return instance;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.install = function(textField) {
-		var oldTextField = this.getTextField();
-		if (oldTextField) {
-			this.uninstall(oldTextField);
+	jsuis.defaultlf.TableCellEditor.prototype.install = function(tableCell) {
+		var oldTableCell = this.getTableCell();
+		if (oldTableCell) {
+			this.uninstall(oldTableCell);
 		}
-		if (textField) {
-			var label = textField.getLabel();
+		if (tableCell) {
+			var label = tableCell.getLabel();
 			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
-			var textFieldBoundingClientRect = textField.getElement().getBoundingClientRect();
+			var tableCellBoundingClientRect = tableCell.getElement().getBoundingClientRect();
 			var bodyBoundingClientRect = document.body.getBoundingClientRect();
-			var dx = labelBoundingClientRect.left - textFieldBoundingClientRect.left;
-			var dy = labelBoundingClientRect.top - textFieldBoundingClientRect.top;
+			var dx = labelBoundingClientRect.left - tableCellBoundingClientRect.left;
+			var dy = labelBoundingClientRect.top - tableCellBoundingClientRect.top;
 			this.setBounds(new jsuis.Rectangle(
 					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
-					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
+					tableCellBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
 			label.setVisible(false);
 			this.setVisible(true);
 		}
-		this.textField = textField;
+		this.tableCell = tableCell;
 		return this;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.uninstall = function(textField) {
-		textField.setText(this.getText());
+	jsuis.defaultlf.TableCellEditor.prototype.uninstall = function(tableCell) {
+		tableCell.setText(this.getText());
 		this.setVisible(false);
-		var label = textField.getLabel();
+		var label = tableCell.getLabel();
 		label.setVisible(true);
-		textField.setEditor(null);
+		tableCell.setEditor(null);
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {
+	jsuis.defaultlf.TableCellEditor.prototype.getText = function() {
 		var element = this.getElement();
 		return element.value;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.setText = function(text) {
+	jsuis.defaultlf.TableCellEditor.prototype.setText = function(text) {
 		var element = this.getElement();
 		element.value = nvl(text, "");
 		return this;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.setX = function(x) {
+	jsuis.defaultlf.TableCellEditor.prototype.setX = function(x) {
 		var outsets = this.getOutsets();
 		this.setStyleProperty("left", (+nvl(x, 0) + outsets.getLeft()) + "px");
 		this.x = x;
 		return this;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.setY = function(y) {
+	jsuis.defaultlf.TableCellEditor.prototype.setY = function(y) {
 		var outsets = this.getOutsets();
 		this.setStyleProperty("top", (+nvl(y, 0) + outsets.getTop()) + "px");
 		this.y = y;
 		return this;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.setWidth = function(width) {
+	jsuis.defaultlf.TableCellEditor.prototype.setWidth = function(width) {
 		var outsets = this.getOutsets();
 		width -= outsets.getLeft() + outsets.getRight();
 		if (width >= 0) {
@@ -96,7 +96,7 @@
 		this.width = width;
 		return this;
 	}
-	jsuis.defaultlf.TextFieldEditor.prototype.setHeight = function(height) {
+	jsuis.defaultlf.TableCellEditor.prototype.setHeight = function(height) {
 		var outsets = this.getOutsets();
 		height -= outsets.getTop() + outsets.getBottom();
 		if (height >= 0) {

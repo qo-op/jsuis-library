@@ -15,6 +15,7 @@
 		text: null,
 		icon: null,
 		iconTextGap: null,
+		selected: null,
 		group: null
 	});
 	jsuis.Button.prototype.setAction = function(action) {

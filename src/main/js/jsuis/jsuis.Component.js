@@ -21,6 +21,7 @@
 		height: 0,
 		size: null,
 		preferredSize: null,
+		preferredScrollableViewportSize: null,
 		minimumSize: null,
 		bounds: null,
 		padding: null,

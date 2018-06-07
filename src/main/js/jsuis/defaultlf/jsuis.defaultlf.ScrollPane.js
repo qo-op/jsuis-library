@@ -168,21 +168,21 @@
 		var view = this.getViewportView();
 		if (view) {
 			var viewSize;
-			var viewMinimumSize;
+			var viewPreferredSize;
 			for (var i = 0; i < 2; i++) {
 				viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
 						height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
 				view.setSize(viewSize);
-				var viewMinimumSize = view.getMinimumSize();
+				var viewPreferredSize = view.getPreferredScrollableViewportSize();
 				if (vsbPolicy === jsuis.Constants.VERTICAL_SCROLLBAR_AS_NEEDED) {
-					var visible = (viewMinimumSize.getHeight() > height);
+					var visible = (viewPreferredSize.getHeight() > height);
 					if (visible !== verticalScrollBarVisible) {
 						verticalScrollBarVisible = visible;
 						continue;
 					}
 				}
 				if (hsbPolicy === jsuis.Constants.HORIZONTAL_SCROLLBAR_AS_NEEDED) {
-					var visible = (viewMinimumSize.getWidth() > width);
+					var visible = (viewPreferredSize.getWidth() > width);
 					if (visible !== horizontalScrollBarVisible) {
 						horizontalScrollBarVisible = visible;
 						continue;
@@ -192,8 +192,8 @@
 			}
 			viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
 					height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
-			var viewWidth = Math.max(viewSize.getWidth(), viewMinimumSize.getWidth());
-			var viewHeight = Math.max(viewSize.getHeight(), viewMinimumSize.getHeight());
+			var viewWidth = Math.max(viewSize.getWidth(), viewPreferredSize.getWidth());
+			var viewHeight = Math.max(viewSize.getHeight(), viewPreferredSize.getHeight());
 			view.setSize(new jsuis.Dimension(viewWidth, viewHeight));
 			verticalScrollBar.setMaximum(viewHeight);
 			horizontalScrollBar.setMaximum(viewWidth);

@@ -12,9 +12,10 @@
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Label, {
 		text: null,
-		icon: null,
-		iconTextGap: 0,
 		label: null,
+		icon: null,
+		iconPanel: null,
+		iconTextGap: 0
 	});
 	jsuis.defaultlf.Label.prototype.getText = function() {
 		var label = this.getLabel();
@@ -35,18 +36,21 @@
 			}
 			label.setText(text);
 		}
+		this.validate();
+		this.paint();
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.setIcon = function(icon, constraints) {
 		if (icon) {
-			var image = this.getImage();
-			if (!image) {
-				image = new jsuis.defaultlf.Image();
-				this.setImage(image);
-				this.add(image, nvl(constraints, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE)));
-				image.setEnabled(false);
+			var iconPanel = this.getIconPanel();
+			if (!iconPanel) {
+				iconPanel = new jsuis.defaultlf.Panel();
+				this.setIconPanel(iconPanel);
+				this.add(iconPanel, nvl(constraints, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE)));
+				iconPanel.setPreferredSize(new jsuis.Dimension(icon.getIconWidth(), icon.getIconHeight()));
+				iconPanel.setEnabled(false);
 			}
-			icon.paintIcon(this);
+			icon.paintIcon(iconPanel);
 		}
 		this.icon = icon;
 		return this;

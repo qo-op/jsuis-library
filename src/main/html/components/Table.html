@@ -5,14 +5,6 @@
     <script src="/jsuis.js?${date}"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden;">
-		<svg height="0" style="display: block;">
-			<defs>
-				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-					<stop offset="0%" style="stop-color: rgb(255, 255, 255);" />
-					<stop offset="100%" style="stop-color: rgb(0, 128, 128);" />
-				</linearGradient>
-			</defs>
-		</svg>
 		<div id="container" style="height: 100vh;"></div>
 		<script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,25 +27,31 @@ document.addEventListener('DOMContentLoaded', function() {
 		return contentPane;
 	}
 	
-	scrollPaneExample = createExamplePanel("jsuis.ScrollPane example");
-	scrollPaneExample.setLayout(new jsuis.BorderLayout());
+	tableExample = createExamplePanel("jsuis.Table example");
+	tableExample.setLayout(new jsuis.BorderLayout());
+	tableExample.setMargin(new jsuis.Insets(4));
 	
-	scrollPane = new jsuis.ScrollPane();
-	scrollPaneExample.add(scrollPane);
-
-	view = new jsuis.Panel(new jsuis.GridBagLayout());
-	scrollPane.setViewportView(view);
-	view.setPreferredSize(new jsuis.Dimension(250, 250));
-	view.setBackground("url(#blueGradient)");
-
-	button = new jsuis.Button("Button");
-	view.add(button);
+	columnNames = [
+		"Fist Name",
+		"Last Name",
+		"Sport",
+		"# of Years",
+		"Vegetarian"
+	];
 	
-	button.addActionListener(new jsuis.ActionListener({
-		actionPerformed: function(event) {
-			alert("Button clicked!");
-		}
-	}));
+	data = [
+		[ "Kathy", "Smith", "Snowboarding", 5, false ],
+		[ "John", "Doe", "Rowing", 3, true ],
+		[ "Sue", "Black", "Knitting", 2, false ],
+		[ "Jane", "White", "Speed reading", 20, true ],
+		[ "Joe", "Brown", "Pool", 10, false ]
+	];
+	
+	table = new jsuis.Table();
+	table.setColumns(columnNames);
+	table.setValues(data);
+	
+	tableExample.add(table);
 	
 	frame.setVisible(true);
 });

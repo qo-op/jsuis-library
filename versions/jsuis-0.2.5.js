@@ -504,12 +504,23 @@ jsuis.packages["jsuis"] = jsuis;
 		return (button === selection);
 	}
 	jsuis.ButtonGroup.prototype.setSelected = function(button) {
-		var oldSelection = this.getSelection();
-		if (oldSelection) {
-			oldSelection.setSelected(false);
+		var selection = this.getSelection();
+		if (selection === button) {
+			return;
+		}
+		if (selection) {
+			selection.setSelected(false);
+		} else {
+			var buttons = this.getButtons();
+			for (var i = 0; i < buttons.length; i++) {
+				var b = buttons[i];
+				if (b !== button) {
+					b.setSelected(false);
+				}
+			}
 		}
 		this.setSelection(button);
-		if (button) {
+		if (button && !button.isSelected()) {
 			button.setSelected(true);
 		}
 		return this;
@@ -804,6 +815,7 @@ jsuis.packages["jsuis"] = jsuis;
 		height: 0,
 		size: null,
 		preferredSize: null,
+		preferredScrollableViewportSize: null,
 		minimumSize: null,
 		bounds: null,
 		padding: null,
@@ -1133,6 +1145,10 @@ jsuis.packages["jsuis"] = jsuis;
 (function(jsuis) {
 	var SUPER = jsuis.Object;
 	jsuis.Icon = jsuis.Object.extend(SUPER, function() {
+	});
+	jsuis.Object.addPeerProperties(jsuis.Icon, {
+		iconWidth: 0,
+		iconHeight: 0
 	});
 	jsuis.Icon.prototype.paintIcon = function(component) {
 		var peer = this.getPeer();
@@ -1993,97 +2009,104 @@ jsuis.packages["jsuis"] = jsuis;
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
 	jsuis.BorderLayout.prototype.layoutContainer = function(parent) {
-		var x = 0;
-		var y = 0;
-		var width = parent.getWidth();
-		var height = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		x += parentInsetsOutsets.getLeft();
-		y += parentInsetsOutsets.getTop();
-		width -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight();
-		height -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
-		x += hgap / 2;
-		y += vgap / 2;
-		width += hgap;
-		height += vgap;
-		var components = parent.getComponents().slice();
-		var sort = this.isSort();
-		if (sort) {
-			components.sort(jsuis.BorderLayout.getComparator());
+		var m = 1;
+		for (var l = 0; l < m; l++) {
+			var x = 0;
+			var y = 0;
+			var width = parent.getWidth();
+			var height = parent.getHeight();
+			var hgap = this.getHgap();
+			var vgap = this.getVgap();
+			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+			x += parentInsetsOutsets.getLeft();
+			y += parentInsetsOutsets.getTop();
+			width -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight();
+			height -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom();
+			x += hgap / 2;
+			y += vgap / 2;
+			width += hgap;
+			height += vgap;
+			var components = parent.getComponents().slice();
+			var sort = this.isSort();
+			if (sort) {
+				components.sort(jsuis.BorderLayout.getComparator());
+			}
+			for (var i = 0; i < components.length; i++) {
+				var component = components[i];
+				var constraints = component.getConstraints();
+				if (!constraints) {
+					constraints = jsuis.Constraints.CENTER.clone();
+					component.setConstraints(constraints);
+				}
+				if (!component.isVisible() && constraints.getBorder() !== jsuis.Constants.CENTER) {
+					continue;
+				}
+				var layout = component.getLayout();
+				if (layout instanceof jsuis.FlowLayout) {
+					m = 2;
+				}
+				var componentPreferredSize = component.getPreferredSize();
+				var componentPreferredWidth = componentPreferredSize.getWidth();
+				var componentPreferredHeight = componentPreferredSize.getHeight();
+				var componentX = 0;
+				var componentY = 0;
+				var componentWidth = componentPreferredWidth + hgap;
+				var componentHeight = componentPreferredHeight + vgap;
+				switch (constraints.getBorder()) {
+				case jsuis.Constants.NORTH:
+				case jsuis.Constants.PAGE_START:
+				case jsuis.Constants.TOP:
+					componentX = x;
+					componentY = y;
+					componentWidth = width;
+					component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
+					componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
+					y += componentHeight;
+					height -= componentHeight;
+					break;
+				case jsuis.Constants.SOUTH:
+				case jsuis.Constants.PAGE_END:
+				case jsuis.Constants.BOTTOM:
+					componentX = x;
+					componentY = y + height - componentHeight;
+					componentWidth = width;
+					component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
+					componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
+					height -= componentHeight;
+					break;
+				case jsuis.Constants.WEST:
+				case jsuis.Constants.LINE_START:
+				case jsuis.Constants.LEFT:
+					componentX = x;
+					componentY = y;
+					componentHeight = height;
+					x += componentWidth;
+					width -= componentWidth;
+					break;
+				case jsuis.Constants.EAST:
+				case jsuis.Constants.LINE_END:
+				case jsuis.Constants.RIGHT:
+					componentX = x + width - componentWidth;
+					componentY = y;
+					componentHeight = height;
+					width -= componentWidth;
+					break;
+				case jsuis.Constants.CENTER:
+				default:
+					componentX = x;
+					componentY = y;
+					componentWidth = width;
+					componentHeight = height;
+				}
+				componentX -= hgap / 2;
+				componentY -= vgap / 2;
+				componentWidth -= hgap;
+				componentHeight -= vgap;
+				var bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+				constraints.setBounds(bounds);
+			}
+			SUPER.prototype.layoutContainer.call(this, parent);
 		}
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = jsuis.Constraints.CENTER.clone();
-				component.setConstraints(constraints);
-			}
-			if (!component.isVisible() && constraints.getBorder() !== jsuis.Constants.CENTER) {
-				continue;
-			}
-			var componentPreferredSize = component.getPreferredSize();
-			var componentPreferredWidth = componentPreferredSize.getWidth();
-			var componentPreferredHeight = componentPreferredSize.getHeight();
-			var componentX = 0;
-			var componentY = 0;
-			var componentWidth = componentPreferredWidth + hgap;
-			var componentHeight = componentPreferredHeight + vgap;
-			switch (constraints.getBorder()) {
-			case jsuis.Constants.NORTH:
-			case jsuis.Constants.PAGE_START:
-			case jsuis.Constants.TOP:
-				componentX = x;
-				componentY = y;
-				componentWidth = width;
-				component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
-				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
-				y += componentHeight;
-				height -= componentHeight;
-				break;
-			case jsuis.Constants.SOUTH:
-			case jsuis.Constants.PAGE_END:
-			case jsuis.Constants.BOTTOM:
-				componentX = x;
-				componentY = y + height - componentHeight;
-				componentWidth = width;
-				component.setSize(new jsuis.Dimension(componentWidth - hgap, componentHeight));
-				componentHeight = Math.max(componentHeight, component.getMinimumSize().getHeight() + vgap);
-				height -= componentHeight;
-				break;
-			case jsuis.Constants.WEST:
-			case jsuis.Constants.LINE_START:
-			case jsuis.Constants.LEFT:
-				componentX = x;
-				componentY = y;
-				componentHeight = height;
-				x += componentWidth;
-				width -= componentWidth;
-				break;
-			case jsuis.Constants.EAST:
-			case jsuis.Constants.LINE_END:
-			case jsuis.Constants.RIGHT:
-				componentX = x + width - componentWidth;
-				componentY = y;
-				componentHeight = height;
-				width -= componentWidth;
-				break;
-			case jsuis.Constants.CENTER:
-			default:
-				componentX = x;
-				componentY = y;
-				componentWidth = width;
-				componentHeight = height;
-			}
-			componentX -= hgap / 2;
-			componentY -= vgap / 2;
-			componentWidth -= hgap;
-			componentHeight -= vgap;
-			var bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
-			constraints.setBounds(bounds);
-		}
-		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);
 
@@ -2104,6 +2127,7 @@ jsuis.packages["jsuis"] = jsuis;
 		text: null,
 		icon: null,
 		iconTextGap: null,
+		selected: null,
 		group: null
 	});
 	jsuis.Button.prototype.setAction = function(action) {
@@ -2136,13 +2160,14 @@ jsuis.packages["jsuis"] = jsuis;
  */
 (function(jsuis) {
 	var SUPER = jsuis.Component;
-	jsuis.ComboBox = jsuis.Object.extend(SUPER, function() {
+	jsuis.ComboBox = jsuis.Object.extend(SUPER, function(items) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ComboBox());
+		this.setPeer(new jsuis[lookAndFeel].ComboBox(items));
 	});
 	jsuis.Object.addPeerProperties(jsuis.ComboBox, {
 		items: null,
-		selectedIndex: 0
+		selectedIndex: 0,
+		selectedItem: null
 	});
 }) (jsuis);
 
@@ -2371,38 +2396,10 @@ jsuis.packages["jsuis"] = jsuis;
 		vgap: 0
 	});
 	jsuis.FlowLayout.prototype.preferredLayoutSize = function(parent) {
+		this.layoutContainer(parent);
+		var preferredLayoutX = 0;
 		var preferredLayoutWidth = 0;
 		var preferredLayoutHeight = 0;
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentPreferredSize = component.getPreferredSize();
-			var componentPreferredWidth = componentPreferredSize.getWidth();
-			var componentPreferredHeight = componentPreferredSize.getHeight();
-			componentPreferredWidth += hgap;
-			componentPreferredHeight += vgap;
-			preferredLayoutWidth += componentPreferredWidth;
-			preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredHeight);
-		}
-		if (components.length) {
-			preferredLayoutWidth -= hgap;
-			preferredLayoutHeight -= vgap;
-		}
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
-		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
-		return new jsuis.Dimension(preferredLayoutWidth + 2 * hgap, preferredLayoutHeight + 2 * vgap);
-	}
-	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
-		this.layoutContainer(parent);
-		var minimumLayoutX = 0;
-		var minimumLayoutWidth = 0;
-		var minimumLayoutHeight = 0;
 		var hgap = this.getHgap();
 		var vgap = this.getVgap();
 		var components = parent.getComponents();
@@ -2415,103 +2412,113 @@ jsuis.packages["jsuis"] = jsuis;
 			var componentY = component.getY();
 			var componentWidth = component.getWidth();
 			var componentHeight = component.getHeight();
-			minimumLayoutX = Math.min(minimumLayoutX, componentX);
-			minimumLayoutWidth = Math.max(minimumLayoutWidth, componentX + componentWidth);
-			minimumLayoutHeight = Math.max(minimumLayoutHeight, componentY + componentHeight);
+			preferredLayoutX = Math.min(preferredLayoutX, componentX);
+			preferredLayoutWidth = Math.max(preferredLayoutWidth, componentX + componentWidth);
+			preferredLayoutHeight = Math.max(preferredLayoutHeight, componentY + componentHeight);
 		}
-		return new jsuis.Dimension(minimumLayoutWidth - minimumLayoutX + 2 * hgap, minimumLayoutHeight - vgap + 2 * vgap);
+		return new jsuis.Dimension(preferredLayoutWidth - preferredLayoutX + 2 * hgap, preferredLayoutHeight - vgap + 2 * vgap);
+	}
+	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
+		return this.preferredLayoutSize(parent);
 	}
 	jsuis.FlowLayout.prototype.layoutContainer = function(parent) {
-		var minX = 0;
-		var minY = 0;
-		var maxWidth = parent.getWidth();
-		var maxHeight = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		minX += parentInsetsOutsets.getLeft() + hgap;
-		minY += parentInsetsOutsets.getTop() + vgap;
-		maxWidth -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight() + 2 * hgap;
-		maxHeight -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom() + 2 * vgap;
-		minX += hgap / 2;
-		minY += vgap / 2;
-		maxWidth += hgap;
-		maxHeight += vgap;
-		var x = minX;
-		var y = minY;
-		var width = 0;
-		var height = 0;
-		var rowComponents = [];
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			var constraints = component.getConstraints();
-			if (!constraints) {
-				constraints = new jsuis.Constraints();
-				component.setConstraints(constraints);
-			}
-			if (!component.isVisible()) {
-				continue;
-			}
-			var componentPreferredSize = component.getPreferredSize();
-			var componentPreferredWidth = componentPreferredSize.getWidth();
-			var componentPreferredHeight = componentPreferredSize.getHeight();
-			var componentX = x;
-			var componentY = y;
-			var componentWidth = componentPreferredWidth + hgap;
-			var componentHeight = componentPreferredHeight + vgap;
-			if ((componentX + componentWidth < maxWidth) || (rowComponents.length == 0)) {
-				x += componentWidth;
-				width += componentWidth;
-				height = Math.max(height, componentHeight);
-				component.setBounds(new jsuis.Rectangle(componentX - hgap / 2, componentY - vgap / 2,
-						componentWidth - hgap, componentHeight - vgap));
-				rowComponents.push(component);
-			}
-			if ((componentX + componentWidth >= maxWidth) || (i === components.length - 1)) {
-				var dx = 0;
-				var align = this.getAlign();
-				switch (align) {
-				case jsuis.Constants.LEFT:
-				case jsuis.Constants.LEADING:
-					break;
-				case jsuis.Constants.RIGHT:
-				case jsuis.Constants.TRAILING:
-					dx = maxWidth - width;
-					break;
-				case jsuis.Constants.CENTER:
-				default:
-					dx = Math.round((maxWidth - width) / 2);
+		var m = 1;
+		for (var l = 0; l < m; l++) {
+			var minX = 0;
+			var minY = 0;
+			var maxWidth = parent.getWidth();
+			var maxHeight = parent.getHeight();
+			var hgap = this.getHgap();
+			var vgap = this.getVgap();
+			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+			minX += parentInsetsOutsets.getLeft() + hgap;
+			minY += parentInsetsOutsets.getTop() + vgap;
+			maxWidth -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight() + 2 * hgap;
+			maxHeight -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom() + 2 * vgap;
+			minX += hgap / 2;
+			minY += vgap / 2;
+			maxWidth += hgap;
+			maxHeight += vgap;
+			var x = minX;
+			var y = minY;
+			var width = 0;
+			var height = 0;
+			var rowComponents = [];
+			var components = parent.getComponents();
+			for (var i = 0; i < components.length; i++) {
+				var component = components[i];
+				var constraints = component.getConstraints();
+				if (!constraints) {
+					constraints = new jsuis.Constraints();
+					component.setConstraints(constraints);
 				}
-				for (var j = 0; j < rowComponents.length; j++) {
-					var rowComponent = rowComponents[j];
-					var rowComponentX = rowComponent.getX();
-					var rowComponentY = rowComponent.getY();
-					var rowComponentWidth = rowComponent.getWidth();
-					var rowComponentHeight = rowComponent.getHeight();
-					rowComponentX += dx;
-					rowComponentHeight = height - vgap;
-					var bounds;
-					var leftToRight = parent.isLeftToRight();
-					if (leftToRight) {
-						bounds = new jsuis.Rectangle(rowComponentX, rowComponentY, rowComponentWidth, rowComponentHeight);
-					} else {
-						bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
+				if (!component.isVisible()) {
+					continue;
+				}
+				var layout = component.getLayout();
+				if (layout instanceof jsuis.FlowLayout) {
+					m = 2;
+				}
+				var componentPreferredSize = component.getPreferredSize();
+				var componentPreferredWidth = componentPreferredSize.getWidth();
+				var componentPreferredHeight = componentPreferredSize.getHeight();
+				var componentX = x;
+				var componentY = y;
+				var componentWidth = componentPreferredWidth + hgap;
+				var componentHeight = componentPreferredHeight + vgap;
+				if ((componentX + componentWidth < maxWidth) || (rowComponents.length == 0)) {
+					x += componentWidth;
+					width += componentWidth;
+					height = Math.max(height, componentHeight);
+					component.setBounds(new jsuis.Rectangle(componentX - hgap / 2, componentY - vgap / 2,
+							componentWidth - hgap, componentHeight - vgap));
+					rowComponents.push(component);
+				}
+				if ((componentX + componentWidth >= maxWidth) || (i === components.length - 1)) {
+					var dx = 0;
+					var align = this.getAlign();
+					switch (align) {
+					case jsuis.Constants.LEFT:
+					case jsuis.Constants.LEADING:
+						break;
+					case jsuis.Constants.RIGHT:
+					case jsuis.Constants.TRAILING:
+						dx = maxWidth - width;
+						break;
+					case jsuis.Constants.CENTER:
+					default:
+						dx = Math.round((maxWidth - width) / 2);
 					}
-					var constraints = rowComponent.getConstraints();
-					constraints.setBounds(bounds);
-				}
-				rowComponents.length = 0;
-				x = minX;
-				y += height;
-				width = 0;
-				height = 0;
-				if ((componentX + componentWidth >= maxWidth) && (x + componentWidth < maxWidth)) {
-					i--;
+					for (var j = 0; j < rowComponents.length; j++) {
+						var rowComponent = rowComponents[j];
+						var rowComponentX = rowComponent.getX();
+						var rowComponentY = rowComponent.getY();
+						var rowComponentWidth = rowComponent.getWidth();
+						var rowComponentHeight = rowComponent.getHeight();
+						rowComponentX += dx;
+						rowComponentHeight = height - vgap;
+						var bounds;
+						var leftToRight = parent.isLeftToRight();
+						if (leftToRight) {
+							bounds = new jsuis.Rectangle(rowComponentX, rowComponentY, rowComponentWidth, rowComponentHeight);
+						} else {
+							bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
+						}
+						var constraints = rowComponent.getConstraints();
+						constraints.setBounds(bounds);
+					}
+					rowComponents.length = 0;
+					x = minX;
+					y += height;
+					width = 0;
+					height = 0;
+					if ((componentX + componentWidth >= maxWidth) && (x + componentWidth < maxWidth)) {
+						i--;
+					}
 				}
 			}
+			SUPER.prototype.layoutContainer.call(this, parent);
 		}
-		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);
 
@@ -2777,105 +2784,112 @@ jsuis.packages["jsuis"] = jsuis;
 		return this.preferredLayoutSize(parent);
 	}
 	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
-		var preferredLayoutSize = this.preferredLayoutSize(parent);
-		var x = 0;
-		var y = 0;
-		var width = parent.getWidth();
-		var height = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		var preferredLayoutWidth = preferredLayoutSize.getWidth();
-		var preferredLayoutHeight = preferredLayoutSize.getHeight();
-		x += parentInsetsOutsets.getLeft();
-		y += parentInsetsOutsets.getTop();
-		var widths = this.getWidths().slice();
-		var dwidth = width - preferredLayoutWidth;
-		var weightxsSum = 0;
-		var weightxs = this.getWeightxs();
-		for (var i = 0; i < weightxs.length; i++) {
-			weightxsSum += weightxs[i];
-		}
-		if (weightxsSum === 0) {
-			x += dwidth / 2;
-			dwidth = 0;
-		} else {
-			for (var i = 0; i < widths.length; i++) {
-				widths[i] += dwidth * weightxs[i] / weightxsSum;
+		var m = 1;
+		for (var l = 0; l < m; l++) {
+			var preferredLayoutSize = this.preferredLayoutSize(parent);
+			var x = 0;
+			var y = 0;
+			var width = parent.getWidth();
+			var height = parent.getHeight();
+			var hgap = this.getHgap();
+			var vgap = this.getVgap();
+			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+			var preferredLayoutWidth = preferredLayoutSize.getWidth();
+			var preferredLayoutHeight = preferredLayoutSize.getHeight();
+			x += parentInsetsOutsets.getLeft();
+			y += parentInsetsOutsets.getTop();
+			var widths = this.getWidths().slice();
+			var dwidth = width - preferredLayoutWidth;
+			var weightxsSum = 0;
+			var weightxs = this.getWeightxs();
+			for (var i = 0; i < weightxs.length; i++) {
+				weightxsSum += weightxs[i];
 			}
-		}
-		var heights = this.getHeights().slice();
-		var dheight = height - preferredLayoutHeight;
-		var weightysSum = 0;
-		var weightys = this.getWeightys();
-		for (var i = 0; i < weightys.length; i++) {
-			weightysSum += weightys[i];
-		}
-		if (weightysSum === 0) {
-			y += dheight / 2;
-			dheight = 0;
-		} else {
-			for (var i = 0; i < heights.length; i++) {
-				heights[i] += dheight * weightys[i] / weightysSum;
-			}
-		}
-		var dx = 0;
-		var xs = [];
-		for (var i = 0; i < widths.length; i++) {
-			xs.push(Math.round(x + dx));
-			dx += widths[i] + hgap;
-		}
-		if (widths.length) {
-			xs.push(Math.round(x + dx));
-		}
-		var dy = 0;
-		var ys = [];
-		for (var i = 0; i < heights.length; i++) {
-			ys.push(Math.round(y + dy));
-			dy += heights[i] + vgap;
-		}
-		if (heights.length) {
-			ys.push(Math.round(y + dy));
-		}
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			var constraints = component.getConstraints();
-			if (!component.isVisible()) {
-				continue;
-			}
-			var gridx = constraints.getGridx();
-			if (gridx === jsuis.Constants.RELATIVE) {
-				gridx = constraints.getRelativeGridx();
-			}
-			var gridy = constraints.getGridy();
-			if (gridy === jsuis.Constants.RELATIVE) {
-				gridy = constraints.getRelativeGridy();
-			}
-			var gridwidth = constraints.getGridwidth();
-			if (gridwidth === jsuis.Constants.REMAINDER) {
-				gridwidth = constraints.getRemainderGridwidth();
-			}
-			var gridheight = constraints.getGridheight();
-			if (gridheight === jsuis.Constants.REMAINDER) {
-				gridheight = constraints.getRemainderGridheight();
-			}
-			var weightx = constraints.getWeightx();
-			var weighty = constraints.getWeighty();
-			var componentX = xs[gridx];
-			var componentY = ys[gridy];
-			var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
-			var componentHeight = ys[gridy + gridheight] - componentY - vgap;
-			var bounds;
-			var leftToRight = parent.isLeftToRight();
-			if (leftToRight) {
-				bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+			if (weightxsSum === 0) {
+				x += dwidth / 2;
+				dwidth = 0;
 			} else {
-				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+				for (var i = 0; i < widths.length; i++) {
+					widths[i] += dwidth * weightxs[i] / weightxsSum;
+				}
 			}
-			constraints.setBounds(bounds);
+			var heights = this.getHeights().slice();
+			var dheight = height - preferredLayoutHeight;
+			var weightysSum = 0;
+			var weightys = this.getWeightys();
+			for (var i = 0; i < weightys.length; i++) {
+				weightysSum += weightys[i];
+			}
+			if (weightysSum === 0) {
+				y += dheight / 2;
+				dheight = 0;
+			} else {
+				for (var i = 0; i < heights.length; i++) {
+					heights[i] += dheight * weightys[i] / weightysSum;
+				}
+			}
+			var dx = 0;
+			var xs = [];
+			for (var i = 0; i < widths.length; i++) {
+				xs.push(Math.round(x + dx));
+				dx += widths[i] + hgap;
+			}
+			if (widths.length) {
+				xs.push(Math.round(x + dx));
+			}
+			var dy = 0;
+			var ys = [];
+			for (var i = 0; i < heights.length; i++) {
+				ys.push(Math.round(y + dy));
+				dy += heights[i] + vgap;
+			}
+			if (heights.length) {
+				ys.push(Math.round(y + dy));
+			}
+			var components = parent.getComponents();
+			for (var i = 0; i < components.length; i++) {
+				var component = components[i];
+				var constraints = component.getConstraints();
+				if (!component.isVisible()) {
+					continue;
+				}
+				var layout = component.getLayout();
+				if (layout instanceof jsuis.FlowLayout) {
+					m = 2;
+				}
+				var gridx = constraints.getGridx();
+				if (gridx === jsuis.Constants.RELATIVE) {
+					gridx = constraints.getRelativeGridx();
+				}
+				var gridy = constraints.getGridy();
+				if (gridy === jsuis.Constants.RELATIVE) {
+					gridy = constraints.getRelativeGridy();
+				}
+				var gridwidth = constraints.getGridwidth();
+				if (gridwidth === jsuis.Constants.REMAINDER) {
+					gridwidth = constraints.getRemainderGridwidth();
+				}
+				var gridheight = constraints.getGridheight();
+				if (gridheight === jsuis.Constants.REMAINDER) {
+					gridheight = constraints.getRemainderGridheight();
+				}
+				var weightx = constraints.getWeightx();
+				var weighty = constraints.getWeighty();
+				var componentX = xs[gridx];
+				var componentY = ys[gridy];
+				var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
+				var componentHeight = ys[gridy + gridheight] - componentY - vgap;
+				var bounds;
+				var leftToRight = parent.isLeftToRight();
+				if (leftToRight) {
+					bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+				} else {
+					bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+				}
+				constraints.setBounds(bounds);
+			}
+			SUPER.prototype.layoutContainer.call(this, parent);
 		}
-		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);
 
@@ -2902,14 +2916,12 @@ jsuis.packages["jsuis"] = jsuis;
  */
 (function(jsuis) {
 	var SUPER = jsuis.Icon;
-	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(resource, width, height) {
+	jsuis.ImageIcon = jsuis.Object.extend(SUPER, function(image, width, height) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].ImageIcon(resource, width, height));
+		this.setPeer(new jsuis[lookAndFeel].ImageIcon(image, width, height));
 	});
 	jsuis.Object.addPeerProperties(jsuis.ImageIcon, {
-		resource: null,
-		width: 0,
-		height: 0
+		image: null,
 	});
 }) (jsuis);
 
@@ -3123,8 +3135,10 @@ jsuis.packages["jsuis"] = jsuis;
 	});
 	jsuis.Object.addPeerProperties(jsuis.Table, {
 		columns: null,
+		values: null,
 		rowCount: 0,
-		columnCount: 0
+		columnCount: 0,
+		rowHeight: 0
 	});
 	jsuis.Table.prototype.getValueAt = function(row, column) {
 		var peer = this.getPeer();
@@ -3381,6 +3395,17 @@ jsuis.packages["jsuis"] = jsuis;
 		var peer = this.getPeer();
 		peer.show(invoker, x, y);
 	}
+}) (jsuis);
+
+/**
+ * jsuis.RadioButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Button;
+	jsuis.RadioButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].RadioButton(text, icon));
+	});
 }) (jsuis);
 
 /**
@@ -3905,7 +3930,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		parent: null,
 		layout: null,
 		constraints: null,
-		image: null,
 		cursor: null,
 		graphics: null,
 		target: null,
@@ -3950,6 +3974,19 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		var element = this.getElement();
 		var computedStyle = getComputedStyle(element);
 		return computedStyle[property];
+	}
+	jsuis.defaultlf.Component.prototype.getAttributeNS = function(namespace, attribute) {
+		var element = this.getElement();
+		return element.getAttributeNS(attribute);
+	}
+	jsuis.defaultlf.Component.prototype.setAttributeNS = function(namespace, attribute, value) {
+		var element = this.getElement();
+		if (value === null) {
+			element.removeAttributeNS(namespace, attribute);
+			return this;
+		}
+		element.setAttributeNS(namespace, attribute, value);
+		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
@@ -4138,6 +4175,9 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.preferredSize = preferredSize ? preferredSize.clone() : preferredSize;
 		return this;
 	}
+	jsuis.defaultlf.Component.prototype.getPreferredScrollableViewportSize = function() {
+		return this.getPreferredSize();
+	}
 	jsuis.defaultlf.Component.prototype.getMinimumSize = function() {
 		var minimumSize = this.minimumSize;
 		if (minimumSize) {
@@ -4205,8 +4245,9 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
 		this.border = border;
-		border = nvl(border, new jsuis.defaultlf.Border());
-		border.paintBorder(this);
+		if (border) {
+			border.paintBorder(this);
+		}
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {
@@ -5117,6 +5158,46 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Circle
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Circle = jsuis.Object.extend(SUPER, function(cx, cy, r) {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "circle"));
+		cx = nvl(cx, 0);
+		cy = nvl(cy, cx);
+		r = nvl(r, cx);
+		this.setCx(cx);
+		this.setCy(cy);
+		this.setR(r);
+	});
+	jsuis.defaultlf.Circle.prototype.getCx = function() {
+		return this.cx || 0;
+	}
+	jsuis.defaultlf.Circle.prototype.setCx = function(cx) {
+		this.setAttribute("cx", +nvl(cx, 0));
+		this.cx = cx;
+		return this;
+	}
+	jsuis.defaultlf.Circle.prototype.getCy = function() {
+		return this.cy || 0;
+	}
+	jsuis.defaultlf.Circle.prototype.setCy = function(cy) {
+		this.setAttribute("cy", +nvl(cy, 0));
+		this.cy = cy;
+		return this;
+	}
+	jsuis.defaultlf.Circle.prototype.getR = function() {
+		return this.r || 0;
+	}
+	jsuis.defaultlf.Circle.prototype.setR = function(r) {
+		this.setAttribute("r", +nvl(r, 0));
+		this.r = r;
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.ClipPath
  */
 (function(jsuis) {
@@ -5129,6 +5210,281 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.ClipPath.next = function() {
 		return "ClipPath-" + sequence++;
 	};
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ComboBoxEditor
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.ComboBoxEditor = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElement("select"));
+		this.setStyleProperty("position", "absolute");
+		this.setStyleProperty("padding", "0");
+		this.setStyleProperty("margin", "0");
+		this.setStyleProperty("border", "0");
+		this.setStyleProperty("outline", "none");
+		this.setStyleProperty("background-color", "transparent");
+		this.setVisible(false);
+		new jsuis.defaultlf.Component(document.body).add(this);
+		var actionListener = new jsuis.ActionListener({
+			actionPerformed: function(event) {
+				var comboBoxEditor = this.getListenerComponent();
+				var comboBox = comboBoxEditor.getComboBox();
+				if (comboBox) {
+					comboBox.setSelectedItem(comboBoxEditor.getSelectedItem());
+					comboBox.fireActionPerformed(event.getElement());
+				}
+			}
+		});
+		actionListener.setListenerComponent(this);
+		this.addActionListener(actionListener);
+		var focusListener = new jsuis.FocusListener({
+			focusLost: function(event) {
+				var comboBoxEditor = this.getListenerComponent();
+				var comboBox = comboBoxEditor.getComboBox();
+				if (comboBox) {
+					comboBoxEditor.uninstall(comboBox);
+				}
+			}
+		});
+		focusListener.setListenerComponent(this);
+		this.addFocusListener(focusListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ComboBoxEditor, {
+		comboBox: null,
+		selection: null,
+		enterSelection: null,
+		values: null,
+		target: null
+	});
+	var instance;
+	jsuis.defaultlf.ComboBoxEditor.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.ComboBoxEditor();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.install = function(comboBox) {
+		var oldComboBox = this.getComboBox();
+		if (oldComboBox) {
+			this.uninstall(oldComboBox);
+		}
+		if (comboBox) {
+			var label = comboBox.getLabel();
+			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
+			var comboBoxBoundingClientRect = comboBox.getElement().getBoundingClientRect();
+			var bodyBoundingClientRect = document.body.getBoundingClientRect();
+			var dx = labelBoundingClientRect.left - comboBoxBoundingClientRect.left;
+			var dy = labelBoundingClientRect.top - comboBoxBoundingClientRect.top;
+			this.setBounds(new jsuis.Rectangle(
+					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
+					comboBoxBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
+			this.setFont(label.getFont());
+			this.setItems(comboBox.getItems());
+			this.setSelectedItem(comboBox.getSelectedItem());
+			label.setVisible(false);
+			this.setVisible(true);
+		}
+		this.setComboBox(comboBox);
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.uninstall = function(comboBox) {
+		comboBox.setSelectedItem(this.getSelectedItem());
+		this.setVisible(false);
+		var label = comboBox.getLabel();
+		label.setVisible(true);
+		comboBox.setEditor(null);
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setItems = function(items) {
+		this
+			.select()
+			.data(items)
+			.enter().append()
+			.all()
+				.text(function(d) { return d; })
+			.exit().remove();
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.getSelectedItem = function() {
+		var element = this.getElement();
+		return element.value;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setSelectedItem = function(item) {
+		var element = this.getElement();
+		element.selectedIndex = this.getValues().indexOf(item);
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setX = function(x) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("left", (+nvl(x, 0) + outsets.getLeft()) + "px");
+		this.x = x;
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setY = function(y) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("top", (+nvl(y, 0) + outsets.getTop()) + "px");
+		this.y = y;
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setWidth = function(width) {
+		var outsets = this.getOutsets();
+		width -= outsets.getLeft() + outsets.getRight();
+		if (width >= 0) {
+			this.setStyleProperty("width", width + "px");
+		}
+		this.width = width;
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.setHeight = function(height) {
+		var outsets = this.getOutsets();
+		height -= outsets.getTop() + outsets.getBottom();
+		if (height >= 0) {
+			this.setStyleProperty("height", height + "px");
+		}
+		this.height = height;
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.select = function() {
+		this.setSelection(this.getComponents());
+		this.setEnterSelection([]);
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.data = function(data) {
+		this.setValues(data);
+		this.update();
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.update = function() {
+		this.setTarget("update");
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.enter = function() {
+		this.setTarget("enter");
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.exit = function() {
+		this.setTarget("exit");
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.all = function() {
+		this.setTarget("all");
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.append = function() {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = new jsuis.defaultlf.Option();
+				enterSelection.push(component);
+				this.add(component);
+			}
+			break;
+		case "exit":
+			break;
+		case "update":
+		default:
+		}
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.remove = function() {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			break;
+		case "exit":
+			for (var i = data.length; i < selection.length; i++) {
+				var component = selection[i];
+				this.remove(component);
+			}
+			break;
+		case "update":
+		default:
+		}
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.text = function(text) {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				var element = component.getElement();
+				if (jsuis.Object.isFunction(text)) {
+					element.innerHTML = text(data[i], i);
+				} else {
+					element.innerHTML = text;
+				}
+			}
+			break;
+		case "exit":
+			for (var i = data.length; i < selection.length; i++) {
+				var component = selection[i];
+				var element = component.getElement();
+				if (jsuis.Object.isFunction(text)) {
+					element.innerHTML = text(data[i], i);
+				} else {
+					element.innerHTML = text;
+				}
+			}
+			break;
+		case "all":
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				var element = component.getElement();
+				if (jsuis.Object.isFunction(text)) {
+					element.innerHTML = text(data[i], i);
+				} else {
+					element.innerHTML = text;
+				}
+			}
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				var element = component.getElement();
+				if (jsuis.Object.isFunction(text)) {
+					element.innerHTML = text(data[i], i);
+				} else {
+					element.innerHTML = text;
+				}
+			}
+			break;
+		case "update":
+		default:
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				var element = component.getElement();
+				if (jsuis.Object.isFunction(text)) {
+					element.innerHTML = text(data[i], i);
+				} else {
+					element.innerHTML = text;
+				}
+			}
+		}
+		return this;
+	}
+	jsuis.defaultlf.ComboBoxEditor.prototype.addActionListener = function(actionListener) {
+		var actionListeners = this.getActionListeners();
+		actionListeners.push(actionListener);
+		var component = this;
+		var listener = actionListener.getListener();
+		if (listener.actionPerformed) {
+			var onchange = this.getEventListener("change");
+			if (!onchange) {
+				this.setEventListener("change", function(event) {
+					component.fireActionPerformed(event);
+				});
+			}
+		}
+	}
 }) (jsuis);
 
 /**
@@ -5342,7 +5698,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		selection: null,
 		enterSelection: null,
 		values: null,
-		join: null
+		target: null
 	});
 	jsuis.defaultlf.Graphics.prototype.select = function(constraints) {
 		var selection = [];
@@ -5364,36 +5720,42 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.update = function() {
-		this.setJoin("update");
+		this.setTarget("update");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.enter = function() {
-		this.setJoin("enter");
+		this.setTarget("enter");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.exit = function() {
-		this.setJoin("exit");
+		this.setTarget("exit");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.all = function() {
-		this.setJoin("all");
+		this.setTarget("all");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.append = function(element) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
 				var component;
 				switch (element) {
+				case "image":
+					component = new jsuis.defaultlf.Image();
+					break;
 				case "line":
 					component = new jsuis.defaultlf.Line();
 					break;
 				case "rect":
 					component = new jsuis.defaultlf.Rect();
+					break;
+				case "circle":
+					component = new jsuis.defaultlf.Circle();
 					break;
 				case "path":
 					component = new jsuis.defaultlf.Path();
@@ -5419,8 +5781,8 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Graphics.prototype.remove = function() {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			break;
 		case "exit":
@@ -5436,8 +5798,8 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Graphics.prototype.setAttribute = function(attribute, value) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
@@ -5494,8 +5856,8 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Graphics.prototype.setStyleProperty = function(attribute, value) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
@@ -5549,6 +5911,64 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		}
 		return this;
 	}
+	jsuis.defaultlf.Graphics.prototype.setAttributeNS = function(namespace, attribute, value) {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "exit":
+			for (var i = data.length; i < selection.length; i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "all":
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "update":
+		default:
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+		}
+		return this;
+	}
 }) (jsuis);
 
 /**
@@ -5576,19 +5996,19 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Component;
-	jsuis.defaultlf.Image = jsuis.Object.extend(SUPER, function(resource) {
+	jsuis.defaultlf.Image = jsuis.Object.extend(SUPER, function(image) {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "image"));
-		if (resource) {
-			this.setResource(resource);
+		if (image) {
+			this.setImage(image);
 		}
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Image, {
-		resource: null
+		image: null
 	});
-	jsuis.defaultlf.Image.prototype.setResource = function(resource) {
+	jsuis.defaultlf.Image.prototype.setImage = function(image) {
 		var element = this.getElement();
-		element.setAttributeNS("http://www.w3.org/1999/xlink", "href", resource);
-		this.resource = resource;
+		element.setAttributeNS("http://www.w3.org/1999/xlink", "href", image);
+		this.image = image;
 		return this;
 	}
 }) (jsuis);
@@ -5598,24 +6018,26 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Icon;
-	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(resource, width, height) {
-		SUPER.prototype.constructor.call(this);
-		this.setResource(resource);
-		this.setWidth(nvl(width, 0));
-		this.setHeight(nvl(height, 0));
+	jsuis.defaultlf.ImageIcon = jsuis.Object.extend(SUPER, function(image, iconWidth, iconHeight) {
+		SUPER.prototype.constructor.call(this, iconWidth, iconHeight);
+		this.setImage(image);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ImageIcon, {
-		resource: null,
-		width: 0,
-		height: 0
+		image: null
 	});
 	jsuis.defaultlf.ImageIcon.prototype.paintIcon = function(component) {
-		var image = component.getImage();
-		var resource = this.getResource();
-		image.setResource(resource);
-		var width = this.getWidth();
-		var height = this.getHeight();
-		image.setPreferredSize(new jsuis.Dimension(width, height));
+		var image = this.getImage();
+		var iconWidth = this.getIconWidth();
+		var iconHeight = this.getIconHeight();
+		var graphics = component.getGraphics();
+		graphics
+			.select("image")
+			.data([ { href: image, width: iconWidth, height: iconHeight } ])
+			.enter().append("image")
+			.all()
+				.setAttributeNS("http://www.w3.org/1999/xlink", "href", function(d) { return d.href; })
+				.setAttribute("width", function(d) { return d.width; })
+				.setAttribute("height", function(d) { return d.height; });
 	}
 }) (jsuis);
 
@@ -5840,6 +6262,16 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Option
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.Option = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElement("option"));
+	});
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.Panel
  */
 (function(jsuis) {
@@ -5904,6 +6336,82 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Polyline = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "polyline"));
 	});
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.RadioButtonSelectedIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Icon;
+	jsuis.defaultlf.RadioButtonSelectedIcon = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, 16, 16);
+	});
+	var instance;
+	jsuis.defaultlf.RadioButtonSelectedIcon.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.RadioButtonSelectedIcon();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.RadioButtonSelectedIcon.prototype.paintIcon = function(component) {
+		var iconWidth = this.getIconWidth();
+		var iconHeight = this.getIconHeight();
+		var color = jsuis.Color.getColor(0x404040);
+		var graphics = component.getGraphics();
+		graphics
+			.select("circle")
+			.data([
+				{ cx: 8, cy: 8, r: 7.5, fill: "none", stroke: color.toString(), strokeWidth: 1 },
+				{ cx: 8, cy: 8, r: 3.5, fill: color.toString(), stroke: color.toString(), strokeWidth: 1 }
+			])
+			.enter().append("circle")
+			.all()
+				.setAttribute("cx", function(d) { return d.cx; })
+				.setAttribute("cy", function(d) { return d.cy; })
+				.setAttribute("r", function(d) { return d.r; })
+				.setAttribute("fill", function(d) { return d.fill; })
+				.setAttribute("stroke", function(d) { return d.stroke; })
+				.setAttribute("stroke-width", function(d) { return d.strokeWidth; })
+				.setStyleProperty("display", "");
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.RadioButtonUnselectedIcon
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Icon;
+	jsuis.defaultlf.RadioButtonUnselectedIcon = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, 16, 16);
+	});
+	var instance;
+	jsuis.defaultlf.RadioButtonUnselectedIcon.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.RadioButtonUnselectedIcon();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.RadioButtonUnselectedIcon.prototype.paintIcon = function(component) {
+		var iconWidth = this.getIconWidth();
+		var iconHeight = this.getIconHeight();
+		var color = jsuis.Color.getColor(0x404040);
+		var graphics = component.getGraphics();
+		graphics
+			.select("circle")
+			.data([
+				{ cx: 8, cy: 8, r: 7.5, fill: "none", stroke: color.toString(), strokeWidth: 1 }
+			])
+			.enter().append("circle")
+			.all()
+				.setAttribute("cx", function(d) { return d.cx; })
+				.setAttribute("cy", function(d) { return d.cy; })
+				.setAttribute("r", function(d) { return d.r; })
+				.setAttribute("fill", function(d) { return d.fill; })
+				.setAttribute("stroke", function(d) { return d.stroke; })
+				.setAttribute("stroke-width", function(d) { return d.strokeWidth; })
+			.exit()
+				.setStyleProperty("display", "none");
+	}
 }) (jsuis);
 
 /**
@@ -6083,6 +6591,166 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.TableBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Border;
+	jsuis.defaultlf.TableBorder = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableBorder, {
+	});
+	jsuis.defaultlf.TableBorder.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.defaultlf.TableBorder.prototype.paintBorder = function(component) {
+		var width = component.getWidth();
+		var height = component.getHeight();
+		if (!width || !height) {
+			return;
+		}
+		var rowCount = component.getRowCount();
+		var columnCount = component.getColumnCount();
+		var rowHeight = component.getRowHeight();
+		var columnWidth = component.getColumnWidth();
+		var x2 = columnCount * columnWidth;
+		var y2 = rowCount * rowHeight;
+		var data = [];
+		for (var i = 0; i < rowCount; i++) {
+			var y = (i + 1) * rowHeight + 0.5;
+			data.push({ x1: 0, y1: y, x2: x2, y2: y, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		}
+		for (var i = 0; i < columnCount; i++) {
+			var x = (i + 1) * columnWidth + 0.5;
+			data.push({ x1: x, y1: 0, x2: x, y2: y2, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		}
+		var graphics = component.getGraphics();
+		graphics
+			.select("line")
+			.data(data)
+			.enter().append("line")
+			.all()
+				.setAttribute("x1", function(d) { return d.x1; })
+				.setAttribute("y1", function(d) { return d.y1; })
+				.setAttribute("x2", function(d) { return d.x2; })
+				.setAttribute("y2", function(d) { return d.y2; })
+				.setStyleProperty("stroke", function(d) { return d.stroke; })
+				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; })
+			.exit()
+				.setStyleProperty("display", "none");
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TableCellEditor
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.TableCellEditor = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElement("input"));
+		this.setAttribute("type", "text");
+		this.setStyleProperty("position", "absolute");
+		this.setStyleProperty("padding", "0");
+		this.setStyleProperty("margin", "0");
+		this.setStyleProperty("border", "0");
+		this.setStyleProperty("outline", "none");
+		this.setStyleProperty("background-color", "transparent");
+		this.setVisible(false);
+		new jsuis.defaultlf.Component(document.body).add(this);
+		var focusListener = new jsuis.FocusListener({
+			focusLost: function(event) {
+				var tableCellEditor = this.getListenerComponent();
+				var tableCell = tableCellEditor.getTableCell();
+				if (tableCell) {
+					tableCellEditor.uninstall(tableCell);
+				}
+			}
+		});
+		focusListener.setListenerComponent(this);
+		this.addFocusListener(focusListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableCellEditor, {
+		tableCell: null
+	});
+	var instance;
+	jsuis.defaultlf.TableCellEditor.getInstance = function() {
+		if (!instance) {
+			instance = new jsuis.defaultlf.TableCellEditor();
+		}
+		return instance;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.install = function(tableCell) {
+		var oldTableCell = this.getTableCell();
+		if (oldTableCell) {
+			this.uninstall(oldTableCell);
+		}
+		if (tableCell) {
+			var label = tableCell.getLabel();
+			var labelBoundingClientRect = label.getElement().getBoundingClientRect();
+			var tableCellBoundingClientRect = tableCell.getElement().getBoundingClientRect();
+			var bodyBoundingClientRect = document.body.getBoundingClientRect();
+			var dx = labelBoundingClientRect.left - tableCellBoundingClientRect.left;
+			var dy = labelBoundingClientRect.top - tableCellBoundingClientRect.top;
+			this.setBounds(new jsuis.Rectangle(
+					labelBoundingClientRect.left - bodyBoundingClientRect.left, labelBoundingClientRect.top - bodyBoundingClientRect.top - dy,
+					tableCellBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
+			this.setFont(label.getFont());
+			this.setText(label.getText());
+			label.setVisible(false);
+			this.setVisible(true);
+		}
+		this.tableCell = tableCell;
+		return this;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.uninstall = function(tableCell) {
+		tableCell.setText(this.getText());
+		this.setVisible(false);
+		var label = tableCell.getLabel();
+		label.setVisible(true);
+		tableCell.setEditor(null);
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.getText = function() {
+		var element = this.getElement();
+		return element.value;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.setText = function(text) {
+		var element = this.getElement();
+		element.value = nvl(text, "");
+		return this;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.setX = function(x) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("left", (+nvl(x, 0) + outsets.getLeft()) + "px");
+		this.x = x;
+		return this;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.setY = function(y) {
+		var outsets = this.getOutsets();
+		this.setStyleProperty("top", (+nvl(y, 0) + outsets.getTop()) + "px");
+		this.y = y;
+		return this;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.setWidth = function(width) {
+		var outsets = this.getOutsets();
+		width -= outsets.getLeft() + outsets.getRight();
+		if (width >= 0) {
+			this.setStyleProperty("width", width + "px");
+		}
+		this.width = width;
+		return this;
+	}
+	jsuis.defaultlf.TableCellEditor.prototype.setHeight = function(height) {
+		var outsets = this.getOutsets();
+		height -= outsets.getTop() + outsets.getBottom();
+		if (height >= 0) {
+			this.setStyleProperty("height", height + "px");
+		}
+		this.height = height;
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.TabPanelBorder
  */
 (function(jsuis) {
@@ -6208,7 +6876,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.setStyleProperty("background-color", "transparent");
 		this.setVisible(false);
 		new jsuis.defaultlf.Component(document.body).add(this);
-		
 		var focusListener = new jsuis.FocusListener({
 			focusLost: function(event) {
 				var textFieldEditor = this.getListenerComponent();
@@ -6248,17 +6915,17 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 					textFieldBoundingClientRect.width - 2 * dx, labelBoundingClientRect.height + 2 * dy));
 			this.setFont(label.getFont());
 			this.setText(label.getText());
-			label.setStyleProperty("visibility", "hidden");
+			label.setVisible(false);
 			this.setVisible(true);
 		}
 		this.textField = textField;
 		return this;
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.uninstall = function(textField) {
-		var label = textField.getLabel();
-		label.setText(this.getText());
+		textField.setText(this.getText());
 		this.setVisible(false);
-		label.setStyleProperty("visibility", "visible");
+		var label = textField.getLabel();
+		label.setVisible(true);
 		textField.setEditor(null);
 	}
 	jsuis.defaultlf.TextFieldEditor.prototype.getText = function() {
@@ -6391,6 +7058,69 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.ComboBox
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.ComboBox = jsuis.Object.extend(SUPER, function(items) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+		var label = new jsuis.defaultlf.Text();
+		this.setLabel(label);
+		this.add(label, new jsuis.BorderConstraints().setFill(jsuis.Constants.HORIZONTAL));
+		if (items) {
+			this.setItems(items);
+		}
+		this.setPadding(new jsuis.Insets(2, 4));
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		var mouseListener = new jsuis.MouseListener({
+			mouseReleased: function(event) {
+				var comboBox = this.getListenerComponent();
+				var comboBoxEditor = jsuis.defaultlf.ComboBoxEditor.getInstance();
+				comboBox.setEditor(comboBoxEditor);
+				comboBoxEditor.requestFocus();
+			}
+		});
+		mouseListener.setListenerComponent(this);
+		this.addMouseListener(mouseListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ComboBox, {
+		editor: null,
+		items: null,
+		label: null
+	});
+	jsuis.defaultlf.ComboBox.prototype.setEditor = function(editor) {
+		if (editor) {
+			editor.install(this);
+		}
+		this.editor = editor;
+		return this;
+	}
+	jsuis.defaultlf.ComboBox.prototype.setItems = function(items) {
+		this.items = items;
+		this.setSelectedItem(items[0]);
+	}
+	jsuis.defaultlf.ComboBox.prototype.getSelectedItem = function() {
+		var label = this.getLabel();
+		return label.getText();
+	}
+	jsuis.defaultlf.ComboBox.prototype.setSelectedItem = function(text) {
+		var label = this.getLabel();
+		return label.setText(text);
+	}
+	jsuis.defaultlf.ComboBox.prototype.getFont = function() {
+		var label = this.getLabel();
+		return label.getFont();
+	}
+	jsuis.defaultlf.ComboBox.prototype.setFont = function(font) {
+		var label = this.getLabel();
+		label.setFont(font);
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.FocusEvent
  */
 (function(jsuis) {
@@ -6490,9 +7220,10 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Label, {
 		text: null,
-		icon: null,
-		iconTextGap: 0,
 		label: null,
+		icon: null,
+		iconPanel: null,
+		iconTextGap: 0
 	});
 	jsuis.defaultlf.Label.prototype.getText = function() {
 		var label = this.getLabel();
@@ -6513,18 +7244,21 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			}
 			label.setText(text);
 		}
+		this.validate();
+		this.paint();
 		return this;
 	}
 	jsuis.defaultlf.Label.prototype.setIcon = function(icon, constraints) {
 		if (icon) {
-			var image = this.getImage();
-			if (!image) {
-				image = new jsuis.defaultlf.Image();
-				this.setImage(image);
-				this.add(image, nvl(constraints, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE)));
-				image.setEnabled(false);
+			var iconPanel = this.getIconPanel();
+			if (!iconPanel) {
+				iconPanel = new jsuis.defaultlf.Panel();
+				this.setIconPanel(iconPanel);
+				this.add(iconPanel, nvl(constraints, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE)));
+				iconPanel.setPreferredSize(new jsuis.Dimension(icon.getIconWidth(), icon.getIconHeight()));
+				iconPanel.setEnabled(false);
 			}
-			icon.paintIcon(this);
+			icon.paintIcon(iconPanel);
 		}
 		this.icon = icon;
 		return this;
@@ -7368,6 +8102,115 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Table
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.Table = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		this.setBorder(new jsuis.defaultlf.TableBorder());
+		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		this.setRowHeight(16);
+		this.setColumnWidth(64);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Table, {
+		columns: null,
+		values: null,
+		rowCount: 0,
+		columnCount: 0,
+		rowHeight: 0,
+		columnWidth: 0,
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0
+	});
+	jsuis.defaultlf.Table.prototype.setColumns = function(columns) {
+		this.columns = columns;
+		this.setColumnCount(columns.length);
+	}
+	jsuis.defaultlf.Table.prototype.setValues = function(values) {
+		this.values = values;
+		var rowCount = this.getRowCount();
+		this.setRowCount(Math.max(rowCount, values.length));
+		return this;
+	}
+	jsuis.defaultlf.Table.prototype.getRowCount = function() {
+		return nvl(this.rowCount, 0);
+	}
+	jsuis.defaultlf.Table.prototype.getColumnCount = function() {
+		return nvl(this.columnCount, 0);
+	}
+	jsuis.defaultlf.Table.prototype.getRowHeight = function() {
+		return nvl(this.rowHeight, 0);
+	}
+	jsuis.defaultlf.Table.prototype.getColumnWidth = function() {
+		return nvl(this.columnWidth, 0);
+	}
+	jsuis.defaultlf.Table.prototype.getPreferredSize = function() {
+		var rowHeight = this.getRowHeight();
+		var rowCount = this.getRowCount();
+		var columnWidth = this.getColumnWidth();
+		var columnCount = this.getColumnCount();
+		return new jsuis.Dimension(columnCount * columnWidth, rowCount * rowHeight);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TableCell
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.TableCell = jsuis.Object.extend(SUPER, function(text) {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		var label = new jsuis.defaultlf.Text(text);
+		this.setLabel(label);
+		this.add(label, new jsuis.BorderConstraints().setFill(jsuis.Constants.HORIZONTAL));
+		this.setPadding(new jsuis.Insets(2, 4));
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
+		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		var mouseListener = new jsuis.MouseListener({
+			mouseReleased: function(event) {
+				var tableCell = this.getListenerComponent();
+				var tableCellEditor = jsuis.defaultlf.TableCellEditor.getInstance();
+				tableCell.setEditor(tableCellEditor);
+				tableCellEditor.requestFocus();
+			}
+		});
+		mouseListener.setListenerComponent(this);
+		this.addMouseListener(mouseListener);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableCell, {
+		editor: null,
+		label: null
+	});
+	jsuis.defaultlf.TableCell.prototype.setEditor = function(editor) {
+		if (editor) {
+			editor.install(this);
+		}
+		this.editor = editor;
+		return this;
+	}
+	jsuis.defaultlf.TableCell.prototype.getText = function() {
+		var label = this.getLabel();
+		return label.getText();
+	}
+	jsuis.defaultlf.TableCell.prototype.setText = function(text) {
+		var label = this.getLabel();
+		return label.setText(text);
+	}
+	jsuis.defaultlf.TableCell.prototype.getFont = function() {
+		var label = this.getLabel();
+		return label.getFont();
+	}
+	jsuis.defaultlf.TableCell.prototype.setFont = function(font) {
+		var label = this.getLabel();
+		label.setFont(font);
+		return this;
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.TabPanel
  */
 (function(jsuis) {
@@ -7403,8 +8246,8 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.addMouseListener(mouseListener);
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.TextField, {
-		label: null,
-		editor: null
+		editor: null,
+		label: null
 	});
 	jsuis.defaultlf.TextField.prototype.setEditor = function(editor) {
 		if (editor) {
@@ -7416,6 +8259,10 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.TextField.prototype.getText = function() {
 		var label = this.getLabel();
 		return label.getText();
+	}
+	jsuis.defaultlf.TextField.prototype.setText = function(text) {
+		var label = this.getLabel();
+		return label.setText(text);
 	}
 	jsuis.defaultlf.TextField.prototype.getFont = function() {
 		var label = this.getLabel();
@@ -7613,30 +8460,13 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
- * jsuis.defaultlf.ActionEvent
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.InputEvent;
-	jsuis.defaultlf.ActionEvent = jsuis.Object.extend(SUPER, function(event) {
-		SUPER.prototype.constructor.call(this, event);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.ActionEvent, {
-		actionCommand: null
-	});
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.Button
+ * jsuis.defaultlf.AbstractButton
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Label;
-	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+	jsuis.defaultlf.AbstractButton = jsuis.Object.extend(SUPER, function(text, icon) {
 		SUPER.prototype.constructor.call(this, text, icon);
-		this.setPadding(new jsuis.Insets(2, 4));
-		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
-		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
-		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
-		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
+		this.setBackground(jsuis.Color.Black.withAlpha(0));
 		
 		var mouseListener = new jsuis.MouseListener({
 			mouseClicked: function(event) {
@@ -7653,70 +8483,45 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			},
 			mouseEntered: function(event) {
 				var button = this.getListenerComponent();
+				button.setRollover(true);
 				button.mouseEntered();
 			},
 			mouseExited: function(event) {
 				var button = this.getListenerComponent();
+				button.setRollover(false);
 				button.mouseExited();
 			}
 		});
 		mouseListener.setListenerComponent(this);
 		this.addMouseListener(mouseListener);
 	});
-	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
-		selected: false,
+	jsuis.Object.addProperties(jsuis.defaultlf.AbstractButton, {
 		rollover: false,
-		releasedColor: null,
-		rolloverColor: null,
-		pressedColor: null,
-		group: null
+		selected: false
 	});
-	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
-		this.setReleasedColor(background);
-		SUPER.prototype.setBackground.call(this, background);
-		return this;
+	jsuis.defaultlf.AbstractButton.prototype.mouseClicked = function() {
 	}
-	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
-		var label = this.getLabel();
-		if (label) {
-			label.setEnabled(enabled);
-		}
-		SUPER.prototype.setEnabled.call(this, enabled);
-		return this;
+	jsuis.defaultlf.AbstractButton.prototype.mousePressed = function() {
 	}
-	jsuis.defaultlf.Button.prototype.paintReleased = function() {
-		var releasedColor = this.getReleasedColor();
-		SUPER.prototype.setBackground.call(this, releasedColor);
+	jsuis.defaultlf.AbstractButton.prototype.mouseReleased = function() {
 	}
-	jsuis.defaultlf.Button.prototype.paintPressed = function() {
-		var pressedColor = this.getPressedColor();
-		SUPER.prototype.setBackground.call(this, pressedColor);
+	jsuis.defaultlf.AbstractButton.prototype.mouseEntered = function() {
 	}
-	jsuis.defaultlf.Button.prototype.paintRollover = function() {
-		var rolloverColor = this.getRolloverColor();
-		SUPER.prototype.setBackground.call(this, rolloverColor);
+	jsuis.defaultlf.AbstractButton.prototype.mouseExited = function() {
 	}
-	jsuis.defaultlf.Button.prototype.mouseClicked = function() {
-	}
-	jsuis.defaultlf.Button.prototype.mousePressed = function() {
-		this.paintPressed();
-	}
-	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
-		var rollover = this.isRollover();
-		if (rollover) {
-			this.paintRollover();
-		} else {
-			this.paintReleased();
-		}
-	}
-	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
-		this.paintRollover();
-		this.setRollover(true);
-	}
-	jsuis.defaultlf.Button.prototype.mouseExited = function() {
-		this.paintReleased();
-		this.setRollover(false);
-	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ActionEvent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.InputEvent;
+	jsuis.defaultlf.ActionEvent = jsuis.Object.extend(SUPER, function(event) {
+		SUPER.prototype.constructor.call(this, event);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.ActionEvent, {
+		actionCommand: null
+	});
 }) (jsuis);
 
 /**
@@ -8095,21 +8900,21 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		var view = this.getViewportView();
 		if (view) {
 			var viewSize;
-			var viewMinimumSize;
+			var viewPreferredSize;
 			for (var i = 0; i < 2; i++) {
 				viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
 						height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
 				view.setSize(viewSize);
-				var viewMinimumSize = view.getMinimumSize();
+				var viewPreferredSize = view.getPreferredScrollableViewportSize();
 				if (vsbPolicy === jsuis.Constants.VERTICAL_SCROLLBAR_AS_NEEDED) {
-					var visible = (viewMinimumSize.getHeight() > height);
+					var visible = (viewPreferredSize.getHeight() > height);
 					if (visible !== verticalScrollBarVisible) {
 						verticalScrollBarVisible = visible;
 						continue;
 					}
 				}
 				if (hsbPolicy === jsuis.Constants.HORIZONTAL_SCROLLBAR_AS_NEEDED) {
-					var visible = (viewMinimumSize.getWidth() > width);
+					var visible = (viewPreferredSize.getWidth() > width);
 					if (visible !== horizontalScrollBarVisible) {
 						horizontalScrollBarVisible = visible;
 						continue;
@@ -8119,8 +8924,8 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			}
 			viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
 					height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
-			var viewWidth = Math.max(viewSize.getWidth(), viewMinimumSize.getWidth());
-			var viewHeight = Math.max(viewSize.getHeight(), viewMinimumSize.getHeight());
+			var viewWidth = Math.max(viewSize.getWidth(), viewPreferredSize.getWidth());
+			var viewHeight = Math.max(viewSize.getHeight(), viewPreferredSize.getHeight());
 			view.setSize(new jsuis.Dimension(viewWidth, viewHeight));
 			verticalScrollBar.setMaximum(viewHeight);
 			horizontalScrollBar.setMaximum(viewWidth);
@@ -8205,6 +9010,102 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.Button
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.AbstractButton;
+	jsuis.defaultlf.Button = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+		this.setPadding(new jsuis.Insets(2, 4));
+		this.setBorder(new jsuis.defaultlf.LineBorder(jsuis.Color.Black.withAlpha(.4 * 255)));
+		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
+		this.setRolloverColor(jsuis.Color.Black.withAlpha(.2 * 255));
+		this.setPressedColor(jsuis.Color.Black.withAlpha(.3 * 255));
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.Button, {
+		releasedColor: null,
+		rolloverColor: null,
+		pressedColor: null
+	});
+	jsuis.defaultlf.Button.prototype.setBackground = function(background) {
+		this.setReleasedColor(background);
+		SUPER.prototype.setBackground.call(this, background);
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.setEnabled = function(enabled) {
+		var label = this.getLabel();
+		if (label) {
+			label.setEnabled(enabled);
+		}
+		SUPER.prototype.setEnabled.call(this, enabled);
+		return this;
+	}
+	jsuis.defaultlf.Button.prototype.paintReleased = function() {
+		var releasedColor = this.getReleasedColor();
+		SUPER.prototype.setBackground.call(this, releasedColor);
+	}
+	jsuis.defaultlf.Button.prototype.paintPressed = function() {
+		var pressedColor = this.getPressedColor();
+		SUPER.prototype.setBackground.call(this, pressedColor);
+	}
+	jsuis.defaultlf.Button.prototype.paintRollover = function() {
+		var rolloverColor = this.getRolloverColor();
+		SUPER.prototype.setBackground.call(this, rolloverColor);
+	}
+	jsuis.defaultlf.Button.prototype.mouseClicked = function() {
+	}
+	jsuis.defaultlf.Button.prototype.mousePressed = function() {
+		this.paintPressed();
+	}
+	jsuis.defaultlf.Button.prototype.mouseReleased = function() {
+		var rollover = this.isRollover();
+		if (rollover) {
+			this.paintRollover();
+		} else {
+			this.paintReleased();
+		}
+	}
+	jsuis.defaultlf.Button.prototype.mouseEntered = function() {
+		this.paintRollover();
+	}
+	jsuis.defaultlf.Button.prototype.mouseExited = function() {
+		this.paintReleased();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TabComponent
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.AbstractButton;
+	jsuis.defaultlf.TabComponent = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+		this.setBorder(new jsuis.defaultlf.TabComponentBorder());
+	});
+	jsuis.defaultlf.TabComponent.prototype.setSelected = function(selected) {
+		SUPER.prototype.setSelected.call(this, selected);
+		var border = this.getBorder();
+		border.paintBorder(this);
+		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.ToggleButton
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.AbstractButton;
+	jsuis.defaultlf.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
+		SUPER.prototype.constructor.call(this, text, icon);
+	});
+	jsuis.defaultlf.ToggleButton.prototype.mouseReleased = function() {
+		var selected = this.isSelected();
+		selected = !selected;
+		this.setSelected(selected);
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.MenuItem
  */
 (function(jsuis) {
@@ -8230,56 +9131,34 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
- * jsuis.defaultlf.TabComponent
+ * jsuis.defaultlf.RadioButton
  */
 (function(jsuis) {
-	var SUPER = jsuis.defaultlf.Button;
-	jsuis.defaultlf.TabComponent = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, text, icon);
-		this.setMargin(new jsuis.Insets(0, -3.5));
-		this.setBorder(new jsuis.defaultlf.TabComponentBorder());
-		this.setBackground(jsuis.Color.LightGray);
-		this.setRolloverColor(jsuis.Color.LightGray);
-		this.setPressedColor(jsuis.Color.Gray);
+	var SUPER = jsuis.defaultlf.ToggleButton;
+	jsuis.defaultlf.RadioButton = jsuis.Object.extend(SUPER, function(text) {
+		SUPER.prototype.constructor.call(this, text);
+		this.setSelected(false);
 	});
-	jsuis.defaultlf.TabComponent.prototype.setSelected = function(selected) {
+	jsuis.Object.addProperties(jsuis.defaultlf.RadioButton, {
+		group: null
+	});
+	jsuis.defaultlf.RadioButton.prototype.mouseReleased = function() {
+		this.setSelected(true);
+	}
+	jsuis.defaultlf.RadioButton.prototype.setSelected = function(selected) {
 		SUPER.prototype.setSelected.call(this, selected);
-		var border = this.getBorder();
-		border.paintBorder(this);
-		return this;
-	}
-	jsuis.defaultlf.TabComponent.prototype.mouseClicked = function() {
-	}
-	jsuis.defaultlf.TabComponent.prototype.mousePressed = function() {
-	}
-	jsuis.defaultlf.TabComponent.prototype.mouseReleased = function() {
-	}
-	jsuis.defaultlf.TabComponent.prototype.mouseEntered = function() {
-	}
-	jsuis.defaultlf.TabComponent.prototype.mouseExited = function() {
-	}
-}) (jsuis);
-
-/**
- * jsuis.defaultlf.ToggleButton
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.Button;
-	jsuis.defaultlf.ToggleButton = jsuis.Object.extend(SUPER, function(text, icon) {
-		SUPER.prototype.constructor.call(this, text, icon);
-	});
-	jsuis.defaultlf.ToggleButton.prototype.mousePressed = function() {
-		var selected = this.isSelected();
-		selected = !selected;
-		this.setSelected(selected);
 		if (selected) {
-			SUPER.prototype.mousePressed.call(this);
+			var group = this.getGroup();
+			if (group) {
+				group.setSelected(this);
+			}
 		}
-	}
-	jsuis.defaultlf.ToggleButton.prototype.mouseReleased = function() {
-		var selected = this.isSelected();
-		if (!selected) {
-			SUPER.prototype.mouseReleased.call(this);
+		if (selected) {
+			var selectedIcon = jsuis.defaultlf.RadioButtonSelectedIcon.getInstance();
+			this.setIcon(selectedIcon);
+		} else {
+			var unselectedIcon = jsuis.defaultlf.RadioButtonUnselectedIcon.getInstance();
+			this.setIcon(unselectedIcon);
 		}
 	}
 }) (jsuis);

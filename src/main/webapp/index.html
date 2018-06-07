@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?20180606214520"></script>
+    <script src="/jsuis.js?20180608233802"></script>
 	</head>
 	<body style="margin: 0; overflow: hidden; position: relative; touch-action: none;">
 		<svg height="0" style="display: block;">
@@ -126,6 +126,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			.setGridy(2));
 	
 	/*
+	 * Label example
+	 */
+	labelExample = createExamplePanel("jsuis.Label example");
+	labelExample.setLayout(new jsuis.GridBagLayout());
+	
+	label = new jsuis.Label("Hello, World!", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	labelExample.add(label);
+	
+	/*
 	 * Button example
 	 */
 	buttonExample = createExamplePanel("jsuis.Button example");
@@ -166,13 +175,139 @@ document.addEventListener('DOMContentLoaded', function() {
 	buttonExample.add(b3);
 	
 	/*
-	 * Label example
+	 * RadioButton example
 	 */
-	labelExample = createExamplePanel("jsuis.Label example");
-	labelExample.setLayout(new jsuis.GridBagLayout());
+	radioButtonExample = createExamplePanel("jsuis.RadioButton example");
+	radioButtonExample.setLayout(new jsuis.BorderLayout(4));
+	radioButtonExample.setMargin(new jsuis.Insets(4));
 	
-	label = new jsuis.Label("Hello, World!", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
-	labelExample.add(label);
+	birdButton = new jsuis.RadioButton("Bird");
+	birdButton.setActionCommand("Bird");
+	birdButton.setSelected(true);
+	
+	catButton = new jsuis.RadioButton("Cat");
+	catButton.setActionCommand("Cat");
+	
+	dogButton = new jsuis.RadioButton("Dog");
+	dogButton.setActionCommand("Dog");
+	
+	rabbitButton = new jsuis.RadioButton("Rabbit");
+	rabbitButton.setActionCommand("Rabbit");
+	
+	pigButton = new jsuis.RadioButton("Pig");
+	pigButton.setActionCommand("Pig");
+	
+	group = new jsuis.ButtonGroup();
+	group.add(birdButton);
+	group.add(catButton);
+	group.add(dogButton);
+	group.add(rabbitButton);
+	group.add(pigButton);
+	
+	radioButtonExamplePicture = new jsuis.Label("Bird").setFont(new jsuis.Font("Serif", jsuis.Font.NORMAL, 24)).setForeground(jsuis.Color.Orange);
+	radioButtonExamplePicture.setBorder(new jsuis.LineBorder());
+	
+	actionListener = new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			radioButtonExamplePicture.setText(event.getActionCommand());
+		}
+	});
+	birdButton.addActionListener(actionListener);
+	catButton.addActionListener(actionListener);
+	dogButton.addActionListener(actionListener);
+	rabbitButton.addActionListener(actionListener);
+	pigButton.addActionListener(actionListener);
+	
+	radioPanel = new jsuis.Panel(new jsuis.BorderLayout(4));
+	
+	var constraints = jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE).withAnchor(jsuis.Constants.WEST);
+	
+	radioPanel.add(birdButton, constraints);
+	radioPanel.add(catButton, constraints);
+	radioPanel.add(dogButton, constraints);
+	radioPanel.add(rabbitButton, constraints);
+	radioPanel.add(pigButton, constraints);
+	
+	radioButtonExample.add(radioPanel, jsuis.Constraints.WEST.withFill(jsuis.Constants.NONE));
+	radioButtonExample.add(radioButtonExamplePicture);
+	
+	/*
+	 * TextField example
+	 */
+	textFieldExample = createExamplePanel("jsuis.TextField example");
+	textFieldExample.setLayout(new jsuis.GridBagLayout(4));
+	
+	gridBagConstraints = new jsuis.GridBagConstraints();
+	
+	firstNameLabel = new jsuis.Label("First name:");
+	textFieldExample.add(firstNameLabel, gridBagConstraints.setGridx(0).setGridy(0));
+	
+	firstNameTextField = new jsuis.TextField("Mickey");
+	firstNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
+	firstNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	textFieldExample.add(firstNameTextField, gridBagConstraints.setGridx(1).setGridy(0));
+	
+	lastNameLabel = new jsuis.Label("Last name:");
+	textFieldExample.add(lastNameLabel, gridBagConstraints.setGridx(0).setGridy(1));
+	
+	lastNameTextField = new jsuis.TextField("Mouse");
+	lastNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
+	lastNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	textFieldExample.add(lastNameTextField, gridBagConstraints.setGridx(1).setGridy(1));
+	
+	/*
+	 * ComboBox example
+	 */
+	
+	comboBoxExample = createExamplePanel("jsuis.ComboBox example");
+	comboBoxExample.setLayout(new jsuis.BorderLayout(4));
+	comboBoxExample.setMargin(new jsuis.Insets(4));
+	
+	petStrings = [ "Bird", "Cat", "Dog", "Rabbit", "Pig" ];
+	
+	petComboBox = new jsuis.ComboBox(petStrings);
+	
+	comboBoxExamplePicture = new jsuis.Label("Bird").setFont(new jsuis.Font("Serif", jsuis.Font.NORMAL, 24)).setForeground(jsuis.Color.Orange);
+	comboBoxExamplePicture.setBorder(new jsuis.LineBorder());
+	
+	actionListener = new jsuis.ActionListener({
+		actionPerformed: function(event) {
+			var comboBox = this.getListenerComponent();
+			var petName = comboBox.getSelectedItem();
+			comboBoxExamplePicture.setText(petName);
+		}
+	});
+	actionListener.setListenerComponent(petComboBox);
+	petComboBox.addActionListener(actionListener);
+	
+	comboBoxExample.add(petComboBox, jsuis.Constraints.NORTH);
+	comboBoxExample.add(comboBoxExamplePicture);
+	
+	/*
+	 * SplitPane example
+	 */
+	splitPaneExample = createExamplePanel("jsuis.SplitPane example");
+	splitPaneExample.setLayout(new jsuis.BorderLayout());
+	
+	font = new jsuis.Font("Serif", jsuis.Font.NORMAL, 24);
+	
+	splitPane = new jsuis.SplitPane();
+	splitPaneExample.add(splitPane);
+	splitPane.setPadding(new jsuis.Insets(4));
+	
+	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
+	leftComponent = new jsuis.Panel();
+	leftComponent.setLayout(new jsuis.GridBagLayout());
+	leftComponent.add(leftLabel);
+	leftComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	splitPane.setLeftComponent(leftComponent);
+	
+	rightLabel = new jsuis.Label("Right").setFont(font).setForeground(jsuis.Color.Orange);
+	rightComponent = new jsuis.Panel();
+	rightComponent.setLayout(new jsuis.GridBagLayout());
+	rightComponent.add(rightLabel);
+	rightComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
+	splitPane.setRightComponent(rightComponent);
 	
 	/*
 	 * LayeredPane example
@@ -220,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	view = new jsuis.Panel(new jsuis.GridBagLayout());
 	scrollPane.setViewportView(view);
-	view.setMinimumSize(new jsuis.Dimension(250, 250));
+	view.setPreferredSize(new jsuis.Dimension(250, 250));
 	view.setBackground("url(#blueGradient)");
 
 	button = new jsuis.Button("Button");
@@ -232,56 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}));
 
-	/*
-	 * SplitPane example
-	 */
-	splitPaneExample = createExamplePanel("jsuis.SplitPane example");
-	splitPaneExample.setLayout(new jsuis.BorderLayout());
-	
-	font = new jsuis.Font("Serif", jsuis.Font.NORMAL, 24);
-	
-	splitPane = new jsuis.SplitPane();
-	splitPaneExample.add(splitPane);
-	splitPane.setPadding(new jsuis.Insets(4));
-	
-	leftLabel = new jsuis.Label("Left").setFont(font).setForeground(jsuis.Color.Orange);
-	leftComponent = new jsuis.Panel();
-	leftComponent.setLayout(new jsuis.GridBagLayout());
-	leftComponent.add(leftLabel);
-	leftComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
-	splitPane.setLeftComponent(leftComponent);
-	
-	rightLabel = new jsuis.Label("Right").setFont(font).setForeground(jsuis.Color.Orange);
-	rightComponent = new jsuis.Panel();
-	rightComponent.setLayout(new jsuis.GridBagLayout());
-	rightComponent.add(rightLabel);
-	rightComponent.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
-	splitPane.setRightComponent(rightComponent);
-	
-	/*
-	 * TextField example
-	 */
-	textFieldExample = createExamplePanel("jsuis.TextField example");
-	textFieldExample.setLayout(new jsuis.GridBagLayout(4));
-	
-	gridBagConstraints = new jsuis.GridBagConstraints();
-	
-	firstNameLabel = new jsuis.Label("First name:");
-	textFieldExample.add(firstNameLabel, gridBagConstraints.setGridx(0).setGridy(0));
-	
-	firstNameTextField = new jsuis.TextField("Mickey");
-	firstNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
-	firstNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
-	textFieldExample.add(firstNameTextField, gridBagConstraints.setGridx(1).setGridy(0));
-	
-	lastNameLabel = new jsuis.Label("Last name:");
-	textFieldExample.add(lastNameLabel, gridBagConstraints.setGridx(0).setGridy(1));
-	
-	lastNameTextField = new jsuis.TextField("Mouse");
-	lastNameTextField.setPreferredSize(new jsuis.Dimension(100, 20));
-	lastNameTextField.setBorder(new jsuis.LineBorder(jsuis.Color.Gray, 1, 8));
-	textFieldExample.add(lastNameTextField, gridBagConstraints.setGridx(1).setGridy(1));
-	
 	/*
 	 * ToolBar example
 	 */

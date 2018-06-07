@@ -14,7 +14,7 @@
 		selection: null,
 		enterSelection: null,
 		values: null,
-		join: null
+		target: null
 	});
 	jsuis.defaultlf.Graphics.prototype.select = function(constraints) {
 		var selection = [];
@@ -36,36 +36,42 @@
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.update = function() {
-		this.setJoin("update");
+		this.setTarget("update");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.enter = function() {
-		this.setJoin("enter");
+		this.setTarget("enter");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.exit = function() {
-		this.setJoin("exit");
+		this.setTarget("exit");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.all = function() {
-		this.setJoin("all");
+		this.setTarget("all");
 		return this;
 	}
 	jsuis.defaultlf.Graphics.prototype.append = function(element) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
 				var component;
 				switch (element) {
+				case "image":
+					component = new jsuis.defaultlf.Image();
+					break;
 				case "line":
 					component = new jsuis.defaultlf.Line();
 					break;
 				case "rect":
 					component = new jsuis.defaultlf.Rect();
+					break;
+				case "circle":
+					component = new jsuis.defaultlf.Circle();
 					break;
 				case "path":
 					component = new jsuis.defaultlf.Path();
@@ -91,8 +97,8 @@
 	jsuis.defaultlf.Graphics.prototype.remove = function() {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			break;
 		case "exit":
@@ -108,8 +114,8 @@
 	jsuis.defaultlf.Graphics.prototype.setAttribute = function(attribute, value) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
@@ -166,8 +172,8 @@
 	jsuis.defaultlf.Graphics.prototype.setStyleProperty = function(attribute, value) {
 		var selection = this.getSelection();
 		var data = this.getValues();
-		var join = this.getJoin();
-		switch (join) {
+		var target = this.getTarget();
+		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
 			for (var i = selection.length; i < data.length; i++) {
@@ -216,6 +222,64 @@
 					component.setStyleProperty(attribute, value(data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
+				}
+			}
+		}
+		return this;
+	}
+	jsuis.defaultlf.Graphics.prototype.setAttributeNS = function(namespace, attribute, value) {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "exit":
+			for (var i = data.length; i < selection.length; i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "all":
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
+				}
+			}
+			break;
+		case "update":
+		default:
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setAttributeNS(namespace, attribute, value(data[i], i));
+				} else {
+					component.setAttributeNS(namespace, attribute, value);
 				}
 			}
 		}

@@ -21,7 +21,6 @@
 		parent: null,
 		layout: null,
 		constraints: null,
-		image: null,
 		cursor: null,
 		graphics: null,
 		target: null,
@@ -66,6 +65,19 @@
 		var element = this.getElement();
 		var computedStyle = getComputedStyle(element);
 		return computedStyle[property];
+	}
+	jsuis.defaultlf.Component.prototype.getAttributeNS = function(namespace, attribute) {
+		var element = this.getElement();
+		return element.getAttributeNS(attribute);
+	}
+	jsuis.defaultlf.Component.prototype.setAttributeNS = function(namespace, attribute, value) {
+		var element = this.getElement();
+		if (value === null) {
+			element.removeAttributeNS(namespace, attribute);
+			return this;
+		}
+		element.setAttributeNS(namespace, attribute, value);
+		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
@@ -254,6 +266,9 @@
 		this.preferredSize = preferredSize ? preferredSize.clone() : preferredSize;
 		return this;
 	}
+	jsuis.defaultlf.Component.prototype.getPreferredScrollableViewportSize = function() {
+		return this.getPreferredSize();
+	}
 	jsuis.defaultlf.Component.prototype.getMinimumSize = function() {
 		var minimumSize = this.minimumSize;
 		if (minimumSize) {
@@ -321,8 +336,9 @@
 	}
 	jsuis.defaultlf.Component.prototype.setBorder = function(border) {
 		this.border = border;
-		border = nvl(border, new jsuis.defaultlf.Border());
-		border.paintBorder(this);
+		if (border) {
+			border.paintBorder(this);
+		}
 		return this;
 	}
 	jsuis.defaultlf.Component.prototype.getInsets = function() {

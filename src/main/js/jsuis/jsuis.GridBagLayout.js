@@ -210,104 +210,111 @@
 		return this.preferredLayoutSize(parent);
 	}
 	jsuis.GridBagLayout.prototype.layoutContainer = function(parent) {
-		var preferredLayoutSize = this.preferredLayoutSize(parent);
-		var x = 0;
-		var y = 0;
-		var width = parent.getWidth();
-		var height = parent.getHeight();
-		var hgap = this.getHgap();
-		var vgap = this.getVgap();
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		var preferredLayoutWidth = preferredLayoutSize.getWidth();
-		var preferredLayoutHeight = preferredLayoutSize.getHeight();
-		x += parentInsetsOutsets.getLeft();
-		y += parentInsetsOutsets.getTop();
-		var widths = this.getWidths().slice();
-		var dwidth = width - preferredLayoutWidth;
-		var weightxsSum = 0;
-		var weightxs = this.getWeightxs();
-		for (var i = 0; i < weightxs.length; i++) {
-			weightxsSum += weightxs[i];
-		}
-		if (weightxsSum === 0) {
-			x += dwidth / 2;
-			dwidth = 0;
-		} else {
-			for (var i = 0; i < widths.length; i++) {
-				widths[i] += dwidth * weightxs[i] / weightxsSum;
+		var m = 1;
+		for (var l = 0; l < m; l++) {
+			var preferredLayoutSize = this.preferredLayoutSize(parent);
+			var x = 0;
+			var y = 0;
+			var width = parent.getWidth();
+			var height = parent.getHeight();
+			var hgap = this.getHgap();
+			var vgap = this.getVgap();
+			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+			var preferredLayoutWidth = preferredLayoutSize.getWidth();
+			var preferredLayoutHeight = preferredLayoutSize.getHeight();
+			x += parentInsetsOutsets.getLeft();
+			y += parentInsetsOutsets.getTop();
+			var widths = this.getWidths().slice();
+			var dwidth = width - preferredLayoutWidth;
+			var weightxsSum = 0;
+			var weightxs = this.getWeightxs();
+			for (var i = 0; i < weightxs.length; i++) {
+				weightxsSum += weightxs[i];
 			}
-		}
-		var heights = this.getHeights().slice();
-		var dheight = height - preferredLayoutHeight;
-		var weightysSum = 0;
-		var weightys = this.getWeightys();
-		for (var i = 0; i < weightys.length; i++) {
-			weightysSum += weightys[i];
-		}
-		if (weightysSum === 0) {
-			y += dheight / 2;
-			dheight = 0;
-		} else {
-			for (var i = 0; i < heights.length; i++) {
-				heights[i] += dheight * weightys[i] / weightysSum;
-			}
-		}
-		var dx = 0;
-		var xs = [];
-		for (var i = 0; i < widths.length; i++) {
-			xs.push(Math.round(x + dx));
-			dx += widths[i] + hgap;
-		}
-		if (widths.length) {
-			xs.push(Math.round(x + dx));
-		}
-		var dy = 0;
-		var ys = [];
-		for (var i = 0; i < heights.length; i++) {
-			ys.push(Math.round(y + dy));
-			dy += heights[i] + vgap;
-		}
-		if (heights.length) {
-			ys.push(Math.round(y + dy));
-		}
-		var components = parent.getComponents();
-		for (var i = 0; i < components.length; i++) {
-			var component = components[i];
-			var constraints = component.getConstraints();
-			if (!component.isVisible()) {
-				continue;
-			}
-			var gridx = constraints.getGridx();
-			if (gridx === jsuis.Constants.RELATIVE) {
-				gridx = constraints.getRelativeGridx();
-			}
-			var gridy = constraints.getGridy();
-			if (gridy === jsuis.Constants.RELATIVE) {
-				gridy = constraints.getRelativeGridy();
-			}
-			var gridwidth = constraints.getGridwidth();
-			if (gridwidth === jsuis.Constants.REMAINDER) {
-				gridwidth = constraints.getRemainderGridwidth();
-			}
-			var gridheight = constraints.getGridheight();
-			if (gridheight === jsuis.Constants.REMAINDER) {
-				gridheight = constraints.getRemainderGridheight();
-			}
-			var weightx = constraints.getWeightx();
-			var weighty = constraints.getWeighty();
-			var componentX = xs[gridx];
-			var componentY = ys[gridy];
-			var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
-			var componentHeight = ys[gridy + gridheight] - componentY - vgap;
-			var bounds;
-			var leftToRight = parent.isLeftToRight();
-			if (leftToRight) {
-				bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+			if (weightxsSum === 0) {
+				x += dwidth / 2;
+				dwidth = 0;
 			} else {
-				bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+				for (var i = 0; i < widths.length; i++) {
+					widths[i] += dwidth * weightxs[i] / weightxsSum;
+				}
 			}
-			constraints.setBounds(bounds);
+			var heights = this.getHeights().slice();
+			var dheight = height - preferredLayoutHeight;
+			var weightysSum = 0;
+			var weightys = this.getWeightys();
+			for (var i = 0; i < weightys.length; i++) {
+				weightysSum += weightys[i];
+			}
+			if (weightysSum === 0) {
+				y += dheight / 2;
+				dheight = 0;
+			} else {
+				for (var i = 0; i < heights.length; i++) {
+					heights[i] += dheight * weightys[i] / weightysSum;
+				}
+			}
+			var dx = 0;
+			var xs = [];
+			for (var i = 0; i < widths.length; i++) {
+				xs.push(Math.round(x + dx));
+				dx += widths[i] + hgap;
+			}
+			if (widths.length) {
+				xs.push(Math.round(x + dx));
+			}
+			var dy = 0;
+			var ys = [];
+			for (var i = 0; i < heights.length; i++) {
+				ys.push(Math.round(y + dy));
+				dy += heights[i] + vgap;
+			}
+			if (heights.length) {
+				ys.push(Math.round(y + dy));
+			}
+			var components = parent.getComponents();
+			for (var i = 0; i < components.length; i++) {
+				var component = components[i];
+				var constraints = component.getConstraints();
+				if (!component.isVisible()) {
+					continue;
+				}
+				var layout = component.getLayout();
+				if (layout instanceof jsuis.FlowLayout) {
+					m = 2;
+				}
+				var gridx = constraints.getGridx();
+				if (gridx === jsuis.Constants.RELATIVE) {
+					gridx = constraints.getRelativeGridx();
+				}
+				var gridy = constraints.getGridy();
+				if (gridy === jsuis.Constants.RELATIVE) {
+					gridy = constraints.getRelativeGridy();
+				}
+				var gridwidth = constraints.getGridwidth();
+				if (gridwidth === jsuis.Constants.REMAINDER) {
+					gridwidth = constraints.getRemainderGridwidth();
+				}
+				var gridheight = constraints.getGridheight();
+				if (gridheight === jsuis.Constants.REMAINDER) {
+					gridheight = constraints.getRemainderGridheight();
+				}
+				var weightx = constraints.getWeightx();
+				var weighty = constraints.getWeighty();
+				var componentX = xs[gridx];
+				var componentY = ys[gridy];
+				var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
+				var componentHeight = ys[gridy + gridheight] - componentY - vgap;
+				var bounds;
+				var leftToRight = parent.isLeftToRight();
+				if (leftToRight) {
+					bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+				} else {
+					bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+				}
+				constraints.setBounds(bounds);
+			}
+			SUPER.prototype.layoutContainer.call(this, parent);
 		}
-		SUPER.prototype.layoutContainer.call(this, parent);
 	}
 }) (jsuis);
