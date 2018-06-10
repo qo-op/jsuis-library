@@ -2912,6 +2912,20 @@ jsuis.packages["jsuis"] = jsuis;
 }) (jsuis);
 
 /**
+ * jsuis.HTMLContainer
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.HTMLContainer = jsuis.Object.extend(SUPER, function(node) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].HTMLContainer(node));
+	});
+	jsuis.Object.addPeerProperties(jsuis.HTMLContainer, {
+		node: null
+	});
+}) (jsuis);
+
+/**
  * jsuis.ImageIcon
  */
 (function(jsuis) {
@@ -3988,6 +4002,15 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		element.setAttributeNS(namespace, attribute, value);
 		return this;
 	}
+	jsuis.defaultlf.Component.prototype.setProperty = function(property, value) {
+		var element = this.getElement();
+		element[property] = value;
+		return this;
+	}
+	jsuis.defaultlf.Component.prototype.getProperty = function(property) {
+		var element = this.getElement();
+		return element[property];
+	}
 	jsuis.defaultlf.Component.prototype.getEventListener = function(type) {
 		var eventListeners = this.getEventListeners();
 		return eventListeners["on" + type];
@@ -4174,9 +4197,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	jsuis.defaultlf.Component.prototype.setPreferredSize = function(preferredSize) {
 		this.preferredSize = preferredSize ? preferredSize.clone() : preferredSize;
 		return this;
-	}
-	jsuis.defaultlf.Component.prototype.getPreferredScrollableViewportSize = function() {
-		return this.getPreferredSize();
 	}
 	jsuis.defaultlf.Component.prototype.getMinimumSize = function() {
 		var minimumSize = this.minimumSize;
@@ -5683,13 +5703,23 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.G
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Component;
+	jsuis.defaultlf.G = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, document.createElementNS(jsuis.Constants.SVG, "g"));
+	});
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.Graphics
  */
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Container;
-	jsuis.defaultlf.Graphics = jsuis.Object.extend(SUPER, function() {
+	jsuis.defaultlf.Graphics = jsuis.Object.extend(SUPER, function(element) {
 		SUPER.prototype.constructor.call(this);
-		this.setElement(document.createElementNS(jsuis.Constants.SVG, "g"));
+		this.setElement(element || document.createElementNS(jsuis.Constants.SVG, "g"));
 		this.setComponents([]);
 		this.setSelection([]);
 		this.setEnterSelection([]);
@@ -5735,40 +5765,52 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.setTarget("all");
 		return this;
 	}
-	jsuis.defaultlf.Graphics.prototype.append = function(element) {
+	jsuis.defaultlf.Graphics.prototype.append = function(element, constraints) {
 		var selection = this.getSelection();
 		var data = this.getValues();
 		var target = this.getTarget();
+		var newEnterSelection = [];
 		switch (target) {
 		case "enter":
 			var enterSelection = this.getEnterSelection();
+			var components = this.getComponents();
 			for (var i = selection.length; i < data.length; i++) {
-				var component;
+				var component = enterSelection[i - selection.length] || this;
+				var child;
 				switch (element) {
+				case "g":
+					child = new jsuis.defaultlf.G();
+					break;
 				case "image":
-					component = new jsuis.defaultlf.Image();
+					child = new jsuis.defaultlf.Image();
 					break;
 				case "line":
-					component = new jsuis.defaultlf.Line();
+					child = new jsuis.defaultlf.Line();
 					break;
 				case "rect":
-					component = new jsuis.defaultlf.Rect();
+					child = new jsuis.defaultlf.Rect();
 					break;
 				case "circle":
-					component = new jsuis.defaultlf.Circle();
+					child = new jsuis.defaultlf.Circle();
 					break;
 				case "path":
-					component = new jsuis.defaultlf.Path();
+					child = new jsuis.defaultlf.Path();
 					break;
 				case "polygon":
-					component = new jsuis.defaultlf.Polygon();
+					child = new jsuis.defaultlf.Polygon();
 					break;
 				case "polyline":
-					component = new jsuis.defaultlf.Polyline();
+					child = new jsuis.defaultlf.Polyline();
+					break;
+				case "text":
+					child = new jsuis.defaultlf.Text();
 					break;
 				}
-				enterSelection.push(component);
-				this.add(component, element);
+				newEnterSelection.push(child);
+				component.add(child, nvl(constraints, element));
+				if (component !== this) {
+					components.push(child);
+				}
 			}
 			break;
 		case "exit":
@@ -5776,7 +5818,9 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		case "update":
 		default:
 		}
-		return this;
+		var clone = this.clone();
+		clone.setEnterSelection(newEnterSelection);
+		return clone;
 	}
 	jsuis.defaultlf.Graphics.prototype.remove = function() {
 		var selection = this.getSelection();
@@ -5805,7 +5849,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttribute(attribute, value(data[i], i));
+					component.setAttribute(attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttribute(attribute, value);
 				}
@@ -5815,7 +5859,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = data.length; i < selection.length; i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttribute(attribute, value(data[i], i));
+					component.setAttribute(attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttribute(attribute, value);
 				}
@@ -5825,7 +5869,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttribute(attribute, value(data[i], i));
+					component.setAttribute(attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttribute(attribute, value);
 				}
@@ -5834,7 +5878,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttribute(attribute, value(data[i], i));
+					component.setAttribute(attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttribute(attribute, value);
 				}
@@ -5842,10 +5886,11 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			break;
 		case "update":
 		default:
-			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+			var min = Math.min(selection.length, data.length);
+			for (var i = 0; i < min; i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttribute(attribute, value(data[i], i));
+					component.setAttribute(attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttribute(attribute, value);
 				}
@@ -5863,7 +5908,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setStyleProperty(attribute, value(data[i], i));
+					component.setStyleProperty(attribute, value.call(component, data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
 				}
@@ -5873,7 +5918,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = data.length; i < selection.length; i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setStyleProperty(attribute, value(data[i], i));
+					component.setStyleProperty(attribute, value.call(component, data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
 				}
@@ -5883,7 +5928,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setStyleProperty(attribute, value(data[i], i));
+					component.setStyleProperty(attribute, value.call(component, data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
 				}
@@ -5892,7 +5937,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setStyleProperty(attribute, value(data[i], i));
+					component.setStyleProperty(attribute, value.call(component, data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
 				}
@@ -5903,7 +5948,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setStyleProperty(attribute, value(data[i], i));
+					component.setStyleProperty(attribute, value.call(component, data[i], i));
 				} else {
 					component.setStyleProperty(attribute, value);
 				}
@@ -5921,7 +5966,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttributeNS(namespace, attribute, value(data[i], i));
+					component.setAttributeNS(namespace, attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttributeNS(namespace, attribute, value);
 				}
@@ -5931,7 +5976,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = data.length; i < selection.length; i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttributeNS(namespace, attribute, value(data[i], i));
+					component.setAttributeNS(namespace, attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttributeNS(namespace, attribute, value);
 				}
@@ -5941,7 +5986,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttributeNS(namespace, attribute, value(data[i], i));
+					component.setAttributeNS(namespace, attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttributeNS(namespace, attribute, value);
 				}
@@ -5950,7 +5995,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = selection.length; i < data.length; i++) {
 				var component = enterSelection[i - selection.length];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttributeNS(namespace, attribute, value(data[i], i));
+					component.setAttributeNS(namespace, attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttributeNS(namespace, attribute, value);
 				}
@@ -5961,13 +6006,80 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
 				var component = selection[i];
 				if (jsuis.Object.isFunction(value)) {
-					component.setAttributeNS(namespace, attribute, value(data[i], i));
+					component.setAttributeNS(namespace, attribute, value.call(component, data[i], i));
 				} else {
 					component.setAttributeNS(namespace, attribute, value);
 				}
 			}
 		}
 		return this;
+	}
+	jsuis.defaultlf.Graphics.prototype.setProperty = function(attribute, value) {
+		var selection = this.getSelection();
+		var data = this.getValues();
+		var target = this.getTarget();
+		switch (target) {
+		case "enter":
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setProperty(attribute, value.call(component, data[i], i));
+				} else {
+					component.setProperty(attribute, value);
+				}
+			}
+			break;
+		case "exit":
+			for (var i = data.length; i < selection.length; i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setProperty(attribute, value.call(component, data[i], i));
+				} else {
+					component.setProperty(attribute, value);
+				}
+			}
+			break;
+		case "all":
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setProperty(attribute, value.call(component, data[i], i));
+				} else {
+					component.setProperty(attribute, value);
+				}
+			}
+			var enterSelection = this.getEnterSelection();
+			for (var i = selection.length; i < data.length; i++) {
+				var component = enterSelection[i - selection.length];
+				if (jsuis.Object.isFunction(value)) {
+					component.setProperty(attribute, value.call(component, data[i], i));
+				} else {
+					component.setProperty(attribute, value);
+				}
+			}
+			break;
+		case "update":
+		default:
+			for (var i = 0; i < Math.min(selection.length, data.length); i++) {
+				var component = selection[i];
+				if (jsuis.Object.isFunction(value)) {
+					component.setProperty(attribute, value.call(component, data[i], i));
+				} else {
+					component.setProperty(attribute, value);
+				}
+			}
+		}
+		return this;
+	}
+	jsuis.defaultlf.Graphics.prototype.clone = function() {
+		var clone = new jsuis.defaultlf.Graphics(this.getElement());
+		clone.setComponents(this.getComponents());
+		clone.setSelection(this.getSelection());
+		clone.setEnterSelection(this.getEnterSelection());
+		clone.setValues(this.getValues());
+		clone.setTarget(this.getTarget());
+		return clone;
 	}
 }) (jsuis);
 
@@ -6591,57 +6703,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
- * jsuis.defaultlf.TableBorder
- */
-(function(jsuis) {
-	var SUPER = jsuis.defaultlf.Border;
-	jsuis.defaultlf.TableBorder = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this);
-	});
-	jsuis.Object.addProperties(jsuis.defaultlf.TableBorder, {
-	});
-	jsuis.defaultlf.TableBorder.prototype.getBorderInsets = function(component) {
-		return new jsuis.Insets();
-	}
-	jsuis.defaultlf.TableBorder.prototype.paintBorder = function(component) {
-		var width = component.getWidth();
-		var height = component.getHeight();
-		if (!width || !height) {
-			return;
-		}
-		var rowCount = component.getRowCount();
-		var columnCount = component.getColumnCount();
-		var rowHeight = component.getRowHeight();
-		var columnWidth = component.getColumnWidth();
-		var x2 = columnCount * columnWidth;
-		var y2 = rowCount * rowHeight;
-		var data = [];
-		for (var i = 0; i < rowCount; i++) {
-			var y = (i + 1) * rowHeight + 0.5;
-			data.push({ x1: 0, y1: y, x2: x2, y2: y, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
-		}
-		for (var i = 0; i < columnCount; i++) {
-			var x = (i + 1) * columnWidth + 0.5;
-			data.push({ x1: x, y1: 0, x2: x, y2: y2, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
-		}
-		var graphics = component.getGraphics();
-		graphics
-			.select("line")
-			.data(data)
-			.enter().append("line")
-			.all()
-				.setAttribute("x1", function(d) { return d.x1; })
-				.setAttribute("y1", function(d) { return d.y1; })
-				.setAttribute("x2", function(d) { return d.x2; })
-				.setAttribute("y2", function(d) { return d.y2; })
-				.setStyleProperty("stroke", function(d) { return d.stroke; })
-				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; })
-			.exit()
-				.setStyleProperty("display", "none");
-	}
-}) (jsuis);
-
-/**
  * jsuis.defaultlf.TableCellEditor
  */
 (function(jsuis) {
@@ -6751,6 +6812,237 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 }) (jsuis);
 
 /**
+ * jsuis.defaultlf.TableHeaderViewBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Border;
+	jsuis.defaultlf.TableHeaderViewBorder = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableHeaderViewBorder, {
+	});
+	jsuis.defaultlf.TableHeaderViewBorder.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.defaultlf.TableHeaderViewBorder.prototype.paintBorder = function(component) {
+		var width = component.getWidth();
+		var height = component.getHeight();
+		if (!width || !height) {
+			return;
+		}
+		var table = component.getTable();
+		var columnCount = table.getColumnCount();
+		var rowHeight = table.getRowHeight();
+		var columnWidth = table.getColumnWidth();
+		var x2 = columnCount * columnWidth;
+		var y2 = rowHeight;
+		var data = [];
+		var y = rowHeight - 0.5;
+		data.push({ x1: 0, y1: y, x2: x2, y2: y, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		for (var i = 0; i < columnCount; i++) {
+			var x = (i + 1) * columnWidth - 0.5;
+			data.push({ x1: x, y1: 0, x2: x, y2: y2, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		}
+		var graphics = component.getGraphics();
+		graphics
+			.select("line")
+			.data(data)
+			.enter().append("line")
+			.all()
+				.setAttribute("x1", function(d) { return d.x1; })
+				.setAttribute("y1", function(d) { return d.y1; })
+				.setAttribute("x2", function(d) { return d.x2; })
+				.setAttribute("y2", function(d) { return d.y2; })
+				.setStyleProperty("stroke", function(d) { return d.stroke; })
+				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; })
+			.exit()
+				.setStyleProperty("display", "none");
+		var columns = table.getColumns();
+		var cellWidth = columnWidth - 1;
+		var cellHeight = rowHeight - 1;
+		for (var j = 0; j < columnCount; j++) {
+			data = [];
+			var x = j * columnWidth;
+			var textContent = columns[j];
+			data.push({ x: x, y: 0, width: cellWidth, height: cellHeight, background: jsuis.Color.LightGray.toString(), foreground: jsuis.Color.Black.toString(), textContent: textContent });
+			graphics
+				.select("rect." + j)
+				.data(data)
+				.enter().append("rect", "rect." + j)
+				.all()
+					.setAttribute("x", function(d) { return d.x; })
+					.setAttribute("y", function(d) { return d.y; })
+					.setAttribute("width", function(d) { return d.width; })
+					.setAttribute("height", function(d) { return d.height; })
+					.setAttribute("fill", function(d) { return d.background; })
+				.exit()
+					.setStyleProperty("display", "none")
+				.select("text." + j)
+				.data(data)
+				.enter().append("text", "text." + j)
+				.all()
+					.setAttribute("x", function(d) { return d.x; })
+					.setAttribute("y", function(d) { return d.y; })
+					.setAttribute("fill", function(d) { return d.foreground; })
+					.setProperty("textContent", function(d) { return d.textContent; })
+					.setAttribute("transform", function(d) {
+						var element = this.getElement();
+						var bbox = element.getBBox();
+						var dy = d.y - bbox.y;
+						return "translate(" + 0 + "," + dy + ")";
+					})
+				.exit()
+					.setStyleProperty("display", "none")
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TableViewBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Border;
+	jsuis.defaultlf.TableViewBorder = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableViewBorder, {
+	});
+	jsuis.defaultlf.TableViewBorder.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.defaultlf.TableViewBorder.prototype.paintBorder = function(component) {
+		var width = component.getWidth();
+		var height = component.getHeight();
+		if (!width || !height) {
+			return;
+		}
+		var x = component.getX();
+		var y = component.getY();
+		var viewportSize = component.getViewportSize();
+		var viewportWidth = viewportSize.getWidth();
+		var viewportHeight = viewportSize.getHeight();
+		if (!viewportWidth || !viewportHeight) {
+			return;
+		}
+		var table = component.getTable();
+		var rowCount = table.getRowCount();
+		var columnCount = table.getColumnCount();
+		var rowHeight = table.getRowHeight();
+		var columnWidth = table.getColumnWidth();
+		var x2 = Math.min(columnCount * columnWidth, viewportWidth);
+		var y2 = Math.min(rowCount * rowHeight, viewportHeight);
+		var data = [];
+		for (var i = Math.ceil((0.5 - y) / rowHeight - 1); i < rowCount; i++) {
+			var y1 = y + (i + 1) * rowHeight - 0.5;
+			if (y1 < 0) {
+				continue;
+			} else if (y1 > viewportHeight) {
+				break;
+			}
+			data.push({ x1: 0, y1: y1, x2: x2, y2: y1, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		}
+		var graphics = component.getGraphics();
+		graphics
+			.select("horizontal")
+			.data(data)
+			.enter().append("line", "horizontal")
+				.setAttribute("x1", function(d) { return 0; })
+				.setAttribute("y1", function(d) { return 0; })
+				.setAttribute("x2", function(d) { return d.x2; })
+				.setAttribute("y2", function(d) { return 0; })
+				.setStyleProperty("stroke", function(d) { return d.stroke; })
+				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; })
+			.all()
+				.setAttribute("transform", function(d) {
+					var dx = Math.min(d.x2, x + columnCount * columnWidth - 0.5) - d.x2;
+					return "translate(" + dx + "," + d.y1 + ")";
+				})
+				.setStyleProperty("display", "")
+			.exit()
+				.setStyleProperty("display", "none");
+		data = [];
+		for (var i = Math.ceil((0.5 - x) / columnWidth - 1); i < columnCount; i++) {
+			var x1 = x + (i + 1) * columnWidth - 0.5;
+			if (x1 < 0) {
+				continue;
+			} else if (x1 > viewportWidth) {
+				break;
+			}
+			data.push({ x1: x1, y1: 0, x2: x1, y2: y2, stroke: jsuis.Color.DarkGray.toString(), strokeWidth: 1 });
+		}
+		graphics
+			.select("vertical")
+			.data(data)
+			.enter().append("line", "vertical")
+				.setAttribute("x1", function(d) { return 0; })
+				.setAttribute("y1", function(d) { return 0; })
+				.setAttribute("x2", function(d) { return 0; })
+				.setAttribute("y2", function(d) { return d.y2; })
+				.setStyleProperty("stroke", function(d) { return d.stroke; })
+				.setStyleProperty("stroke-width", function(d) { return d.strokeWidth; })
+			.all()
+				.setAttribute("transform", function(d) {
+					var dy = Math.min(d.y2, y + rowCount * rowHeight - 0.5) - d.y2;
+					return "translate(" + d.x1 + "," + dy + ")";
+				})
+				.setStyleProperty("display", "")
+			.exit()
+				.setStyleProperty("display", "none");
+		data = [];
+		var values = table.getValues();
+		var cellWidth = columnWidth - 1;
+		var cellHeight = rowHeight - 1;
+		for (var j = Math.ceil((0.5 - x) / columnWidth - 1); j < columnCount; j++) {
+			var cellX = x + j * columnWidth;
+			if (cellX > viewportWidth) {
+				break;
+			}
+			for (var i = Math.ceil((0.5 - y) / rowHeight - 1); i < rowCount; i++) {
+				var cellY = y + i * rowHeight;
+				if (cellY > viewportHeight) {
+					break;
+				}
+				var textContent = values[i][j];
+				data.push({ x: cellX, y: cellY, width: cellWidth, height: cellHeight, background: jsuis.Color.LightGray.toString(), foreground: jsuis.Color.Black.toString(), textContent: textContent });
+			}
+		}
+		var g = graphics
+			.select("g")
+			.data(data)
+			.enter().append("g");
+		g.enter().append("rect")
+			.setAttribute("x", function(d) { return 0; })
+			.setAttribute("y", function(d) { return 0; })
+			.setAttribute("width", function(d) { return d.width; })
+			.setAttribute("height", function(d) { return d.height; })
+			.setAttribute("fill", function(d) { return d.background; });
+		g.enter().append("text")
+			.setAttribute("x", function(d) { return 0; })
+			.setAttribute("y", function(d) { return 0; })
+			.setAttribute("fill", function(d) { return d.foreground; });
+		graphics
+			.select("rect")
+			.all()
+				.setAttribute("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+				.setStyleProperty("display", "")
+			.exit()
+				.setStyleProperty("display", "none")
+			.select("text")
+			.all()
+				.setProperty("textContent", function(d) { return d.textContent; })
+				.setAttribute("transform", function(d) {
+					var element = this.getElement();
+					var bbox = element.getBBox();
+					var dy = d.y - bbox.y;
+					return "translate(" + d.x + "," + dy + ")";
+				})
+				.setStyleProperty("display", "")
+			.exit()
+				.setStyleProperty("display", "none")
+	}
+}) (jsuis);
+
+/**
  * jsuis.defaultlf.TabPanelBorder
  */
 (function(jsuis) {
@@ -6853,9 +7145,10 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	}
 	jsuis.defaultlf.Text.prototype.validate = function() {
 		var element = this.getElement();
-		var outsets = this.getOutsets();
-		this.setAttribute("transform", "translate(" + 0 + ","
-				+ (this.getY() + outsets.getTop() - element.getBBox().y) + ")");
+		var bbox = element.getBBox();
+		var dy = this.getY() - bbox.y;
+		// this.setAttribute("dy", dy);
+		this.setAttribute("transform", "translate(" + 0 + "," + dy + ")");
 		SUPER.prototype.validate.call(this);
 	}
 }) (jsuis);
@@ -7028,6 +7321,14 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		this.view = view;
 		return this;
 	}
+	jsuis.defaultlf.Viewport.prototype.setSize = function(size) {
+		SUPER.prototype.setSize.call(this, size);
+		var view = this.getView();
+		if (view) {
+			view.paint();
+		}
+		return this;
+	}
 	jsuis.defaultlf.Viewport.prototype.getViewBox = function() {
 		return this.viewBox || new jsuis.Rectangle();
 	}
@@ -7149,6 +7450,42 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			this.setOpposite(opposite);
 		}
 		return opposite;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.HTMLContainer
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.HTMLContainer = jsuis.Object.extend(SUPER, function(node) {
+		SUPER.prototype.constructor.call(this, null);
+		if (node) {
+			this.setNode(node);
+		}
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.HTMLContainer, {
+		node: null
+	});
+	jsuis.defaultlf.HTMLContainer.prototype.setNode = function(node) {
+		node.style["position"] = "absolute";
+		node.style["display"] = "none";
+		document.body.appendChild(node);
+		this.node = node;
+		return this;
+	}
+	jsuis.defaultlf.HTMLContainer.prototype.validate = function() {
+		var elementBoundingClientRect = this.getElement().getBoundingClientRect();
+		var bodyBoundingClientRect = document.body.getBoundingClientRect();
+		var left = elementBoundingClientRect.left - bodyBoundingClientRect.left;
+		var top = elementBoundingClientRect.top - bodyBoundingClientRect.top;
+		var node = this.getNode();
+		node.style["left"] = left + "px";
+		node.style["top"] = top + "px";
+		node.style["width"] = elementBoundingClientRect.width + "px";
+		node.style["height"] = elementBoundingClientRect.height + "px";
+		node.style["display"] = "";
+		return this;
 	}
 }) (jsuis);
 
@@ -8088,6 +8425,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		}
 		return this;
 	}
+	// TODO: CardLayout and BorderLayout
 	jsuis.defaultlf.TabbedPane.prototype.validate = function() {
 		SUPER.prototype.validate.call(this);
 		var selection = this.getSelection();
@@ -8107,23 +8445,30 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 (function(jsuis) {
 	var SUPER = jsuis.defaultlf.Panel;
 	jsuis.defaultlf.Table = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
-		this.setBorder(new jsuis.defaultlf.TableBorder());
+		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
 		this.setFont(new jsuis.Font("Arial", "normal", 12));
 		this.setRowHeight(16);
 		this.setColumnWidth(64);
+		var tableView = new jsuis.defaultlf.TableView(this);
+		this.setTableView(tableView);
+		this.add(tableView, new jsuis.GridBagConstraints()
+			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
+			.setFill(jsuis.Constants.BOTH));
+		var tableHeaderView = new jsuis.defaultlf.TableHeaderView(this);
+		this.setTableHeaderView(tableHeaderView);
+		this.add(tableHeaderView, new jsuis.GridBagConstraints()
+			.setGridx(1).setGridy(0).setWeightx(1)
+			.setFill(jsuis.Constants.HORIZONTAL));
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.Table, {
+		tableView: null,
+		tableHeaderView: null,
 		columns: null,
 		values: null,
 		rowCount: 0,
 		columnCount: 0,
 		rowHeight: 0,
-		columnWidth: 0,
-		x: 0,
-		y: 0,
-		width: 0,
-		height: 0
+		columnWidth: 0
 	});
 	jsuis.defaultlf.Table.prototype.setColumns = function(columns) {
 		this.columns = columns;
@@ -8146,13 +8491,6 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 	}
 	jsuis.defaultlf.Table.prototype.getColumnWidth = function() {
 		return nvl(this.columnWidth, 0);
-	}
-	jsuis.defaultlf.Table.prototype.getPreferredSize = function() {
-		var rowHeight = this.getRowHeight();
-		var rowCount = this.getRowCount();
-		var columnWidth = this.getColumnWidth();
-		var columnCount = this.getColumnCount();
-		return new jsuis.Dimension(columnCount * columnWidth, rowCount * rowHeight);
 	}
 }) (jsuis);
 
@@ -8207,6 +8545,83 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		var label = this.getLabel();
 		label.setFont(font);
 		return this;
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TableHeaderView
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.TableHeaderView = jsuis.Object.extend(SUPER, function(table) {
+		SUPER.prototype.constructor.call(this, null);
+		this.setTable(table);
+		this.setBorder(new jsuis.defaultlf.TableHeaderViewBorder());
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableHeaderView, {
+		table: null,
+		dy: 0
+	});
+	jsuis.defaultlf.TableHeaderView.prototype.getPreferredSize = function() {
+		var table = this.getTable();
+		var rowHeight = table.getRowHeight();
+		var columnWidth = table.getColumnWidth();
+		var columnCount = table.getColumnCount();
+		return new jsuis.Dimension(columnCount * columnWidth, rowHeight);
+	}
+}) (jsuis);
+
+/**
+ * jsuis.defaultlf.TableView
+ */
+(function(jsuis) {
+	var SUPER = jsuis.defaultlf.Panel;
+	jsuis.defaultlf.TableView = jsuis.Object.extend(SUPER, function(table) {
+		SUPER.prototype.constructor.call(this, null);
+		this.setTable(table);
+		this.setBorder(new jsuis.defaultlf.TableViewBorder());
+		this.setX(0);
+		this.setY(0);
+		this.setOldX(0);
+		this.setOldY(0);
+	});
+	jsuis.Object.addProperties(jsuis.defaultlf.TableView, {
+		table: null,
+		x: 0,
+		y: 0,
+		oldX: 0,
+		oldY: 0
+	});
+	jsuis.defaultlf.TableView.prototype.getX = function() {
+		return nvl(this.x, 0);
+	}
+	jsuis.defaultlf.TableView.prototype.setX = function(x) {
+		this.oldX = this.x;
+		this.x = x;
+		return this;
+	}
+	jsuis.defaultlf.TableView.prototype.getY = function() {
+		return nvl(this.y, 0);
+	}
+	jsuis.defaultlf.TableView.prototype.setY = function(y) {
+		this.oldY = this.y;
+		this.y = y;
+		return this;
+	}
+	jsuis.defaultlf.TableView.prototype.getPreferredSize = function() {
+		var table = this.getTable();
+		var rowHeight = table.getRowHeight();
+		var rowCount = table.getRowCount();
+		var columnWidth = table.getColumnWidth();
+		var columnCount = table.getColumnCount();
+		return new jsuis.Dimension(columnCount * columnWidth, rowCount * rowHeight);
+	}
+	jsuis.defaultlf.TableView.prototype.getViewportSize = function() {
+		var parent = this.getParent();
+		if (parent instanceof jsuis.defaultlf.Viewport) {
+			return parent.getPeer().getSize();
+		}
+		return this.getSize();
 	}
 }) (jsuis);
 
@@ -8739,12 +9154,26 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		SUPER.prototype.constructor.call(this);
 		this.setLayout(new jsuis.BorderLayout());
 		
+		var contentPane = new jsuis.Panel(new jsuis.GridBagLayout());
+		this.setContentPane(contentPane);
+		this.add(contentPane);
+		
 		var viewport = new jsuis.defaultlf.Viewport();
 		this.setViewport(viewport);
-		this.add(viewport);
+		contentPane.add(viewport, new jsuis.GridBagConstraints()
+			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
+			.setFill(jsuis.Constants.BOTH));
 		
 		if (view) {
-			this.setViewportView(view);
+			if (view instanceof jsuis.Table || view instanceof jsuis.defaultlf.Table) {
+				var table = view.getPeer();
+				var tableView = table.getTableView();
+				var tableHeaderView = table.getTableHeaderView();
+				this.setViewportView(tableView);
+				this.setColumnHeaderView(tableHeaderView);
+			} else {
+				this.setViewportView(view);
+			}
 		}
 		vsbPolicy = nvl(vsbPolicy, jsuis.Constants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		this.setVsbPolicy(vsbPolicy);
@@ -8838,6 +9267,12 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 				var viewport = scrollPane.getViewport();
 				var view = viewport.getView();
 				view.setY(-Math.round(newValue));
+				view.paint();
+				var rowHeaderViewport = scrollPane.getRowHeaderViewport();
+				if (rowHeaderViewport) {
+					var rowHeaderView = rowHeaderViewport.getView();
+					rowHeaderView.setY(-Math.round(newValue));
+				}
 			}
 		}).setPropertyName("value").setListenerComponent(this));
 		
@@ -8848,26 +9283,73 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 				var viewport = scrollPane.getViewport();
 				var view = viewport.getView();
 				view.setX(-Math.round(newValue));
+				view.paint();
+				var columnHeaderViewport = scrollPane.getColumnHeaderViewport();
+				if (columnHeaderViewport) {
+					var columnHeaderView = columnHeaderViewport.getView();
+					columnHeaderView.setX(-Math.round(newValue));
+				}
 			}
 		}).setPropertyName("value").setListenerComponent(this));
 	});
 	jsuis.Object.addProperties(jsuis.defaultlf.ScrollPane, {
 		vsbPolicy: null,
 		hsbPolicy: null,
+		contentPane: null,
 		viewport: null,
+		columnHeaderViewport: null,
+		rowHeaderViewport: null,
 		scrollBarPanel: null,
 		verticalScrollBar: null,
 		horizontalScrollBar: null,
 		scrollThumbPressedPoint: null
 	});
+	jsuis.defaultlf.ScrollPane.prototype.getViewportView = function() {
+		var viewport = this.getViewport();
+		return viewport.getView();
+	}
 	jsuis.defaultlf.ScrollPane.prototype.setViewportView = function(view) {
 		var viewport = this.getViewport();
 		viewport.setView(view);
 		return this;
 	}
-	jsuis.defaultlf.ScrollPane.prototype.getViewportView = function() {
-		var viewport = this.getViewport();
-		return viewport.getView();
+	jsuis.defaultlf.ScrollPane.prototype.getColumnHeaderView = function() {
+		var columnHeaderViewport = this.getColumnHeaderViewport();
+		if (columnHeaderViewport) {
+			return columnHeaderViewport.getView();
+		}
+	}
+	jsuis.defaultlf.ScrollPane.prototype.setColumnHeaderView = function(columnHeaderView) {
+		var contentPane = this.getContentPane();
+		var columnHeaderViewport = this.getColumnHeaderViewport();
+		if (!columnHeaderViewport) {
+			columnHeaderViewport = new jsuis.defaultlf.Viewport();
+			this.setColumnHeaderViewport(columnHeaderViewport);
+			contentPane.add(columnHeaderViewport, new jsuis.GridBagConstraints()
+				.setGridx(1).setGridy(0).setWeightx(1)
+				.setFill(jsuis.Constants.HORIZONTAL));
+		}
+		columnHeaderViewport.setView(columnHeaderView);
+		return this;
+	}
+	jsuis.defaultlf.ScrollPane.prototype.getRowHeaderView = function() {
+		var columnHeaderViewport = this.getRowHeaderViewport();
+		if (columnHeaderViewport) {
+			return columnHeaderViewport.getView();
+		}
+	}
+	jsuis.defaultlf.ScrollPane.prototype.setRowHeaderView = function(rowHeaderView) {
+		var contentPane = this.getContentPane();
+		var rowHeaderViewport = this.getRowHeaderViewport();
+		if (!rowHeaderViewport) {
+			rowHeaderViewport = new jsuis.defaultlf.Viewport();
+			this.setRowHeaderViewport(rowHeaderViewport);
+			contentPane.add(rowHeaderViewport, new jsuis.GridBagConstraints()
+				.setGridx(0).setGridy(1).setWeighty(1)
+				.setFill(jsuis.Constants.VERTICAL));
+		}
+		rowHeaderViewport.setView(rowHeaderView);
+		return this;
 	}
 	// TODO ScrollPaneLayout
 	jsuis.defaultlf.ScrollPane.prototype.doLayout = function() {
@@ -8877,6 +9359,16 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 		size = size.subtract(insetsDimension.add(outsetsDimension));
 		var width = size.getWidth();
 		var height = size.getHeight();
+		var columnHeaderView = this.getColumnHeaderView();
+		if (columnHeaderView) {
+			var columnHeaderViewPreferredSize = columnHeaderView.getPreferredSize();
+			height -= columnHeaderViewPreferredSize.getHeight();
+		}
+		var rowHeaderView = this.getRowHeaderView();
+		if (rowHeaderView) {
+			var rowHeaderViewPreferredSize = rowHeaderView.getPreferredSize();
+			width -= rowHeaderViewPreferredSize.getWidth();
+		}
 		var vsbPolicy = this.getVsbPolicy();
 		var verticalScrollBar = this.getVerticalScrollBar();
 		var verticalScrollBarVisible = verticalScrollBar.isVisible();
@@ -8905,7 +9397,7 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 				viewSize = new jsuis.Dimension(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0),
 						height - (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));
 				view.setSize(viewSize);
-				var viewPreferredSize = view.getPreferredScrollableViewportSize();
+				var viewPreferredSize = view.getPreferredSize();
 				if (vsbPolicy === jsuis.Constants.VERTICAL_SCROLLBAR_AS_NEEDED) {
 					var visible = (viewPreferredSize.getHeight() > height);
 					if (visible !== verticalScrollBarVisible) {
@@ -8929,6 +9421,14 @@ jsuis.packages["jsuis.defaultlf"] = jsuis.defaultlf;
 			view.setSize(new jsuis.Dimension(viewWidth, viewHeight));
 			verticalScrollBar.setMaximum(viewHeight);
 			horizontalScrollBar.setMaximum(viewWidth);
+			
+			if (columnHeaderView) {
+				columnHeaderView.setSize(new jsuis.Dimension(viewWidth, columnHeaderView.getPreferredSize().getHeight()));
+			}
+			
+			if (rowHeaderView) {
+				rowHeaderView.setSize(new jsuis.Dimension(rowHeaderView.getPreferredSize().getWidth(), viewHeight));
+			}
 		}
 		horizontalScrollBar.setExtent(width - (verticalScrollBarVisible ? verticalScrollBarPreferredWidth : 0));
 		verticalScrollBar.setExtent(height- (horizontalScrollBarVisible ? horizontalScrollBarPreferredHeight : 0));

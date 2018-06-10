@@ -2,9 +2,9 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden;">
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
 		<svg height="0" style="display: block;">
 			<defs>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -13,19 +13,14 @@
 				</linearGradient>
 			</defs>
 		</svg>
-		<div id="container" style="height: 100vh;"></div>
 		<script>
-document.addEventListener('DOMContentLoaded', function() {
 	
-	component = new jsuis.Component(document.getElementById("container"));
-	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	frame.setLayout(new jsuis.GridBagLayout());
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.GridBagLayout());
 	
 	function createExamplePanel(title) {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
-		frame.add(titledPanel);
+		desktopPane.add(titledPanel);
 		var label = new jsuis.Label(title);
 		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
@@ -55,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	}));
 	
-	frame.setVisible(true);
-});
+	desktopPane.setVisible(true);
+	
 		</script>
 	</body>
 </html>

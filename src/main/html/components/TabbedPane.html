@@ -2,22 +2,17 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden;">
-		<div id="container" style="height: 100vh;"></div>
-		<script>
-document.addEventListener('DOMContentLoaded', function() {
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
+    	<script>
 	
-	component = new jsuis.Component(document.getElementById("container"));
-	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	frame.setLayout(new jsuis.GridBagLayout());
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.GridBagLayout());
 	
 	function createExamplePanel(title) {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
-		frame.add(titledPanel);
+		desktopPane.add(titledPanel);
 		var label = new jsuis.Label(title);
 		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
@@ -59,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	panel6 = makeTextPanel("Panel #6");
 	tabbedPane.addTab(new jsuis.TabComponent("Tab 6", icon), panel6);
 	
-	frame.setVisible(true);
-});
+	desktopPane.setVisible(true);
+	
 		</script>
 	</body>
 </html>

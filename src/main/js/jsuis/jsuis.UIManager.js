@@ -6,7 +6,7 @@
 	jsuis.UIManager = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this);
 	});
-	var lookAndFeel = "defaultlf";
+	var lookAndFeel = "lf";
 	jsuis.UIManager.getLookAndFeel = function() {
 		return lookAndFeel;
 	}

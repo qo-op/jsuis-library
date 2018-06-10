@@ -37,7 +37,12 @@
 			preferredLayoutWidth = Math.max(preferredLayoutWidth, componentX + componentWidth);
 			preferredLayoutHeight = Math.max(preferredLayoutHeight, componentY + componentHeight);
 		}
-		return new jsuis.Dimension(preferredLayoutWidth - preferredLayoutX + 2 * hgap, preferredLayoutHeight - vgap + 2 * vgap);
+		preferredLayoutWidth = preferredLayoutWidth - preferredLayoutX + 2 * hgap;
+		preferredLayoutHeight = preferredLayoutHeight - vgap + 2 * vgap;
+		var parentInsets = parent.getInsets();
+		preferredLayoutWidth += parentInsets.getLeft() + parentInsets.getRight();
+		preferredLayoutHeight += parentInsets.getTop() + parentInsets.getBottom();
+		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
 	jsuis.FlowLayout.prototype.minimumLayoutSize = function(parent) {
 		return this.preferredLayoutSize(parent);
@@ -51,11 +56,12 @@
 			var maxHeight = parent.getHeight();
 			var hgap = this.getHgap();
 			var vgap = this.getVgap();
-			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-			minX += parentInsetsOutsets.getLeft() + hgap;
-			minY += parentInsetsOutsets.getTop() + vgap;
-			maxWidth -= parentInsetsOutsets.getLeft() + parentInsetsOutsets.getRight() + 2 * hgap;
-			maxHeight -= parentInsetsOutsets.getTop() + parentInsetsOutsets.getBottom() + 2 * vgap;
+			var parentInsets = parent.getInsets();
+			maxWidth -= parentInsets.getLeft() + parentInsets.getRight() + 2 * hgap;
+			maxHeight -= parentInsets.getTop() + parentInsets.getBottom() + 2 * vgap;
+			var offsets = parent.getOffsets();
+			minX += parentInsets.getLeft() - offsets.getLeft() + hgap;
+			minY += parentInsets.getTop() - offsets.getTop() + vgap;
 			minX += hgap / 2;
 			minY += vgap / 2;
 			maxWidth += hgap;
@@ -81,12 +87,11 @@
 					m = 2;
 				}
 				var componentPreferredSize = component.getPreferredSize();
-				var componentPreferredWidth = componentPreferredSize.getWidth();
-				var componentPreferredHeight = componentPreferredSize.getHeight();
+				var outsets = component.getOutsets();
 				var componentX = x;
 				var componentY = y;
-				var componentWidth = componentPreferredWidth + hgap;
-				var componentHeight = componentPreferredHeight + vgap;
+				var componentWidth = componentPreferredSize.getWidth() + hgap + outsets.getLeft() + outsets.getRight();
+				var componentHeight = componentPreferredSize.getHeight() + vgap + outsets.getTop() + outsets.getBottom();
 				if ((componentX + componentWidth < maxWidth) || (rowComponents.length == 0)) {
 					x += componentWidth;
 					width += componentWidth;
@@ -121,9 +126,16 @@
 						var bounds;
 						var leftToRight = parent.isLeftToRight();
 						if (leftToRight) {
-							bounds = new jsuis.Rectangle(rowComponentX, rowComponentY, rowComponentWidth, rowComponentHeight);
+							bounds = new jsuis.Rectangle(
+									rowComponentX + outsets.getLeft(),
+									rowComponentY + outsets.getTop(),
+									rowComponentWidth - outsets.getLeft() - outsets.getRight(),
+									rowComponentHeight - outsets.getTop() - outsets.getBottom());
 						} else {
-							bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth, rowComponentY, rowComponentWidth, rowComponentHeight);
+							bounds = new jsuis.Rectangle(parent.getWidth() - rowComponentX - rowComponentWidth + outsets.getLeft(),
+									rowComponentY + outsets.getTop(),
+									rowComponentWidth - outsets.getLeft() - outsets.getRight(),
+									rowComponentHeight - outsets.getTop() - outsets.getBottom());
 						}
 						var constraints = rowComponent.getConstraints();
 						constraints.setBounds(bounds);

@@ -111,7 +111,8 @@
 					continue;
 				}
 				var componentPreferredSize = component.getPreferredSize();
-				var width = componentPreferredSize.getWidth();
+				var outsets = component.getOutsets();
+				var width = componentPreferredSize.getWidth() + outsets.getLeft() + outsets.getRight();
 				var weightx = constraints.getWeightx();
 				for (var k = 1; k < gridwidth; k++) {
 					width -= widths[i - k];
@@ -171,7 +172,8 @@
 					gridwidth = constraints.getRemainderGridwidth();
 				}
 				var componentPreferredSize = component.getPreferredSize();
-				var height = componentPreferredSize.getHeight();
+				var outsets = component.getOutsets();
+				var height = componentPreferredSize.getHeight() + outsets.getTop() + outsets.getBottom();
 				component.setSize(new jsuis.Dimension(xs[gridx + gridwidth] - xs[gridx], height));
 				height = Math.max(height, component.getMinimumSize().getHeight());
 				var weighty = constraints.getWeighty();
@@ -201,9 +203,9 @@
 			preferredLayoutWidth -= hgap;
 			preferredLayoutHeight -= vgap;
 		}
-		var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
-		preferredLayoutWidth += parentInsetsOutsets.left + parentInsetsOutsets.right;
-		preferredLayoutHeight += parentInsetsOutsets.top + parentInsetsOutsets.bottom;
+		var parentInsets = parent.getInsets();
+		preferredLayoutWidth += parentInsets.getLeft() + parentInsets.getRight();
+		preferredLayoutHeight += parentInsets.getTop() + parentInsets.getBottom();
 		return new jsuis.Dimension(preferredLayoutWidth, preferredLayoutHeight);
 	}
 	jsuis.GridBagLayout.prototype.minimumLayoutSize = function(parent) {
@@ -219,11 +221,12 @@
 			var height = parent.getHeight();
 			var hgap = this.getHgap();
 			var vgap = this.getVgap();
-			var parentInsetsOutsets = parent.getInsets().add(parent.getOutsets());
+			var parentInsets = parent.getInsets();
+			var offsets = parent.getOffsets();
+			x += parentInsets.getLeft() - offsets.getLeft();
+			y += parentInsets.getTop() - offsets.getTop();
 			var preferredLayoutWidth = preferredLayoutSize.getWidth();
 			var preferredLayoutHeight = preferredLayoutSize.getHeight();
-			x += parentInsetsOutsets.getLeft();
-			y += parentInsetsOutsets.getTop();
 			var widths = this.getWidths().slice();
 			var dwidth = width - preferredLayoutWidth;
 			var weightxsSum = 0;
@@ -306,11 +309,20 @@
 				var componentWidth = xs[gridx + gridwidth] - componentX - hgap;
 				var componentHeight = ys[gridy + gridheight] - componentY - vgap;
 				var bounds;
+				var outsets = component.getOutsets();
 				var leftToRight = parent.isLeftToRight();
 				if (leftToRight) {
-					bounds = new jsuis.Rectangle(componentX, componentY, componentWidth, componentHeight);
+					bounds = new jsuis.Rectangle(
+							componentX + outsets.getLeft(),
+							componentY + outsets.getTop(),
+							componentWidth - outsets.getLeft() - outsets.getRight(),
+							componentHeight - outsets.getTop() - outsets.getBottom());
 				} else {
-					bounds = new jsuis.Rectangle(width - componentX - componentWidth, componentY, componentWidth, componentHeight);
+					bounds = new jsuis.Rectangle(
+							width - componentX - componentWidth + outsets.getLeft(),
+							componentY + outsets.getTop(),
+							componentWidth - outsets.getLeft() - outsets.getRight(),
+							componentHeight - outsetes.getTop() - outsets.getBottom());
 				}
 				constraints.setBounds(bounds);
 			}

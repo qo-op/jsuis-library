@@ -2,22 +2,18 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden;">
-		<div id="container" style="height: 100vh;"></div>
-		<script>
-document.addEventListener('DOMContentLoaded', function() {
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
+    	<script>
 	
-	component = new jsuis.Component(document.getElementById("container"));
-	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	frame.setLayout(new jsuis.GridBagLayout());
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.GridBagLayout());
 	
 	function createExamplePanel(title) {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
-		frame.add(titledPanel);
+		desktopPane.add(titledPanel);
 		var label = new jsuis.Label(title);
 		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
 		var contentPane = new jsuis.Panel();
@@ -29,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	tableExample = createExamplePanel("jsuis.Table example");
 	tableExample.setLayout(new jsuis.BorderLayout());
-	tableExample.setMargin(new jsuis.Insets(4));
 	
 	columnNames = [
 		"Fist Name",
@@ -44,17 +39,28 @@ document.addEventListener('DOMContentLoaded', function() {
 		[ "John", "Doe", "Rowing", 3, true ],
 		[ "Sue", "Black", "Knitting", 2, false ],
 		[ "Jane", "White", "Speed reading", 20, true ],
-		[ "Joe", "Brown", "Pool", 10, false ]
+		[ "Joe", "Brown", "Pool", 10, false ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
+		[ "", "", "", "", "" ],
 	];
 	
 	table = new jsuis.Table();
 	table.setColumns(columnNames);
 	table.setValues(data);
 	
-	tableExample.add(table);
+	tableExample.add(new jsuis.ScrollPane(table));
 	
-	frame.setVisible(true);
-});
+	desktopPane.setVisible(true);
+	
 		</script>
 	</body>
 </html>

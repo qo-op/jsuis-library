@@ -33,6 +33,13 @@
 		var right = this.getRight() + insets.getRight();
 		return new jsuis.Insets(top, left, bottom, right);
 	}
+	jsuis.Insets.prototype.subtract = function(insets) {
+		var top = this.getTop() - insets.getTop();
+		var left = this.getLeft() - insets.getLeft();
+		var bottom = this.getBottom() - insets.getBottom();
+		var right = this.getRight() - insets.getRight();
+		return new jsuis.Insets(top, left, bottom, right);
+	}
 	jsuis.Insets.prototype.clone = function() {
 		return new jsuis.Insets(this.getTop(), this.getLeft(), this.getBottom(), this.getRight());
 	}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    	<script src="/jsuis.js?20180710105329"></script>
+	</head>
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
+    	<script>
+	
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		desktopPane.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	toolBarExample = createExamplePanel("jsuis.ToolBar example");
+	toolBarExample.setLayout(new jsuis.BorderLayout());
+	
+	toolBar = new jsuis.ToolBar();
+	toolBarExample.add(toolBar, jsuis.Constraints.NORTH);
+	
+	previousButtonIcon = new jsuis.ImageIcon("/images/Previous.svg", 16, 16);
+	previousButton = new jsuis.Button(null, previousButtonIcon);
+	toolBar.add(previousButton);
+	
+	upButtonIcon = new jsuis.ImageIcon("/images/Up.svg", 16, 16);
+	upButton = new jsuis.Button(null, upButtonIcon);
+	toolBar.add(upButton);
+	
+	nextButtonIcon = new jsuis.ImageIcon("/images/Next.svg", 16, 16);
+	nextButton = new jsuis.Button(null, nextButtonIcon);
+	toolBar.add(nextButton);
+	
+	desktopPane.setVisible(true);
+	
+		</script>
+	</body>
+</html>

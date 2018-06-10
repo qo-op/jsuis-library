@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?20180710105329"></script>
+	</head>
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
+		<script>
+	
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		desktopPane.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	menuExample = createExamplePanel("jsuis.Menu example");
+	menuExample.setLayout(new jsuis.BorderLayout());
+	
+	menuFrame = new jsuis.Frame();
+	menuExample.add(menuFrame);
+	
+	menuBar = new jsuis.MenuBar();
+	menuFrame.setMenuBar(menuBar);
+	
+	menu = new jsuis.Menu("A Menu");
+	menuBar.add(menu);
+	
+	textOnlyMenuItem = new jsuis.MenuItem("A text-only menu item");
+	menu.add(textOnlyMenuItem);
+	
+	bothTextIconMenuItem = new jsuis.MenuItem("Both text and icon",
+			new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	menu.add(bothTextIconMenuItem);
+	
+	menu.addSeparator();
+	
+	iconMenuItem = new jsuis.MenuItem(null,
+			new jsuis.ImageIcon("/images/Star.svg", 16, 16));
+	menu.add(iconMenuItem);
+	
+	anotherMenu = new jsuis.Menu("Another Menu");
+	menuBar.add(anotherMenu);
+	
+	cbMenuItem = new jsuis.MenuItem("Menu item");
+	anotherMenu.add(cbMenuItem);
+	
+	desktopPane.setVisible(true);
+	
+		</script>
+	</body>
+</html>

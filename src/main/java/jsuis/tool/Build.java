@@ -148,19 +148,21 @@ public class Build {
 		FileUtils.writeStringToFile(jsuis, "", "UTF-8");
 		System.out.println("Getting jsuis files...");
 		List<File> jsuisFiles = new ArrayList<File>();
-		jsuisFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis"), new String[] { "js" }, false));
+		jsuisFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis"), new String[] { "js" }, true));
 		System.out.println("Sorting jsuis files...");
 		Build.sort(jsuisFiles);
 		System.out.println("Adding jsuis files to jsuis.js...");
 		Build.join(jsuis, jsuisFiles);
 		
-		System.out.println("Getting jsuis-defaultlf files...");
+		/*
+		System.out.println("Getting jsuis-svg files...");
 		List<File> jsuisDefaultlfFiles = new ArrayList<File>();
-		jsuisDefaultlfFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis/defaultlf"), new String[] { "js" }, false));
-		System.out.println("Sorting jsuis-defaultlf files...");
+		jsuisDefaultlfFiles.addAll(FileUtils.listFiles(new File("src/main/js/jsuis/svg"), new String[] { "js" }, false));
+		System.out.println("Sorting jsuis-svg files...");
 		Build.sort(jsuisDefaultlfFiles);
-		System.out.println("Adding jsuis-defaultlf files to jsuis.js...");
+		System.out.println("Adding jsuis-svg files to jsuis.js...");
 		Build.join(jsuis, jsuisDefaultlfFiles);
+		*/
 		
 		/*
 		 * versions/jsuis-version.js

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsuis</title>
+    <script src="/jsuis.js?${date}"></script>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div id="container" style="height: 100vh;"></div>
+		<script>
+	
+	component = new jsuis.Component(document.getElementById("container"));
+	
+	frame = new jsuis.Frame();
+	component.add(frame);
+	frame.setLayout(new jsuis.GridBagLayout());
+	
+	function createExamplePanel(title) {
+		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
+		frame.add(titledPanel);
+		var label = new jsuis.Label(title);
+		titledPanel.add(label, jsuis.Constraints.NORTH.withFill(jsuis.Constants.NONE));
+		var contentPane = new jsuis.Panel();
+		titledPanel.add(contentPane);
+		contentPane.setPreferredSize(new jsuis.Dimension(200, 200));
+		contentPane.setBorder(new jsuis.LineBorder());
+		return contentPane;
+	}
+	
+	htmlContainerExample = createExamplePanel("jsuis.HTMLContainer example");
+	htmlContainerExample.setLayout(new jsuis.BorderLayout());
+	
+	htmlContainer = new jsuis.HTMLContainer(document.createElement("div"));
+	
+	var p = document.createElement("p");
+	var t = document.createTextNode("This is a paragraph.");
+	p.appendChild(t);
+	htmlContainer.getNode().appendChild(p);
+	
+	htmlContainerExample.add(htmlContainer);
+	
+	frame.setVisible(true);
+	
+		</script>
+	</body>
+</html>

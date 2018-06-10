@@ -1,10 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden; position: relative; touch-action: none;">
+	<body style="margin: 0; height: 100vh; overflow: hidden; touch-action: none;">
 		<svg height="0" style="display: block;">
 			<defs>
 				<linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -13,20 +14,13 @@
 				</linearGradient>
 			</defs>
 		</svg>
-    	<div id="container" style="height: 100vh;"></div>
     	<script>
-document.addEventListener('DOMContentLoaded', function() {
 	
-	component = new jsuis.Component(document.getElementById("container"));
-	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	
-	frameScrollPane = new jsuis.ScrollPane();
-	frame.add(frameScrollPane);
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.BorderLayout());
 	
 	panel = new jsuis.Panel(new jsuis.FlowLayout());
-	frameScrollPane.setViewportView(panel);
+	desktopPane.add(new jsuis.ScrollPane(panel));
 	
 	function createExamplePanel(title) {
 		var titledPanel = new jsuis.Panel(new jsuis.BorderLayout());
@@ -179,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	radioButtonExample = createExamplePanel("jsuis.RadioButton example");
 	radioButtonExample.setLayout(new jsuis.BorderLayout(4));
-	radioButtonExample.setMargin(new jsuis.Insets(4));
+	radioButtonExample.setPadding(new jsuis.Insets(4));
 	
 	birdButton = new jsuis.RadioButton("Bird");
 	birdButton.setActionCommand("Bird");
@@ -261,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	comboBoxExample = createExamplePanel("jsuis.ComboBox example");
 	comboBoxExample.setLayout(new jsuis.BorderLayout(4));
-	comboBoxExample.setMargin(new jsuis.Insets(4));
+	comboBoxExample.setPadding(new jsuis.Insets(4));
 	
 	petStrings = [ "Bird", "Cat", "Dog", "Rabbit", "Pig" ];
 	
@@ -461,7 +455,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	/*
 	 * Tree example
-	 */
 	treeExample = createExamplePanel("jsuis.Tree example");
 	treeExample.setLayout(new jsuis.BorderLayout());
 	
@@ -494,9 +487,38 @@ document.addEventListener('DOMContentLoaded', function() {
 	cellRenderer.setIcon("open", new jsuis.ImageIcon("/images/Star.svg", 16, 16));
 	
 	tree.expandAll();
+	 */
 	
-	frame.setVisible(true);
-});
+	/*
+	 * Table example
+	 */
+	tableExample = createExamplePanel("jsuis.Table example");
+	tableExample.setLayout(new jsuis.BorderLayout());
+	
+	columnNames = [
+		"Fist Name",
+		"Last Name",
+		"Sport",
+		"# of Years",
+		"Vegetarian"
+	];
+	
+	data = [
+		[ "Kathy", "Smith", "Snowboarding", 5, false ],
+		[ "John", "Doe", "Rowing", 3, true ],
+		[ "Sue", "Black", "Knitting", 2, false ],
+		[ "Jane", "White", "Speed reading", 20, true ],
+		[ "Joe", "Brown", "Pool", 10, false ],
+	];
+	
+	table = new jsuis.Table();
+	table.setColumns(columnNames);
+	table.setValues(data);
+	
+	tableExample.add(new jsuis.ScrollPane(table));
+	
+	desktopPane.setVisible(true);
+	
 		</script>
 	</body>
 </html>

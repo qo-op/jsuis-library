@@ -1,0 +1,49 @@
+/**
+ * jsuis.lf.TreeCellRenderer
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Object;
+	jsuis.lf.TreeCellRenderer = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+		this.setRowHeight(18);
+	});
+	jsuis.Object.addProperties(jsuis.lf.TreeCellRenderer, {
+		rowHeight: 0,
+		icons: null
+	});
+	jsuis.lf.TreeCellRenderer.prototype.getIcon = function(key) {
+		var icons = this.getIcons();
+		if (!icons) {
+			icons = {};
+			this.setIcons(icons);
+		}
+		return icons[key];
+	}
+	jsuis.lf.TreeCellRenderer.prototype.setIcon = function(key, icon) {
+		var icons = this.getIcons();
+		if (!icons) {
+			icons = {};
+			this.setIcons(icons);
+		}
+		icons[key] = icon;
+		return this;
+	}
+	jsuis.lf.TreeCellRenderer.prototype.getTreeCellRendererComponent = function(
+			tree, value, sel, expanded, leaf, row, hasFocus) {
+		var treeCellRendererComponent = new jsuis.lf.Button();
+		treeCellRendererComponent.setBorder(new jsuis.lf.Border());
+		treeCellRendererComponent.setBackground(jsuis.Color.Black.withAlpha(0));
+		treeCellRendererComponent.setText(nvl(value, "").toString(), jsuis.Constraints.CENTER.withFill(jsuis.Constants.BOTH));
+		var icon;
+		if (icon) {
+			treeCellRendererComponent.setIcon(this.getIcon(icon));
+		} else if (leaf) {
+			treeCellRendererComponent.setIcon(this.getIcon("leaf"));
+		} else if (expanded) {
+			treeCellRendererComponent.setIcon(this.getIcon("open"));
+		} else {
+			treeCellRendererComponent.setIcon(this.getIcon("closed"));
+		}
+		return treeCellRendererComponent;
+	}
+}) (jsuis);

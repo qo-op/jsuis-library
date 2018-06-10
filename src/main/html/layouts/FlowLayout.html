@@ -2,38 +2,31 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden;">
-		<div id="container" style="height: 100vh;"></div>
+	<body style="margin: 0; height: 100vh; overflow: hidden;">
 		<script>
-document.addEventListener('DOMContentLoaded', function() {
 	
-	component = new jsuis.Component(document.getElementById("container"));
-	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	
-	flowLayoutExample = new jsuis.Panel(new jsuis.FlowLayout());
-	frame.add(flowLayoutExample);
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.FlowLayout());
 	
 	button1 = new jsuis.Button("Button 1");
-	flowLayoutExample.add(button1);
+	desktopPane.add(button1);
 	
 	button2 = new jsuis.Button("Button 2");
-	flowLayoutExample.add(button2);
+	desktopPane.add(button2);
 	
 	button3 = new jsuis.Button("Button 3");
-	flowLayoutExample.add(button3);
+	desktopPane.add(button3);
 	
 	button4 = new jsuis.Button("Long-Named Button 4");
-	flowLayoutExample.add(button4);
+	desktopPane.add(button4);
 	
 	button5 = new jsuis.Button("5");
-	flowLayoutExample.add(button5);
+	desktopPane.add(button5);
 	
-	frame.setVisible(true);
-});
+	desktopPane.validate();
+	
 		</script>
 	</body>
 </html>

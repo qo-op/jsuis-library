@@ -66,6 +66,10 @@
 		var peer = this.getPeer();
 		peer.paint();
 	}
+	jsuis.Component.prototype.getOffsets = function() {
+		var peer = this.getPeer();
+		return peer.getOffsets();
+	}
 	jsuis.Component.prototype.isVisible = function() {
 		var peer = this.getPeer();
 		return peer.isVisible();

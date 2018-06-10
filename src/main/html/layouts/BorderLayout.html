@@ -2,38 +2,31 @@
 <html>
 	<head>
 		<title>jsuis</title>
-    <script src="/jsuis.js?${date}"></script>
+    	<script src="/jsuis.js?${date}"></script>
 	</head>
-	<body style="margin: 0; overflow: hidden;">
-		<div id="container" style="height: 100vh;"></div>
+	<body style="margin: 0; height: 100vh;">
 		<script>
-document.addEventListener('DOMContentLoaded', function() {
 	
-	component = new jsuis.Component(document.getElementById("container"));
+	desktopPane = jsuis.lf.DesktopPane.getInstance();
+	desktopPane.setLayout(new jsuis.BorderLayout());
 	
-	frame = new jsuis.Frame();
-	component.add(frame);
-	
-	borderLayoutExample = new jsuis.Panel(new jsuis.BorderLayout());
-	frame.add(borderLayoutExample);
-	
-	north = new jsuis.Button("North");
-	borderLayoutExample.add(north, jsuis.Constraints.NORTH);
+	north = new jsuis.lf.Button("North");
+	desktopPane.add(north, jsuis.Constraints.NORTH);
 	
 	south = new jsuis.Button("South");
-	borderLayoutExample.add(south, jsuis.Constraints.SOUTH);
+	desktopPane.add(south, jsuis.Constraints.SOUTH);
 	
 	west = new jsuis.Button("West");
-	borderLayoutExample.add(west, jsuis.Constraints.WEST);
+	desktopPane.add(west, jsuis.Constraints.WEST);
 	
 	east = new jsuis.Button("East");
-	borderLayoutExample.add(east, jsuis.Constraints.EAST);
+	desktopPane.add(east, jsuis.Constraints.EAST);
 	
 	center = new jsuis.Button("Center");
-	borderLayoutExample.add(center);
+	desktopPane.add(center);
 	
-	frame.setVisible(true);
-});
+	desktopPane.validate();
+	
 		</script>
 	</body>
 </html>
