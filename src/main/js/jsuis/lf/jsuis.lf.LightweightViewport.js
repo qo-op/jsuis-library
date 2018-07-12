@@ -1,28 +1,28 @@
 /**
- * jsuis.lf.Viewport
+ * jsuis.lf.LightweightViewport
  */
 (function(jsuis) {
 	var SUPER = jsuis.lf.Panel;
-	jsuis.lf.Viewport = jsuis.Object.extend(SUPER, function(view) {
+	jsuis.lf.LightweightViewport = jsuis.Object.extend(SUPER, function(view) {
 		SUPER.prototype.constructor.call(this, null);
 		if ((view !== null) && (view !== undefined)) {
 			this.setView(view);
 		}
-		this.setStyleProperty("overflow", "auto");
+		this.setStyleProperty("overflow", "hidden");
 		this.setAdjustmentListeners([]);
 	});
-	jsuis.Object.addProperties(jsuis.lf.Viewport, {
+	jsuis.Object.addProperties(jsuis.lf.LightweightViewport, {
 		view: null,
 		viewPosition: null,
 		adjustmentListeners: null
 	});
-	jsuis.lf.Viewport.prototype.setView = function(view) {
+	jsuis.lf.LightweightViewport.prototype.setView = function(view) {
 		this.removeAll();
 		this.add(view);
 		this.view = view;
 		return this;
 	}
-	jsuis.lf.Viewport.prototype.setSize = function(size) {
+	jsuis.lf.LightweightViewport.prototype.setSize = function(size) {
 		SUPER.prototype.setSize.call(this, size);
 		var view = this.getView();
 		if (view) {
@@ -30,7 +30,7 @@
 		}
 		return this;
 	}
-	jsuis.lf.Viewport.prototype.addAdjustmentListener = function(adjustmentListener) {
+	jsuis.lf.LightweightViewport.prototype.addAdjustmentListener = function(adjustmentListener) {
 		var adjustmentListeners = this.getAdjustmentListeners();
 		adjustmentListeners.push(adjustmentListener);
 		var component = this;
@@ -44,14 +44,14 @@
 			}
 		}
 	}
-	jsuis.lf.Viewport.prototype.removeAdjustmentListener = function(adjustmentListener) {
+	jsuis.lf.LightweightViewport.prototype.removeAdjustmentListener = function(adjustmentListener) {
 		var adjustmentListeners = this.getAdjustmentListeners();
 		var index = adjustmentListeners.indexOf(adjustmentListener);
 		if (index !== -1) {
 			adjustmentListeners.splice(index, 1);
 		}
 	}
-	jsuis.lf.Viewport.prototype.fireAdjustmentValueChanged = function(domEvent) {
+	jsuis.lf.LightweightViewport.prototype.fireAdjustmentValueChanged = function(domEvent) {
 		var adjustmentEvent = new jsuis.lf.AdjustmentEvent(domEvent).setSource(this);
 		var adjustmentListeners = this.getAdjustmentListeners();
 		for (var i = 0; i < adjustmentListeners.length; i++) {

@@ -46,9 +46,13 @@
 		var touch = this.getTouch();
 		var source = this.getSource();
 		var boundingClientRect = source.getElement().getBoundingClientRect();
+		/*
 		var outsets = source.getOutsets();
 		x = nvl(x, touch.clientX - boundingClientRect.left + outsets.getLeft());
 		y = nvl(y, touch.clientY - boundingClientRect.top + outsets.getTop());
+		*/
+		x = nvl(x, touch.clientX - boundingClientRect.left);
+		y = nvl(y, touch.clientY - boundingClientRect.top);
 		this.setX(x).setY(y);
 		return new jsuis.Point(x, y);
 	}

@@ -10,32 +10,11 @@
 		this.setBorder(new jsuis.lf.Border());
 		this.setBackground(null);
 	});
-	/*
-	jsuis.lf.Svg.prototype.getX = function() {
-		return this.x || 0;
-	}
-	jsuis.lf.Svg.prototype.setX = function(x) {
-		this.setStyleProperty("left", +nvl(x, 0) + "px");
-		this.x = x;
-		return this;
-	}
-	jsuis.lf.Svg.prototype.getY = function() {
-		return this.y || 0;
-	}
-	jsuis.lf.Svg.prototype.setY = function(y) {
-		var insets = this.getInsets();
-		this.setStyleProperty("top", +nvl(y, 0) + "px");
-		this.y = y;
-		return this;
-	}
-	*/
 	jsuis.lf.Svg.prototype.getWidth = function() {
 		return this.width || 0;
 	}
 	jsuis.lf.Svg.prototype.setWidth = function(width) {
 		this.width = width;
-		var outsets = this.getOutsets();
-		// width -= outsets.getLeft() + outsets.getRight();
 		var offsets = this.getOffsets();
 		width -= offsets.getLeft() + offsets.getRight();
 		if (width >= 0) {
@@ -48,8 +27,6 @@
 	}
 	jsuis.lf.Svg.prototype.setHeight = function(height) {
 		this.height = height;
-		var outsets = this.getOutsets();
-		// height -= outsets.getTop() + outsets.getBottom();
 		var offsets = this.getOffsets();
 		height -= offsets.getTop() + offsets.getBottom();
 		if (height >= 0) {
@@ -62,10 +39,6 @@
 		var border = this.getBorder();
 		border = nvl(border, new jsuis.lf.Border());
 		border.paintBorder(this);
-		return this;
-	}
-	jsuis.lf.Svg.prototype.setVisible = function(visible) {
-		SUPER.prototype.setVisible.call(this, visible);
 		return this;
 	}
 	jsuis.lf.Svg.prototype.setBorder = function(border) {

@@ -11,48 +11,62 @@
 		this.setContentPane(contentPane);
 		this.add(contentPane);
 		
-		var viewport = new jsuis.lf.Viewport();
-		this.setViewport(viewport);
-		contentPane.add(viewport, new jsuis.GridBagConstraints()
+		var layeredPane = new jsuis.lf.LayeredPane();
+		layeredPane.setLayout(new jsuis.BorderLayout());
+		contentPane.add(layeredPane, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
 			.setFill(jsuis.Constants.BOTH));
+		
+		var lightweightViewport = new jsuis.lf.LightweightViewport();
+		this.setLightweightViewport(lightweightViewport);
+		layeredPane.add(lightweightViewport, jsuis.Constraints.DEFAULT_LAYER);
+		
+		var viewport = new jsuis.lf.Viewport();
+		this.setViewport(viewport);
+		layeredPane.add(viewport, jsuis.Constraints.DRAG_LAYER);
 		
 		if (view) {
 			if (view instanceof jsuis.Table || view instanceof jsuis.lf.Table) {
 				var table = view.getPeer();
 				var tableView = table.getTableView();
+				var tableLightweightView = table.getTableLightweightView();
 				var tableHeaderView = table.getTableHeaderView();
-				this.setViewportView(tableView);
+				
 				var viewport = this.getViewport();
+				viewport.setView(tableView);
+				lightweightViewport.setView(tableLightweightView);
+				
 				var adjustmentListener = new jsuis.lf.AdjustmentListener({
 					adjustmentValueChanged: function(event) {
 						var scrollPane = this.getListenerComponent();
 						var viewport = scrollPane.getViewport();
-						var tableView = viewport.getView();
+						var lightweightViewport = scrollPane.getLightweightViewport();
+						var columnHeaderViewport = scrollPane.getColumnHeaderViewport();
 						var scrollLeft = viewport.getProperty("scrollLeft");
 						var scrollTop = viewport.getProperty("scrollTop");
-						tableView.setX(-scrollLeft);
-						tableView.setY(-scrollTop);
+						columnHeaderViewport.setProperty("scrollLeft", scrollLeft);
+						lightweightViewport.setProperty("scrollLeft", scrollLeft);
+						lightweightViewport.setProperty("scrollTop", scrollTop);
+						
+						table.setX(-scrollLeft);
+						table.setY(-scrollTop);
 						
 						// TODO: LayoutManager
 						
 						var clientWidth = viewport.getProperty("clientWidth");
-						var columnHeaderViewport = scrollPane.getColumnHeaderViewport();
 						var columnHeaderViewportSize = columnHeaderViewport.getSize();
 						if (columnHeaderViewportSize.getWidth() !== clientWidth) {
 							columnHeaderViewport.setSize(new jsuis.Dimension(clientWidth, columnHeaderViewport.getHeight()));
 						}
 						
-						columnHeaderViewport.setProperty("scrollLeft", scrollLeft);
-						var tableHeaderView = columnHeaderViewport.getView();
-						tableHeaderView.setX(-scrollLeft);
-						tableHeaderView.paint();
-						tableView.paint();
+						var tableBorder = table.getBorder();
+						tableBorder.paintBorder(table);
 					}
 				});
 				adjustmentListener.setListenerComponent(this);
 				viewport.addAdjustmentListener(adjustmentListener);
 				this.setColumnHeaderView(tableHeaderView);
+				
 			} else {
 				this.setViewportView(view);
 			}
@@ -67,6 +81,7 @@
 		hsbPolicy: null,
 		contentPane: null,
 		viewport: null,
+		lightweightViewport: null,
 		columnHeaderViewport: null,
 		rowHeaderViewport: null,
 		scrollBarPanel: null,
@@ -136,6 +151,12 @@
 			if (columnHeaderView) {
 				columnHeaderView.setSize(new jsuis.Dimension(view.getWidth(), columnHeaderView.getPreferredSize().getHeight()));
 			}
+		}
+		var lightweightView = this.getLightweightViewport().getView();
+		if (lightweightView) {
+			lightweightView.setSize(this.getSize());
+			var viewPreferredSize = lightweightView.getPreferredSize();
+			lightweightView.setSize(viewPreferredSize);
 		}
 		SUPER.prototype.doLayout.call(this);
 	}

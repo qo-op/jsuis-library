@@ -102,33 +102,43 @@
 		return this;
 	}
 	jsuis.lf.ComboBoxEditor.prototype.setX = function(x) {
+		this.x = x;
+		/*
 		var outsets = this.getOutsets();
 		this.setStyleProperty("left", (+nvl(x, 0) + outsets.getLeft()) + "px");
-		this.x = x;
+		*/
+		this.setStyleProperty("left", +nvl(x, 0) + "px");
 		return this;
 	}
 	jsuis.lf.ComboBoxEditor.prototype.setY = function(y) {
+		this.y = y;
+		/*
 		var outsets = this.getOutsets();
 		this.setStyleProperty("top", (+nvl(y, 0) + outsets.getTop()) + "px");
-		this.y = y;
+		*/
+		this.setStyleProperty("top", +nvl(y, 0) + "px");
 		return this;
 	}
 	jsuis.lf.ComboBoxEditor.prototype.setWidth = function(width) {
+		this.width = width;
+		/*
 		var outsets = this.getOutsets();
 		width -= outsets.getLeft() + outsets.getRight();
+		*/
 		if (width >= 0) {
 			this.setStyleProperty("width", width + "px");
 		}
-		this.width = width;
 		return this;
 	}
 	jsuis.lf.ComboBoxEditor.prototype.setHeight = function(height) {
+		this.height = height;
+		/*
 		var outsets = this.getOutsets();
 		height -= outsets.getTop() + outsets.getBottom();
+		*/
 		if (height >= 0) {
 			this.setStyleProperty("height", height + "px");
 		}
-		this.height = height;
 		return this;
 	}
 	jsuis.lf.ComboBoxEditor.prototype.select = function() {

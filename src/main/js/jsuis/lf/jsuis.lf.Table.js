@@ -8,19 +8,26 @@
 		this.setFont(new jsuis.Font("Arial", "normal", 12));
 		this.setRowHeight(16);
 		this.setColumnWidth(64);
+		
 		var tableView = new jsuis.lf.TableView(this);
 		this.setTableView(tableView);
-		this.add(tableView, new jsuis.GridBagConstraints()
+		
+		var tableLightweightView = new jsuis.lf.TableLightweightView(this);
+		this.setTableLightweightView(tableLightweightView);
+		this.add(tableLightweightView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
 			.setFill(jsuis.Constants.BOTH));
+		
 		var tableHeaderView = new jsuis.lf.TableHeaderView(this);
 		this.setTableHeaderView(tableHeaderView);
 		this.add(tableHeaderView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(0).setWeightx(1)
 			.setFill(jsuis.Constants.HORIZONTAL));
+		this.setBorder(new jsuis.lf.TableBorder());
 	});
 	jsuis.Object.addProperties(jsuis.lf.Table, {
 		tableView: null,
+		tableLightweightView: null,
 		tableHeaderView: null,
 		columns: null,
 		values: null,

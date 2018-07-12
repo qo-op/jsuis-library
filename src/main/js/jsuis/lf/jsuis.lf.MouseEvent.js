@@ -24,9 +24,13 @@
 		var domEvent = this.getElement();
 		var source = this.getSource();
 		var boundingClientRect = source.getElement().getBoundingClientRect();
+		/*
 		var outsets = source.getOutsets();
 		x = nvl(x, domEvent.clientX - boundingClientRect.left + outsets.getLeft());
 		y = nvl(y, domEvent.clientY - boundingClientRect.top + outsets.getTop());
+		*/
+		x = nvl(x, domEvent.clientX - boundingClientRect.left);
+		y = nvl(y, domEvent.clientY - boundingClientRect.top);
 		this.setX(x).setY(y);
 		return new jsuis.Point(x, y);
 	}

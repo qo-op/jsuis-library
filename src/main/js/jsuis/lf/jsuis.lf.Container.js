@@ -137,8 +137,6 @@
 	}
 	jsuis.lf.Container.prototype.setX = function(x) {
 		this.x = x;
-		var outsets = this.getOutsets();
-		// x += outsets.getLeft();
 		this.setStyleProperty("left", x + "px");
 		return this;
 	}
@@ -147,8 +145,6 @@
 	}
 	jsuis.lf.Container.prototype.setY = function(y) {
 		this.y = y;
-		var outsets = this.getOutsets();
-		// y += outsets.getTop();
 		this.setStyleProperty("top", y + "px");
 		return this;
 	}
@@ -185,8 +181,6 @@
 	}
 	jsuis.lf.Container.prototype.setWidth = function(width) {
 		this.width = width;
-		var outsets = this.getOutsets();
-		// width -= outsets.getLeft() + outsets.getRight();
 		var offsets = this.getOffsets();
 		width -= offsets.getLeft() + offsets.getRight();
 		if (width >= 0) {
@@ -199,8 +193,6 @@
 	}
 	jsuis.lf.Container.prototype.setHeight = function(height) {
 		this.height = height;
-		var outsets = this.getOutsets();
-		// height -= outsets.getTop() + outsets.getBottom();
 		var offsets = this.getOffsets();
 		height -= offsets.getTop() + offsets.getBottom();
 		if (height >= 0) {
