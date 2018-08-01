@@ -7,6 +7,9 @@
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].TreeCellRenderer());
 	});
+	jsuis.Object.addPeerProperties(jsuis.TreeCellRenderer, {
+		rowHeight: null
+	});
 	jsuis.TreeCellRenderer.prototype.getIcon = function(key) {
 		var peer = this.getPeer();
 		return peer.getIcon(key);

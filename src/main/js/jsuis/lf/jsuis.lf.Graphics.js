@@ -21,8 +21,9 @@
 	jsuis.lf.Graphics.prototype.setSize = function(size) {
 		SUPER.prototype.setSize.call(this, size);
 		var border = this.getBorder();
-		border = nvl(border, new jsuis.svg.Border());
-		border.paintBorder(this);
+		if (border) {
+			border.paintBorder(this);
+		}
 		return this;
 	}
 	jsuis.lf.Graphics.prototype.setVisible = function(visible) {

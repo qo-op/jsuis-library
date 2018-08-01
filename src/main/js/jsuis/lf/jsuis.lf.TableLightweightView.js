@@ -6,7 +6,6 @@
 	jsuis.lf.TableLightweightView = jsuis.Object.extend(SUPER, function(table) {
 		SUPER.prototype.constructor.call(this, null);
 		this.setTable(table);
-		this.setBorder(new jsuis.lf.TableLightweightViewBorder());
 		this.setX(0);
 		this.setY(0);
 	});

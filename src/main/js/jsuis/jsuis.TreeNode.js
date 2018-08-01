@@ -38,6 +38,19 @@
 		var children = this.getChildren();
 		return children.indexOf(child);
 	}
+	jsuis.TreeNode.prototype.getLevel = function() {
+		var level = 0;
+		var node = this;
+		while (true) {
+			var parent = node.getParent();
+			if (!parent) {
+				break;
+			}
+			level++;
+			node = parent;
+		}
+		return level;
+	}
 	jsuis.TreeNode.prototype.toString = function() {
 		var userObject = this.getUserObject();
 		if (!userObject) {

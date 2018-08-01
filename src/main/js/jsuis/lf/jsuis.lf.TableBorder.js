@@ -16,18 +16,21 @@
 		var table = component;
 		
 		var tableHeaderView = table.getTableHeaderView();
-		var tableView = table.getTableView();
-		
+		if (!tableHeaderView) {
+			return;
+		}	
 		var tableHeaderViewWidth = tableHeaderView.getWidth();
 		var tableHeaderViewHeight = tableHeaderView.getHeight();
-		
 		if (!tableHeaderViewWidth || !tableHeaderViewHeight) {
 			return;
 		}
 		
+		var tableView = table.getTableView();
+		if (!tableView) {
+			return;
+		}
 		var tableViewWidth = tableView.getWidth();
 		var tableViewHeight = tableView.getHeight();
-		
 		if (!tableViewWidth || !tableViewHeight) {
 			return;
 		}
@@ -35,7 +38,6 @@
 		var tableHeaderViewportSize = tableHeaderView.getViewportSize();
 		var tableHeaderViewportWidth = tableHeaderViewportSize.getWidth();
 		var tableHeaderViewportHeight = tableHeaderViewportSize.getHeight();
-		
 		if (!tableHeaderViewportWidth || !tableHeaderViewportHeight) {
 			return;
 		}
@@ -43,7 +45,6 @@
 		var tableViewportSize = tableView.getViewportSize();
 		var tableViewportWidth = tableViewportSize.getWidth();
 		var tableViewportHeight = tableViewportSize.getHeight();
-		
 		if (!tableViewportWidth || !tableViewportHeight) {
 			return;
 		}
@@ -158,6 +159,7 @@
 		for (var i = tableHeaderHorizontals.length; i < tableHeaderHorizontalData.length; i++) {
 			var tableHeaderHorizontal = new jsuis.lf.Line()
 				.setName("horizontal")
+				// .setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", tableHeaderHorizontalData[i].y)
 				.setAttribute("x2", maxX)
@@ -170,8 +172,8 @@
 		var tableHorizontals = tableViewGraphics.getComponentsByName("horizontal");
 		for (var i = tableHorizontals.length; i < tableHorizontalData.length; i++) {
 			var tableHorizontal = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("horizontal")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", maxX)
@@ -188,8 +190,8 @@
 		var tableHeaderVerticals = tableHeaderViewGraphics.getComponentsByName("vertical");
 		for (var i = tableHeaderVerticals.length; i < tableHeaderVerticalData.length; i++) {
 			var tableHeaderVertical = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("vertical")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", 0)
@@ -202,8 +204,8 @@
 		var tableVerticals = tableViewGraphics.getComponentsByName("vertical");
 		for (var i = tableVerticals.length; i < tableVerticalData.length; i++) {
 			var tableVertical = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("vertical")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", 0)
@@ -221,7 +223,8 @@
 		var tableHeaderCells = tableHeaderViewGraphics.getComponentsByName("cell");
 		for (var i = tableHeaderCells.length; i < tableHeaderCellData.length; i++) {
 			var tableHeaderCell = new jsuis.lf.G()
-				.setName("cell");
+				.setName("cell")
+				.setStyleProperty("visibility", "hidden");
 			tableHeaderViewGraphics.add(tableHeaderCell);
 			tableHeaderCells.push(tableHeaderCell);
 			var tableHeaderRect = new jsuis.lf.Rect()
@@ -244,8 +247,6 @@
 			dy = -tableHeaderTextElementBBox.y;
 			tableHeaderText
 				.setAttribute("dy", dy);
-			tableHeaderCell
-				.setStyleProperty("display", "none");
 		}
 		if (!dy) {
 			var tableHeaderCell = tableHeaderCells[0];
@@ -259,7 +260,7 @@
 		var tableCells = tableViewGraphics.getComponentsByName("cell");
 		for (var i = tableCells.length; i < tableCellData.length; i++) {
 			var tableCell = new jsuis.lf.G()
-				.setName("cell");
+				.setStyleProperty("visibility", "hidden");
 			tableViewGraphics.add(tableCell);
 			tableCells.push(tableCell);
 			var tableRect = new jsuis.lf.Rect()
@@ -279,8 +280,6 @@
 			tableCell.add(tableText);
 			tableText
 				.setAttribute("dy", dy);
-			tableCell
-				.setStyleProperty("display", "none");
 		}
 		
 		/*
@@ -288,12 +287,12 @@
 		 */
 		for (var i = tableHorizontalData.length; i < tableHorizontals.length; i++) {
 			tableHorizontals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHorizontalData.length; i++) {
 			tableHorizontals[i]
 				.setAttribute("transform", "translate(0, " + tableHorizontalData[i].y + ")")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		
 		/*
@@ -301,21 +300,21 @@
 		 */
 		for (var i = tableHeaderVerticalData.length; i < tableHeaderVerticals.length; i++) {
 			tableHeaderVerticals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHeaderVerticalData.length; i++) {
 			tableHeaderVerticals[i]
 				.setAttribute("transform", "translate(" + tableHeaderVerticalData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		for (var i = tableVerticalData.length; i < tableVerticals.length; i++) {
 			tableVerticals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableVerticalData.length; i++) {
 			tableVerticals[i]
 				.setAttribute("transform", "translate(" + tableVerticalData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		
 		/*
@@ -323,13 +322,13 @@
 		 */
 		for (var i = tableHeaderCellData.length; i < tableHeaderCells.length; i++) {
 			tableHeaderCells[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHeaderCellData.length; i++) {
 			var tableHeaderCell = tableHeaderCells[i];
 			tableHeaderCell
 				.setAttribute("transform", "translate(" + tableHeaderCellData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 			var tableHeaderText = tableHeaderCell.getComponentsByName("text")[0];
 			tableHeaderText
 				.setProperty("textContent", tableHeaderCellData[i].textContent)
@@ -340,13 +339,13 @@
 		 */
 		for (var i = tableCellData.length; i < tableCells.length; i++) {
 			tableCells[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableCellData.length; i++) {
 			var tableCell = tableCells[i];
 			tableCell
 				.setAttribute("transform", "translate(" + tableCellData[i].x + ", " + tableCellData[i].y + ")")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 			var tableText = tableCell.getComponentsByName("text")[0];
 			tableText
 				.setProperty("textContent", tableCellData[i].textContent)

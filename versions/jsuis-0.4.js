@@ -1669,6 +1669,9 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].TreeCellRenderer());
 	});
+	jsuis.Object.addPeerProperties(jsuis.TreeCellRenderer, {
+		rowHeight: null
+	});
 	jsuis.TreeCellRenderer.prototype.getIcon = function(key) {
 		var peer = this.getPeer();
 		return peer.getIcon(key);
@@ -1757,6 +1760,19 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	jsuis.TreeNode.prototype.getIndex = function(child) {
 		var children = this.getChildren();
 		return children.indexOf(child);
+	}
+	jsuis.TreeNode.prototype.getLevel = function() {
+		var level = 0;
+		var node = this;
+		while (true) {
+			var parent = node.getParent();
+			if (!parent) {
+				break;
+			}
+			level++;
+			node = parent;
+		}
+		return level;
 	}
 	jsuis.TreeNode.prototype.toString = function() {
 		var userObject = this.getUserObject();
@@ -4648,17 +4664,80 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 }) (jsuis);
 
 /**
+ * jsuis.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.Component;
+	jsuis.Tree = jsuis.Object.extend(SUPER, function(model) {
+		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
+		this.setPeer(new jsuis[lookAndFeel].Tree());
+		this.setModel(nvl(model, new jsuis.TreeModel()));
+		this.setCellRenderer(new jsuis.TreeCellRenderer());
+	});
+	jsuis.Object.addPeerProperties(jsuis.Tree, {
+		model: null,
+		cellRenderer: null
+	});
+	jsuis.Tree.prototype.getRoot = function() {
+		var model = this.getModel();
+		return model.getRoot();
+	}
+	jsuis.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		return this;
+	}
+	jsuis.Tree.prototype.isRootVisible = function() {
+		var peer = this.getPeer();
+		return peer.isRootVisible();
+	}
+	jsuis.Tree.prototype.setRootVisible = function(rootVisible) {
+		var peer = this.getPeer();
+		peer.setRootVisible(rootVisible);
+		return this;
+	}
+	jsuis.Tree.prototype.expandRow = function(row) {
+		var peer = this.getPeer();
+		peer.expandRow(row);
+	}
+	jsuis.Tree.prototype.expandNode = function(node) {
+		var peer = this.getPeer();
+		peer.expandNode(node);
+	}
+	jsuis.Tree.prototype.getRowCount = function() {
+		var peer = this.getPeer();
+		return peer.getRowCount();
+	}
+	jsuis.Tree.prototype.expandAll = function() {
+		var peer = this.getPeer();
+		peer.expandAll();
+	}
+	jsuis.Tree.prototype.getNodeForLocation = function(x, y) {
+		var peer = this.getPeer();
+		return peer.getNodeForLocation(x, y);
+	}
+}) (jsuis);
+
+/**
  * jsuis.lf.ActionListener
  */
 (function(jsuis) {
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.ActionListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.ActionListener.prototype.actionPerformed = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.actionPerformed) {
-			listener.actionPerformed.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.actionPerformed.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -4670,11 +4749,19 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.AdjustmentListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.AdjustmentListener.prototype.adjustmentValueChanged = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.adjustmentValueChanged) {
-			listener.adjustmentValueChanged.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.adjustmentValueChanged.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -4905,17 +4992,27 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.ComponentListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.ComponentListener.prototype.componentResized = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.componentResized) {
-			listener.componentResized.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.componentResized.call(listener, event);
 		}
 	}
 	jsuis.lf.ComponentListener.prototype.componentMoved = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.componentMoved) {
-			listener.componentMoved.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.componentMoved.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -4973,17 +5070,27 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.FocusListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.FocusListener.prototype.focusGained = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.focusGained) {
-			listener.focusGained.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.focusGained.call(listener, event);
 		}
 	}
 	jsuis.lf.FocusListener.prototype.focusLost = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.focusLost) {
-			listener.focusLost.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.focusLost.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -5135,47 +5242,67 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.MouseAdapter = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.MouseAdapter.prototype.mouseClicked = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseClicked) {
-			listener.mouseClicked.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseClicked.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mousePressed = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mousePressed) {
-			listener.mousePressed.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mousePressed.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mouseReleased = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseReleased) {
-			listener.mouseReleased.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseReleased.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mouseEntered = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseEntered) {
-			listener.mouseEntered.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseEntered.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mouseExited = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseExited) {
-			listener.mouseExited.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseExited.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mouseDragged = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseDragged) {
-			listener.mouseDragged.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseDragged.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseAdapter.prototype.mouseMoved = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseMoved) {
-			listener.mouseMoved.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseMoved.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -5187,35 +5314,51 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.MouseListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.MouseListener.prototype.mouseClicked = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseClicked) {
-			listener.mouseClicked.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseClicked.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseListener.prototype.mousePressed = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mousePressed) {
-			listener.mousePressed.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mousePressed.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseListener.prototype.mouseReleased = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseReleased) {
-			listener.mouseReleased.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseReleased.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseListener.prototype.mouseEntered = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseEntered) {
-			listener.mouseEntered.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseEntered.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseListener.prototype.mouseExited = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseExited) {
-			listener.mouseExited.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseExited.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -5227,17 +5370,27 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.MouseMotionListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.MouseMotionListener.prototype.mouseDragged = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseDragged) {
-			listener.mouseDragged.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseDragged.call(listener, event);
 		}
 	}
 	jsuis.lf.MouseMotionListener.prototype.mouseMoved = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.mouseMoved) {
-			listener.mouseMoved.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.mouseMoved.call(listener, event);
 		}
 	}
 }) (jsuis);
@@ -5526,18 +5679,21 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var table = component;
 		
 		var tableHeaderView = table.getTableHeaderView();
-		var tableView = table.getTableView();
-		
+		if (!tableHeaderView) {
+			return;
+		}	
 		var tableHeaderViewWidth = tableHeaderView.getWidth();
 		var tableHeaderViewHeight = tableHeaderView.getHeight();
-		
 		if (!tableHeaderViewWidth || !tableHeaderViewHeight) {
 			return;
 		}
 		
+		var tableView = table.getTableView();
+		if (!tableView) {
+			return;
+		}
 		var tableViewWidth = tableView.getWidth();
 		var tableViewHeight = tableView.getHeight();
-		
 		if (!tableViewWidth || !tableViewHeight) {
 			return;
 		}
@@ -5545,7 +5701,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableHeaderViewportSize = tableHeaderView.getViewportSize();
 		var tableHeaderViewportWidth = tableHeaderViewportSize.getWidth();
 		var tableHeaderViewportHeight = tableHeaderViewportSize.getHeight();
-		
 		if (!tableHeaderViewportWidth || !tableHeaderViewportHeight) {
 			return;
 		}
@@ -5553,7 +5708,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableViewportSize = tableView.getViewportSize();
 		var tableViewportWidth = tableViewportSize.getWidth();
 		var tableViewportHeight = tableViewportSize.getHeight();
-		
 		if (!tableViewportWidth || !tableViewportHeight) {
 			return;
 		}
@@ -5668,6 +5822,7 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		for (var i = tableHeaderHorizontals.length; i < tableHeaderHorizontalData.length; i++) {
 			var tableHeaderHorizontal = new jsuis.lf.Line()
 				.setName("horizontal")
+				// .setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", tableHeaderHorizontalData[i].y)
 				.setAttribute("x2", maxX)
@@ -5680,8 +5835,8 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableHorizontals = tableViewGraphics.getComponentsByName("horizontal");
 		for (var i = tableHorizontals.length; i < tableHorizontalData.length; i++) {
 			var tableHorizontal = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("horizontal")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", maxX)
@@ -5698,8 +5853,8 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableHeaderVerticals = tableHeaderViewGraphics.getComponentsByName("vertical");
 		for (var i = tableHeaderVerticals.length; i < tableHeaderVerticalData.length; i++) {
 			var tableHeaderVertical = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("vertical")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", 0)
@@ -5712,8 +5867,8 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableVerticals = tableViewGraphics.getComponentsByName("vertical");
 		for (var i = tableVerticals.length; i < tableVerticalData.length; i++) {
 			var tableVertical = new jsuis.lf.Line()
-				.setStyleProperty("display", "none")
 				.setName("vertical")
+				.setStyleProperty("visibility", "hidden")
 				.setAttribute("x1", 0)
 				.setAttribute("y1", 0)
 				.setAttribute("x2", 0)
@@ -5731,7 +5886,8 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableHeaderCells = tableHeaderViewGraphics.getComponentsByName("cell");
 		for (var i = tableHeaderCells.length; i < tableHeaderCellData.length; i++) {
 			var tableHeaderCell = new jsuis.lf.G()
-				.setName("cell");
+				.setName("cell")
+				.setStyleProperty("visibility", "hidden");
 			tableHeaderViewGraphics.add(tableHeaderCell);
 			tableHeaderCells.push(tableHeaderCell);
 			var tableHeaderRect = new jsuis.lf.Rect()
@@ -5754,8 +5910,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 			dy = -tableHeaderTextElementBBox.y;
 			tableHeaderText
 				.setAttribute("dy", dy);
-			tableHeaderCell
-				.setStyleProperty("display", "none");
 		}
 		if (!dy) {
 			var tableHeaderCell = tableHeaderCells[0];
@@ -5769,7 +5923,7 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		var tableCells = tableViewGraphics.getComponentsByName("cell");
 		for (var i = tableCells.length; i < tableCellData.length; i++) {
 			var tableCell = new jsuis.lf.G()
-				.setName("cell");
+				.setStyleProperty("visibility", "hidden");
 			tableViewGraphics.add(tableCell);
 			tableCells.push(tableCell);
 			var tableRect = new jsuis.lf.Rect()
@@ -5789,8 +5943,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 			tableCell.add(tableText);
 			tableText
 				.setAttribute("dy", dy);
-			tableCell
-				.setStyleProperty("display", "none");
 		}
 		
 		/*
@@ -5798,12 +5950,12 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		 */
 		for (var i = tableHorizontalData.length; i < tableHorizontals.length; i++) {
 			tableHorizontals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHorizontalData.length; i++) {
 			tableHorizontals[i]
 				.setAttribute("transform", "translate(0, " + tableHorizontalData[i].y + ")")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		
 		/*
@@ -5811,21 +5963,21 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		 */
 		for (var i = tableHeaderVerticalData.length; i < tableHeaderVerticals.length; i++) {
 			tableHeaderVerticals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHeaderVerticalData.length; i++) {
 			tableHeaderVerticals[i]
 				.setAttribute("transform", "translate(" + tableHeaderVerticalData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		for (var i = tableVerticalData.length; i < tableVerticals.length; i++) {
 			tableVerticals[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableVerticalData.length; i++) {
 			tableVerticals[i]
 				.setAttribute("transform", "translate(" + tableVerticalData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 		}
 		
 		/*
@@ -5833,13 +5985,13 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		 */
 		for (var i = tableHeaderCellData.length; i < tableHeaderCells.length; i++) {
 			tableHeaderCells[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableHeaderCellData.length; i++) {
 			var tableHeaderCell = tableHeaderCells[i];
 			tableHeaderCell
 				.setAttribute("transform", "translate(" + tableHeaderCellData[i].x + ", 0)")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 			var tableHeaderText = tableHeaderCell.getComponentsByName("text")[0];
 			tableHeaderText
 				.setProperty("textContent", tableHeaderCellData[i].textContent)
@@ -5850,13 +6002,13 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		 */
 		for (var i = tableCellData.length; i < tableCells.length; i++) {
 			tableCells[i]
-				.setStyleProperty("display", "none");
+				.setStyleProperty("visibility", "hidden");
 		}
 		for (var i = 0; i < tableCellData.length; i++) {
 			var tableCell = tableCells[i];
 			tableCell
 				.setAttribute("transform", "translate(" + tableCellData[i].x + ", " + tableCellData[i].y + ")")
-				.setStyleProperty("display", "");
+				.setStyleProperty("visibility", "visible");
 			var tableText = tableCell.getComponentsByName("text")[0];
 			tableText
 				.setProperty("textContent", tableCellData[i].textContent)
@@ -5878,26 +6030,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		return new jsuis.Insets();
 	}
 	jsuis.lf.TableHeaderViewBorder.prototype.paintBorder = function(component) {
-		var table = component.getTable();
-		var tableBorder = table.getBorder();
-		tableBorder.paintBorder(table);
-	}
-}) (jsuis);
-
-/**
- * jsuis.lf.TableLightweightViewBorder
- */
-(function(jsuis) {
-	var SUPER = jsuis.lf.Border;
-	jsuis.lf.TableLightweightViewBorder = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this);
-	});
-	jsuis.Object.addProperties(jsuis.lf.TableLightweightViewBorder, {
-	});
-	jsuis.lf.TableLightweightViewBorder.prototype.getBorderInsets = function(component) {
-		return new jsuis.Insets();
-	}
-	jsuis.lf.TableLightweightViewBorder.prototype.paintBorder = function(component) {
 		var table = component.getTable();
 		var tableBorder = table.getBorder();
 		tableBorder.paintBorder(table);
@@ -5976,30 +6108,246 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	var SUPER = jsuis.lf.Listener;
 	jsuis.lf.TouchListener = jsuis.Object.extend(SUPER, function(listener) {
 		SUPER.prototype.constructor.call(this, listener);
+		if (!listener.setListenerComponent) {
+			listener.setListenerComponent = SUPER.prototype.setListenerComponent;
+		}
+		if (!listener.getListenerComponent) {
+			listener.getListenerComponent = SUPER.prototype.getListenerComponent;
+		}
 	});
 	jsuis.lf.TouchListener.prototype.touchPressed = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.touchPressed) {
-			listener.touchPressed.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.touchPressed.call(listener, event);
 		}
 	}
 	jsuis.lf.TouchListener.prototype.touchReleased = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.touchReleased) {
-			listener.touchReleased.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.touchReleased.call(listener, event);
 		}
 	}
 	jsuis.lf.TouchListener.prototype.touchMoved = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.touchMoved) {
-			listener.touchMoved.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.touchMoved.call(listener, event);
 		}
 	}
 	jsuis.lf.TouchListener.prototype.touchDragged = function(event) {
 		var listener = this.getListener();
 		if (listener && listener.touchDragged) {
-			listener.touchDragged.call(this, event);
+			var listenerComponent = this.getListenerComponent();
+			listener.setListenerComponent(listenerComponent);
+			listener.touchDragged.call(listener, event);
 		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.lf.TreeBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.lf.Border;
+	jsuis.lf.TreeBorder = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.Object.addProperties(jsuis.lf.TreeBorder, {
+		index: 0
+	});
+	jsuis.lf.TreeBorder.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.lf.TreeBorder.prototype.paintBorder = function(component) {
+		
+		var tree = component;
+		
+		var treeView = tree.getTreeView();
+		if (!treeView) {
+			return;
+		}
+		var treeViewWidth = treeView.getWidth();
+		var treeViewHeight = treeView.getHeight();
+		if (!treeViewWidth || !treeViewHeight) {
+			return;
+		}
+		
+		var treeViewportSize = treeView.getViewportSize();
+		var treeViewportWidth = treeViewportSize.getWidth();
+		var treeViewportHeight = treeViewportSize.getHeight();
+		if (!treeViewportWidth || !treeViewportHeight) {
+			return;
+		}
+		
+		var treeX = tree.getX();
+		var treeY = tree.getY();
+		
+		var rowCount = tree.getRowCount();
+		var rowHeight = tree.getRowHeight();
+		var columnWidth = treeViewWidth;
+		var maxX = columnWidth;
+		var maxY = rowCount * rowHeight;
+		
+		var treeViewGraphics = treeView.getGraphics();
+		
+		/*
+		 * Row data
+		 */
+		var rowWidth = columnWidth;
+		var rowHeight = rowHeight;
+		var rows = tree.getRows();
+		var cellRenderer = tree.getCellRenderer();
+		
+		var index = Math.ceil((0.5 - treeY) / rowHeight - 1);
+		this.setIndex(index);
+		
+		var treeCellData = [];
+		for (var r = index; r < rowCount; r++) {
+			var rowY = r * rowHeight;
+			if ((rowY + treeY) > treeViewportHeight) {
+				break;
+			}
+			var node = rows[r];
+			var rowX = node.getLevel() * 16;
+			var textContent = node.getUserObject().toString();
+			treeCellData.push({
+				x: rowX, y: rowY, textContent: textContent
+			});
+		}
+		
+		var rowBackground = jsuis.Color.White.toString();
+		var rowForeground = jsuis.Color.Black.toString();
+		
+		/*
+		 * Rows
+		 */
+		var dy = 0;
+		var treeCells = treeViewGraphics.getComponentsByName("cell");
+		for (var i = treeCells.length; i < treeCellData.length; i++) {
+			var treeCell = new jsuis.lf.G()
+				.setName("cell")
+				.setStyleProperty("visibility", "hidden");
+			treeViewGraphics.add(treeCell);
+			treeCells.push(treeCell);
+			var treeRect = new jsuis.lf.Rect()
+				.setName("rect")
+				.setAttribute("x", 0)
+				.setAttribute("y", 0)
+				.setAttribute("width", rowWidth)
+				.setAttribute("height", rowHeight)
+				.setAttribute("fill", rowBackground);
+			treeCell.add(treeRect);
+			var treeIcon = new jsuis.lf.Image()
+				.setName("icon")
+				.setAttribute("width", 16)
+				.setAttribute("height", 16);
+			treeCell.add(treeIcon);
+			var treeText = new jsuis.lf.Text()
+				.setName("text")
+				.setAttribute("x", 0)
+				.setAttribute("y", 0)
+				.setAttribute("fill", rowForeground)
+				.setProperty("textContent", treeCellData[i].textContent);
+			treeCell.add(treeText);
+			var treeTextElement = treeText.getElement();
+			var treeTextElementBBox = treeTextElement.getBBox();
+			dy = -treeTextElementBBox.y;
+			treeText
+				.setAttribute("dy", dy);
+			var mouseListener = new jsuis.MouseListener({
+				index: i,
+				getIndex: function() {
+					return this.index;
+				},
+				tree: tree,
+				getTree: function() {
+					return this.tree;
+				},
+				mouseClicked: function(event) {
+					var treeBorder = this.getListenerComponent();
+					var tree = this.getTree();
+					var rows = tree.getRows();
+					var index = this.getIndex();
+					
+					var row = rows[treeBorder.getIndex() + index];
+					var node = row;
+					
+					if (node) {
+						
+						var expanded = node.isExpanded();
+						node.setExpanded(!expanded);
+						
+						treeBorder.paintBorder(tree);
+					}
+				},
+			});
+			mouseListener.setListenerComponent(this);
+			treeCell.addMouseListener(mouseListener);
+		}
+		
+		for (var i = treeCellData.length; i < treeCells.length; i++) {
+			treeCells[i]
+				.setStyleProperty("visibility", "hidden");
+		}
+		for (var i = 0; i < treeCellData.length; i++) {
+			var treeCell = treeCells[i];
+			var treeIcon = treeCell.getComponentsByName("icon")[0];
+			var treeText = treeCell.getComponentsByName("text")[0];
+			treeText
+				.setProperty("textContent", treeCellData[i].textContent);
+			var node = rows[i];
+			var leaf = node.isLeaf();
+			var expanded = node.isExpanded();
+			var icon;
+			if (leaf) {
+				icon = cellRenderer.getIcon("leaf");
+			} else if (expanded) {
+				icon = cellRenderer.getIcon("open");
+			} else {
+				icon = cellRenderer.getIcon("closed");
+			}
+			if (icon) {
+				treeIcon
+					.setAttribute("width", 16)
+					.setAttributeNS("http://www.w3.org/1999/xlink", "href", icon.getResource());
+				treeText
+					.setAttribute("x", 18);
+			} else {
+				treeIcon
+					.setAttribute("width", 0)
+					.setAttributeNS("http://www.w3.org/1999/xlink", "href", null);
+				treeText
+					.setAttribute("x", 0);
+			}
+			treeCell
+				.setAttribute("transform", "translate(" + treeCellData[i].x + ", " + treeCellData[i].y + ")")
+				.setStyleProperty("visibility", "visible");
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.lf.TreeViewBorder
+ */
+(function(jsuis) {
+	var SUPER = jsuis.lf.Border;
+	jsuis.lf.TreeViewBorder = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this);
+	});
+	jsuis.Object.addProperties(jsuis.lf.TreeViewBorder, {
+	});
+	jsuis.lf.TreeViewBorder.prototype.getBorderInsets = function(component) {
+		return new jsuis.Insets();
+	}
+	jsuis.lf.TreeViewBorder.prototype.paintBorder = function(component) {
+		var tree = component.getTree();
+		var treeBorder = tree.getBorder();
+		treeBorder.paintBorder(tree);
 	}
 }) (jsuis);
 
@@ -6351,63 +6699,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	jsuis.ToolBar.prototype.addSeparator = function(size) {
 		var peer = this.getPeer();
 		peer.addSeparator(size);
-	}
-}) (jsuis);
-
-/**
- * jsuis.Tree
- */
-(function(jsuis) {
-	var SUPER = jsuis.Panel;
-	jsuis.Tree = jsuis.Object.extend(SUPER, function(model) {
-		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
-		this.setPeer(new jsuis[lookAndFeel].Tree());
-		this.setModel(nvl(model, new jsuis.TreeModel()));
-		this.setCellRenderer(new jsuis.TreeCellRenderer());
-	});
-	jsuis.Object.addPeerProperties(jsuis.Tree, {
-		model: null,
-		cellRenderer: null
-	});
-	jsuis.Tree.prototype.getRoot = function() {
-		var model = this.getModel();
-		return model.getRoot();
-	}
-	jsuis.Tree.prototype.setRoot = function(root) {
-		var model = this.getModel();
-		model.setRoot(root);
-		return this;
-	}
-	jsuis.Tree.prototype.isRootVisible = function() {
-		var peer = this.getPeer();
-		return peer.isRootVisible();
-	}
-	jsuis.Tree.prototype.setRootVisible = function(rootVisible) {
-		var peer = this.getPeer();
-		peer.setRootVisible(rootVisible);
-		return this;
-	}
-	jsuis.Tree.prototype.expandRow = function(row) {
-		var peer = this.getPeer();
-		peer.expandRow(row);
-	}
-	jsuis.Tree.prototype.expandNode = function(node) {
-		var peer = this.getPeer();
-		peer.expandNode(node);
-	}
-	/*
-	jsuis.Tree.prototype.getRowCount = function() {
-		var peer = this.getPeer();
-		return peer.getRowCount();
-	}
-	*/
-	jsuis.Tree.prototype.expandAll = function() {
-		var peer = this.getPeer();
-		peer.expandAll();
-	}
-	jsuis.Tree.prototype.getNodeForLocation = function(x, y) {
-		var peer = this.getPeer();
-		return peer.getNodeForLocation(x, y);
 	}
 }) (jsuis);
 
@@ -7104,8 +7395,9 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	jsuis.lf.Graphics.prototype.setSize = function(size) {
 		SUPER.prototype.setSize.call(this, size);
 		var border = this.getBorder();
-		border = nvl(border, new jsuis.svg.Border());
-		border.paintBorder(this);
+		if (border) {
+			border.paintBorder(this);
+		}
 		return this;
 	}
 	jsuis.lf.Graphics.prototype.setVisible = function(visible) {
@@ -7930,27 +8222,33 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
  * jsuis.lf.Table
  */
 (function(jsuis) {
-	var SUPER = jsuis.lf.Svg;
+	var SUPER = jsuis.lf.Panel;
 	jsuis.lf.Table = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
-		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		// this.setFont(new jsuis.Font("Arial", "normal", 12));
 		this.setRowHeight(16);
 		this.setColumnWidth(64);
+		
+		this.setBorder(new jsuis.lf.TableBorder());
 		
 		var tableView = new jsuis.lf.TableView(this);
 		this.setTableView(tableView);
 		
-		var tableLightweightView = new jsuis.lf.TableLightweightView(this);
-		this.setTableLightweightView(tableLightweightView);
-		this.add(tableLightweightView, new jsuis.GridBagConstraints()
+		this.add(tableView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
 			.setFill(jsuis.Constants.BOTH));
 		
+		var tableLightweightView = new jsuis.lf.TableLightweightView(this);
+		this.setTableLightweightView(tableLightweightView);
+		
 		var tableHeaderView = new jsuis.lf.TableHeaderView(this);
 		this.setTableHeaderView(tableHeaderView);
+		tableHeaderView.setPreferredSize(new jsuis.Dimension(0, this.getRowHeight()));
+		
 		this.add(tableHeaderView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(0).setWeightx(1)
 			.setFill(jsuis.Constants.HORIZONTAL));
+		
 		this.setBorder(new jsuis.lf.TableBorder());
 	});
 	jsuis.Object.addProperties(jsuis.lf.Table, {
@@ -8120,9 +8418,7 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		this.setY(0);
 	});
 	jsuis.Object.addProperties(jsuis.lf.TableHeaderView, {
-		table: null,
-		x: 0,
-		y: 0
+		table: null
 	});
 	jsuis.lf.TableHeaderView.prototype.getPreferredSize = function() {
 		var table = this.getTable();
@@ -8148,7 +8444,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	jsuis.lf.TableLightweightView = jsuis.Object.extend(SUPER, function(table) {
 		SUPER.prototype.constructor.call(this, null);
 		this.setTable(table);
-		this.setBorder(new jsuis.lf.TableLightweightViewBorder());
 		this.setX(0);
 		this.setY(0);
 	});
@@ -8187,9 +8482,7 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 		this.setY(0);
 	});
 	jsuis.Object.addProperties(jsuis.lf.TableView, {
-		table: null,
-		x: 0,
-		y: 0
+		table: null
 	});
 	jsuis.lf.TableView.prototype.getPreferredSize = function() {
 		var table = this.getTable();
@@ -8589,6 +8882,217 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 			var x = width / 2 - line.getThickness() / 2;
 			line.setX1(x).setY1(0).setX2(x).setY2(height);
 		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.lf.Tree
+ */
+(function(jsuis) {
+	var SUPER = jsuis.lf.Panel;
+	jsuis.lf.Tree = jsuis.Object.extend(SUPER, function() {
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		
+		this.setBorder(new jsuis.lf.TreeBorder());
+		
+		var treeView = new jsuis.lf.TreeView(this);
+		this.setTreeView(treeView);
+		this.add(treeView);
+		
+		var treeLightweightView = new jsuis.lf.TreeLightweightView(this);
+		this.setTreeLightweightView(treeLightweightView);
+	});
+	jsuis.Object.addProperties(jsuis.lf.Tree, {
+		treeView: null,
+		treeLightweightView: null,
+		model: null,
+		cellRenderer: null,
+		selection: null
+	});
+	jsuis.lf.Tree.prototype.getRoot = function() {
+		var model = this.getModel();
+		return model.getRoot();
+	}
+	jsuis.lf.Tree.prototype.setRoot = function(root) {
+		var model = this.getModel();
+		model.setRoot(root);
+		return this;
+	}
+	jsuis.lf.Tree.prototype.getRows = function(node, rows) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		if (node === root) {
+			rows = [];
+		}
+		rows.push(node);
+		if (node.isExpanded()) {
+			var children = node.getChildren();
+			if (children) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					this.getRows(child, rows);
+				}
+			}
+		}
+		return rows;
+	}
+	jsuis.lf.Tree.prototype.getRowCount = function(node) {
+		var rowCount = 0;
+		if (!node) {
+			var root = this.getRoot();
+			node = root;
+		}
+		rowCount++;
+		if (node.isExpanded()) {
+			var children = node.getChildren();
+			if (children) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					rowCount += this.getRowCount(child);
+				}
+			}
+		}
+		return rowCount;
+	}
+	jsuis.lf.Tree.prototype.getRowHeight = function() {
+		var cellRenderer = this.getCellRenderer();
+		return cellRenderer.getRowHeight();
+	}
+	jsuis.lf.Tree.prototype.setRowHeight = function(rowHeight) {
+		var cellRenderer = this.getCellRenderer();
+		cellRenderer.setRowHeight(rowHeight);
+		return this;
+	}
+	jsuis.lf.Tree.prototype.validate = function() {
+		
+		return SUPER.prototype.validate.call(this);
+		
+		var x = 0;
+		var y = 0;
+		var cellRenderer = this.getCellRenderer();
+		var model = this.getModel();
+		var rows = this.getRows();
+		for (var i = 0; i < rows.length; i++) {
+			var node = rows[i];
+			/*
+			var component = treeCellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					node.isSelected(), node.isExpanded(), node.isLeaf(), i, node.hasFocus());
+			*/
+			var component = cellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
+					false, node.isExpanded(), node.isLeaf(), i, false);
+			this.add(component);
+			var preferredSize = component.getPreferredSize();
+			node.setSize(preferredSize);
+			var parent = node.getParent();
+			if (parent) {
+				var parentLocation = parent.getLocation();
+				if (parentLocation) {
+					x = parentLocation.getX();
+				}
+				x += 16;
+			}
+			var location = new jsuis.Point(x, y);
+			node.setLocation(location);
+			var preferredHeight = preferredSize.getHeight();
+			y += preferredHeight;
+			component.setSize(node.getSize());
+			component.setLocation(location);
+		}
+		SUPER.prototype.validate.call(this);
+	}
+	
+	jsuis.lf.Tree.prototype.isSelected = function(node) {
+		var selection = this.getSelection();
+		return (node === selection);
+	}
+	jsuis.lf.Tree.prototype.setSelected = function(node) {
+		var selection = this.getSelection();
+		if (selection) {
+			selection.setSelected(false);
+		}
+		this.setSelection(node);
+		if (node) {
+			node.setSelected(true);
+		}
+		return this;
+	}
+	jsuis.lf.Tree.prototype.expandNode = function(node) {
+		node.setExpanded(true);
+	}
+	jsuis.lf.Tree.prototype.expandAll = function(node) {
+		var root = this.getRoot();
+		if (!node) {
+			node = root;
+		}
+		this.expandNode(node);
+		var childCount = node.getChildCount();
+		for (var i = 0; i < childCount; i++) {
+			var child = node.getChildAt(i);
+			this.expandAll(child);
+		}
+	}
+}) (jsuis);
+
+/**
+ * jsuis.lf.TreeLightweightView
+ */
+(function(jsuis) {
+	var SUPER = jsuis.lf.Panel;
+	jsuis.lf.TreeLightweightView = jsuis.Object.extend(SUPER, function(tree) {
+		SUPER.prototype.constructor.call(this, null);
+		this.setTree(tree);
+		this.setX(0);
+		this.setY(0);
+	});
+	jsuis.Object.addProperties(jsuis.lf.TreeLightweightView, {
+		tree: null,
+		x: 0,
+		y: 0
+	});
+	jsuis.lf.TreeLightweightView.prototype.getPreferredSize = function() {
+		var tree = this.getTree();
+		var rowHeight = tree.getRowHeight();
+		var rowCount = tree.getRowCount();
+		return new jsuis.Dimension(0, rowCount * rowHeight);
+	}
+	jsuis.lf.TreeLightweightView.prototype.getViewportSize = function() {
+		var parent = this.getParent();
+		if (parent instanceof jsuis.lf.Viewport) {
+			return parent.getPeer().getSize();
+		}
+		return this.getSize();
+	}
+}) (jsuis);
+
+/**
+ * jsuis.lf.TreeView
+ */
+(function(jsuis) {
+	var SUPER = jsuis.lf.Svg;
+	jsuis.lf.TreeView = jsuis.Object.extend(SUPER, function(tree) {
+		SUPER.prototype.constructor.call(this, null);
+		this.setTree(tree);
+		this.setBorder(new jsuis.lf.TreeViewBorder());
+		this.setX(0);
+		this.setY(0);
+	});
+	jsuis.Object.addProperties(jsuis.lf.TreeView, {
+		tree: null
+	});
+	jsuis.lf.TreeView.prototype.getPreferredSize = function() {
+		var tree = this.getTree();
+		var rowHeight = tree.getRowHeight();
+		var rowCount = tree.getRowCount();
+		return new jsuis.Dimension(0, rowCount * rowHeight);
+	}
+	jsuis.lf.TreeView.prototype.getViewportSize = function() {
+		var parent = this.getParent();
+		if (parent instanceof jsuis.lf.Viewport) {
+			return parent.getPeer().getSize();
+		}
+		return this.getSize();
 	}
 }) (jsuis);
 
@@ -9041,14 +9545,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 						table.setX(-scrollLeft);
 						table.setY(-scrollTop);
 						
-						// TODO: LayoutManager
-						
-						var clientWidth = viewport.getProperty("clientWidth");
-						var columnHeaderViewportSize = columnHeaderViewport.getSize();
-						if (columnHeaderViewportSize.getWidth() !== clientWidth) {
-							columnHeaderViewport.setSize(new jsuis.Dimension(clientWidth, columnHeaderViewport.getHeight()));
-						}
-						
 						var tableBorder = table.getBorder();
 						tableBorder.paintBorder(table);
 					}
@@ -9149,6 +9645,18 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 			lightweightView.setSize(viewPreferredSize);
 		}
 		SUPER.prototype.doLayout.call(this);
+	}
+	jsuis.lf.ScrollPane.prototype.validate = function() {
+		SUPER.prototype.validate.call(this);
+		var viewport = this.getViewport();
+		var clientWidth = viewport.getProperty("clientWidth");
+		var columnHeaderViewport = this.getColumnHeaderViewport();
+		if (columnHeaderViewport) {
+			var columnHeaderViewportSize = columnHeaderViewport.getSize();
+			if (columnHeaderViewportSize.getWidth() !== clientWidth) {
+				columnHeaderViewport.setSize(new jsuis.Dimension(clientWidth, columnHeaderViewport.getHeight()));
+			}
+		}
 	}
 	jsuis.lf.ScrollPane.prototype.getMinimumSize = function() {
 		return new jsuis.Dimension(0, 0);
@@ -9274,126 +9782,6 @@ jsuis.packages["jsuis.lf"] = jsuis.lf;
 	jsuis.lf.TouchEvent.prototype.getY = function() {
 		var point = this.getPoint();
 		return point.getY();
-	}
-}) (jsuis);
-
-/**
- * jsuis.lf.Tree
- */
-(function(jsuis) {
-	var SUPER = jsuis.lf.Graphics;
-	jsuis.lf.Tree = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, null);
-		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
-		this.setCellRenderer(new jsuis.lf.TreeCellRenderer());
-	});
-	jsuis.Object.addProperties(jsuis.lf.Tree, {
-		model: null,
-		cellRenderer: null,
-		selection: null
-	});
-	jsuis.lf.Tree.prototype.getRoot = function() {
-		var model = this.getModel();
-		return model.getRoot();
-	}
-	jsuis.lf.Tree.prototype.setRoot = function(root) {
-		var model = this.getModel();
-		model.setRoot(root);
-		return this;
-	}
-	jsuis.lf.Tree.prototype.getRows = function(node, rows) {
-		var root = this.getRoot();
-		if (!node) {
-			node = root;
-		}
-		if (node === root) {
-			rows = [];
-		}
-		rows.push(node);
-		if (node.isExpanded()) {
-			var children = node.getChildren();
-			if (children) {
-				for (var i = 0; i < children.length; i++) {
-					var child = children[i];
-					this.getRows(child, rows);
-				}
-			}
-		}
-		return rows;
-	}
-	jsuis.lf.Tree.prototype.getRowHeight = function() {
-		var cellRenderer = this.getCellRenderer();
-		return cellRenderer.getRowHeight();
-	}
-	jsuis.lf.Tree.prototype.setRowHeight = function(rowHeight) {
-		var cellRenderer = this.getCellRenderer();
-		cellRenderer.setRowHeight(rowHeight);
-		return this;
-	}
-	jsuis.lf.Tree.prototype.validate = function() {
-		var x = 0;
-		var y = 0;
-		var cellRenderer = this.getCellRenderer();
-		var model = this.getModel();
-		var rows = this.getRows();
-		for (var i = 0; i < rows.length; i++) {
-			var node = rows[i];
-			/*
-			var component = treeCellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
-					node.isSelected(), node.isExpanded(), node.isLeaf(), i, node.hasFocus());
-			*/
-			var component = cellRenderer.getTreeCellRendererComponent(this, node.getUserObject(),
-					false, node.isExpanded(), node.isLeaf(), i, false);
-			this.add(component);
-			var preferredSize = component.getPreferredSize();
-			node.setSize(preferredSize);
-			var parent = node.getParent();
-			if (parent) {
-				var parentLocation = parent.getLocation();
-				if (parentLocation) {
-					x = parentLocation.getX();
-				}
-				x += 16;
-			}
-			var location = new jsuis.Point(x, y);
-			node.setLocation(location);
-			var preferredHeight = preferredSize.getHeight();
-			y += preferredHeight;
-			component.setSize(node.getSize());
-			component.setLocation(location);
-		}
-		SUPER.prototype.validate.call(this);
-	}
-	
-	jsuis.lf.Tree.prototype.isSelected = function(node) {
-		var selection = this.getSelection();
-		return (node === selection);
-	}
-	jsuis.lf.Tree.prototype.setSelected = function(node) {
-		var selection = this.getSelection();
-		if (selection) {
-			selection.setSelected(false);
-		}
-		this.setSelection(node);
-		if (node) {
-			node.setSelected(true);
-		}
-		return this;
-	}
-	jsuis.lf.Tree.prototype.expandNode = function(node) {
-		node.setExpanded(true);
-	}
-	jsuis.lf.Tree.prototype.expandAll = function(node) {
-		var root = this.getRoot();
-		if (!node) {
-			node = root;
-		}
-		this.expandNode(node);
-		var childCount = node.getChildCount();
-		for (var i = 0; i < childCount; i++) {
-			var child = node.getChildAt(i);
-			this.expandAll(child);
-		}
 	}
 }) (jsuis);
 

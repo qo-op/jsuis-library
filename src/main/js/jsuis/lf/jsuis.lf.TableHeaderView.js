@@ -11,9 +11,7 @@
 		this.setY(0);
 	});
 	jsuis.Object.addProperties(jsuis.lf.TableHeaderView, {
-		table: null,
-		x: 0,
-		y: 0
+		table: null
 	});
 	jsuis.lf.TableHeaderView.prototype.getPreferredSize = function() {
 		var table = this.getTable();

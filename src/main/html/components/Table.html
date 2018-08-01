@@ -30,10 +30,11 @@
 		"Fist Name",
 		"Last Name",
 		"Sport",
-		"# of Years",
-		"Vegetarian"
+		// "# of Years",
+		// "Vegetarian"
 	];
 	
+	/*
 	data = [
 		[ "Kathy", "Smith", "Snowboarding", 5, false ],
 		[ "John", "Doe", "Rowing", 3, true ],
@@ -52,12 +53,21 @@
 		[ "", "", "", "", "" ],
 		[ "", "", "", "", "" ],
 	];
+	*/
+	data = [
+		[ "Kathy", "Smith", "Snowboarding" ],
+		[ "John", "Doe", "Rowing" ],
+		[ "Sue", "Black", "Knitting" ],
+		[ "Jane", "White", "Speed reading" ],
+		[ "Joe", "Brown", "Pool" ],
+	];
 	
 	table = new jsuis.Table();
 	table.setColumns(columnNames);
 	table.setValues(data);
 	
-	tableExample.add(new jsuis.ScrollPane(table));
+	// tableExample.add(new jsuis.ScrollPane(table));
+	tableExample.add(table);
 	
 	desktopPane.setVisible(true);
 	

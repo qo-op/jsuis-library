@@ -3,7 +3,7 @@
 	<head>
 		<title>jsuis</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    	<script src="/jsuis.js?20180731212858"></script>
+    	<script src="/jsuis.js?20180805213526"></script>
 	</head>
 	<body style="margin: 0; height: 100vh; overflow: hidden;">
     	<script>
@@ -30,10 +30,11 @@
 		"Fist Name",
 		"Last Name",
 		"Sport",
-		"# of Years",
-		"Vegetarian"
+		// "# of Years",
+		// "Vegetarian"
 	];
 	
+	/*
 	data = [
 		[ "Kathy", "Smith", "Snowboarding", 5, false ],
 		[ "John", "Doe", "Rowing", 3, true ],
@@ -52,12 +53,21 @@
 		[ "", "", "", "", "" ],
 		[ "", "", "", "", "" ],
 	];
+	*/
+	data = [
+		[ "Kathy", "Smith", "Snowboarding" ],
+		[ "John", "Doe", "Rowing" ],
+		[ "Sue", "Black", "Knitting" ],
+		[ "Jane", "White", "Speed reading" ],
+		[ "Joe", "Brown", "Pool" ],
+	];
 	
 	table = new jsuis.Table();
 	table.setColumns(columnNames);
 	table.setValues(data);
 	
-	tableExample.add(new jsuis.ScrollPane(table));
+	// tableExample.add(new jsuis.ScrollPane(table));
+	tableExample.add(table);
 	
 	desktopPane.setVisible(true);
 	

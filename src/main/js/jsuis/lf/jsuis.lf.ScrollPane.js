@@ -51,14 +51,6 @@
 						table.setX(-scrollLeft);
 						table.setY(-scrollTop);
 						
-						// TODO: LayoutManager
-						
-						var clientWidth = viewport.getProperty("clientWidth");
-						var columnHeaderViewportSize = columnHeaderViewport.getSize();
-						if (columnHeaderViewportSize.getWidth() !== clientWidth) {
-							columnHeaderViewport.setSize(new jsuis.Dimension(clientWidth, columnHeaderViewport.getHeight()));
-						}
-						
 						var tableBorder = table.getBorder();
 						tableBorder.paintBorder(table);
 					}
@@ -159,6 +151,18 @@
 			lightweightView.setSize(viewPreferredSize);
 		}
 		SUPER.prototype.doLayout.call(this);
+	}
+	jsuis.lf.ScrollPane.prototype.validate = function() {
+		SUPER.prototype.validate.call(this);
+		var viewport = this.getViewport();
+		var clientWidth = viewport.getProperty("clientWidth");
+		var columnHeaderViewport = this.getColumnHeaderViewport();
+		if (columnHeaderViewport) {
+			var columnHeaderViewportSize = columnHeaderViewport.getSize();
+			if (columnHeaderViewportSize.getWidth() !== clientWidth) {
+				columnHeaderViewport.setSize(new jsuis.Dimension(clientWidth, columnHeaderViewport.getHeight()));
+			}
+		}
 	}
 	jsuis.lf.ScrollPane.prototype.getMinimumSize = function() {
 		return new jsuis.Dimension(0, 0);

@@ -2,7 +2,7 @@
  * jsuis.Tree
  */
 (function(jsuis) {
-	var SUPER = jsuis.Panel;
+	var SUPER = jsuis.Component;
 	jsuis.Tree = jsuis.Object.extend(SUPER, function(model) {
 		var lookAndFeel = jsuis.UIManager.getLookAndFeel();
 		this.setPeer(new jsuis[lookAndFeel].Tree());
@@ -39,12 +39,10 @@
 		var peer = this.getPeer();
 		peer.expandNode(node);
 	}
-	/*
 	jsuis.Tree.prototype.getRowCount = function() {
 		var peer = this.getPeer();
 		return peer.getRowCount();
 	}
-	*/
 	jsuis.Tree.prototype.expandAll = function() {
 		var peer = this.getPeer();
 		peer.expandAll();

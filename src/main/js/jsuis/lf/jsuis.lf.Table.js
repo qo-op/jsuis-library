@@ -2,27 +2,33 @@
  * jsuis.lf.Table
  */
 (function(jsuis) {
-	var SUPER = jsuis.lf.Svg;
+	var SUPER = jsuis.lf.Panel;
 	jsuis.lf.Table = jsuis.Object.extend(SUPER, function() {
 		SUPER.prototype.constructor.call(this, new jsuis.GridBagLayout());
-		this.setFont(new jsuis.Font("Arial", "normal", 12));
+		// this.setFont(new jsuis.Font("Arial", "normal", 12));
 		this.setRowHeight(16);
 		this.setColumnWidth(64);
+		
+		this.setBorder(new jsuis.lf.TableBorder());
 		
 		var tableView = new jsuis.lf.TableView(this);
 		this.setTableView(tableView);
 		
-		var tableLightweightView = new jsuis.lf.TableLightweightView(this);
-		this.setTableLightweightView(tableLightweightView);
-		this.add(tableLightweightView, new jsuis.GridBagConstraints()
+		this.add(tableView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(1).setWeightx(1).setWeighty(1)
 			.setFill(jsuis.Constants.BOTH));
 		
+		var tableLightweightView = new jsuis.lf.TableLightweightView(this);
+		this.setTableLightweightView(tableLightweightView);
+		
 		var tableHeaderView = new jsuis.lf.TableHeaderView(this);
 		this.setTableHeaderView(tableHeaderView);
+		tableHeaderView.setPreferredSize(new jsuis.Dimension(0, this.getRowHeight()));
+		
 		this.add(tableHeaderView, new jsuis.GridBagConstraints()
 			.setGridx(1).setGridy(0).setWeightx(1)
 			.setFill(jsuis.Constants.HORIZONTAL));
+		
 		this.setBorder(new jsuis.lf.TableBorder());
 	});
 	jsuis.Object.addProperties(jsuis.lf.Table, {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="backup" default="backup" basedir=".">
+	
+	<!-- timestamp -->
+	<tstamp><format property="timestamp" pattern="yyyyMMddHHmmss"/></tstamp>
+	
+	<!-- backup -->
+	<property name="backup" value="../backup"/>
+    <mkdir dir="${backup}"/>
+	
+	<!-- backup/temp -->
+	<property name="temp" value="temp"/>
+    <mkdir dir="${backup}/${temp}"/>
+	
+	<!-- backup/temp/zip -->
+	<property name="temp.zip" value="${backup}/${temp}/src-jsuis-${timestamp}.zip"/>
+	
+	<!-- backup/zip -->
+	<property name="backup.zip" value="${backup}/src-jsuis-${timestamp}.zip"/>
+	
+	<!-- zip -->
+	<target name="backup">
+		<zip destfile="${temp.zip}">
+			<zipfileset dir="../jsuis" prefix="jsuis" excludes="target/**,.git/**"/>
+			<zipfileset dir="../jsuis-library" prefix="jsuis-library" excludes="target/**,.git/**"/>
+		</zip>
+		<move file="${temp.zip}" tofile="${backup.zip}"/>
+	</target>
+	
+</project>

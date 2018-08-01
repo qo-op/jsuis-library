@@ -2,13 +2,22 @@
  * jsuis.lf.Tree
  */
 (function(jsuis) {
-	var SUPER = jsuis.lf.Graphics;
+	var SUPER = jsuis.lf.Panel;
 	jsuis.lf.Tree = jsuis.Object.extend(SUPER, function() {
-		SUPER.prototype.constructor.call(this, null);
-		this.setBackground(jsuis.Color.Black.withAlpha(.1 * 255));
-		this.setCellRenderer(new jsuis.lf.TreeCellRenderer());
+		SUPER.prototype.constructor.call(this, new jsuis.BorderLayout());
+		
+		this.setBorder(new jsuis.lf.TreeBorder());
+		
+		var treeView = new jsuis.lf.TreeView(this);
+		this.setTreeView(treeView);
+		this.add(treeView);
+		
+		var treeLightweightView = new jsuis.lf.TreeLightweightView(this);
+		this.setTreeLightweightView(treeLightweightView);
 	});
 	jsuis.Object.addProperties(jsuis.lf.Tree, {
+		treeView: null,
+		treeLightweightView: null,
 		model: null,
 		cellRenderer: null,
 		selection: null
@@ -42,6 +51,24 @@
 		}
 		return rows;
 	}
+	jsuis.lf.Tree.prototype.getRowCount = function(node) {
+		var rowCount = 0;
+		if (!node) {
+			var root = this.getRoot();
+			node = root;
+		}
+		rowCount++;
+		if (node.isExpanded()) {
+			var children = node.getChildren();
+			if (children) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					rowCount += this.getRowCount(child);
+				}
+			}
+		}
+		return rowCount;
+	}
 	jsuis.lf.Tree.prototype.getRowHeight = function() {
 		var cellRenderer = this.getCellRenderer();
 		return cellRenderer.getRowHeight();
@@ -52,6 +79,9 @@
 		return this;
 	}
 	jsuis.lf.Tree.prototype.validate = function() {
+		
+		return SUPER.prototype.validate.call(this);
+		
 		var x = 0;
 		var y = 0;
 		var cellRenderer = this.getCellRenderer();

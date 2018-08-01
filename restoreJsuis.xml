@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="restore" default="restore" basedir=".">
+	
+	<!-- restore -->
+	<property name="restore" value="../backup/restore"/>
+	
+	<!-- from -->
+    <fileset id="restore.zip" dir="${restore}">
+        <include name="src-jsuis-??????????????.zip"/>
+    </fileset>
+	
+	<!-- one zip -->
+	<target name="restore.zip.single">
+		<resourcecount property="restore.zip.count">
+			<fileset refid="restore.zip"/>
+		</resourcecount>
+		<condition property="restore.zip.single">
+			<equals arg1="${restore.zip.count}" arg2="1"/>
+		</condition>
+	</target>
+	
+	<!-- log -->
+	<target unless="restore.zip.single" name="log">
+		<echo message="There are ${restore.zip.count} src-jsuis-....zip's in ${restore}."/>
+		<echo message="In order to restore, a single src-jsuis-....zip is expected."/>
+		<echo message="Restore is not possible!"/>
+	</target>
+	
+	<!-- clean -->
+	<target if="restore.zip.single" name="clean">
+        <delete>
+    		<fileset dir="../jsuis" excludes=".git/**,target/**"/>
+    		<fileset dir="../jsuis-library" excludes=".git/**,target/**"/>
+   		</delete>
+    </target>
+	
+	<!-- restore/done -->
+	<property name="done" value="done"/>
+    <mkdir dir="${restore}/${done}"/>
+	
+	<!-- unzip -->
+	<target if="restore.zip.single" name="unzip">
+		<unzip dest="..">
+			<fileset refid="restore.zip"/>
+		</unzip>
+		<move todir="${restore}/${done}">
+			<fileset refid="restore.zip"/>
+		</move>
+	</target>
+	
+	<target depends="restore.zip.single,log,clean,unzip" name="restore">
+	</target>
+	
+</project>
