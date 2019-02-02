@@ -34,18 +34,32 @@ class JSImageIcon extends JSHTMLComponent {
     getWidth(): number {
         return this.width || +this.getAttribute("width");
     }
-    setWidth(width: number) {
-        this.oldWidth = this.width;
-        this.setAttribute("width", "" + width);
-        this.width = width;
+    setWidth(width: number): void;
+    setWidth(width: string): void;
+    // overload
+    setWidth(width: number | string) {
+        if (typeof width === "number") {
+            this.oldWidth = this.width;
+            this.setAttribute("width", "" + width);
+            this.width = width;
+        } else {
+            this.setAttribute("width", width);
+        }
     }
     getHeight(): number {
         return this.height || +this.getAttribute("height");
     }
-    setHeight(height: number) {
-        this.oldHeight = this.height;
-        this.setAttribute("height", "" + height);
-        this.height = height;
+    setHeight(height: number): void;
+    setHeight(height: string): void;
+    // overload
+    setHeight(height: number | string) {
+        if (typeof height === "number") {
+            this.oldHeight = this.height;
+            this.setAttribute("height", "" + height);
+            this.height = height;
+        } else {
+            this.setAttribute("height", height);
+        }
     }
     getPreferredWidth(): number {
         var preferredWidth: string = this.getAttribute("data-preferred-width");

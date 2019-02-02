@@ -14,6 +14,7 @@ class JSPanel extends JSHTMLComponent {
             this.setLayout(elementOrLayout);
         }
         this.setStyle("display", "inline-block");
+        this.setStyle("font-size", "0");
     }
     init(): void {
         this.addClass("JSPanel");

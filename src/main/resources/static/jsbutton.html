@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>How to create buttons with JSUIS library</title>
+<script src="/js/lib/jsuis.js"></script>
+</head>
+<body>
+<script>
+	addEventListener("load", function() {
+		var frame = new JSFrame();
+		var north = new JSPanel();
+		frame.add(north, JSBorderLayout.NORTH);
+		var jsuisLabel = new JSLabel("JSUIS - JavaScript User Interface", JSLabel.CENTER);
+		jsuisLabel.setStyle("width", "100%")
+		north.add(jsuisLabel);
+		var splitPane = new JSSplitPane();
+		frame.add(splitPane);
+		var root = new JSTreeNode("JSUIS library");
+		var panelTreeNode = new JSTreeNode("How to create panels");
+		root.add(panelTreeNode);
+		var buttonTreeNode = new JSTreeNode("How to create buttons");
+		root.add(buttonTreeNode);
+		var tree = new JSTree(root);
+		tree.setForeground("blue");
+		tree.setStyle("margin-left", "-20px");
+		tree.setRootVisible(false);
+		splitPane.setLeftComponent(tree);
+		var panel = new JSPanel();
+		splitPane.setRightComponent(panel);
+		frame.setVisible(true);
+	});
+</script>
+</body>
+</html>

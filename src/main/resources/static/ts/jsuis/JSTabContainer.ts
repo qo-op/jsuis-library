@@ -26,20 +26,20 @@ class JSTabContainer extends JSHTMLComponent {
         this.setBackground("#BFBFBF");
         switch (tabPlacement) {
         case JSTabContainer.RIGHT:
-            this.setLayout(new JSFlowLayout(JSFlowLayout.RIGHT_TO_LEFT, JSFlowLayout.TOP));
+            // this.setLayout(new JSFlowLayout(JSFlowLayout.RIGHT_TO_LEFT, JSFlowLayout.TOP));
             this.setStyle("padding", "1px 0");
             break;
         case JSTabContainer.LEFT:
-            this.setLayout(new JSFlowLayout(JSFlowLayout.LEFT_TO_RIGHT, JSFlowLayout.TOP));
+            // this.setLayout(new JSFlowLayout(JSFlowLayout.LEFT_TO_RIGHT, JSFlowLayout.TOP));
             this.setStyle("padding", "1px 0");
             break;
         case JSTabContainer.BOTTOM:
-            this.setLayout(new JSFlowLayout(JSFlowLayout.BOTTOM_TO_TOP, JSFlowLayout.LEFT));
+            // this.setLayout(new JSFlowLayout(JSFlowLayout.BOTTOM_TO_TOP, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
             break;
         case JSTabContainer.TOP:
         default:
-            this.setLayout(new JSFlowLayout(JSFlowLayout.TOP_TO_BOTTOM, JSFlowLayout.LEFT));
+            // this.setLayout(new JSFlowLayout(JSFlowLayout.TOP_TO_BOTTOM, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
         }
     }
@@ -190,11 +190,13 @@ class JSTabContainer extends JSHTMLComponent {
                 constraints = { anchor: JSFlowLayout.WEST };
                 break;
             case JSTabContainer.BOTTOM:
-                constraints = { anchor: JSFlowLayout.SOUTHEAST };
+                // constraints = { anchor: JSFlowLayout.SOUTHEAST };
+                button.setStyle("float", "right");
                 break;
             case JSTabContainer.TOP:
             default:
-                constraints = { anchor: JSFlowLayout.NORTHEAST };
+                // constraints = { anchor: JSFlowLayout.NORTHEAST };
+                button.setStyle("float", "right");
             }
         }
         this.add(button, constraints);

@@ -15,30 +15,58 @@ class JSHTMLComponent extends JSComponent {
     getX(): number {
         return +this.getComputedStyle("left").replace("px", "");
     }
-    setX(x: number) {
-        this.setStyle("left", x + "px");
+    setX(x: number): void;
+    setX(x: string): void;
+    // overload;
+    setX(x: number | string): void {
+        if (typeof x === "number") {
+            this.setStyle("left", x + "px");
+        } else {
+            this.setStyle("left", x);
+        }
     }
     getY(): number {
         return +this.getComputedStyle("top").replace("px", "");
     }
-    setY(y: number) {
-        this.setStyle("top", y + "px");
+    setY(y: number): void;
+    setY(y: string): void;
+    // overload;
+    setY(y: number | string): void {
+        if (typeof y === "number") {
+            this.setStyle("top", y + "px");
+        } else {
+            this.setStyle("top", y);
+        }
     }
     getWidth(): number {
         return this.width || this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
     }
-    setWidth(width: number) {
-        this.oldWidth = this.width;
-        this.setStyle("width", width + "px");
-        this.width = width;
+    setWidth(width: number): void;
+    setWidth(width: string): void;
+    // overload
+    setWidth(width: number | string): void {
+        if (typeof width === "number") {
+            this.oldWidth = this.width;
+            this.setStyle("width", width + "px");
+            this.width = width;
+        } else {
+            this.setStyle("width", width);
+        }
     }
     getHeight(): number {
         return this.height || this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
     }
-    setHeight(height: number) {
-        this.oldHeight = this.height;
-        this.setStyle("height", height + "px");
-        this.height = height;
+    setHeight(height: number): void;
+    setHeight(height: string): void;
+    // overload
+    setHeight(height: number | string): void {
+        if (typeof height === "number") {
+            this.oldHeight = this.height;
+            this.setStyle("height", height + "px");
+            this.height = height;
+        } else {
+            this.setStyle("height", height);
+        }
     }
     getOuterWidth(): number {
         return this.getWidth() +

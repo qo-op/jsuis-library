@@ -38,8 +38,6 @@ dependencies {
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	compile 'com.google.appengine:appengine-api-1.0-sdk:+'  // Latest App Engine Api's
-	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
-	compile 'jstl:jstl:1.2'
 }
 
 appengine {  // App Engine tasks configuration

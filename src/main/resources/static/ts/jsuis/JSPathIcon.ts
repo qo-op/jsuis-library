@@ -38,10 +38,10 @@ class JSPathIcon extends JSHTMLComponent {
                 }
             }
         }
+        this.setStyle("display", "inline-block");
     }
     init(): void {
         this.addClass("JSPathIcon");
-        this.setStyle("display", "inline-block");
     }
     getGraphics(): JSGraphics {
         return this.getData("graphics");
@@ -55,15 +55,29 @@ class JSPathIcon extends JSHTMLComponent {
     setPath(path: JSPath) {
         this.setData("path", path);
     }
-    setWidth(width: number) {
+    setWidth(width: number): void;
+    setWidth(width: string): void;
+    // overload
+    setWidth(width: number | string): void {
         var graphics: JSGraphics = this.getGraphics();
-        graphics.setWidth(width);
-        super.setWidth(width);
+        if (typeof width === "number") {
+            graphics.setWidth(width);
+            super.setWidth(width);
+        } else {
+            graphics.setWidth(width);
+            super.setWidth(width);
+        }
     }
-    setHeight(height: number) {
+    setHeight(height: number): void;
+    setHeight(height: string): void;
+    // overload
+    setHeight(height: number | string): void {
         var graphics: JSGraphics = this.getGraphics();
-        graphics.setHeight(height);
-        super.setHeight(height);
+        if (typeof height === "number") {
+            graphics.setHeight(height);
+        } else {
+            graphics.setHeight(height);
+        }
     }
     getPathDefinition(): string {
         var path: JSPath = this.getPath();

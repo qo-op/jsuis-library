@@ -129,7 +129,13 @@ class JSTree extends JSHTMLComponent {
         this.removeAll();
         this.load(this.getRoot());
         this.pad(this, this.isRootVisible() ? 4 : -8);
-        this.setVisible(true);
+        var components: JSComponent[] = this.getComponents();
+        var rootTreeCell: JSTreeCell = <JSTreeCell> components[0];
+        var rootVisible: boolean = this.isRootVisible();
+        rootTreeCell.getBranchIcon().setPathDefinition(JSTreeCell.EXPANDED_PATH_DEFINITION);
+        rootTreeCell.setStyle("display", rootVisible ? "" : "none");
+        var rootContainer: JSComponent = components[1];
+        rootContainer.setStyle("display", "");
     }
     load(treeNode: JSTreeNode): void {
         this.addTreeNode(treeNode);
@@ -154,16 +160,5 @@ class JSTree extends JSHTMLComponent {
                 this.pad(component, padding + 12);
             }
         }
-    }
-    setVisible(visible: boolean) {
-        if (visible) {
-            var components: JSComponent[] = this.getComponents();
-            var rootTreeCell: JSComponent = components[0];
-            var rootVisible: boolean = this.isRootVisible();
-            rootTreeCell.setStyle("display", rootVisible ? "" : "none");
-            var rootContainer: JSComponent = components[1];
-            rootContainer.setStyle("display", "");
-        }
-        super.setVisible(visible);
     }
 }

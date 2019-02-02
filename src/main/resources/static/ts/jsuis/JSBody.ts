@@ -19,6 +19,8 @@ class JSBody extends JSHTMLComponent {
         var graphics: JSGraphics = this.getGraphics();
         if (!graphics) {
             graphics = new JSGraphics();
+            graphics.setHeight(0);
+            graphics.setStyle("position", "absolute");
             this.add(graphics);
             this.setGraphics(graphics);
         }

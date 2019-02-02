@@ -24,30 +24,50 @@ class JSSVGComponent extends JSComponent {
     getX(): number {
         return +this.getAttribute("x");
     }
-    setX(x: number) {
+    setX(x: number): void;
+    setX(x: string): void;
+    // overload
+    setX(x: number | string): void {
         this.setAttribute("x", "" + x);
     }
     getY(): number {
         return +this.getAttribute("y");
     }
-    setY(y: number) {
+    setY(y: number): void;
+    setY(y: string): void;
+    // overload
+    setY(y: number | string): void {
         this.setAttribute("y", "" + y);
     }
     getWidth(): number {
         return this.width || this.element.getBoundingClientRect().width;
     }
-    setWidth(width: number) {
-        this.oldWidth = this.width;
-        this.setAttribute("width", "" + width);
-        this.width = width;
+    setWidth(width: number): void;
+    setWidth(width: string): void;
+    // overload
+    setWidth(width: number | string): void {
+        if (typeof width === "number") {
+            this.oldWidth = this.width;
+            this.setAttribute("width", "" + width);
+            this.width = width;
+        } else {
+            this.setAttribute("width", width);
+        }
     }
     getHeight(): number {
         return this.height || this.element.getBoundingClientRect().height;
     }
-    setHeight(height: number) {
-        this.oldHeight = this.height;
-        this.setAttribute("height", "" + height);
-        this.height = height;
+    setHeight(height: number): void;
+    setHeight(height: string): void;
+    // overload
+    setHeight(height: number | string): void {
+        if (typeof height === "number") {
+            this.oldHeight = this.height;
+            this.setAttribute("height", "" + height);
+            this.height = height;
+        } else {
+            this.setAttribute("height", height);
+        }
     }
     getOuterWidth(): number {
         return this.getWidth();

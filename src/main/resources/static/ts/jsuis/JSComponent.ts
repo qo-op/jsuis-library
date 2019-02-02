@@ -128,12 +128,18 @@ class JSComponent {
     getX(): number {
         return 0;
     }
-    setX(x: number) {
+    setX(x: number): void;
+    setX(x: string): void;
+    // overload
+    setX(x: number | string): void {
     }
     getY(): number {
         return 0;
     }
-    setY(y: number) {
+    setY(y: number): void;
+    setY(y: string): void;
+    // overload
+    setY(y: number | string): void {
     }
     
     width: number = 0;
@@ -144,16 +150,26 @@ class JSComponent {
     getWidth(): number {
         return this.width;
     }
-    setWidth(width: number) {
-        this.oldWidth = this.width;
-        this.width = width;
+    setWidth(width: number): void;
+    setWidth(width: string): void;
+    // overload
+    setWidth(width: number | string): void {
+        if (typeof width === "number") {
+            this.oldWidth = this.width;
+            this.width = width;
+        }
     }
     getHeight(): number {
         return this.height;
     }
-    setHeight(height: number) {
-        this.oldHeight = this.height;
-        this.height = height;
+    setHeight(height: number): void;
+    setHeight(height: string): void;
+    // overload
+    setHeight(height: number | string): void {
+        if (typeof height === "number") {
+            this.oldHeight = this.height;
+            this.height = height;
+        }
     }
     
     getOuterWidth(): number {

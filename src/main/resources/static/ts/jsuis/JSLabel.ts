@@ -18,11 +18,12 @@ class JSLabel extends JSHTMLComponent {
                 this.setStyle("text-align", horizontalAlignment);
             }
         }
+        // this.setStyle("display", "inline-block");
+        this.setStyle("font-size", "medium");
+        this.setStyle("white-space", "nowrap");
     }
     init(): void {
         this.addClass("JSLabel");
-        this.setStyle("display", "inline-block");
-        this.setStyle("white-space", "nowrap");
     }
     getFor(): string {
         return this.getAttribute("for");
