@@ -101,13 +101,13 @@ class JSTabbedPane extends JSHTMLComponent {
     addTab(iconOrTitle: JSComponent | string, componentOrIcon: JSComponent, component?: JSComponent): JSComponent {
         if (iconOrTitle instanceof JSComponent) {
             // addTab(icon: JSComponent, component: JSComponent): JSComponent;
-            return this._addTab(false, iconOrTitle, componentOrIcon);
+            return this._addTab(iconOrTitle, componentOrIcon, false);
         } else if (component === undefined) {
             // addTab(title: string, component: JSComponent): JSComponent;
-            return this._addTab(false, iconOrTitle, componentOrIcon);
+            return this._addTab(iconOrTitle, componentOrIcon, false);
         } else {
             // addTab(title: string, icon: JSComponent, component: JSComponent): JSComponent;
-            return this._addTab(false, iconOrTitle, componentOrIcon, component);
+            return this._addTab(iconOrTitle, componentOrIcon, component, false);
         }
     }
     addCloseableTab(icon: JSComponent, component: JSComponent): JSComponent;
@@ -117,34 +117,49 @@ class JSTabbedPane extends JSHTMLComponent {
     addCloseableTab(iconOrTitle: JSComponent | string, componentOrIcon: JSComponent, component?: JSComponent): JSComponent {
         if (iconOrTitle instanceof JSComponent) {
             // addTab(icon: JSComponent, component: JSComponent): JSComponent;
-            return this._addTab(true, iconOrTitle, componentOrIcon);
+            return this._addTab(iconOrTitle, componentOrIcon, true);
         } else if (component === undefined) {
             // addTab(title: string, component: JSComponent): JSComponent;
-            return this._addTab(true, iconOrTitle, componentOrIcon);
+            return this._addTab(iconOrTitle, componentOrIcon, true);
         } else {
             // addTab(title: string, icon: JSComponent, component: JSComponent): JSComponent;
-            return this._addTab(true, iconOrTitle, componentOrIcon, component);
+            return this._addTab(iconOrTitle, componentOrIcon, component, true);
         }
     }
-    _addTab(closeable: boolean, icon: JSComponent, component: JSComponent): JSComponent;
-    _addTab(closeable: boolean, title: string, component: JSComponent): JSComponent;
-    _addTab(closeable: boolean, title: string, icon: JSComponent, component: JSComponent): JSComponent;
+    _addTab(icon: JSComponent, component: JSComponent, closeable: boolean): JSComponent;
+    _addTab(title: string, component: JSComponent, closeable: boolean): JSComponent;
+    _addTab(title: string, icon: JSComponent, component: JSComponent, closeable: boolean): JSComponent;
     // overload
-    _addTab(closeable: boolean, iconOrTitle: JSComponent | string, componentOrIcon: JSComponent, component?: JSComponent): JSComponent {
+    _addTab(iconOrTitle: JSComponent | string, componentOrIcon: JSComponent, closeableOrComponent: boolean | JSComponent, closeable?: boolean): JSComponent {
+        var icon: JSComponent;
+        var title: string;
+        var component: JSComponent;
         if (iconOrTitle instanceof JSComponent) {
+            // _addTab(icon: JSComponent, component: JSComponent, closeable: boolean): JSComponent;
+            icon = iconOrTitle;
             component = componentOrIcon;
-        } else if (component === undefined) {
-            component = componentOrIcon;
+            closeable = <boolean> closeableOrComponent;
+        } else {
+            // _addTab(title: string, component: JSComponent, closeable: boolean): JSComponent;
+            // _addTab(title: string, icon: JSComponent, component: JSComponent, closeable: boolean): JSComponent;
+            title = iconOrTitle
+            if (closeable === undefined) {
+                component = componentOrIcon;
+                closeable = <boolean> closeableOrComponent;
+            } else {
+                icon = componentOrIcon;
+                component = <JSComponent> closeableOrComponent;
+            }
         }
         var componentContainer: JSPanel = this.getComponentContainer();
         componentContainer.add(component);
         var tabContainer: JSTabContainer = this.getTabContainer();
-        if (iconOrTitle instanceof JSComponent) {
-            return tabContainer.addTab(closeable, iconOrTitle);
-        } else if (componentOrIcon === component) {
-            return tabContainer.addTab(closeable, iconOrTitle);
+        if (!title) {
+            return tabContainer.addTab(icon, closeable);
+        } else if (!icon) {
+            return tabContainer.addTab(title, closeable);
         } else {
-            return tabContainer.addTab(closeable, iconOrTitle, componentOrIcon);
+            return tabContainer.addTab(title, icon, closeable);
         }
     }
     removeTabAt(index: number): void {

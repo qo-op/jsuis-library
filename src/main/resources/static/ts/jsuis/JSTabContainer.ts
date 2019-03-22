@@ -42,6 +42,7 @@ class JSTabContainer extends JSHTMLComponent {
             // this.setLayout(new JSFlowLayout(JSFlowLayout.TOP_TO_BOTTOM, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
         }
+        this.setStyle("font-size", "0");
     }
     init(): void {
         this.addClass("JSTabContainer");
@@ -66,6 +67,21 @@ class JSTabContainer extends JSHTMLComponent {
         }
         return tabComponents;
     }
+    
+    getPreferredWidth(): number {
+        var _preferredWidth: string = this.getAttribute("data-preferred-width");
+        if (_preferredWidth) {
+            return +_preferredWidth;
+        }
+        var preferredWidth: number = 0;
+        var tabComponents: JSComponent[] = this.getData("tabComponents");
+        for (var i: number = 0; i < tabComponents.length; i++) {
+            var tabComponent: JSComponent = tabComponents[i];
+            preferredWidth = Math.max(preferredWidth, tabComponent.getPreferredWidth());
+        }
+        return preferredWidth;
+    }
+    
     getTabCount(): number {
         var tabComponents: JSComponent[] = this.getTabComponents();
         return tabComponents.length;
@@ -78,28 +94,35 @@ class JSTabContainer extends JSHTMLComponent {
         var tabComponents: JSComponent[] = this.getTabComponents();
         return tabComponents.indexOf(tabComponent);
     }
-    addTab(closeable: boolean, icon: JSComponent): JSComponent;
-    addTab(closeable: boolean, title: string): JSComponent;
-    addTab(closeable: boolean, title: string, icon: JSComponent): JSComponent;
+    addTab(icon: JSComponent, closeable: boolean): JSComponent;
+    addTab(title: string, closeable: boolean): JSComponent;
+    addTab(title: string, icon: JSComponent, closeable: boolean): JSComponent;
     // overload
-    addTab(closeable: boolean, iconOrTitle: JSComponent | string, icon?: JSComponent): JSComponent {
+    addTab(iconOrTitle: JSComponent | string, closeableOrIcon?: boolean | JSComponent, closeable?: boolean): JSComponent {
+        var icon: JSComponent;
         var title: string;
         if (iconOrTitle instanceof JSComponent) {
-            // addCloseableTab(closeable: boolean, icon: JSComponent): JSComponent;
+            // addTab(icon: JSComponent, closeable: boolean): JSComponent;
             icon = iconOrTitle;
+            closeable = <boolean> closeableOrIcon;
         } else {
-            // addCloseableTab(closeable: boolean, title: string): JSComponent;
-            // addCloseableTab(closeable: boolean, title: string, icon: JSComponent): JSComponent;
+            // addTab(title: string, closeable: boolean): JSComponent;
+            // addTab(title: string, icon: JSComponent, closeable: boolean): JSComponent;
             title = iconOrTitle;
+            if (closeable === undefined) {
+                closeable = <boolean> closeableOrIcon;
+            } else {
+                icon = <JSComponent> closeableOrIcon;
+            }
         }
         var tabComponent: JSComponent;
         var tabPlacement: string = this.getTabPlacement();
         if (!title) {
-            tabComponent = new JSTab(closeable, tabPlacement, icon);
+            tabComponent = new JSTab(tabPlacement, icon, closeable);
         } else if (!icon) {
-            tabComponent = new JSTab(closeable, tabPlacement, title);
+            tabComponent = new JSTab(tabPlacement, title, closeable);
         } else {
-            tabComponent = new JSTab(closeable, tabPlacement, title, icon);
+            tabComponent = new JSTab(tabPlacement, title, icon, closeable);
         }
         var tabSelection: JSSelection = this.getTabSelection();
         tabSelection.add(tabComponent);

@@ -166,13 +166,15 @@ class JSSplitPane extends JSHTMLComponent {
             divider.setY(dividerLocation);
             rightContainer.setY(dividerLocation + dividerSize);
             leftContainer.setOuterHeight(dividerLocation);
-            rightContainer.setOuterHeight(height - dividerLocation - dividerSize);
+            // rightContainer.setOuterHeight(height - dividerLocation - dividerSize);
+            rightContainer.setHeight("calc(100% - " + (dividerLocation + dividerSize) + "px)");
         } else {
             var width: number = this.getWidth();
             divider.setX(dividerLocation);
             rightContainer.setX(dividerLocation + dividerSize);
             leftContainer.setOuterWidth(dividerLocation);
-            rightContainer.setOuterWidth(width - dividerLocation - dividerSize);
+            // rightContainer.setOuterWidth(width - dividerLocation - dividerSize);
+            rightContainer.setWidth("calc(100% - " + (dividerLocation + dividerSize) + "px)");
         }
     }
     getMinimumDividerLocation(): number {

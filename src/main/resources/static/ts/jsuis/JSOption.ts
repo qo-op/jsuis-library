@@ -22,7 +22,7 @@ class JSOption extends JSHTMLComponent {
         return (<HTMLOptionElement> this.element).text;
     }
     setText(text: string) {
-        (<HTMLOptionElement> this.element).text = text;
+        (<HTMLOptionElement> this.element).text = "" + text;
     }
     getValue(): string {
         return (<HTMLOptionElement> this.element).value;

@@ -12,7 +12,6 @@ class JSTableHeaderCell extends JSHTMLComponent {
         var div: JSDiv = this.getDiv();
         if (!div) {
             div = new JSDiv();
-            div.setStyle("outline", "1px solid gray");
             this.add(div);
             this.setDiv(div);
         }
@@ -20,6 +19,8 @@ class JSTableHeaderCell extends JSHTMLComponent {
             // constructor(text: string);
             div.setText(elementOrText);
         }
+        this.setStyle("outline", "1px solid gray");
+        this.setStyle("outline-offset", "-1px");
     }
     init(): void {
         this.addClass("JSTableHeaderCell");

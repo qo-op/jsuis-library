@@ -17,6 +17,7 @@ class JSScrollPaneLayout extends JSLayout {
         }
         return preferredLayoutHeight;
     }
+    /*
     layoutContainer(scrollPane: JSScrollPane): void {
         var viewportView: JSComponent = scrollPane.getViewportView();
         if (viewportView && viewportView.isDisplayable()) {
@@ -54,4 +55,5 @@ class JSScrollPaneLayout extends JSLayout {
             }
         }
     }
+    */
 }

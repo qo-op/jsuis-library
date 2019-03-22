@@ -3,12 +3,17 @@ class JSCheckBox extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLInputElement);
+    constructor(selected: boolean);
     // overload
-    constructor(element?: HTMLInputElement) {
+    constructor(elementOrSelected?: HTMLInputElement | boolean) {
         // constructor();
         // constructor(element: HTMLInputElement);
-        super(element === undefined ? document.createElement("input") : element);
+        super(elementOrSelected === undefined || !(elementOrSelected instanceof HTMLInputElement) ? document.createElement("input") : elementOrSelected);
         this.setAttribute("type", "checkbox");
+        if (elementOrSelected !== undefined && !(elementOrSelected instanceof HTMLInputElement)) {
+            // constructor(selected: boolean);
+            this.setAttribute("checked", "" + elementOrSelected);
+        }
     }
     init(): void {
         this.addClass("JSCheckBox");

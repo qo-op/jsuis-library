@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTree;
 
 public class Test {
 
@@ -23,6 +24,11 @@ public class Test {
 		
 		JLabel label2 = new JLabel("Hello World2!");
 		panel.add(label2);
+		
+		JTree tree = new JTree();
+		panel.add(tree);
+		
+		System.out.println(tree.isRootVisible());
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(800, 600));

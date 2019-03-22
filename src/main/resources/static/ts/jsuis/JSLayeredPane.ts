@@ -21,4 +21,7 @@ class JSLayeredPane extends JSHTMLComponent {
     init(): void {
         this.addClass("JSLayeredPane");
     }
+    setLayer(component: JSComponent, layer: number) {
+        component.setZIndex(layer);
+    }
 }

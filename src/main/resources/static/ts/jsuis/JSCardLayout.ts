@@ -41,10 +41,12 @@ class JSCardLayout extends JSLayout {
             if (!component.isDisplayable()) {
                 continue;
             }
-            component.setOuterWidth(width);
-            component.setOuterHeight(height);
-            component.setX(x);
-            component.setY(y);
+            // component.setOuterWidth(width);
+            component.setWidth("100%");
+            // component.setOuterHeight(height);
+            component.setHeight("100%");
+            // component.setX(x);
+            // component.setY(y);
         }
         var selected = this.getSelected();
         if (!selected) {

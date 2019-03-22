@@ -3,45 +3,48 @@ class JSTab extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
-    constructor(closeable: boolean, tabPlacement: string, icon: HTMLImageElement);
-    constructor(closeable: boolean, tabPlacement: string, icon: JSComponent);
-    constructor(closeable: boolean, tabPlacement: string, text: string);
-    constructor(closeable: boolean, tabPlacement: string, text: string, icon: HTMLImageElement);
-    constructor(closeable: boolean, tabPlacement: string, text: string, icon: JSComponent);
+    constructor(tabPlacement: string, icon: HTMLImageElement, closeable: boolean);
+    constructor(tabPlacement: string, icon: JSComponent, closeable: boolean);
+    constructor(tabPlacement: string, text: string, closeable: boolean);
+    constructor(tabPlacement: string, text: string, icon: HTMLImageElement, closeable: boolean);
+    constructor(tabPlacement: string, text: string, icon: JSComponent, closeable: boolean);
     // overload
-    constructor(elementOrCloseable?: HTMLDivElement | boolean,
-            tabPlacement?: string,
+    constructor(elementOrTabPlacement?: HTMLDivElement | string,
             iconOrText?: HTMLImageElement | JSComponent | string,
-            icon?: HTMLImageElement | JSComponent) {
+            closeableOrIcon?: boolean | HTMLImageElement | JSComponent,
+            closeable?: boolean) {
         // constructor();
         // constructor(element: HTMLDivElement);
-        super(elementOrCloseable === undefined || !(elementOrCloseable instanceof HTMLDivElement) ? document.createElement("div") : elementOrCloseable);
+        super(elementOrTabPlacement === undefined || !(elementOrTabPlacement instanceof HTMLDivElement) ? document.createElement("div") : elementOrTabPlacement);
         var container: JSPanel = this.getContainer();
         if (!container) {
             container = new JSPanel();
             this.add(container);
             this.setContainer(container);
         }
-        if (elementOrCloseable !== undefined && !(elementOrCloseable instanceof HTMLDivElement)) {
-            this.setTabPlacement(tabPlacement);
-            this.setCloseable(elementOrCloseable);
+        if (elementOrTabPlacement !== undefined && !(elementOrTabPlacement instanceof HTMLDivElement)) {
+            this.setTabPlacement(elementOrTabPlacement);
             if (iconOrText instanceof HTMLImageElement) {
-                // constructor(closeable: boolean, tabPlacement: string, icon: HTMLImageElement);
+                // constructor(tabPlacement: string, icon: HTMLImageElement);
                 this.setIcon(new JSImageIcon(iconOrText));
+                this.setCloseable(<boolean> closeableOrIcon);
             } else if (iconOrText instanceof JSComponent) {
-                // constructor(closeable: boolean, tabPlacement: string, icon: JSComponent);
+                // constructor(tabPlacement: string, icon: JSComponent);
                 this.setIcon(iconOrText);
+                this.setCloseable(<boolean> closeableOrIcon);
             } else {
-                // constructor(closeable: boolean, tabPlacement: string, text: string);
-                // constructor(closeable: boolean, tabPlacement: string, text: string, icon: HTMLImageElement);
-                // constructor(closeable: boolean, tabPlacement: string, text: string, icon: JSComponent);
+                // constructor(tabPlacement: string, text: string, closeable: boolean);
+                // constructor(tabPlacement: string, text: string, icon: HTMLImageElement, closeable: boolean);
+                // constructor(tabPlacement: string, text: string, icon: JSComponent, closeable: boolean);
                 this.setText(iconOrText);
-                if (icon !== undefined) {
-                    if (icon instanceof HTMLImageElement) {
-                        this.setIcon(new JSImageIcon(icon));
-                    } else {
-                        this.setIcon(icon);
-                    }
+                if (closeableOrIcon instanceof HTMLImageElement) {
+                    this.setIcon(new JSImageIcon(closeableOrIcon));
+                    this.setCloseable(closeable);
+                } else if (closeableOrIcon instanceof JSComponent) {
+                    this.setIcon(closeableOrIcon);
+                    this.setCloseable(closeable);
+                } else {
+                    this.setCloseable(closeableOrIcon);
                 }
             }
         }
@@ -109,6 +112,7 @@ class JSTab extends JSHTMLComponent {
         }));
         this.setBackground("gray");
         this.setStyle("display", "inline-block");
+        this.setStyle("font-size", "0");
         this.setStyle("white-space", "nowrap");
     }
     init(): void {

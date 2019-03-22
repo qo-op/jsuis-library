@@ -56,9 +56,11 @@ class JSBody extends JSHTMLComponent {
                 }
             }
         }, true);
+        /*
         window.addEventListener("resize", function() {
             JSBody.getInstance().validate();
         });
+        */
     }
     init(): void {
         this.addClass("JSBody");
