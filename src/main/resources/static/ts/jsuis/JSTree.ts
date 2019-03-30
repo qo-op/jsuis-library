@@ -112,7 +112,7 @@ class JSTree extends JSHTMLComponent {
         var container = treeCell.getContainer();
         container.setStyle("display", "");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
-        treeCell.getBranchIcon().setPathDefinition(JSTreeCell.EXPANDED_PATH_DEFINITION);
+        treeCell.getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
     }
     collapse(treePath: string) {
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
@@ -123,7 +123,7 @@ class JSTree extends JSHTMLComponent {
         var container = treeCell.getContainer();
         container.setStyle("display", "none");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
-        treeCell.getBranchIcon().setPathDefinition(JSTreeCell.COLLAPSED_PATH_DEFINITION);
+        treeCell.getBranchButton().setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
     }
     reload(): void {
         this.removeAll();
@@ -132,7 +132,7 @@ class JSTree extends JSHTMLComponent {
         var components: JSComponent[] = this.getComponents();
         var rootTreeCell: JSTreeCell = <JSTreeCell> components[0];
         var rootVisible: boolean = this.isRootVisible();
-        rootTreeCell.getBranchIcon().setPathDefinition(JSTreeCell.EXPANDED_PATH_DEFINITION);
+        rootTreeCell.getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
         rootTreeCell.setStyle("display", rootVisible ? "" : "none");
         var rootContainer: JSComponent = components[1];
         rootContainer.setStyle("display", "");
@@ -150,8 +150,8 @@ class JSTree extends JSHTMLComponent {
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
             if (component instanceof JSTreeCell) {
-                var branchIcon: JSPathIcon = component.getBranchIcon();
-                if (branchIcon) {
+                var branchButton: JSButton = component.getBranchButton();
+                if (branchButton) {
                     component.setStyle("padding-left", padding + "px");
                 } else {
                     component.setStyle("padding-left", (padding + 16 + 4) + "px");

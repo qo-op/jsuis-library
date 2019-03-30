@@ -1,7 +1,7 @@
 /// <reference path = "../jsuis.ts"/>
 interface DropListener {
-    dragEnter?(dragEvent: DragEvent): void;
-    dragOver?(dragEvent: DragEvent): boolean;
-    dragLeave?(dragEvent: DragEvent): void;
-    drop?(dragEvent: DragEvent): boolean;
+    dragEnter?(dragEvent: DragEvent, component?: JSComponent): void;
+    dragOver?(dragEvent: DragEvent, component?: JSComponent): boolean;
+    dragLeave?(dragEvent: DragEvent, component?: JSComponent): void;
+    drop?(dragEvent: DragEvent, component?: JSComponent): boolean;
 }

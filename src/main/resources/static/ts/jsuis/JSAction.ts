@@ -2,7 +2,7 @@
 class JSAction {
     
     name: string;
-    icon: JSComponent;
+    icon: JSIcon;
     enabled: boolean;
     
     actionListener: ActionListener;
@@ -11,34 +11,49 @@ class JSAction {
     propertyChangeSupport: JSPropertyChangeSupport;
     
     constructor();
-    constructor(icon: JSComponent);
+    constructor(icon: JSIcon);
     constructor(name: string);
-    constructor(name: string, icon: JSComponent);
+    constructor(name: string, icon: JSIcon);
     // overload
-    constructor(nameOrIcon?: JSComponent | string, icon?: JSComponent) {
-        if (nameOrIcon !== undefined) {
-            if (nameOrIcon instanceof JSComponent) {
-                this.setIcon(nameOrIcon);
-            } else {
-                this.setName(nameOrIcon);
-                if (icon) {
-                    this.setIcon(icon);
-                }
+    constructor(...args: any[]) {
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(icon: JSIcon);
+            // constructor(name: string);
+            if (args[0] instanceof JSIcon) {
+                var icon: JSIcon = args[0];
+                this.setIcon(icon);
+            } else if (typeof args[0] === "string") {
+                var name: string = args[0];
+                this.setName(name);
             }
+            break;
+        case 2:
+            // constructor(name: string, icon: JSIcon);
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                var name: string = args[0];
+                var icon: JSIcon = args[1];
+                this.setName(name);
+                this.setIcon(icon);
+            }
+            break;
+        default:
         }
         this.setPropertyChangeSupport(new JSPropertyChangeSupport());
     }
-    
     getName(): string {
         return this.name;
     }
     setName(name: string) {
         this.name = name;
     }
-    getIcon(): JSComponent {
+    getIcon(): JSIcon {
         return this.icon;
     }
-    setIcon(icon: JSComponent) {
+    setIcon(icon: JSIcon) {
         this.icon = icon;
     }
     isEnabled(): boolean {

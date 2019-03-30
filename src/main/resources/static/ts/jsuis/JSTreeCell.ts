@@ -7,13 +7,10 @@ class JSTreeCell extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLDivElement);
     constructor(value: any);
-    constructor(value: any, icon: HTMLImageElement);
-    constructor(value: any, icon: JSComponent);
+    constructor(value: any, icon: JSIcon);
     // overload
-    constructor(elementOrValue?: HTMLDivElement | any, icon?: HTMLImageElement | JSComponent) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrValue === undefined || !(elementOrValue instanceof HTMLDivElement) ? document.createElement("div") : elementOrValue);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var label: JSLabel = this.getLabel();
         if (!label) {
             label = new JSLabel();
@@ -21,25 +18,36 @@ class JSTreeCell extends JSHTMLComponent {
             this.add(label);
             this.setLabel(label);
         }
-        if (elementOrValue !== undefined && !(elementOrValue instanceof HTMLDivElement)) {
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
             // constructor(value: any);
-            // constructor(value: any, icon: HTMLImageElement);
-            // constructor(value: any, icon: JSComponent);
-            this.setValue(elementOrValue);
-            if (icon !== undefined) {
-                if (icon instanceof HTMLImageElement) {
-                    this.setIcon(new JSImageIcon(icon));
-                } else {
-                    this.setIcon(icon);
-                }
+            if (args[0] instanceof HTMLDivElement) {
+            } else {
+                var value: any= args[0];
+                this.setValue(value);
             }
+            break;
+        case 2:
+            // constructor(value: any, icon: JSICon);
+            if (args[1] instanceof JSIcon) {
+                var value: any= args[0];
+                var icon: JSIcon = args[1];
+                this.setValue(value);
+                this.setIcon(icon);
+            }
+            break;
+        default:
         }
-        this.addMouseListener(new JSMouseListener(this, {
-            mouseEntered(mouseEvent: MouseEvent) {
-                this.setBackground("#e6e6e6");
+        this.addMouseListener(new JSMouseListener({
+            mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
+                component.setBackground("#e6e6e6");
             },
-            mouseExited(mouseEvent: MouseEvent) {
-                this.setBackground(null);
+            mouseExited(mouseEvent: MouseEvent, component: JSComponent) {
+                component.setBackground(null);
             }
         }));
     }
@@ -56,36 +64,39 @@ class JSTreeCell extends JSHTMLComponent {
         if (value.getAllowsChildren()) {
             var children = value.children();
             if (children.length) {
-                var branchIcon: JSPathIcon = this.getBranchIcon();
-                if (!branchIcon) {
-                    branchIcon = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16);
-                    branchIcon.getPath().setBackground("gray");
-                    branchIcon.setStyle("margin-right", "4px");
-                    branchIcon.setStyle("vertical-align", "middle");
-                    this.add(branchIcon, null, 0);
-                    branchIcon.addMouseListener(new JSMouseListener(this, {
-                        mouseClicked(mouseEvent: MouseEvent) {
-                            var container: JSDiv = this.getContainer();
+                var branchButton: JSButton = this.getBranchButton();
+                if (!branchButton) {
+                    branchButton = new JSButton();
+                    branchButton.setStyle("background", "none");
+                    branchButton.setStyle("border", "none");
+                    branchButton.setStyle("padding", "0 2px");
+                    branchButton.setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
+                    branchButton.setStyle("margin-right", "4px");
+                    branchButton.setStyle("vertical-align", "middle");
+                    this.add(branchButton, null, 0);
+                    branchButton.addMouseListener(new JSMouseListener({
+                        mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
+                            var container: JSDiv = (<JSTreeCell> component).getContainer();
                             if (container.isDisplayable()) {
-                                this.getBranchIcon().getPath().setPathDefinition(JSTreeCell.COLLAPSED_PATH_DEFINITION);
+                                (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
                                 container.setStyle("display", "none");
                             } else {
-                                this.getBranchIcon().getPath().setPathDefinition(JSTreeCell.EXPANDED_PATH_DEFINITION);
+                                (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
                                 container.setStyle("display", "");
                             }
                         }
                     }));
-                    this.setBranchIcon(branchIcon);
-                    this.addMouseListener(new JSMouseListener(this, {
-                        mouseClicked(mouseEvent: MouseEvent) {
+                    this.setBranchButton(branchButton);
+                    this.addMouseListener(new JSMouseListener({
+                        mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
                             // var clickCount = mouseEvent.detail;
                             // if (clickCount === 2) {
-                                var container: JSDiv = this.getContainer();
+                                var container: JSDiv = (<JSTreeCell> component).getContainer();
                                 if (container.isDisplayable()) {
-                                    this.getBranchIcon().getPath().setPathDefinition(JSTreeCell.COLLAPSED_PATH_DEFINITION);
+                                    (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
                                     container.setStyle("display", "none");
                                 } else {
-                                    this.getBranchIcon().getPath().setPathDefinition(JSTreeCell.EXPANDED_PATH_DEFINITION);
+                                    (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
                                     container.setStyle("display", "");
                                 }
                             // }
@@ -95,26 +106,26 @@ class JSTreeCell extends JSHTMLComponent {
             }
         }
     }
-    getBranchIcon(): JSPathIcon {
-        return this.getData("branchIcon");
+    getBranchButton(): JSButton {
+        return this.getData("branchButton");
     }
-    setBranchIcon(branchIcon: JSPathIcon) {
-        this.setData("branchIcon", branchIcon);
+    setBranchButton(branchButton: JSButton) {
+        this.setData("branchButton", branchButton);
     }
-    setIcon(icon: JSComponent) {
-        var oldIcon: JSComponent = this.getIcon();
-        if (oldIcon !== icon) {
-            if (oldIcon) {
-                this.remove(oldIcon);
-            }
-            if (icon) {
-                icon.setStyle("margin-right", "4px");
-                icon.setStyle("vertical-align", "middle");
-                var branchIcon: JSPathIcon = this.getBranchIcon();
-                this.add(icon, null, branchIcon ? 1 : 0);
-            }
-        }
+    setIcon(icon: JSIcon) {
         super.setIcon(icon);
+        var oldImage: JSComponent = this.getImage();
+        if (oldImage) {
+            this.remove(oldImage);
+        }
+        if (icon) {
+            var image: JSImageIcon = new JSImageIcon(icon);
+            image.setStyle("vertical-align", "middle");
+            image.setStyle("margin-right", "4px");
+            var branchButton: JSButton = this.getBranchButton();
+            super.add(image, null, branchButton ? 1 : 0);
+            this.setImage(image);
+        }
     }
     getLabel(): JSLabel {
         return this.getData("label"); 

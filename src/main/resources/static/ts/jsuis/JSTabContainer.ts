@@ -67,7 +67,7 @@ class JSTabContainer extends JSHTMLComponent {
         }
         return tabComponents;
     }
-    
+    /*
     getPreferredWidth(): number {
         var _preferredWidth: string = this.getAttribute("data-preferred-width");
         if (_preferredWidth) {
@@ -81,7 +81,7 @@ class JSTabContainer extends JSHTMLComponent {
         }
         return preferredWidth;
     }
-    
+    */
     getTabCount(): number {
         var tabComponents: JSComponent[] = this.getTabComponents();
         return tabComponents.length;
@@ -94,35 +94,41 @@ class JSTabContainer extends JSHTMLComponent {
         var tabComponents: JSComponent[] = this.getTabComponents();
         return tabComponents.indexOf(tabComponent);
     }
-    addTab(icon: JSComponent, closeable: boolean): JSComponent;
+    addTab(icon: JSIcon, closeable: boolean): JSComponent;
     addTab(title: string, closeable: boolean): JSComponent;
-    addTab(title: string, icon: JSComponent, closeable: boolean): JSComponent;
+    addTab(title: string, icon: JSIcon, closeable: boolean): JSComponent;
     // overload
-    addTab(iconOrTitle: JSComponent | string, closeableOrIcon?: boolean | JSComponent, closeable?: boolean): JSComponent {
-        var icon: JSComponent;
-        var title: string;
-        if (iconOrTitle instanceof JSComponent) {
-            // addTab(icon: JSComponent, closeable: boolean): JSComponent;
-            icon = iconOrTitle;
-            closeable = <boolean> closeableOrIcon;
-        } else {
-            // addTab(title: string, closeable: boolean): JSComponent;
-            // addTab(title: string, icon: JSComponent, closeable: boolean): JSComponent;
-            title = iconOrTitle;
-            if (closeable === undefined) {
-                closeable = <boolean> closeableOrIcon;
-            } else {
-                icon = <JSComponent> closeableOrIcon;
-            }
-        }
-        var tabComponent: JSComponent;
+    addTab(...args: any[]): JSComponent { 
         var tabPlacement: string = this.getTabPlacement();
-        if (!title) {
-            tabComponent = new JSTab(tabPlacement, icon, closeable);
-        } else if (!icon) {
-            tabComponent = new JSTab(tabPlacement, title, closeable);
-        } else {
-            tabComponent = new JSTab(tabPlacement, title, icon, closeable);
+        var tabComponent: JSComponent;
+        switch (args.length) {
+        case 0:
+            break;
+        case 1:
+            break;
+        case 2:
+            // addTab(icon: JSIcon, closeable: boolean): JSComponent;
+            // addTab(title: string, closeable: boolean): JSComponent;
+            if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
+                var icon: JSIcon = args[0];
+                var closeable: boolean = args[1];
+                tabComponent = new JSTab(tabPlacement, icon, closeable);
+            } else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
+                var title: string = args[0];
+                var closeable: boolean = args[1];
+                tabComponent = new JSTab(tabPlacement, title, closeable);
+            }
+            break;
+        case 3:
+            // addTab(title: string, icon: JSIcon, closeable: boolean): JSComponent;
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
+                var title: string = args[0];
+                var icon: JSIcon = args[1];
+                var closeable: boolean = args[2];
+                tabComponent = new JSTab(tabPlacement, title, icon, closeable);
+            }
+            break;
+        default:
         }
         var tabSelection: JSSelection = this.getTabSelection();
         tabSelection.add(tabComponent);
@@ -146,7 +152,6 @@ class JSTabContainer extends JSHTMLComponent {
         }
         var tabComponents: JSComponent[] = this.getTabComponents();
         tabComponents.push(tabComponent);
-        this.fireTabOpened(new JSTabEvent(tabComponent));
         return tabComponent;
     }
     remove(index: number): void;
@@ -170,7 +175,6 @@ class JSTabContainer extends JSHTMLComponent {
         var tabComponents: JSComponent[] = this.getTabComponents();
         var index = tabComponents.indexOf(component);
         tabComponents.splice(index, 1);
-        this.fireTabClosed(new JSTabEvent(component));
     }
     setTabComponentAt(index: number, tabComponent: JSComponent) {
         var tabPlacement: string = this.getTabPlacement();
@@ -196,7 +200,6 @@ class JSTabContainer extends JSHTMLComponent {
         }
         var tabComponents: JSComponent[] = this.getTabComponents();
         tabComponents.push(tabComponent);
-        this.fireTabOpened(new JSTabEvent(tabComponent));
         return tabComponent;
     }
     addButton(button: JSComponent): void;
@@ -230,72 +233,6 @@ class JSTabContainer extends JSHTMLComponent {
     }
     setSelectedIndex(selectedIndex: number) {
         var tabSelection: JSSelection = this.getTabSelection();
-        this.fireTabDeactivated(new JSTabEvent(tabSelection.getSelected()));
         tabSelection.setSelectedIndex(selectedIndex);
-        this.fireTabActivated(new JSTabEvent(tabSelection.getSelected()));
-    }
-    getTabListeners(): TabListener[] {
-        var tabListeners: TabListener[] = this.getData("tabListeners");
-        if (tabListeners === undefined) {
-            tabListeners = [];
-            this.setData("tabListeners", tabListeners);
-        }
-        return tabListeners;
-    }
-    addTabListener(tabListener: TabListener): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        tabListeners.push(tabListener);
-    }
-    removeTabListener(tabListener: TabListener) {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        var index = tabListeners.indexOf(tabListener);
-        if (index !== -1) {
-            tabListeners.splice(index, 1);
-        }
-    }
-    fireTabOpened(tabEvent: JSTabEvent): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        for (var i: number = 0; i < tabListeners.length; i++) {
-            var tabListener = tabListeners[i];
-            if (tabListener.tabOpened) {
-                tabListener.tabOpened(tabEvent);
-            }
-        }
-    }
-    fireTabClosing(tabEvent: JSTabEvent): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        for (var i: number = 0; i < tabListeners.length; i++) {
-            var tabListener = tabListeners[i];
-            if (tabListener.tabClosing) {
-                tabListener.tabClosing(tabEvent);
-            }
-        }
-    }
-    fireTabClosed(tabEvent: JSTabEvent): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        for (var i: number = 0; i < tabListeners.length; i++) {
-            var tabListener = tabListeners[i];
-            if (tabListener.tabClosed) {
-                tabListener.tabClosed(tabEvent);
-            }
-        }
-    }
-    fireTabActivated(tabEvent: JSTabEvent): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        for (var i: number = 0; i < tabListeners.length; i++) {
-            var tabListener = tabListeners[i];
-            if (tabListener.tabActivated) {
-                tabListener.tabActivated(tabEvent);
-            }
-        }
-    }
-    fireTabDeactivated(tabEvent: JSTabEvent): void {
-        var tabListeners: TabListener[] = this.getTabListeners();
-        for (var i: number = 0; i < tabListeners.length; i++) {
-            var tabListener = tabListeners[i];
-            if (tabListener.tabDeactivated) {
-                tabListener.tabDeactivated(tabEvent);
-            }
-        }
     }
 }

@@ -1,8 +1,8 @@
 /// <reference path = "../jsuis.ts"/>
 interface TabListener {
-    tabOpened?(tabEvent: JSTabEvent): void
-    tabClosing?(tabEvent: JSTabEvent): void;
-    tabClosed?(tabEvent: JSTabEvent): void;
-    tabActivated?(tabEvent: JSTabEvent): void;
-    tabDeactivated?(tabEvent: JSTabEvent): void;
+    tabOpened?(tabEvent: JSTabEvent, component?: JSComponent): void
+    tabClosing?(tabEvent: JSTabEvent, component?: JSComponent): void;
+    tabClosed?(tabEvent: JSTabEvent, component?: JSComponent): void;
+    tabActivated?(tabEvent: JSTabEvent, component?: JSComponent): void;
+    tabDeactivated?(tabEvent: JSTabEvent, component?: JSComponent): void;
 }

@@ -44,15 +44,15 @@ class JSBody extends JSHTMLComponent {
             this.setDragImageContainer(dragImageContainer);
         }
         this.addMouseListener({
-            mouseReleased(mouseEvent: MouseEvent) {
-                var body: JSBody = JSBody.getInstance();
+            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
+                var body: JSBody = <JSBody> component;
                 body.setDragSource(null);
             },
-            mouseMoved(mouseEvent: MouseEvent) {
-                var body: JSBody = JSBody.getInstance();
+            mouseMoved(mouseEvent: MouseEvent, component: JSComponent) {
+                var body: JSBody = <JSBody> component;
                 var dragSource: JSComponent = body.getDragSource();
                 if (dragSource) {
-                    dragSource.fireMouseDragged(mouseEvent);
+                    dragSource.fireMouseDragged(mouseEvent, dragSource);
                 }
             }
         }, true);

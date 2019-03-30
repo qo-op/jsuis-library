@@ -1,4 +1,4 @@
 /// <reference path = "../jsuis.ts"/>
 interface ActionListener {
-    actionPerformed(actionEvent: JSActionEvent): void;
+    actionPerformed(actionEvent: JSActionEvent, component?: JSComponent): void;
 }

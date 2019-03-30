@@ -27,6 +27,7 @@
 /// <reference path = "jsuis/JSCardLayout.ts"/>
 /// <reference path = "jsuis/JSChangeListener.ts"/>
 /// <reference path = "jsuis/JSCheckBox.ts"/>
+/// <reference path = "jsuis/JSCheckBoxInput.ts"/>
 /// <reference path = "jsuis/JSComboBox.ts"/>
 /// <reference path = "jsuis/JSDataTransfer.ts"/>
 /// <reference path = "jsuis/JSDefs.ts"/>
@@ -39,6 +40,7 @@
 /// <reference path = "jsuis/JSFrame.ts"/>
 /// <reference path = "jsuis/JSGraphics.ts"/>
 /// <reference path = "jsuis/JSGridBagLayout.ts"/>
+/// <reference path = "jsuis/JSIcon.ts"/>
 /// <reference path = "jsuis/JSImageIcon.ts"/>
 /// <reference path = "jsuis/JSLabel.ts"/>
 /// <reference path = "jsuis/JSLayeredPane.ts"/>
@@ -53,6 +55,7 @@
 /// <reference path = "jsuis/JSPanel.ts"/>
 /// <reference path = "jsuis/JSPath.ts"/>
 /// <reference path = "jsuis/JSPathIcon.ts"/>
+/// <reference path = "jsuis/JSPathImage.ts"/>
 /// <reference path = "jsuis/JSPopupMenu.ts"/>
 /// <reference path = "jsuis/JSPopupMenuLayout.ts"/>
 /// <reference path = "jsuis/JSProgressBar.ts"/>
@@ -60,6 +63,7 @@
 /// <reference path = "jsuis/JSPropertyChangeEvent.ts"/>
 /// <reference path = "jsuis/JSPropertyChangeListener.ts"/>
 /// <reference path = "jsuis/JSPropertyChangeSupport.ts"/>
+/// <reference path = "jsuis/JSRadioButton.ts"/>
 /// <reference path = "jsuis/JSResourceBundle.ts"/>
 /// <reference path = "jsuis/JSScrollPane.ts"/>
 /// <reference path = "jsuis/JSScrollPaneLayout.ts"/>

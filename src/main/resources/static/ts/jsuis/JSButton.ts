@@ -4,60 +4,70 @@ class JSButton extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLButtonElement);
     constructor(action: JSAction);
-    constructor(icon: HTMLImageElement);
-    constructor(icon: JSComponent);
+    constructor(icon: JSIcon);
     constructor(text: string);
-    constructor(text: string, icon: HTMLImageElement);
-    constructor(text: string, icon: JSComponent);
+    constructor(text: string, icon: JSIcon);
     // overload
-    constructor(elementOrActionOrIconOrText?: HTMLButtonElement | JSAction | HTMLImageElement | JSComponent | string, icon?: HTMLImageElement | JSComponent) {
-        // constructor();
-        // constructor(element: HTMLButtonElement);
-        super(elementOrActionOrIconOrText === undefined || !(elementOrActionOrIconOrText instanceof HTMLButtonElement) ? document.createElement("button") : elementOrActionOrIconOrText);
-        if (elementOrActionOrIconOrText !== undefined && !(elementOrActionOrIconOrText instanceof HTMLButtonElement)) {
-            if (elementOrActionOrIconOrText instanceof JSAction) {
-                this.setAction(elementOrActionOrIconOrText);
-            } else if (elementOrActionOrIconOrText instanceof HTMLImageElement) {
-                // constructor(icon: HTMLImageElement);
-                this.setIcon(new JSImageIcon(elementOrActionOrIconOrText));
-            } else if (elementOrActionOrIconOrText instanceof JSComponent) {
-                // constructor(icon: JSComponent);
-                this.setIcon(elementOrActionOrIconOrText);
-            } else {
-                // constructor(text: string);
-                // constructor(text: string, icon: HTMLImageElement);
-                // constructor(text: string, icon: JSComponent);
-                this.setText(elementOrActionOrIconOrText);
-                if (icon !== undefined) {
-                    if (icon instanceof HTMLImageElement) {
-                        this.setIcon(new JSImageIcon(icon));
-                    } else {
-                        this.setIcon(icon);
-                    }
-                }
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLButtonElement);
+            // constructor(action: JSAction);
+            // constructor(icon: JSIcon);
+            // constructor(text: string);
+            if (args[0] instanceof HTMLButtonElement) {
+            } else if (args[0] instanceof JSAction) {
+                var action: JSAction = args[0];
+                this.setAction(action);
+            } else if (args[0] instanceof JSIcon) {
+                var icon: JSIcon = args[0];
+                this.setIcon(icon);
+            } else if (typeof args[0] === "string") {
+                var text: string = args[0];
+                this.setText(text);
             }
+            break;
+        case 2:
+            // constructor(text: string, icon: JSIcon);
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                var text: string = args[0];
+                var icon: JSIcon = args[1];
+                this.setText(text);
+                this.setIcon(icon);
+            }
+            break;
+        default:
         }
     }
     init(): void {
         this.addClass("JSButton");
         this.setStyle("white-space", "nowrap");
     }
-    setIcon(icon: JSComponent) {
-        var oldIcon: JSComponent = this.getIcon();
-        if (oldIcon !== icon) {
-            if (oldIcon) {
-                this.remove(oldIcon);
-            }
-            if (icon) {
-                var text = this.getText();
-                if (text) {
-                    icon.setStyle("margin-right", "4px");
-                }
-                icon.setStyle("vertical-align", "middle");
-                this.add(icon, null, 0);
-            }
-        }
+    setIcon(icon: JSIcon) {
         super.setIcon(icon);
+        var oldImage: JSComponent = this.getImage();
+        if (oldImage) {
+            this.remove(oldImage);
+        }
+        if (icon) {
+            var image: JSComponent;
+            if (icon instanceof JSPathIcon) {
+                image = new JSPathImage(icon);
+            } else {
+                image = new JSImageIcon(icon);
+            }
+            image.setStyle("vertical-align", "middle");
+            var text = this.getText();
+            if (text) {
+                image.setStyle("margin-right", "4px");
+            }
+            this.add(image, null, 0);
+            this.setImage(image);
+        }
     }
     getSpan(): JSSpan {
         var span = this.getData("span");
@@ -65,21 +75,18 @@ class JSButton extends JSHTMLComponent {
             span = new JSSpan();
             span.setStyle("vertical-align", "middle");
             this.add(span);
-            this.setSpan(span);
+            this.setData("span", span);
         }
         return span;
-    }
-    setSpan(span: JSSpan) {
-        this.setData("span", span);
     }
     getText(): string {
         var span: JSSpan = this.getSpan();
         return span.getText();
     }
     setText(text: string) {
-        var icon = this.getIcon();
-        if (icon) {
-            icon.setStyle("margin-right", text ? "4px" : "0");
+        var image = this.getImage();
+        if (image) {
+            image.setStyle("margin-right", text ? "4px" : "0");
         }
         var span: JSSpan = this.getSpan();
         span.setText(text);
@@ -87,7 +94,7 @@ class JSButton extends JSHTMLComponent {
     getPropertyChangeListener(): PropertyChangeListener {
         var propertyChangeListener = this.getData("propertyChangeListener");
         if (!propertyChangeListener) {
-            propertyChangeListener = new JSPropertyChangeListener(this, {
+            propertyChangeListener = new JSPropertyChangeListener({
                 propertyChange(propertyChangeEvent: JSPropertyChangeEvent) {
                     var propertyName: string = propertyChangeEvent.getPropertyName();
                     if (propertyName === "enabled") {

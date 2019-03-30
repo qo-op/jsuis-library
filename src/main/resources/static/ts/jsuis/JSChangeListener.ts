@@ -1,32 +1,38 @@
 /// <reference path = "../jsuis.ts"/>
 class JSChangeListener implements ChangeListener {
     
-    stateChanged: (event: Event) => void;
+    changeListener: ChangeListener;
+    
+    stateChanged: (event: Event, component?: JSComponent) => void;
+    
+    component: JSComponent;
     
     constructor(changeListener: ChangeListener);
-    constructor(changeListener: ChangeListener, redispatch: boolean);
-    constructor(thisValue: any,                 changeListener: ChangeListener);
-    constructor(thisValue: any,                 changeListener: ChangeListener, redispatch: boolean);
+    constructor(changeListener: ChangeListener, propagate: boolean);
     // overload
-    constructor(changeListenerOrThisValue: any, redispatchOrChangeListener?: boolean | ChangeListener, redispatch?: boolean) {
-        if (redispatchOrChangeListener === undefined || typeof redispatchOrChangeListener === "boolean") {
-            var changeListener: ChangeListener = changeListenerOrThisValue;
-            redispatch = <boolean> redispatchOrChangeListener;
-            this.stateChanged = function(event: Event) {
-                changeListener.stateChanged(event);
-                if (!redispatch) {
-                    event.stopPropagation();
-                }
+    constructor(changeListener: ChangeListener, propagate?: boolean) {
+        this.setChangeListener(changeListener);
+        var jsChangeListener: JSChangeListener = this;
+        this.stateChanged = function(event: Event, component: JSComponent) {
+            if (component === undefined) {
+                component = jsChangeListener.getComponent();
             }
-        } else {
-            var thisValue: any = changeListenerOrThisValue;
-            var changeListener: ChangeListener = redispatchOrChangeListener;
-            this.stateChanged = function(event: Event) {
-                changeListener.stateChanged.call(thisValue, event);
-                if (!redispatch) {
-                    event.stopPropagation();
-                }
+            changeListener.stateChanged.call(changeListener, event, component);
+            if (!propagate) {
+                event.stopPropagation();
             }
         }
+    }
+    getChangeListener(): ChangeListener {
+        return this.changeListener;
+    }
+    setChangeListener(changeListener: ChangeListener) {
+        this.changeListener = changeListener;
+    }
+    getComponent(): JSComponent {
+        return this.component;
+    }
+    setComponent(component: JSComponent) {
+        this.component = component;
     }
 }

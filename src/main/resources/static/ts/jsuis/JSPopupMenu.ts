@@ -12,10 +12,12 @@ class JSPopupMenu extends JSHTMLComponent {
         super(element === undefined ? document.createElement("div") : element);
         this.setLayout(new JSPopupMenuLayout());
         
+        /*
         this.addEventListener("contextmenu", function(mouseEvent: MouseEvent) {
             mouseEvent.preventDefault();
             mouseEvent.stopPropagation();
         }, false);
+        */
         var popupMenu: JSPopupMenu = this;
         var body: JSBody = JSBody.getInstance();
         body.addMouseListener({

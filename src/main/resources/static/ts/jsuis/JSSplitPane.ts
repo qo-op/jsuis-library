@@ -41,26 +41,28 @@ class JSSplitPane extends JSHTMLComponent {
             divider.setBackground("#f2f2f2");
             divider.setCursor(orientation === JSSplitPane.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
             this.add(divider);
-            divider.addMouseListener(new JSMouseListener(this, {
-                mousePressed(mouseEvent: MouseEvent) {
-                    var orientation = this.getOrientation();
+            divider.addMouseListener(new JSMouseListener({
+                mousePressed(mouseEvent: MouseEvent, source: JSComponent) {
+                    var splitPane = <JSSplitPane> source.getParent();
+                    var orientation = splitPane.getOrientation();
                     if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                        this.setData("dy", mouseEvent.y - this.getDividerLocation());
+                        splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
                     } else {
-                        this.setData("dx", mouseEvent.x - this.getDividerLocation());
+                        splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
                     }
                 },
-                mouseDragged(mouseEvent: MouseEvent) {
-                    var orientation = this.getOrientation();
+                mouseDragged(mouseEvent: MouseEvent, source: JSComponent) {
+                    var splitPane = <JSSplitPane> source.getParent();
+                    var orientation = splitPane.getOrientation();
                     if (orientation === JSSplitPane.VERTICAL_SPLIT) {
                         var y = mouseEvent.y;
                         if (y) {
-                            this.setDividerLocation(y - this.getData("dy"));
+                            (<JSSplitPane> splitPane).setDividerLocation(y - splitPane.getData("dy"));
                         }
                     } else {
                         var x = mouseEvent.x;
                         if (x) {
-                            this.setDividerLocation(x - this.getData("dx"));
+                            (<JSSplitPane> splitPane).setDividerLocation(x - splitPane.getData("dx"));
                         }
                     }
                 }

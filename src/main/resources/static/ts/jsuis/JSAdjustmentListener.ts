@@ -1,32 +1,38 @@
 /// <reference path = "../jsuis.ts"/>
 class JSAdjustmentListener implements AdjustmentListener {
     
-    adjustmentValueChanged: (event: Event) => void;
+    adjustmentListener: AdjustmentListener;
+    
+    adjustmentValueChanged: (event: Event, component?: JSComponent) => void;
+    
+    component: JSComponent;
     
     constructor(adjustmentListener: AdjustmentListener);
-    constructor(adjustmentListener: AdjustmentListener, redispatch: boolean);
-    constructor(thisValue: any, adjustmentListener: AdjustmentListener);
-    constructor(thisValue: any, adjustmentListener: AdjustmentListener, redispatch: boolean);
+    constructor(adjustmentListener: AdjustmentListener, propagate: boolean);
     // overload
-    constructor(adjustmentListenerOrThisValue: any, redispatchOrAdjustmentListener?: boolean | AdjustmentListener, redispatch?: boolean) {
-        if (redispatchOrAdjustmentListener === undefined || typeof redispatchOrAdjustmentListener === "boolean") {
-            var adjustmentListener: AdjustmentListener = adjustmentListenerOrThisValue;
-            redispatch = <boolean> redispatchOrAdjustmentListener;
-            this.adjustmentValueChanged = function(event: Event) {
-                adjustmentListener.adjustmentValueChanged(event);
-                if (!redispatch) {
-                    event.stopPropagation();
-                }
+    constructor(adjustmentListener: AdjustmentListener, propagate?: boolean) {
+        this.setAdjustmentListener(adjustmentListener);
+        var jsAdjustmentListener: JSAdjustmentListener = this;
+        this.adjustmentValueChanged = function(event: Event, component: JSComponent) {
+            if (component === undefined) {
+                component = jsAdjustmentListener.getComponent();
             }
-        } else {
-            var thisValue: any = adjustmentListenerOrThisValue;
-            var adjustmentListener: AdjustmentListener = redispatchOrAdjustmentListener;
-            this.adjustmentValueChanged = function(event: Event) {
-                adjustmentListener.adjustmentValueChanged.call(thisValue, event);
-                if (!redispatch) {
-                    event.stopPropagation();
-                }
+            adjustmentListener.adjustmentValueChanged.call(adjustmentListener, event, component);
+            if (!propagate) {
+                event.stopPropagation();
             }
         }
+    }
+    getAdjustmentListener(): AdjustmentListener {
+        return this.adjustmentListener;
+    }
+    setAdjustmentListener(adjustmentListener: AdjustmentListener) {
+        this.adjustmentListener = adjustmentListener;
+    }
+    getComponent(): JSComponent {
+        return this.component;
+    }
+    setComponent(component: JSComponent) {
+        this.component = component;
     }
 }

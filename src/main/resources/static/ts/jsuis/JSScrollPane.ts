@@ -63,10 +63,10 @@ class JSScrollPane extends JSHTMLComponent {
             this.add(viewportView);
         }
         if (viewportView instanceof JSTable) {
-            this.addAdjustmentListener(new JSAdjustmentListener(this, {
-                adjustmentValueChanged(event: Event) {
-                    var table: JSTable = this.getViewportView();
-                    table.getTableHeader().setStyle("transform", "translate(0, " + this.element.scrollTop + "px)");
+            this.addAdjustmentListener(new JSAdjustmentListener({
+                adjustmentValueChanged(event: Event, component: JSScrollPane) {
+                    var table: JSTable = <JSTable> component.getViewportView();
+                    table.getTableHeader().setStyle("transform", "translate(0, " + component.element.scrollTop + "px)");
                 }
             }));
         }

@@ -25,18 +25,18 @@ class JSPopupMenuLayout extends JSLayout {
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
             if (component instanceof JSMenu || component instanceof JSMenuItem) {
-                var icon: JSComponent = component.getIcon();
-                if (icon) {
-                    var iconPreferredWidth: number = icon.getPreferredWidth();
-                    preferredWidths[0] = Math.max(preferredWidths[0] || 0, iconPreferredWidth);
+                var image: JSComponent = component.getImage();
+                if (image) {
+                    var imagePreferredWidth: number = image.getPreferredWidth();
+                    preferredWidths[0] = Math.max(preferredWidths[0] || 0, imagePreferredWidth);
                 }
                 var label: JSLabel = component.getLabel();
                 if (label) {
                     var labelPreferredWidth: number = label.getPreferredWidth();
                     if (component instanceof JSMenu) {
-                        var expandIcon: JSPathIcon = component.getExpandIcon();
-                        if (expandIcon) {
-                            var expandIconPreferredWidth = expandIcon.getPreferredWidth();
+                        var expandImage: JSComponent = component.getImage();
+                        if (expandImage) {
+                            var expandIconPreferredWidth = expandImage.getPreferredWidth();
                             labelPreferredWidth += hgap / 2 + expandIconPreferredWidth;
                         }
                     }
@@ -86,17 +86,18 @@ class JSPopupMenuLayout extends JSLayout {
             var component: JSComponent = components[i];
             if (component instanceof JSMenu || component instanceof JSMenuItem) {
                 var x: number = 0;
-                var icon: JSComponent = component.getIcon();
-                if (icon) {
-                    var iconPreferredWidth = icon.getPreferredWidth();
-                    x = xs[0] + (xs[1] - hgap - xs[0] - iconPreferredWidth) / 2;
-                    icon.setStyle("margin-left", x + "px");
-                    x += iconPreferredWidth;
+                var image: JSComponent = component.getImage();
+                if (image) {
+                    var imagePreferredWidth = image.getPreferredWidth();
+                    x = xs[0] + (xs[1] - hgap - xs[0] - imagePreferredWidth) / 2;
+                    image.setStyle("margin-left", x + "px");
+                    x += imagePreferredWidth;
                 }
                 var label: JSLabel = component.getLabel();
                 if (label) {
                     var labelPreferredWidth = label.getPreferredWidth();
-                    if (icon) {
+                    // if (icon) {
+                    if (image) { 
                         label.setStyle("margin-left", (xs[1] - x) + "px");
                     } else {
                         label.setStyle("margin-left", xs[1] + "px");
@@ -104,7 +105,7 @@ class JSPopupMenuLayout extends JSLayout {
                     x = xs[1] + labelPreferredWidth;
                 }
                 if (component instanceof JSMenu) {
-                    var expandIcon: JSPathIcon = component.getExpandIcon();
+                    var expandIcon: JSComponent = component.getImage();
                     if (expandIcon) {
                         var expandIconPreferredWidth = expandIcon.getPreferredWidth();
                         expandIcon.setStyle("margin-left", (preferredLayoutWidth - hgap / 2 - expandIconPreferredWidth - x) + "px");

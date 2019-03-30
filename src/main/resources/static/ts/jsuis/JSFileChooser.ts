@@ -14,9 +14,9 @@ class JSFileChooser extends JSHTMLComponent {
         this.setStyle("display", "none");
         JSBody.getInstance().setFileChooser(this);
         
-        this.addChangeListener(new JSChangeListener(this, {
-            stateChanged(event: Event) {
-                this.setSelectedFiles(this.element.files);
+        this.addChangeListener(new JSChangeListener({
+            stateChanged(event: Event, component: JSFileChooser) {
+                component.setSelectedFiles((<HTMLInputElement> component.element).files);
             }
         }));
     }

@@ -3,69 +3,72 @@ class JSTab extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
-    constructor(tabPlacement: string, icon: HTMLImageElement, closeable: boolean);
-    constructor(tabPlacement: string, icon: JSComponent, closeable: boolean);
+    constructor(tabPlacement: string, icon: JSIcon, closeable: boolean);
     constructor(tabPlacement: string, text: string, closeable: boolean);
-    constructor(tabPlacement: string, text: string, icon: HTMLImageElement, closeable: boolean);
-    constructor(tabPlacement: string, text: string, icon: JSComponent, closeable: boolean);
+    constructor(tabPlacement: string, text: string, icon: JSIcon, closeable: boolean);
     // overload
-    constructor(elementOrTabPlacement?: HTMLDivElement | string,
-            iconOrText?: HTMLImageElement | JSComponent | string,
-            closeableOrIcon?: boolean | HTMLImageElement | JSComponent,
-            closeable?: boolean) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrTabPlacement === undefined || !(elementOrTabPlacement instanceof HTMLDivElement) ? document.createElement("div") : elementOrTabPlacement);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var container: JSPanel = this.getContainer();
         if (!container) {
             container = new JSPanel();
             this.add(container);
             this.setContainer(container);
         }
-        if (elementOrTabPlacement !== undefined && !(elementOrTabPlacement instanceof HTMLDivElement)) {
-            this.setTabPlacement(elementOrTabPlacement);
-            if (iconOrText instanceof HTMLImageElement) {
-                // constructor(tabPlacement: string, icon: HTMLImageElement);
-                this.setIcon(new JSImageIcon(iconOrText));
-                this.setCloseable(<boolean> closeableOrIcon);
-            } else if (iconOrText instanceof JSComponent) {
-                // constructor(tabPlacement: string, icon: JSComponent);
-                this.setIcon(iconOrText);
-                this.setCloseable(<boolean> closeableOrIcon);
-            } else {
-                // constructor(tabPlacement: string, text: string, closeable: boolean);
-                // constructor(tabPlacement: string, text: string, icon: HTMLImageElement, closeable: boolean);
-                // constructor(tabPlacement: string, text: string, icon: JSComponent, closeable: boolean);
-                this.setText(iconOrText);
-                if (closeableOrIcon instanceof HTMLImageElement) {
-                    this.setIcon(new JSImageIcon(closeableOrIcon));
-                    this.setCloseable(closeable);
-                } else if (closeableOrIcon instanceof JSComponent) {
-                    this.setIcon(closeableOrIcon);
-                    this.setCloseable(closeable);
-                } else {
-                    this.setCloseable(closeableOrIcon);
-                }
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
+            if (args[0] instanceof HTMLDivElement) {
             }
+            break;
+        case 3:
+            // constructor(tabPlacement: string, icon: JSIcon, closeable: boolean);
+            // constructor(tabPlacement: string, text: string, closeable: boolean);
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
+                var tabPlacement: string = args[0];
+                var icon: JSIcon = args[1];
+                var closeable: boolean = args[2];
+                this.setTabPlacement(tabPlacement);
+                this.setIcon(icon);
+                this.setCloseable(closeable);
+            } else if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "boolean") {
+                var tabPlacement: string = args[0];
+                var text: string = args[1];
+                var closeable: boolean = args[2];
+                this.setTabPlacement(tabPlacement);
+                this.setText(text);
+                this.setCloseable(closeable);
+            }
+            break;
+        case 4:
+            // constructor(tabPlacement: string, text: string, icon: JSIcon, closeable: boolean);
+            if (typeof args[0] === "string" && typeof args[1] === "string" && args[2] instanceof JSIcon && typeof args[3] === "boolean") {
+                var tabPlacement: string = args[0];
+                var text: string = args[1];
+                var icon: JSIcon = args[2];
+                var closeable: boolean = args[3];
+                this.setTabPlacement(tabPlacement);
+                this.setText(text);
+                this.setIcon(icon);
+                this.setCloseable(closeable);
+            }
+            break;
+        default:
         }
-        this.addMouseListener(new JSMouseListener(this, {
-            mouseClicked(mouseEvent: MouseEvent) {
-                var tabContainer: JSTabContainer = this.getParent();
-                if (tabContainer) {
-                    tabContainer.setSelectedIndex(tabContainer.indexOfTab(this));
-                }
-            }
-        }));
-        this.addDragListener(new JSDragListener(this, {
-            dragStart(dragEvent: DragEvent) {
+        this.addDragListener(new JSDragListener({
+            dragStart(dragEvent: DragEvent, tab: JSTab) {
                 if ((<any> dragEvent.dataTransfer).setDragImage) {
                     (<any> dragEvent.dataTransfer).setDragImage(JSDataTransfer.getDragImage(), 0, 0);
-                    var tabContainer: JSTabContainer = this.getParent();
-                    tabContainer.setSelectedIndex(tabContainer.indexOfTab(this));
-                    JSDataTransfer.setData("dragSource", this);
+                    var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
+                    tabContainer.setSelectedIndex(tabContainer.indexOfTab(tab));
+                    JSDataTransfer.setData("dragSource", tab);
                 } else {
                 
                     /*
+                    this => tab
                     var clone: JSTab = this.clone();
                     var tabContainer: JSTabContainer = this.getParent();
                     var components: JSComponent[] = tabContainer.getComponents();
@@ -86,11 +89,11 @@ class JSTab extends JSHTMLComponent {
                 }
             }
         }));
-        this.addDropListener(new JSDropListener(this, {
-            dragOver(dragEvent: DragEvent): boolean {
-                var container: JSPanel = this.getContainer();
-                this.setStyle("z-index", "1");
-                var boundingClientRect = this.getBoundingClientRect();
+        this.addDropListener(new JSDropListener({
+            dragOver(dragEvent: DragEvent, tab: JSTab): boolean {
+                var container: JSPanel = tab.getContainer();
+                tab.setStyle("z-index", "1");
+                var boundingClientRect = tab.getBoundingClientRect();
                 if (dragEvent.x >= (boundingClientRect.left + boundingClientRect.width / 2)) {
                     container.setStyle("box-shadow", "2px 0 #404040, -1px 0 #404040 inset");
                 } else {
@@ -98,14 +101,14 @@ class JSTab extends JSHTMLComponent {
                 }
                 return true;
             },
-            dragLeave(dragEent: DragEvent): void {
-                var container: JSPanel = this.getContainer();
-                this.setStyle("z-index", "0");
+            dragLeave(dragEent: DragEvent, tab: JSTab): void {
+                var container: JSPanel = tab.getContainer();
+                tab.setStyle("z-index", "0");
                 container.setStyle("box-shadow", "none");
             },
-            drop(dragEvent: DragEvent): boolean {
+            drop(dragEvent: DragEvent, tab: JSTab): boolean {
                 console.log("drop");
-                this.setStyle("z-index", "0");
+                tab.setStyle("z-index", "0");
                 container.setStyle("box-shadow", "none");
                 return true;
             }
@@ -157,38 +160,38 @@ class JSTab extends JSHTMLComponent {
         if (closeable) {
             var closeButton = this.getCloseButton();
             if (!closeButton) {
-                closeButton = new JSPathIcon("M4,4L12,12M12,4L4,12", 16, 16);
-                closeButton.getPath().setForeground("red");
-                closeButton.addMouseListener(new JSMouseListener(this, {
-                    mouseClicked(mouseEvent: MouseEvent) {
-                        var tabContainer: JSTabContainer = this.getParent();
-                        tabContainer.fireTabClosing(new JSTabEvent(this));
-                    }
-                }));
+                closeButton = new JSButton();
+                closeButton.setStyle("background", "none");
+                closeButton.setStyle("border", "none");
+                closeButton.setStyle("padding", "0 2px");
+                var icon = new JSPathIcon("M4,4L12,12M12,4L4,12", "", "red", 16, 16);
+                closeButton.setIcon(icon);
+                // closeButton = new JSPathImage(new JSPathIcon("M4,4L12,12M12,4L4,12", 16, 16));
+                // (<JSPathImage> closeButton).getPath().setForeground("red");
                 this.setCloseButton(closeButton);
             }
         }
     }
-    setIcon(icon: JSComponent) {
-        var oldIcon: JSComponent = this.getIcon();
-        if (oldIcon !== icon) {
-            var container: JSPanel = this.getContainer();
-            if (oldIcon) {
-                container.remove(oldIcon);
-            }
-            if (icon) {
-                var tabPlacement = this.getTabPlacement();
-                if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                    icon.setStyle("display", "block");
-                    icon.setStyle("margin", "4px auto 0");
-                } else {
-                    icon.setStyle("margin-left", "4px");
-                    icon.setStyle("vertical-align", "middle");
-                }
-                container.add(icon, null, 0);
-            }
-        }
+    setIcon(icon: JSIcon) {
         super.setIcon(icon);
+        var container: JSPanel = this.getContainer();
+        var oldImage: JSComponent = this.getImage();
+        if (oldImage) {
+            container.remove(oldImage);
+        }
+        if (icon) {
+            var image: JSImageIcon = new JSImageIcon(icon);
+            var tabPlacement = this.getTabPlacement();
+            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
+                image.setStyle("display", "block");
+                image.setStyle("margin", "4px auto 0");
+            } else {
+                image.setStyle("margin-left", "4px");
+                image.setStyle("vertical-align", "middle");
+            }
+            container.add(image, null, 0);
+            this.setImage(image);
+        }
     }
     getLabel(): JSLabel {
         return this.getData("label");
@@ -196,7 +199,7 @@ class JSTab extends JSHTMLComponent {
     setLabel(label: JSLabel) {
         this.setData("label", label);
     }
-    getCloseButton() {
+    getCloseButton(): JSComponent {
         return this.getData("closeButton");
     }
     setCloseButton(closeButton: JSComponent) {
@@ -268,13 +271,5 @@ class JSTab extends JSHTMLComponent {
             label.setForeground(selected ? "black" : "#404040");
         }
         super.setSelected(selected);
-    }
-    clone(): JSTab {
-        var clone = new JSTab();
-        clone.setTabPlacement(this.getTabPlacement());
-        clone.setCloseable(this.isCloseable());
-        clone.setText(this.getText());
-        clone.setIcon(this.getIcon().clone());
-        return clone;
     }
 }

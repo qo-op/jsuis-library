@@ -5,16 +5,12 @@ class JSMenu extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
-    constructor(icon: HTMLImageElement);
-    constructor(icon: JSComponent);
+    constructor(icon: JSIcon);
     constructor(text: string);
-    constructor(text: string, icon: HTMLImageElement);
-    constructor(text: string, icon: JSComponent);
+    constructor(text: string, icon: JSIcon);
     // overload
-    constructor(elementOrIconOrText?: HTMLDivElement | HTMLImageElement | JSComponent | string, icon?: HTMLImageElement | JSComponent) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrIconOrText === undefined || !(elementOrIconOrText instanceof HTMLDivElement) ? document.createElement("div") : elementOrIconOrText);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var popupMenuContainer = this.getPopupMenuContainer();
         if (!popupMenuContainer) {
             popupMenuContainer = new JSDiv();
@@ -22,62 +18,64 @@ class JSMenu extends JSHTMLComponent {
             super.add(popupMenuContainer);
             this.setPopupMenuContainer(popupMenuContainer);
         }
-        if (elementOrIconOrText !== undefined && !(elementOrIconOrText instanceof HTMLDivElement)) {
-            if (elementOrIconOrText instanceof HTMLImageElement) {
-                // constructor(icon: HTMLImageElement);
-                this.setIcon(new JSImageIcon(elementOrIconOrText));
-            } else if (elementOrIconOrText instanceof JSComponent) {
-                // constructor(icon: JSComponent);
-                this.setIcon(elementOrIconOrText);
-            } else {
-                // constructor(text: string);
-                // constructor(text: string, icon: HTMLImageElement);
-                // constructor(text: string, icon: JSComponent);
-                this.setText(elementOrIconOrText);
-                if (icon !== undefined) {
-                    if (icon instanceof HTMLImageElement) {
-                        this.setIcon(new JSImageIcon(icon));
-                    } else {
-                        this.setIcon(icon);
-                    }                    
-                }
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
+            // constructor(icon: JSIcon);
+            // constructor(text: string);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (args[0] instanceof JSIcon) {
+                var icon: JSIcon = args[0];
+                this.setIcon(icon);
+            } else if (typeof args[0] === "string") {
+                var text: string = args[0];
+                this.setText(text);
             }
+            break;
+        case 2:
+            // constructor(text: string, icon: JSIcon);
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                var text: string = args[0];
+                var icon: JSIcon = args[1];
+                this.setText(text);
+                this.setIcon(icon);
+            }
+            break;
+        default:
         }
-        this.addMouseListener(new JSMouseListener(this, {
-            mouseEntered(mouseEvent: MouseEvent) {
-                this.setBackground("#e6e6e6");
-            },
-            mouseExited(mouseEvent: MouseEvent) {
-                this.setBackground(null);
-            }
-        }));
-        this.addMouseListener(new JSMouseListener(this, {
-            mousePressed(mouseEvent: MouseEvent) {
-                var parent: JSComponent = this.getParent();
+        this.addMouseListener({
+            mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
+                var menu: JSMenu = <JSMenu> component;
+                var parent: JSComponent = menu.getParent();
                 if (parent instanceof JSPopupMenu) {
                     var parentSelected = parent.isSelected();
                     if (parentSelected) {
-                        parent.getSelection().setSelected(this);
+                        parent.getSelection().setSelected(menu);
                     }
                 } else {
-                    this.setData("changed", false);
-                    var popupMenu: JSPopupMenu = this.getPopupMenu();
+                    menu.setData("changed", false);
+                    var popupMenu: JSPopupMenu = menu.getPopupMenu();
                     if (popupMenu) {
                         var parentSelected = parent.isSelected();
                         if (!parentSelected) {
                             parent.setSelected(true);
-                            parent.getSelection().setSelected(this);
-                            this.setData("changed", true);
+                            parent.getSelection().setSelected(menu);
+                            menu.setData("changed", true);
                         }
                     }
                 }
+                mouseEvent.stopPropagation();
             },
-            mouseReleased(mouseEvent: MouseEvent) {
-                var parent: JSComponent = this.getParent();
+            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
+                var menu: JSMenu = <JSMenu> component;
+                var parent: JSComponent = menu.getParent();
                 if (!(parent instanceof JSPopupMenu)) {
-                    var changed = this.getData("changed");
+                    var changed = menu.getData("changed");
                     if (!changed) {
-                        var popupMenu: JSPopupMenu = this.getPopupMenu();
+                        var popupMenu: JSPopupMenu = menu.getPopupMenu();
                         if (popupMenu) {
                             var parentSelected = parent.isSelected();
                             if (parentSelected) {
@@ -86,42 +84,51 @@ class JSMenu extends JSHTMLComponent {
                         }
                     }
                 }
+                mouseEvent.stopPropagation();
             },
-            mouseEntered(mouseEvent: MouseEvent) {
-                var parent: JSComponent = this.getParent();
+            mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
+                var menu: JSMenu = <JSMenu> component;
+                var parent: JSComponent = menu.getParent();
                 if (parent instanceof JSPopupMenu) {
                     parent.clearTimeout();
-                    parent.setTimeout(this, function() {
+                    parent.setTimeout(menu, function() {
                         var parentSelected = parent.isSelected();
                         if (parentSelected) {
-                            parent.getSelection().setSelected(this);
+                            parent.getSelection().setSelected(menu);
                         }
-                    }, this.getDelay())
+                    }, menu.getDelay())
                 } else {
                     var parentSelected = parent.isSelected();
                     if (parentSelected) {
-                        parent.getSelection().setSelected(this);
+                        parent.getSelection().setSelected(menu);
                     }
                 }
+                menu.setBackground("#e6e6e6");
+                mouseEvent.stopPropagation();
+            },
+            mouseExited(mouseEvent: MouseEvent, component: JSComponent) {
+                var menu: JSMenu = <JSMenu> component;
+                menu.setBackground(null);
+                mouseEvent.stopPropagation();
             }
-        }));
+        });
     }
     init(): void {
         this.addClass("JSMenu");
         this.setBackground("#f2f2f2");
     }
-    setIcon(icon: JSComponent) {
-        var oldIcon: JSComponent = this.getIcon();
-        if (oldIcon !== icon) {
-            if (oldIcon) {
-                this.remove(oldIcon);
-            }
-            if (icon) {
-                icon.setStyle("vertical-align", "middle");
-                super.add(icon, null, 1);
-            }
-        }
+    setIcon(icon: JSIcon) {
         super.setIcon(icon);
+        var oldImage: JSComponent = this.getImage();
+        if (oldImage) {
+            this.remove(oldImage);
+        }
+        if (icon) {
+            var image: JSImageIcon = new JSImageIcon(icon);
+            image.setStyle("vertical-align", "middle");
+            super.add(image, null, 1);
+            this.setImage(image);
+        }
     }
     getLabel(): JSLabel {
         return this.getData("label"); 
@@ -186,11 +193,13 @@ class JSMenu extends JSHTMLComponent {
                 var expandIcon: JSPathIcon = component.getExpandIcon();
                 if (!expandIcon) {
                     expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16);
-                    expandIcon.getPath().setBackground("gray");
-                    expandIcon.setStyle("vertical-align", "middle");
-                    component.add(expandIcon);
                     component.setExpandIcon(expandIcon);
                 }
+                var expandImage: JSPathImage = new JSPathImage(expandIcon);
+                expandImage.getPath().setBackground("gray");
+                expandImage.setStyle("vertical-align", "middle");
+                component.setImage(expandImage);
+                component.add(expandImage);
             }
         } else {
             super.add(component);

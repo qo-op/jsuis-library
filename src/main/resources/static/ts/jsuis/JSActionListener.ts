@@ -1,22 +1,11 @@
 /// <reference path = "../jsuis.ts"/>
 class JSActionListener implements ActionListener {
     
-    actionPerformed: (actionEvent: JSActionEvent) => void;
+    actionPerformed: (actionEvent: JSActionEvent, component?: JSComponent) => void;
     
-    constructor(actionListener: ActionListener);
-    constructor(thisValue: any, actionListener: ActionListener);
-    // overload
-    constructor(actionListenerOrThisValue: any, actionListener?: ActionListener) {
-        if (actionListener === undefined) {
-            actionListener = actionListenerOrThisValue;
-            this.actionPerformed = function(actionEvent: JSActionEvent) {
-                actionListener.actionPerformed(actionEvent);
-            }
-        } else {
-            var thisValue = actionListenerOrThisValue;
-            this.actionPerformed = function(actionEvent: JSActionEvent) {
-                actionListener.actionPerformed.call(thisValue, actionEvent);
-            }
+    constructor(actionListener: ActionListener) {
+        this.actionPerformed = function(actionEvent: JSActionEvent, component: JSComponent) {
+            actionListener.actionPerformed.call(actionListener, actionEvent, component);
         }
     }
 }

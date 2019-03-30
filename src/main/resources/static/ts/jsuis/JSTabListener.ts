@@ -1,70 +1,37 @@
 /// <reference path = "../jsuis.ts"/>
 class JSTabListener implements TabListener {
     
-    tabOpened: (tabEvent: JSTabEvent) => void;
-    tabClosing: (tabEvent: JSTabEvent) => void;
-    tabClosed: (tabEvent: JSTabEvent) => void;
-    tabActivated: (tabEvent: JSTabEvent) => void;
-    tabDeactivated: (tabEvent: JSTabEvent) => void;
+    tabOpened: (tabEvent: JSTabEvent, component?: JSComponent) => void;
+    tabClosing: (tabEvent: JSTabEvent, component?: JSComponent) => void;
+    tabClosed: (tabEvent: JSTabEvent, component?: JSComponent) => void;
+    tabActivated: (tabEvent: JSTabEvent, component?: JSComponent) => void;
+    tabDeactivated: (tabEvent: JSTabEvent, component?: JSComponent) => void;
     
-    constructor(tabListener: TabListener);
-    constructor(thisValue: any, tabListener: TabListener);
-    // overload
-    constructor(tabListenerOrThisValue: any, tabListener?: TabListener) {
-        if (tabListener === undefined) {
-            tabListener = tabListenerOrThisValue;
-            if (tabListener.tabOpened) {
-                this.tabOpened = function(tabEvent: JSTabEvent) {
-                    tabListener.tabOpened(tabEvent);
-                }
+    constructor(tabListener: TabListener) {
+        if (tabListener.tabOpened) {
+            this.tabOpened = function(tabEvent: JSTabEvent, component: JSComponent) {
+                tabListener.tabOpened.call(tabListener, tabEvent, component);
             }
-            if (tabListener.tabClosing) {
-                this.tabClosing = function(tabEvent: JSTabEvent) {
-                    tabListener.tabClosing(tabEvent);
-                }
+        }
+        if (tabListener.tabClosing) {
+            this.tabClosing = function(tabEvent: JSTabEvent, component: JSComponent) {
+                tabListener.tabClosing.call(tabListener, tabEvent, component);
             }
-            if (tabListener.tabClosed) {
-                this.tabClosed = function(tabEvent: JSTabEvent) {
-                    tabListener.tabClosed(tabEvent);
-                }
+        }
+        if (tabListener.tabClosed) {
+            this.tabClosed = function(tabEvent: JSTabEvent, component: JSComponent) {
+                tabListener.tabClosed.call(tabListener, tabEvent, component);
             }
-            if (tabListener.tabActivated) {
-                this.tabActivated = function(tabEvent: JSTabEvent) {
-                    tabListener.tabActivated(tabEvent);
-                }
+        }
+        if (tabListener.tabActivated) {
+            this.tabActivated = function(tabEvent: JSTabEvent, component: JSComponent) {
+                tabListener.tabActivated.call(tabListener, tabEvent, component);
             }
-            if (tabListener.tabDeactivated) {
-                this.tabDeactivated = function(tabEvent: JSTabEvent) {
-                    tabListener.tabDeactivated(tabEvent);
-                }
+        }
+        if (tabListener.tabDeactivated) {
+            this.tabDeactivated = function(tabEvent: JSTabEvent, component: JSComponent) {
+                tabListener.tabDeactivated.call(tabListener, tabEvent, component);
             }
-        } else {
-            var thisValue = tabListenerOrThisValue;
-            if (tabListener.tabOpened) {
-                this.tabOpened = function(tabEvent: JSTabEvent) {
-                    tabListener.tabOpened.call(thisValue, tabEvent);
-                }
-            }
-            if (tabListener.tabClosing) {
-                this.tabClosing = function(tabEvent: JSTabEvent) {
-                    tabListener.tabClosing.call(thisValue, tabEvent);
-                }
-            }
-            if (tabListener.tabClosed) {
-                this.tabClosed = function(tabEvent: JSTabEvent) {
-                    tabListener.tabClosed.call(thisValue, tabEvent);
-                }
-            }
-            if (tabListener.tabActivated) {
-                this.tabActivated = function(tabEvent: JSTabEvent) {
-                    tabListener.tabActivated.call(thisValue, tabEvent);
-                }
-            }
-            if (tabListener.tabDeactivated) {
-                this.tabDeactivated = function(tabEvent: JSTabEvent) {
-                    tabListener.tabDeactivated.call(thisValue, tabEvent);
-                }
-            }
-        }        
-   }
+        }
+    }
 }

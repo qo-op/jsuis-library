@@ -3,33 +3,76 @@ class JSImageIcon extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLImageElement);
+    constructor(icon: JSIcon);
+    constructor(source: string);
     constructor(width: number, height: number);
-    constructor(location: string);
-    constructor(location: string, width: number, height: number);
+    constructor(source: string, width: number, height: number);
     // overload
-    constructor(elementOrWidthOrLocation?: HTMLImageElement | number | string, heightOrWidth?: number, height?: number) {
-        // constructor();
-        // constructor(element: HTMLImageElement);
-        super(elementOrWidthOrLocation === undefined || !(elementOrWidthOrLocation instanceof HTMLImageElement) ? document.createElement("img") : elementOrWidthOrLocation);
-        if (elementOrWidthOrLocation !== undefined && !(elementOrWidthOrLocation instanceof HTMLImageElement)) {
-            if (typeof elementOrWidthOrLocation === "number") {
-                // constructor(width: number, height: number);
-                this.setWidth(elementOrWidthOrLocation);
-                this.setHeight(heightOrWidth);
-            } else {
-                // constructor(location: string);
-                // constructor(location: string, width: number, height: number);
-                this.setLocation(elementOrWidthOrLocation);
-                if (heightOrWidth !== undefined) {
-                    this.setWidth(heightOrWidth);
-                    this.setHeight(height);
-                }
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLImageElement);
+            // constructor(icon: JSIcon);
+            // constructor(source: string);
+            if (args[0] instanceof HTMLImageElement) {
+            } else if (args[0] instanceof JSIcon) {
+                var icon: JSIcon = args[0];
+                this.setIcon(icon);
+            } else if (typeof args[0] === "string") {
+                var source: string = args[0];
+                this.setSource(source);
             }
+            break;
+        case 2:
+            // constructor(width: number, height: number);
+            if (typeof args[0] === "number" && typeof args[1] === "number") {
+                var width: number = args[0];
+                var height: number = args[1];
+                this.setWidth(width);
+                this.setHeight(height);
+            }
+            break;
+        case 3:
+            // constructor(source: string, width: number, height: number);
+            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                var source: string = args[0];
+                var width: number = args[1];
+                var height: number = args[2];
+                this.setSource(source);
+                this.setWidth(width);
+                this.setHeight(height);
+            }
+            break;
+        default:
         }
         this.setStyle("-webkit-user-drag", "none");
     }
     init(): void {
         this.addClass("JSImageIcon");
+    }
+    setIcon(icon: JSIcon) {
+        var source = icon.getSource();
+        if (source) {
+            this.setSource(source);
+        }
+        var iconWidth = icon.getIconWidth();
+        if (iconWidth) {
+            this.setWidth(iconWidth);
+        }
+        var iconHeight = icon.getIconHeight();
+        if (iconHeight) {
+            this.setHeight(iconHeight);
+        }
+    }
+    getSource(): string {
+        return this.getAttribute("src");
+    }
+    setSource(source: string) {
+        this.setAttribute("src", source);
     }
     getWidth(): number {
         return this.width || +this.getAttribute("width");
@@ -75,17 +118,11 @@ class JSImageIcon extends JSHTMLComponent {
         }
         return this.getHeight();
     }
-    getLocation(): string {
-        return this.getAttribute("src");
-    }
-    setLocation(location: string) {
-        this.setAttribute("src", location);
-    }
     clone(): JSImageIcon {
         var clone = new JSImageIcon();
+        clone.setSource(this.getSource());
         clone.setWidth(this.getWidth());
         clone.setHeight(this.getHeight());
-        clone.setLocation(this.getLocation());
         return clone;
     }
 }

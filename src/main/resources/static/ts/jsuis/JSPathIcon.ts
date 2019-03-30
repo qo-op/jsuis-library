@@ -1,112 +1,46 @@
 /// <reference path = "../jsuis.ts"/>
-class JSPathIcon extends JSHTMLComponent {
+class JSPathIcon extends JSIcon {
+    
+    background: string;
+    foreground: string;
     
     constructor();
-    constructor(element: HTMLDivElement);
-    constructor(width: number, height: number);
-    constructor(pathDefinition: string);
-    constructor(pathDefinition: string, width: number, height: number);
+    constructor(source: string);
+    constructor(iconWidth: number, iconHeight: number);
+    constructor(source: string, iconWidth: number, iconHeight: number);
+    constructor(source: string, background: string, foreground: string, iconWidth: number, iconHeight: number);
     // overload
-    constructor(elementOrWidthOrPathDefinition?: HTMLDivElement | number | string, heightOrWidth?: number, height?: number) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrWidthOrPathDefinition === undefined || !(elementOrWidthOrPathDefinition instanceof HTMLDivElement) ? document.createElement("div") : elementOrWidthOrPathDefinition);
-        var graphics: JSGraphics = this.getGraphics();
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.add(graphics);
-            this.setGraphics(graphics);
-        }
-        var path: JSPath = this.getPath();
-        if (!path) {
-            path = new JSPath();
-            graphics.add(path);
-            this.setPath(path);
-        }
-        if (elementOrWidthOrPathDefinition !== undefined && !(elementOrWidthOrPathDefinition instanceof HTMLDivElement)) {
-            if (typeof elementOrWidthOrPathDefinition === "number") {
-                // constructor(width: number, height: number);
-                this.setWidth(elementOrWidthOrPathDefinition);
-                this.setHeight(heightOrWidth);
+    constructor(...args: any[]) {
+        switch (args.length) {
+        case 5:
+            // constructor(source: string, background: string, foreground: string, iconWidth: number, iconHeight: number);
+            if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "string" && typeof args[3] === "number" && typeof args[4] === "number") {
+                var source: string = args[0];
+                var background: string = args[1];
+                var foreground: string = args[2];
+                var iconWidth: number = args[3];
+                var iconHeight: number = args[4];
+                super(source, iconWidth, iconHeight);
+                this.setBackground(background);
+                this.setForeground(foreground);
             } else {
-                // constructor(pathDefinition: string);
-                // constructor(pathDefinition: string, width: number, height: number);
-                this.setPathDefinition(elementOrWidthOrPathDefinition);
-                if (heightOrWidth !== undefined) {
-                    this.setWidth(heightOrWidth);
-                    this.setHeight(height);
-                }
+                JSIcon.apply(this, args);
             }
-        }
-        this.setStyle("display", "inline-block");
-        this.setStyle("font-size", "0");
-    }
-    init(): void {
-        this.addClass("JSPathIcon");
-    }
-    getGraphics(): JSGraphics {
-        return this.getData("graphics");
-    }
-    setGraphics(graphics: JSGraphics) {
-        this.setData("graphics", graphics);
-    }
-    getPath(): JSPath {
-        return this.getData("path");
-    }
-    setPath(path: JSPath) {
-        this.setData("path", path);
-    }
-    setWidth(width: number): void;
-    setWidth(width: string): void;
-    // overload
-    setWidth(width: number | string): void {
-        var graphics: JSGraphics = this.getGraphics();
-        if (typeof width === "number") {
-            graphics.setWidth(width);
-            super.setWidth(width);
-        } else {
-            graphics.setWidth(width);
-            super.setWidth(width);
+            break;
+        default:
+            JSIcon.apply(this, args);
         }
     }
-    setHeight(height: number): void;
-    setHeight(height: string): void;
-    // overload
-    setHeight(height: number | string): void {
-        var graphics: JSGraphics = this.getGraphics();
-        if (typeof height === "number") {
-            graphics.setHeight(height);
-        } else {
-            graphics.setHeight(height);
-        }
+    getBackground(): string {
+        return this.background;
     }
-    getPathDefinition(): string {
-        var path: JSPath = this.getPath();
-        return path.getPathDefinition();
+    setBackground(background: string) {
+        this.background = background;
     }
-    setPathDefinition(pathDefinition: string) {
-        var path: JSPath = this.getPath();
-        path.setPathDefinition(pathDefinition);
+    getForeground(): string {
+        return this.foreground;
     }
-    getPreferredWidth(): number {
-        var preferredWidth: string = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
-        }
-        return this.getWidth();
-    }
-    getPreferredHeight(): number {
-        var preferredHeight: string = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        return this.getHeight();
-    }
-    clone(): JSPathIcon {
-        var clone = new JSPathIcon();
-        clone.setWidth(this.getWidth());
-        clone.setHeight(this.getHeight());
-        clone.setPathDefinition(this.getPathDefinition());
-        return clone;
+    setForeground(foreground: string) {
+        this.foreground = foreground;
     }
 }

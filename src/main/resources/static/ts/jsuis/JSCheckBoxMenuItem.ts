@@ -1,5 +1,5 @@
 /// <reference path = "../jsuis.ts"/>
-class JSMenuItem extends JSHTMLComponent {
+class JSCheckBoxMenuItem extends JSHTMLComponent {
     
     delay: number = 500;
     
@@ -12,7 +12,6 @@ class JSMenuItem extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var signature: string;
         switch (args.length) {
         case 0:
             // constructor();
@@ -105,6 +104,10 @@ class JSMenuItem extends JSHTMLComponent {
         if (icon) {
             var image: JSImageIcon = new JSImageIcon(icon);
             image.setStyle("vertical-align", "middle");
+            var text = this.getText();
+            if (text) {
+                image.setStyle("margin-right", "4px");
+            }
             this.add(image, null, 0);
             this.setImage(image);
         }

@@ -1,6 +1,6 @@
 /// <reference path = "../jsuis.ts"/>
 interface DragListener {
-    dragStart?(dragEvent: DragEvent): void;
-    drag?(dragEvent: DragEvent): void;
-    dragEnd?(dragEvent: DragEvent): void;
+    dragStart?(dragEvent: DragEvent, component?: JSComponent): void;
+    drag?(dragEvent: DragEvent, component?: JSComponent): void;
+    dragEnd?(dragEvent: DragEvent, component?: JSComponent): void;
 }

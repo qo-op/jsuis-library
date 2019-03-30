@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 interface MouseListener {
-    mouseClicked?(mouseEvent: MouseEvent): void;
-    mousePressed?(mouseEvent: MouseEvent): void;
-    mouseReleased?(mouseEvent: MouseEvent): void;
-    mouseEntered?(mouseEvent: MouseEvent): void;
-    mouseExited?(mouseEvent: MouseEvent): void;
-    mouseMoved?(mouseEvent: MouseEvent): void;
-    mouseDragged?(mouseEvent: MouseEvent): void;
+    mouseClicked?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mousePressed?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseReleased?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseEntered?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseExited?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseMoved?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseDragged?(mouseEvent: MouseEvent, component?: JSComponent): void;
 }

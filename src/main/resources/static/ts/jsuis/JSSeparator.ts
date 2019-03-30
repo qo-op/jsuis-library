@@ -32,9 +32,9 @@ class JSSeparator extends JSHTMLComponent {
             this.setLine(line);
         }
         this.addMouseListener(new JSMouseListener({
-            mousePressed(mouseEvent: MouseEvent) {
+            mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
             },
-            mouseReleased(mouseEvent: MouseEvent) {
+            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
             }
         }));
     }
