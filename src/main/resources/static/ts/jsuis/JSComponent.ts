@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSComponent
+ * 
+ * @author Yassuo Toda
+ */
 class JSComponent {
     
     /*
@@ -40,18 +45,13 @@ class JSComponent {
     
     element: Element;
     
-    constructor();
-    constructor(element: Element);
-    // overload
-    constructor(element?: Element) {
+    constructor(element: Element) {
         this.element = element;
         if ((<any> this.element).data === undefined) {
             (<any> this.element).data = {};
         }
-        this.init();
-    }
-    init(): void {
-        this.addClass("JSComponent");
+        this.setClass("JSComponent");
+        this.setStyle("cursor", "inherit");
     }
     getAttribute(attribute: string): string {
         return this.element.getAttribute(attribute);
@@ -107,6 +107,9 @@ class JSComponent {
     }
     setId(id: string) {
         this.setAttribute("id", id);
+    }
+    withId(id: string) {
+        this.setId(id);
         return this;
     }
     getName(): string {
@@ -114,74 +117,151 @@ class JSComponent {
     }
     setName(name: string) {
         this.setAttribute("name", name);
+    }
+    withName(name: string) {
+        this.setName(name);
         return this;
     }
-	addClass(clazz: string): void {
+    getClass(): string {
+        return this.getAttribute("class");
+    }
+    setClass(clazz: string) {
+        this.setAttribute("class", clazz);
+    }
+    addClass(clazz: string): void {
         var clazzes: string = (this.getAttribute("class") || "").trim();
         if (clazzes.indexOf(" " + clazz + " ") !== -1 ||
                 clazzes.indexOf(clazz + " ") !== -1 ||
                 clazzes.indexOf(" " + clazz) !== -1) {
             return;
         }
-        this.setAttribute("class", (clazzes + " " + clazz).trim());
-	}
+        this.setClass((clazzes + " " + clazz).trim());
+    }
     getX(): number {
         return 0;
     }
-    setX(x: number): void;
-    setX(x: string): void;
-    // overload
-    setX(x: number | string): void {
+    setX(pixels: number, percent?: number) {
+        this.setXPixels(pixels);
+        if (percent !== undefined) {
+            this.setXPercent(percent);
+        }
     }
     getY(): number {
         return 0;
     }
-    setY(y: number): void;
-    setY(y: string): void;
-    // overload
-    setY(y: number | string): void {
+    setY(pixels: number, percent?: number) {
+        this.setYPixels(pixels);
+        if (percent !== undefined) {
+            this.setYPercent(percent);
+        }
     }
-    
-    width: number = 0;
-    height: number = 0;
-    oldWidth: number = -1;
-    oldHeight: number = -1;
-    
     getWidth(): number {
-        return this.width;
+        return 0;
     }
-    setWidth(width: number): void;
-    setWidth(width: string): void;
-    // overload
-    setWidth(width: number | string): void {
-        if (typeof width === "number") {
-            this.oldWidth = this.width;
-            this.width = width;
+    setWidth(pixels: number, percent?: number) {
+        this.setWidthPixels(pixels);
+        if (percent !== undefined) {
+            this.setWidthPercent(percent);
         }
     }
     getHeight(): number {
-        return this.height;
+        return 0;
     }
-    setHeight(height: number): void;
-    setHeight(height: string): void;
-    // overload
-    setHeight(height: number | string): void {
-        if (typeof height === "number") {
-            this.oldHeight = this.height;
-            this.height = height;
+    setHeight(pixels: number, percent?: number) {
+        this.setHeightPixels(pixels);
+        if (percent !== undefined) {
+            this.setHeightPercent(percent);
+        }
+    }
+    getOuterWidth(): number {
+        return this.getWidth();
+    }
+    setOuterWidth(pixels: number, percent?: number) {
+        this.setOuterWidthPixels(pixels);
+        if (percent !== undefined) {
+            this.setWidthPercent(percent);
+        }
+    }
+    getOuterHeight(): number {
+        return this.getHeight();
+    }
+    setOuterHeight(pixels: number, percent?: number) {
+        this.setOuterHeightPixels(pixels);
+        if (percent !== undefined) {
+            this.setHeightPercent(percent);
         }
     }
     
-    getOuterWidth(): number {
-        return 0;
+    protected xPixels: number;
+    protected yPixels: number;
+    protected xPercent: number;
+    protected yPercent: number;
+    protected widthPixels: number;
+    protected heightPixels: number;
+    protected widthPercent: number;
+    protected heightPercent: number;
+    
+    protected getXPixels(): number {
+        return this.xPixels;
     }
-    setOuterWidth(outerWidth: number) {
+    protected setXPixels(xPixels: number) {
+        this.xPixels = xPixels;
     }
-    getOuterHeight(): number {
-        return 0;
+    protected getYPixels(): number {
+        return this.yPixels;
     }
-    setOuterHeight(outerHeight: number) {
+    protected setYPixels(yPixels: number) {
+        this.yPixels = yPixels;
     }
+    protected getXPercent(): number {
+        return this.xPercent;
+    }
+    protected setXPercent(xPercent: number) {
+        this.xPercent = xPercent;
+    }
+    protected getYPercent(): number {
+        return this.yPercent;
+    }
+    protected setYPercent(yPercent: number) {
+        this.yPercent = yPercent;
+    }
+    protected getWidthPixels(): number {
+        return this.widthPixels;
+    }
+    protected setWidthPixels(widthPixels: number) {
+        this.widthPixels = widthPixels;
+    }
+    protected getHeightPixels(): number {
+        return this.heightPixels;
+    }
+    protected setHeightPixels(heightPixels: number) {
+        this.heightPixels = heightPixels;
+    }
+    protected getWidthPercent(): number {
+        return this.widthPercent;
+    }
+    protected setWidthPercent(widthPercent: number) {
+        this.widthPercent = widthPercent;
+    }
+    protected getHeightPercent(): number {
+        return this.heightPercent;
+    }
+    protected setHeightPercent(heightPercent: number) {
+        this.heightPercent = heightPercent;
+    }
+    protected getOuterWidthPixels(): number {
+        return this.getWidthPixels();
+    }
+    protected setOuterWidthPixels(outerWidthPixels: number) {
+        this.setWidthPixels(outerWidthPixels);
+    }
+    protected getOuterHeightPixels(): number {
+        return this.getHeightPixels();
+    }
+    protected setOuterHeightPixels(outerHeightPixels: number) {
+        this.setHeightPixels(outerHeightPixels);
+    }
+    
     getInsetTop(): number {
         return 0;
     }
@@ -304,13 +384,20 @@ class JSComponent {
         }
     }
     validate(): void {
-        // if (this.width !== this.oldWidth || this.height !== this.oldHeight) {
-            var layout: JSLayout = this.getLayout();
-            if (layout) {
-                layout.layoutContainer(this);
+        var layout: JSLayout = this.getLayout();
+        if (layout) {
+            var parent: JSComponent = this.getParent();
+            if (parent) {
+                var parentLayout: JSLayout = parent.getLayout();
+                if (!parentLayout) {
+                    this.setStyle("min-width", this.getPreferredWidth() + "px");
+                    this.setStyle("min-height", this.getPreferredHeight() + "px");
+                    this.setStyle("position", "relative");
+                }
             }
-            this.validateChildren();
-        // }
+            layout.layoutContainer(this);
+        }
+        this.validateChildren();
     }
     validateChildren(): void {
         var components: JSComponent[] = this.getComponents();
@@ -319,22 +406,6 @@ class JSComponent {
             component.validate();
         }
     }
-    /*
-    revalidate(): void {
-        var layout: JSLayout = this.getLayout();
-        if (layout) {
-            layout.layoutContainer(this);
-        }
-        this.revalidateChildren();
-    }
-    revalidateChildren(): void {
-        var components: JSComponent[] = this.getComponents();
-        for (var i: number = 0; i < components.length; i++) {
-            var component: JSComponent = components[i];
-            component.revalidate();
-        }
-    }
-    */
     isVisible(): boolean {
         return this.getStyle("visibility") !== "hidden";
     }
@@ -487,14 +558,6 @@ class JSComponent {
     setImage(image: JSComponent) {
         this.setData("image", image);
     }
-    /*
-    getPathImage(): JSPathImage {
-        return this.getData("pathImage");
-    }
-    setPathImage(pathImage: JSPathImage) {
-        this.setData("pathImage", pathImage);
-    }
-    */
     getAction(): JSAction {
         return this.getData("action");
     }
@@ -581,30 +644,12 @@ class JSComponent {
             clearTimeout(timeout);
         }
     }
-    addEventListener(event: string, listener: (event: Event) => void, useCapture: boolean): void {
-        this.element.addEventListener(event, listener, useCapture);
+    addEventListener(event: string, listener: (event: Event) => void, useCapture?: boolean): void {
+        this.element.addEventListener(event, listener, useCapture === true);
     }
-    removeEventListener(event: string, listener: (event: Event) => void): void;
-    removeEventListener(event: string, listener: (event: Event) => void, useCapture: boolean): void;
-    // overload
     removeEventListener(event: string, listener: (event: Event) => void, useCapture?: boolean): void {
-        if (useCapture === undefined) {
-            this.element.removeEventListener(event, listener);
-            this.element.removeEventListener(event, listener, true);
-        } else {
-            this.element.removeEventListener(event, listener, useCapture);
-        }
+        this.element.removeEventListener(event, listener, useCapture === true);
     }
-    /*
-    getMouseListeners(): MouseListener[] {
-        var mouseListeners: MouseListener[] = this.getData("mouseListeners");
-        if (mouseListeners === undefined) {
-            mouseListeners = [];
-            this.setData("mouseListeners", mouseListeners);
-        }
-        return mouseListeners;
-    }
-    */
     getJSMouseListeners(): JSMouseListener[] {
         var jsMouseListeners: JSMouseListener[] = this.getData("jsMouseListeners");
         if (jsMouseListeners === undefined) {
@@ -613,14 +658,7 @@ class JSComponent {
         }
         return jsMouseListeners;
     }
-    addMouseListener(mouseListener: MouseListener): void;
-    addMouseListener(mouseListener: MouseListener, useCapture: boolean): void;
-    // overload
     addMouseListener(mouseListener: MouseListener, useCapture?: boolean): void {
-        /*
-        var mouseListeners: MouseListener[] = this.getMouseListeners();
-        mouseListeners.push(mouseListener);
-        */
         var jsMouseListener: JSMouseListener = new JSMouseListener(mouseListener, true);
         jsMouseListener.setComponent(this);
         var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
@@ -647,18 +685,7 @@ class JSComponent {
             this.addMouseDraggedListener(<MouseDraggedListener> jsMouseListener, useCapture === true);
         }
     }
-    removeMouseListener(mouseListener: MouseListener): void;
-    removeMouseListener(mouseListener: MouseListener, useCapture: boolean): void;
-    // overload
     removeMouseListener(mouseListener: MouseListener, useCapture?: boolean): void {
-        /*
-        var mouseListeners: MouseListener[] = this.getMouseListeners();
-        var index = mouseListeners.indexOf(mouseListener);
-        if (index === -1) {
-            return;
-        }
-        mouseListeners.splice(index, 1);
-        */
         var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
         var index: number = 0;
         var jsMouseListener: JSMouseListener;
@@ -672,72 +699,29 @@ class JSComponent {
             return;
         }
         jsMouseListener.setComponent(null);
-        /*
-        var jsMouseListener: JSMouseListener = jsMouseListeners[index];
-        */
         jsMouseListeners.splice(index, 1);
         if (mouseListener.mouseClicked) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("click", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("click", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("click", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("click", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mousePressed) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("mousedown", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("mousedown", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("mousedown", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("mousedown", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mouseReleased) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("mouseup", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("mouseup", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("mouseup", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("mouseup", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mouseEntered) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("mouseenter", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("mouseenter", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("mouseenter", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("mouseenter", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mouseExited) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("mouseleave", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("mouseleave", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("mouseleave", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("mouseleave", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mouseMoved) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("mousemove", jsMouseListener.mouseClicked);
-                this.element.removeEventListener("mousemove", jsMouseListener.mouseClicked, true);
-            } else {
-                this.element.removeEventListener("mousemove", jsMouseListener.mouseClicked, useCapture);
-            }
+            this.element.removeEventListener("mousemove", jsMouseListener.mouseClicked, useCapture === true);
         }
         if (mouseListener.mouseDragged) {
             this.removeMouseDraggedListener(<MouseDraggedListener> jsMouseListener);
         }
     }
-    /*
-    getAdjustmentListeners(): AdjustmentListener[] {
-        var adjustmentListeners: AdjustmentListener[] = this.getData("adjustmentListeners");
-        if (adjustmentListeners === undefined) {
-            adjustmentListeners = [];
-            this.setData("adjustmentListeners", adjustmentListeners);
-        }
-        return adjustmentListeners;
-    }
-    */
     getJSAdjustmentListeners(): JSAdjustmentListener[] {
         var jsAdjustmentListeners: JSAdjustmentListener[] = this.getData("jsAdjustmentListeners");
         if (jsAdjustmentListeners === undefined) {
@@ -746,32 +730,14 @@ class JSComponent {
         }
         return jsAdjustmentListeners;
     }
-    addAdjustmentListener(adjustmentListener: AdjustmentListener): void;
-    addAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture: boolean): void;
-    // overload
     addAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture?: boolean): void {
-        /*
-        var adjustmentListeners: AdjustmentListener[] = this.getAdjustmentListeners();
-        adjustmentListeners.push(adjustmentListener);
-        */
         var jsAdjustmentListener: JSAdjustmentListener = new JSAdjustmentListener(adjustmentListener, true);
         jsAdjustmentListener.setComponent(this);
         var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
         jsAdjustmentListeners.push(jsAdjustmentListener);
         this.element.addEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, useCapture === true);
     }
-    removeAdjustmentListener(adjustmentListener: AdjustmentListener): void;
-    removeAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture: boolean): void;
-    // overload
     removeAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture?: boolean): void {
-        /*
-        var adjustmentListeners: AdjustmentListener[] = this.getAdjustmentListeners();
-        var index = adjustmentListeners.indexOf(adjustmentListener);
-        if (index === -1) {
-            return;
-        }
-        adjustmentListeners.splice(index, 1);
-        */
         var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
         var index: number = 0;
         var jsAdjustmentListener: JSAdjustmentListener;
@@ -785,16 +751,8 @@ class JSComponent {
             return;
         }
         jsAdjustmentListener.setComponent(null);
-        /*
-        var jsAdjustmentListener: JSAdjustmentListener = jsAdjustmentListeners[index];
-        */
         jsAdjustmentListeners.splice(index, 1);
-        if (useCapture === undefined) {
-            this.element.removeEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged);
-            this.element.removeEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, true);
-        } else {
-            this.element.removeEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, useCapture);
-        }
+        this.element.removeEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, useCapture === true);
     }
     getActionCommand(): string {
         return this.getAttribute("data-action-command");
@@ -818,7 +776,6 @@ class JSComponent {
                     component.fireActionPerformed(new JSActionEvent(component, component.getActionCommand()), component);
                 }
             });
-            mouseListener.setComponent(this);
             this.addMouseListener(mouseListener);
             this.setData("actionListener", mouseListener);
         }
@@ -847,17 +804,16 @@ class JSComponent {
         }
         return mouseDraggedListeners;
     }
-    addMouseDraggedListener(mouseDraggedListener: MouseDraggedListener, useCapture: boolean) {
-        var mouseListener = this.getData("dragListener");
+    addMouseDraggedListener(mouseDraggedListener: MouseDraggedListener, useCapture?: boolean) {
+        var mouseListener = this.getData("mouseDraggedListener");
         if (!mouseListener) {
             mouseListener = new JSMouseListener({
                 mousePressed(mouseEvent: MouseEvent, component: JSComponent): void {
-                    var body = JSBody.getInstance();
-                    body.setDragSource(component);
+                    JSBody.getInstance().setDragSource(component);
                 }
             });
-            this.addMouseListener(mouseListener, useCapture);
-            this.setData("dragListener", mouseListener);
+            this.addMouseListener(mouseListener, useCapture === true);
+            this.setData("mouseDraggedListener", mouseListener);
         }
         var mouseDraggedListeners: MouseDraggedListener[] = this.getMouseDraggedListeners();
         mouseDraggedListeners.push(mouseDraggedListener);
@@ -876,20 +832,175 @@ class JSComponent {
             mouseDraggedListener.mouseDragged(mouseEvent, component);
         }
     }
+    isDragEnabled(): boolean {
+        return this.getData("dragEnabled");
+    }
+    setDragEnabled(dragEnable: boolean) {
+        this.setData("dragEnabled", dragEnable);
+    }
+    getDragSourceListeners(): DragSourceListener[] {
+        var dragSourceListeners: DragSourceListener[] = this.getData("dragSourceListeners");
+        if (dragSourceListeners === undefined) {
+            dragSourceListeners = [];
+            this.setData("dragSourceListeners", dragSourceListeners);
+        }
+        return dragSourceListeners;
+    }
+    addDragSourceListener(dragSourceListener: DragSourceListener, useCapture?: boolean) {
+        this.setDragEnabled(true);
+        var mouseListener = this.getData("dragSourceListener");
+        if (!mouseListener) {
+            mouseListener = new JSMouseListener({
+                mousePressed(mouseEvent: MouseEvent, component: JSComponent): void {
+                    JSBody.getInstance().setDragSource(component);
+                }
+            });
+            this.addMouseListener(mouseListener, useCapture === true);
+            this.setData("dragSourceListener", mouseListener);
+        }
+        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        dragSourceListeners.push(dragSourceListener);
+    }
+    removeDragSourceListener(dragSourceListener: DragSourceListener) {
+        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        var index = dragSourceListeners.indexOf(dragSourceListener);
+        if (index !== -1) {
+            dragSourceListeners.splice(index, 1);
+        }
+    }
+    fireDragStart(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        for (var i: number = 0; i < dragSourceListeners.length; i++) {
+            var dragSourceListener = dragSourceListeners[i];
+            if (dragSourceListener.dragStart) {
+                dragSourceListener.dragStart(mouseEvent, component);
+            }
+        }
+    }
+    fireDrag(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        for (var i: number = 0; i < dragSourceListeners.length; i++) {
+            var dragSourceListener = dragSourceListeners[i];
+            if (dragSourceListener.drag) {
+                dragSourceListener.drag(mouseEvent, component);
+            }
+        }
+    }
+    fireDragEnd(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        for (var i: number = 0; i < dragSourceListeners.length; i++) {
+            var dragSourceListener = dragSourceListeners[i];
+            if (dragSourceListener.dragEnd) {
+                dragSourceListener.dragEnd(mouseEvent, component);
+            }
+        }
+    }
+    getDropTargetListeners(): DropTargetListener[] {
+        var dropTargetListeners: DropTargetListener[] = this.getData("dropTargetListeners");
+        if (dropTargetListeners === undefined) {
+            dropTargetListeners = [];
+            this.setData("dropTargetListeners", dropTargetListeners);
+        }
+        return dropTargetListeners;
+    }
+    addDropTargetListener(dropTargetListener: DropTargetListener, useCapture?: boolean) {
+        var mouseListener = this.getData("dropTargetListener");
+        if (!mouseListener) {
+            mouseListener = new JSMouseListener({
+                mouseEntered(mouseEvent: MouseEvent, component: JSComponent): void {
+                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
+                    if (dragSource && dragSource.isDragEnabled()) {
+                        var dragStart = dragSource.getData("dragStart");
+                        if (dragStart) {
+                            component.fireDragEnter(mouseEvent, component);
+                        }
+                    }
+                },
+                mouseMoved(mouseEvent: MouseEvent, component: JSComponent): void {
+                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
+                    if (dragSource && dragSource.isDragEnabled()) {
+                        var dragStart = dragSource.getData("dragStart");
+                        if (dragStart) {
+                            component.fireDragOver(mouseEvent, component);
+                        }
+                    }
+                },
+                mouseExited(mouseEvent: MouseEvent, component: JSComponent): void {
+                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
+                    if (dragSource && dragSource.isDragEnabled()) {
+                        var dragStart = dragSource.getData("dragStart");
+                        if (dragStart) {
+                            component.fireDragLeave(mouseEvent, component);
+                        }
+                    }
+                },
+                mouseReleased(mouseEvent: MouseEvent, component: JSComponent): void {
+                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
+                    if (dragSource && dragSource.isDragEnabled()) {
+                        var dragStart = dragSource.getData("dragStart");
+                        if (dragStart) {
+                            component.fireDrop(mouseEvent, component);
+                        }
+                    }
+                }
+            });
+            this.addMouseListener(mouseListener, useCapture === true);
+            this.setData("dropTargetListener", mouseListener);
+        }
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        dropTargetListeners.push(dropTargetListener);
+    }
+    removeDropTargetListener(dropTargetListener: DropTargetListener) {
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        var index = dropTargetListeners.indexOf(dropTargetListener);
+        if (index !== -1) {
+            dropTargetListeners.splice(index, 1);
+        }
+    }
+    fireDragEnter(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        for (var i: number = 0; i < dropTargetListeners.length; i++) {
+            var dropTargetListener = dropTargetListeners[i];
+            if (dropTargetListener.dragEnter) {
+                dropTargetListener.dragEnter(mouseEvent, component);
+            }
+        }
+    }
+    fireDragOver(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        for (var i: number = 0; i < dropTargetListeners.length; i++) {
+            var dropTargetListener = dropTargetListeners[i];
+            if (dropTargetListener.dragOver) {
+                dropTargetListener.dragOver(mouseEvent, component);
+            }
+        }
+    }
+    fireDragLeave(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        for (var i: number = 0; i < dropTargetListeners.length; i++) {
+            var dropTargetListener = dropTargetListeners[i];
+            if (dropTargetListener.dragLeave) {
+                dropTargetListener.dragLeave(mouseEvent, component);
+            }
+        }
+    }
+    fireDrop(mouseEvent: MouseEvent, component: JSComponent): void {
+        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        for (var i: number = 0; i < dropTargetListeners.length; i++) {
+            var dropTargetListener = dropTargetListeners[i];
+            if (dropTargetListener.drop) {
+                dropTargetListener.drop(mouseEvent, component);
+            }
+        }
+    }
+    isDraggable(): boolean {
+        return this.getAttribute("draggable") === "true";
+    }
     setDraggable(draggable: boolean) {
         this.setAttribute("draggable", "" + draggable);
         this.setStyle("-webkit-user-drag", draggable? "element" : "none");
+        this.setDragEnabled(draggable);
     }
-    /*
-    getDragListeners(): DragListener[] {
-        var dragListeners: DragListener[] = this.getData("mouseListeners");
-        if (dragListeners === undefined) {
-            dragListeners = [];
-            this.setData("mouseListeners", dragListeners);
-        }
-        return dragListeners;
-    }
-    */
     getJSDragListeners(): JSDragListener[] {
         var jsDragListeners: JSDragListener[] = this.getData("jsDragListeners");
         if (jsDragListeners === undefined) {
@@ -898,19 +1009,12 @@ class JSComponent {
         }
         return jsDragListeners;
     }
-    addDragListener(dragListener: DragListener): void;
-    addDragListener(dragListener: DragListener, useCapture: boolean): void;
-    // overload
     addDragListener(dragListener: DragListener, useCapture?: boolean): void {
-        /*
-        var dragListeners: DragListener[] = this.getDragListeners();
-        dragListeners.push(dragListener);
-        */
+        this.setDraggable(true);
         var jsDragListener: JSDragListener = new JSDragListener(dragListener, true);
         jsDragListener.setComponent(this);
         var jsDragListeners: JSDragListener[] = this.getJSDragListeners();
         jsDragListeners.push(jsDragListener);
-        this.setDraggable(true);
         if (jsDragListener.dragStart) {
             this.element.addEventListener("dragstart", jsDragListener.dragStart, useCapture === true);
         }
@@ -921,18 +1025,7 @@ class JSComponent {
             this.element.addEventListener("dragend", jsDragListener.dragEnd, useCapture === true);
         }
     }
-    removeDragListener(dragListener: DragListener): void;
-    removeDragListener(dragListener: DragListener, useCapture: boolean): void;
-    // overload
     removeDragListener(dragListener: DragListener, useCapture?: boolean): void {
-        /*
-        var dragListeners: DragListener[] = this.getDragListeners();
-        var index = dragListeners.indexOf(dragListener);
-        if (index === -1) {
-            return;
-        }
-        dragListeners.splice(index, 1);
-        */
         var jsDragListeners: JSDragListener[] = this.getJSDragListeners();
         var index: number = 0;
         var jsDragListener: JSDragListener;
@@ -946,45 +1039,17 @@ class JSComponent {
             return;
         }
         jsDragListener.setComponent(null);
-        /*
-        var jsDragListener: JSDragListener = jsDragListeners[index];
-        */
         jsDragListeners.splice(index, 1);
         if (dragListener.dragStart) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("dragstart", jsDragListener.dragStart);
-                this.element.removeEventListener("dragstart", jsDragListener.dragStart, true);
-            } else {
-                this.element.removeEventListener("dragstart", jsDragListener.dragStart, useCapture);
-            }
+            this.element.removeEventListener("dragstart", jsDragListener.dragStart, useCapture === true);
         }
         if (dragListener.drag) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("drag", jsDragListener.drag);
-                this.element.removeEventListener("drag", jsDragListener.drag, true);
-            } else {
-                this.element.removeEventListener("drag", jsDragListener.drag, useCapture);
-            }
+            this.element.removeEventListener("drag", jsDragListener.drag, useCapture === true);
         }
         if (dragListener.dragEnd) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("dragend", jsDragListener.dragEnd);
-                this.element.removeEventListener("dragend", jsDragListener.dragEnd, true);
-            } else {
-                this.element.removeEventListener("dragend", jsDragListener.dragEnd, useCapture);
-            }
+            this.element.removeEventListener("dragend", jsDragListener.dragEnd, useCapture === true);
         }
     }
-    /*
-    getDropListeners(): DropListener[] {
-        var dropListeners: DropListener[] = this.getData("dropListeners");
-        if (dropListeners === undefined) {
-            dropListeners = [];
-            this.setData("dropListeners", dropListeners);
-        }
-        return dropListeners;
-    }
-    */
     getJSDropListeners(): JSDropListener[] {
         var jsDropListeners: JSDropListener[] = this.getData("jsDropListeners");
         if (jsDropListeners === undefined) {
@@ -993,13 +1058,7 @@ class JSComponent {
         }
         return jsDropListeners;
     }
-    addDropListener(dropListener: DropListener): void;
-    addDropListener(dropListener: DropListener, useCapture: boolean): void;
     addDropListener(dropListener: DropListener, useCapture?: boolean): void {
-        /*
-        var dropListeners: DropListener[] = this.getDropListeners();
-        dropListeners.push(dropListener);
-        */
         var jsDropListener: JSDropListener = new JSDropListener(dropListener, true);
         jsDropListener.setComponent(this);
         var jsDropListeners: JSDropListener[] = this.getJSDropListeners();
@@ -1017,18 +1076,7 @@ class JSComponent {
             this.element.addEventListener("drop", jsDropListener.drop, useCapture === true);
         }
     }
-    removeDropListener(dropListener: DropListener): void;
-    removeDropListener(dropListener: DropListener, useCapture: boolean): void;
-    // overload
     removeDropListener(dropListener: DropListener, useCapture?: boolean): void {
-        /*
-        var dropListeners: DropListener[] = this.getDropListeners();
-        var index = dropListeners.indexOf(dropListener);
-        if (index === -1) {
-            return;
-        }
-        dropListeners.splice(index, 1);
-        */
         var jsDropListeners: JSDropListener[] = this.getJSDropListeners();
         var index: number = 0;
         var jsDropListener: JSDropListener;
@@ -1042,53 +1090,20 @@ class JSComponent {
             return;
         }
         jsDropListener.setComponent(null);
-        /*
-        var jsDropListener: JSDropListener = jsDropListeners[index];
-        */
         jsDropListeners.splice(index, 1);
         if (dropListener.dragEnter) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("dragenter", jsDropListener.dragEnter);
-                this.element.removeEventListener("dragenter", jsDropListener.dragEnter, true);
-            } else {
-                this.element.removeEventListener("dragenter", jsDropListener.dragEnter, useCapture);
-            }
+            this.element.removeEventListener("dragenter", jsDropListener.dragEnter, useCapture === true);
         }
         if (dropListener.dragOver) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("dragover", jsDropListener.dragOver);
-                this.element.removeEventListener("dragover", jsDropListener.dragOver, true);
-            } else {
-                this.element.removeEventListener("dragover", jsDropListener.dragOver, useCapture);
-            }
+            this.element.removeEventListener("dragover", jsDropListener.dragOver, useCapture === true);
         }
         if (dropListener.dragLeave) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("dragleave", jsDropListener.dragLeave);
-                this.element.removeEventListener("dragleave", jsDropListener.dragLeave, true);
-            } else {
-                this.element.removeEventListener("dragleave", jsDropListener.dragLeave, useCapture);
-            }
+            this.element.removeEventListener("dragleave", jsDropListener.dragLeave, useCapture === true);
         }
         if (dropListener.drop) {
-            if (useCapture === undefined) {
-                this.element.removeEventListener("drop", jsDropListener.drop);
-                this.element.removeEventListener("drop", jsDropListener.drop, true);
-            } else {
-                this.element.removeEventListener("drop", jsDropListener.drop, useCapture);
-            }
+            this.element.removeEventListener("drop", jsDropListener.drop, useCapture === true);
         }
     }
-    /*
-    getChangeListeners(): ChangeListener[] {
-        var changeListeners: ChangeListener[] = this.getData("changeListeners");
-        if (changeListeners === undefined) {
-            changeListeners = [];
-            this.setData("changeListeners", changeListeners);
-        }
-        return changeListeners;
-    }
-    */
     getJSChangeListeners(): JSChangeListener[] {
         var jsChangeListeners: JSChangeListener[] = this.getData("jsChangeListeners");
         if (jsChangeListeners === undefined) {
@@ -1097,14 +1112,7 @@ class JSComponent {
         }
         return jsChangeListeners;
     }
-    addChangeListener(changeListener: ChangeListener): void;
-    addChangeListener(changeListener: ChangeListener, useCapture: boolean): void;
-    // overload
     addChangeListener(changeListener: ChangeListener, useCapture?: boolean): void {
-        /*
-        var changeListeners: ChangeListener[] = this.getChangeListeners();
-        changeListeners.push(changeListener);
-        */
         var jsChangeListener: JSChangeListener;
         if (changeListener instanceof JSChangeListener) {
             jsChangeListener = changeListener;
@@ -1116,18 +1124,7 @@ class JSComponent {
         jsChangeListeners.push(jsChangeListener);
         this.element.addEventListener("change", jsChangeListener.stateChanged, useCapture === true);
     }
-    removeChangeListener(changeListener: ChangeListener): void;
-    removeChangeListener(changeListener: ChangeListener, useCapture: boolean): void;
-    // overload
     removeChangeListener(changeListener: ChangeListener, useCapture?: boolean): void {
-        /*
-        var changeListeners: ChangeListener[] = this.getChangeListeners();
-        var index = changeListeners.indexOf(changeListener);
-        if (index === -1) {
-            return;
-        }
-        changeListeners.splice(index, 1);
-        */
         var jsChangeListeners: JSChangeListener[] = this.getJSChangeListeners();
         var index: number = 0;
         var jsChangeListener: JSChangeListener;
@@ -1141,15 +1138,7 @@ class JSComponent {
             return;
         }
         jsChangeListener.setComponent(null);
-        /*
-        var jsChangeListener: JSChangeListener = jsChangeListeners[index];
-        */
         jsChangeListeners.splice(index, 1);
-        if (useCapture === undefined) {
-            this.element.removeEventListener("change", jsChangeListener.stateChanged);
-            this.element.removeEventListener("change", jsChangeListener.stateChanged, true);
-        } else {
-            this.element.removeEventListener("change", jsChangeListener.stateChanged, useCapture);
-        }
+        this.element.removeEventListener("change", jsChangeListener.stateChanged, useCapture === true);
     }
 }

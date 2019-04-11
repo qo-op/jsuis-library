@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSFileChooser
+ * 
+ * @author Yassuo Toda
+ */
 class JSFileChooser extends JSHTMLComponent {
     
     selectedFiles: FileList;
@@ -6,10 +11,8 @@ class JSFileChooser extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLInputElement);
     // overload
-    constructor(element?: HTMLInputElement) {
-        // constructor();
-        // constructor(element: HTMLInputElement);
-        super(element === undefined ? document.createElement("input") : element);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "file");
         this.setStyle("display", "none");
         JSBody.getInstance().setFileChooser(this);
@@ -19,9 +22,7 @@ class JSFileChooser extends JSHTMLComponent {
                 component.setSelectedFiles((<HTMLInputElement> component.element).files);
             }
         }));
-    }
-    init(): void {
-        this.addClass("JSFileChooser");
+        this.setClass("JSFileChooser");
     }
     getFileFilter(): string {
         return this.getAttribute("accept");

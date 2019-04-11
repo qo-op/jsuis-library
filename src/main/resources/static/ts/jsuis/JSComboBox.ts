@@ -1,18 +1,33 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSComboBox
+ * 
+ * @author Yassuo Toda
+ */
 class JSComboBox extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLSelectElement);
     constructor(items: Array<string>);
     // overload
-    constructor(elementOrItems?: HTMLSelectElement | Array<any>) {
-        // constructor();
-        // constructor(element: HTMLSelectElement);
-        super(elementOrItems === undefined || !(elementOrItems instanceof HTMLSelectElement) ? document.createElement("select") : elementOrItems);
-        if (elementOrItems !== undefined && !(elementOrItems instanceof HTMLSelectElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLSelectElement);
             // constructor(items: Array<string>);
-            this.setItems(elementOrItems);
+            if (args[0] instanceof HTMLSelectElement) {
+            } else if (args[0] instanceof Array) {
+                var items: Array<any> = args[0];
+                this.setItems(items);
+            }
+            break;
+        default:
         }
+        this.setClass("JSComboBox");
     }
     getItems(): Array<any> {
         return this.getData("item");
@@ -32,8 +47,5 @@ class JSComboBox extends JSHTMLComponent {
         var items: Array<any> = this.getItems();
         var selectedIndex = this.getSelectedIndex();
         return items[selectedIndex];
-    }
-    init(): void {
-        this.addClass("JSComboBox");
     }
 }

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTabEvent
+ * 
+ * @author Yassuo Toda
+ */
 class JSTabEvent {
     
     source: any;

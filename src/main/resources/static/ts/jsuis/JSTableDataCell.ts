@@ -1,21 +1,33 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTableDataCell
+ * 
+ * @author Yassuo Toda
+ */
 class JSTableDataCell extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLTableCellElement);
     constructor(value: any);
     // overload
-    constructor(elementOrValue?: HTMLTableCellElement) {
-        // constructor();
-        // constructor(element: HTMLTableCellElement);
-        super(elementOrValue === undefined || !(elementOrValue instanceof HTMLTableCellElement) ? document.createElement("td") : elementOrValue);
-        if (elementOrValue !== undefined && !(elementOrValue instanceof HTMLTableCellElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLTableCellElement);
             // constructor(value: any);
-            this.setValue(elementOrValue);
+            if (args[0] instanceof HTMLTableCellElement) {
+            } else {
+                var value: any = args[0];
+                this.setValue(value);
+            }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSTableDataCell");
+        this.setClass("JSTableDataCell");
         this.setStyle("border", "1px solid gray");
         this.setStyle("border-collapse", "collapse");
     }

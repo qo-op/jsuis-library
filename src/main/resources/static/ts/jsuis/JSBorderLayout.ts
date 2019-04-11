@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSBorderLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSBorderLayout extends JSLayout {
     
     hgap: number = 0;
@@ -6,25 +11,44 @@ class JSBorderLayout extends JSLayout {
     float: boolean = false;
     
     constructor();
-    constructor(hgap: number, vgap: number);
     constructor(float: boolean);
+    constructor(hgap: number, vgap: number);
     constructor(float: boolean, hgap: number, vgap: number);
     // overload
-    constructor(hgapOrFloat?: number | boolean, vgapOrHgap?: number, vgap?: number) {
-        // constructor();
+    constructor(...args: any[]) {
         super();
-        if (typeof hgapOrFloat === "number") {
-            // constructor(hgap: number, vgap: number);
-            this.setHgap(hgapOrFloat);
-            this.setVgap(vgapOrHgap);
-        } else {
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
             // constructor(float: boolean);
-            // constructor(float: boolean, hgap: number, vgap: number);
-            this.setFloat(hgapOrFloat);
-            if (vgapOrHgap !== undefined) {
-                this.setHgap(vgapOrHgap);
+            if (typeof args[0] === "boolean") {
+                var float: boolean = args[0];
+                this.setFloat(float);
+            }
+            break;
+        case 2:
+            // constructor(hgap: number, vgap: number);
+            if (typeof args[0] === "number" && typeof args[1] === "number") {
+                var hgap: number = args[0];
+                var vgap: number = args[1];
+                this.setHgap(hgap);
                 this.setVgap(vgap);
             }
+            break;
+        case 3:
+            // constructor(float: boolean, hgap: number, vgap: number);
+            if (typeof args[0] === "boolean" && typeof args[1] === "number" && typeof args[2] === "number") {
+                var float: boolean = args[0];
+                var hgap: number = args[1];
+                var vgap: number = args[2];
+                this.setFloat(float);
+                this.setHgap(hgap);
+                this.setVgap(vgap);
+            }
+            break;
+        default:
         }
     }
     getHgap(): number {
@@ -177,10 +201,10 @@ class JSBorderLayout extends JSLayout {
         var hgap: number = this.getHgap();
         var vgap: number = this.getVgap();
         var float: boolean = this.isFloat();
-        var containerWidth: number = container.getWidth();
-        var containerHeight: number = container.getHeight();
-        var width: number = containerWidth;
-        var height: number = containerHeight;
+        var width: number = container.getWidth();
+        var height: number = container.getHeight();
+        var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
+        var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
         var x: number = container.getInsetLeft();
         var y: number = container.getInsetTop();
         var components: JSComponent[] = container.getComponents().slice();
@@ -193,10 +217,7 @@ class JSBorderLayout extends JSLayout {
                 var constraints: string = <string> component.getConstraints();
                 switch (constraints) {
                 case JSBorderLayout.NORTH:
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
                     var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                     component.setOuterHeight(componentPreferredOuterHeight);
                     component.setX(x);
@@ -205,24 +226,17 @@ class JSBorderLayout extends JSLayout {
                     y += componentPreferredOuterHeight + vgap;
                     break;
                 case JSBorderLayout.SOUTH:
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
                     var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                     component.setOuterHeight(componentPreferredOuterHeight);
                     component.setX(x);
-                    // component.setY(y + height - componentPreferredOuterHeight);
-                    component.setY("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom() - y + componentPreferredOuterHeight) + "px)");
+                    component.setY(height - height100 + y - componentPreferredOuterHeight -
+                            component.getMarginTop() - component.getBorderTopWidth() - component.getPaddingTop() -
+                            component.getPaddingBottom() - component.getBorderBottomWidth() - component.getMarginBottom(), 100);
                     height -= componentPreferredOuterHeight + vgap;
                     break;
                 case JSBorderLayout.WEST:
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterHeight(height - height100, 100);
                     var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                     component.setOuterWidth(componentPreferredOuterWidth);
                     component.setX(x);
@@ -231,29 +245,19 @@ class JSBorderLayout extends JSLayout {
                     x += componentPreferredOuterWidth + hgap;
                     break;
                 case JSBorderLayout.EAST:
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterHeight(height - height100, 100);
                     var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                     component.setOuterWidth(componentPreferredOuterWidth);
-                    // component.setX(x + width - componentPreferredOuterWidth);
-                    component.setX("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight() - x + componentPreferredOuterWidth) + "px)");
+                    component.setX(width - width100 + x - componentPreferredOuterWidth -
+                            component.getMarginLeft() - component.getBorderLeftWidth() - component.getPaddingLeft() -
+                            component.getPaddingRight() - component.getBorderRightWidth() - component.getMarginRight(), 100);
                     component.setY(y);
                     width -= componentPreferredOuterWidth + hgap;
                     break;
                 case JSBorderLayout.CENTER:
                 default:
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
                     component.setX(x);
                     component.setY(y);
                 }
@@ -266,10 +270,7 @@ class JSBorderLayout extends JSLayout {
                 }
                 var constraints: string = <string> component.getConstraints();
                 if (constraints === JSBorderLayout.NORTH) {
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
                     var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                     component.setOuterHeight(componentPreferredOuterHeight);
                     component.setX(x);
@@ -277,17 +278,13 @@ class JSBorderLayout extends JSLayout {
                     height -= componentPreferredOuterHeight + vgap;
                     y += componentPreferredOuterHeight + vgap;
                 } else if (constraints === JSBorderLayout.SOUTH) {
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
                     var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                     component.setOuterHeight(componentPreferredOuterHeight);
                     component.setX(x);
-                    // component.setY(y + height - componentPreferredOuterHeight);
-                    component.setY("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom() - y + componentPreferredOuterHeight) + "px)");
+                    component.setY(height - height100 + y - componentPreferredOuterHeight -
+                            component.getMarginTop() - component.getBorderTopWidth() - component.getPaddingTop() -
+                            component.getPaddingBottom() - component.getBorderBottomWidth() - component.getMarginBottom(), 100);
                     height -= componentPreferredOuterHeight + vgap;
                 }
             }
@@ -298,10 +295,7 @@ class JSBorderLayout extends JSLayout {
                 }
                 var constraints: string = <string> component.getConstraints();
                 if (constraints === JSBorderLayout.WEST) {
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterHeight(height - height100, 100);
                     var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                     component.setOuterWidth(componentPreferredOuterWidth);
                     component.setX(x);
@@ -309,16 +303,12 @@ class JSBorderLayout extends JSLayout {
                     width -= componentPreferredOuterWidth + hgap;
                     x += componentPreferredOuterWidth + hgap;
                 } else if (constraints === JSBorderLayout.EAST) {
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterHeight(height - height100, 100);
                     var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                     component.setOuterWidth(componentPreferredOuterWidth);
-                    // component.setX(x + width - componentPreferredOuterWidth);
-                    component.setX("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight() - x + componentPreferredOuterWidth) + "px)");
+                    component.setX(width - width100 + x - componentPreferredOuterWidth -
+                            component.getMarginLeft() - component.getBorderLeftWidth() - component.getPaddingLeft() -
+                            component.getPaddingRight() - component.getBorderRightWidth() - component.getMarginRight(), 100);
                     component.setY(y);
                     width -= componentPreferredOuterWidth + hgap;
                 }
@@ -330,14 +320,8 @@ class JSBorderLayout extends JSLayout {
                 }
                 var constraints: string = <string> component.getConstraints();
                 if (!constraints || constraints === JSBorderLayout.CENTER) {
-                    // component.setOuterWidth(width);
-                    component.setWidth("calc(100% - " + (containerWidth - width +
-                            component.getMarginLeft() + component.getBorderLeftWidth() + component.getPaddingLeft() +
-                            component.getPaddingRight() + component.getBorderRightWidth() + component.getMarginRight()) + "px)");
-                    // component.setOuterHeight(height);
-                    component.setHeight("calc(100% - " + (containerHeight - height +
-                            component.getMarginTop() + component.getBorderTopWidth() + component.getPaddingTop() +
-                            component.getPaddingBottom() + component.getBorderBottomWidth() + component.getMarginBottom()) + "px)");
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
                     component.setX(x);
                     component.setY(y);
                 }

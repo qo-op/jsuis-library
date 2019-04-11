@@ -1,93 +1,132 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSHTMLComponent
+ * 
+ * @author Yassuo Toda
+ */
 class JSHTMLComponent extends JSComponent {
     
-    constructor();
-    constructor(element: HTMLElement);
-    // overload
-    constructor(element?: HTMLElement) {
-        // constructor();
-        // constructor(element: HTMLElement);
+    constructor(element: HTMLElement) {
         super(element);
+        this.setClass("JSHTMLComponent");
     }
-    init(): void {
-        this.addClass("JSHTMLComponent");
-    }
+    
     getX(): number {
         return +this.getComputedStyle("left").replace("px", "");
-    }
-    setX(x: number): void;
-    setX(x: string): void;
-    // overload;
-    setX(x: number | string): void {
-        if (typeof x === "number") {
-            this.setStyle("left", x + "px");
-        } else {
-            this.setStyle("left", x);
-        }
     }
     getY(): number {
         return +this.getComputedStyle("top").replace("px", "");
     }
-    setY(y: number): void;
-    setY(y: string): void;
-    // overload;
-    setY(y: number | string): void {
-        if (typeof y === "number") {
-            this.setStyle("top", y + "px");
-        } else {
-            this.setStyle("top", y);
-        }
-    }
     getWidth(): number {
-        return this.width || this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
-    }
-    setWidth(width: number): void;
-    setWidth(width: string): void;
-    // overload
-    setWidth(width: number | string): void {
-        if (typeof width === "number") {
-            this.oldWidth = this.width;
-            this.setStyle("width", width + "px");
-            this.width = width;
-        } else {
-            this.setStyle("width", width);
-        }
+        return this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
     }
     getHeight(): number {
-        return this.height || this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
-    }
-    setHeight(height: number): void;
-    setHeight(height: string): void;
-    // overload
-    setHeight(height: number | string): void {
-        if (typeof height === "number") {
-            this.oldHeight = this.height;
-            this.setStyle("height", height + "px");
-            this.height = height;
-        } else {
-            this.setStyle("height", height);
-        }
+        return this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
     }
     getOuterWidth(): number {
         return this.getWidth() +
             this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
             this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
     }
-    setOuterWidth(outerWidth: number) {
-        this.setWidth(outerWidth -
-            this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
-            this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
-    }
     getOuterHeight(): number {
         return this.getHeight() +
             this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
             this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
     }
-    setOuterHeight(outerHeight: number) {
-        this.setHeight(outerHeight -
+    
+    protected setXPixels(xPixels: number) {
+        super.setXPixels(xPixels);
+        var xPercent = this.getXPercent();
+        if (xPercent) {
+            this.setStyle("left", "calc(" + xPercent + "% + " + xPixels + "px)");
+        } else {
+            this.setStyle("left", xPixels + "px");
+        }
+    }
+    protected setYPixels(yPixels: number) {
+        super.setYPixels(yPixels);
+        var yPercent = this.getYPercent();
+        if (yPercent) {
+            this.setStyle("top", "calc(" + yPercent + "% + " + yPixels + "px)");
+        } else {
+            this.setStyle("top", yPixels + "px");
+        }
+    }
+    protected setXPercent(xPercent: number) {
+        super.setXPercent(xPercent);
+        var xPixels = this.getXPixels();
+        if (xPixels) {
+            this.setStyle("left", "calc(" + xPercent + "% + " + xPixels + "px)");
+        } else {
+            this.setStyle("left", xPercent + "%");
+        }
+    }
+    protected setYPercent(yPercent: number) {
+        super.setYPercent(yPercent);
+        var yPixels = this.getYPixels();
+        if (yPixels) {
+            this.setStyle("top", "calc(" + yPercent + "% + " + yPixels + "px)");
+        } else {
+            this.setStyle("top", yPercent + "%");
+        }
+    }
+    protected setWidthPixels(widthPixels: number) {
+        super.setWidthPixels(widthPixels);
+        var widthPercent = this.getWidthPercent();
+        if (widthPercent) {
+            this.setStyle("width", "calc(" + widthPercent + "% + " + widthPixels + "px)");
+        } else {
+            this.setStyle("width", widthPixels + "px");
+        }
+    }
+    protected setHeightPixels(heightPixels: number) {
+        super.setHeightPixels(heightPixels);
+        var heightPercent = this.getHeightPercent();
+        if (heightPercent) {
+            this.setStyle("height", "calc(" + heightPercent + "% + " + heightPixels + "px)");
+        } else {
+            this.setStyle("height", heightPixels + "px");
+        }
+    }
+    protected setWidthPercent(widthPercent: number) {
+        super.setWidthPercent(widthPercent);
+        var widthPixels = this.getWidthPixels();
+        if (widthPixels) {
+            this.setStyle("width", "calc(" + widthPercent + "% + " + widthPixels + "px)");
+        } else {
+            this.setStyle("width", widthPercent + "%");
+        }
+    }
+    protected setHeightPercent(heightPercent: number) {
+        super.setHeightPercent(heightPercent);
+        var heightPixels = this.getHeightPixels();
+        if (heightPixels) {
+            this.setStyle("height", "calc(" + heightPercent + "% + " + heightPixels + "px)");
+        } else {
+            this.setStyle("height", heightPercent + "%");
+        }
+    }
+    protected getOuterWidthPixels(): number {
+        return this.getWidthPixels() +
+            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+    }
+    protected setOuterWidthPixels(outerWidthPixels: number) {
+        this.setWidthPixels(outerWidthPixels -
+            this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
+            this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
+    }
+    protected getOuterHeightPixels(): number {
+        return this.getHeightPixels() +
+            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+    }
+    protected setOuterHeightPixels(outerHeightPixels: number) {
+        this.setHeightPixels(outerHeightPixels -
             this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
             this.getPaddingBottom() - this.getBorderBottomWidth() - this.getMarginBottom());
     }
+    
     getInsetTop(): number {
         return this.getPaddingTop();
     }

@@ -1,21 +1,33 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTableRow
+ * 
+ * @author Yassuo Toda
+ */
 class JSTableRow extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLTableRowElement);
     constructor(values: any[]);
     // overload
-    constructor(elementOrValues?: HTMLTableRowElement | any[]) {
-        // constructor();
-        // constructor(element: HTMLTableRowElement);
-        super(elementOrValues === undefined || !(elementOrValues instanceof HTMLTableRowElement) ? document.createElement("tr") : elementOrValues);
-        if (elementOrValues !== undefined && !(elementOrValues instanceof HTMLTableRowElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLTableRowElement);
             // constructor(values: any[]);
-            this.setValues(elementOrValues);
+            if (args[0] instanceof HTMLTableElement) {
+            } else if (args[0] instanceof Array) {
+                var values: any[] = args[0];
+                this.setValues(values);
+            }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSTableRow");
+        this.setClass("JSTableRow");
     }
     getValues(): any[] {
         var values: any[] = [];

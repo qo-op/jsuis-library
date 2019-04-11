@@ -1,23 +1,24 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSMenuBar
+ * 
+ * @author Yassuo Toda
+ */
 class JSMenuBar extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
     // overload
-    constructor(element?: HTMLDivElement) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(element === undefined ? document.createElement("div") : element);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var menuBarContainer: JSMenuBarContainer = this.getMenuBarContainer();
         if (!menuBarContainer) {
             menuBarContainer = new JSMenuBarContainer();
             super.add(menuBarContainer);
             this.setMenuBarContainer(menuBarContainer);
         }
-    }
-    init(): void {
-        this.addClass("JSMenuBar");
-	    this.setBackground("#f2f2f2");
+        this.setClass("JSMenuBar");
+        this.setBackground("#f2f2f2");
     }
     getMenuBarContainer(): JSMenuBarContainer {
         return this.getData("menuBarContainer");

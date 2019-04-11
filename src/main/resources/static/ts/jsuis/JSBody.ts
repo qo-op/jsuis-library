@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSBody
+ * 
+ * @author Yassuo Toda
+ */
 class JSBody extends JSHTMLComponent {
     
     static instance: JSBody;
@@ -16,54 +21,37 @@ class JSBody extends JSHTMLComponent {
     
     constructor() {
         super(document.body);
-        var graphics: JSGraphics = this.getGraphics();
-        if (!graphics) {
-            graphics = new JSGraphics();
-            graphics.setHeight(0);
-            graphics.setStyle("position", "absolute");
-            this.add(graphics);
-            this.setGraphics(graphics);
-        }
-        var defs: JSDefs = this.getDefs();
-        if (!defs) {
-            defs = new JSDefs();
-            graphics.add(defs);
-            this.setDefs(defs);
-        }
-        var popupMenuContainer = this.getPopupMenuContainer();
-        if (!popupMenuContainer) {
-            popupMenuContainer = new JSDiv();
-            this.add(popupMenuContainer, JSBorderLayout.NORTH);
-            this.setPopupMenuContainer(popupMenuContainer);
-        }
-        var dragImageContainer = this.getDragImageContainer();
-        if (!dragImageContainer) {
-            dragImageContainer = new JSDiv();
-            dragImageContainer.setVisible(false);
-            this.add(dragImageContainer, JSBorderLayout.NORTH);
-            this.setDragImageContainer(dragImageContainer);
-        }
         this.addMouseListener({
-            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
-                var body: JSBody = <JSBody> component;
-                body.setDragSource(null);
-            },
             mouseMoved(mouseEvent: MouseEvent, component: JSComponent) {
                 var body: JSBody = <JSBody> component;
                 var dragSource: JSComponent = body.getDragSource();
                 if (dragSource) {
+                    var dragStart = dragSource.getData("dragStart");
+                    if (!dragStart) {
+                        dragSource.fireDragStart(mouseEvent, dragSource);
+                        dragSource.setData("dragStart", true);
+                    }
+                    dragSource.fireDrag(mouseEvent, dragSource);
                     dragSource.fireMouseDragged(mouseEvent, dragSource);
+                }
+            },
+            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
+                var body: JSBody = <JSBody> component;
+                var dragSource: JSComponent = body.getDragSource();
+                if (dragSource) {
+                    setTimeout(function() {
+                        var dragStart = dragSource.getData("dragStart");
+                        if (dragStart) {
+                            dragSource.fireDragEnd(mouseEvent, dragSource);
+                            dragSource.setData("dragStart", false);
+                        }
+                        body.setDragSource(null);
+                    });
                 }
             }
         }, true);
-        /*
-        window.addEventListener("resize", function() {
-            JSBody.getInstance().validate();
-        });
-        */
-    }
-    init(): void {
-        this.addClass("JSBody");
+        this.setClass("JSBody");
+        document.documentElement.style.height = "100%";
         this.setStyle("height", "100%");
         this.setStyle("margin", "0");
         this.setStyle("overflow", "hidden");
@@ -71,19 +59,7 @@ class JSBody extends JSHTMLComponent {
         this.setStyle("-ms-user-select", "none");
         this.setStyle("-moz-user-select", "none");
         this.setStyle("-webkit-user-select", "none");
-        document.documentElement.style.height = "100%";
-    }
-    getGraphics(): JSGraphics {
-        return this.getData("graphics");
-    }
-    setGraphics(graphics: JSGraphics) {
-        this.setData("graphics", graphics);
-    }
-    getDefs(): JSDefs {
-        return this.getData("defs");
-    }
-    setDefs(defs: JSDefs) {
-        this.setData("defs", defs);
+        this.setDragImage(new Image(0, 0));
     }
     getContentPane(): JSComponent {
         return this.getData("contentPane");
@@ -102,11 +78,39 @@ class JSBody extends JSHTMLComponent {
         }
         this.setData("contentPane", contentPane);
     }
-    getPopupMenuContainer(): JSComponent {
-        return this.getData("popupMenuContainer");
+    getDefs(): JSDefs {
+        var defs: JSDefs = this.getData("JSBody.defs");
+        if (!defs) {
+            defs = new JSDefs().withName("JSBody.defs");
+            var graphics: JSGraphics = this.getGraphics();
+            graphics.add(defs);
+            this.setData("JSBody.defs", defs);
+        }
+        return defs;
     }
-    setPopupMenuContainer(popupMenuContainer: JSComponent) {
-        this.setData("popupMenuContainer", popupMenuContainer);
+    getGraphics(): JSGraphics {
+        var graphics: JSGraphics = this.getData("JSBody.graphics");
+        if (!graphics) {
+            graphics = new JSGraphics().withName("JSBody.graphics");
+            graphics.setStyle("position", "absolute");
+            graphics.setWidth(0);
+            graphics.setHeight(0);
+            this.add(graphics, null, 0);
+            this.setData("JSBody.graphics", graphics);
+        }
+        return graphics;
+    }
+    getPopupMenuContainer(): JSComponent {
+        var popupMenuContainer: JSComponent = this.getData("JSBody.popupMenuContainer");
+        if (!popupMenuContainer) {
+            popupMenuContainer = new JSPanel().withName("JSBody.popupMenuContainer");
+            popupMenuContainer.setStyle("position", "absolute");
+            popupMenuContainer.setWidth(0);
+            popupMenuContainer.setHeight(0);
+            this.add(popupMenuContainer, null, 0);
+            this.setData("JSBody.popupMenuContainer", popupMenuContainer);
+        }
+        return popupMenuContainer;
     }
     getPopupMenu(): JSComponent {
         return this.popupMenu; 
@@ -120,22 +124,23 @@ class JSBody extends JSHTMLComponent {
             }
             if (popupMenu) {
                 popupMenuContainer.add(popupMenu);
-                popupMenuContainer.validate();
+                popupMenu.validate();
             }
         }
         this.popupMenu = popupMenu;
     }
     getDragImageContainer(): JSComponent {
-        return this.getData("dragImageContainer");
-    }
-    setDragImageContainer(dragImageContainer: JSComponent) {
-        this.setData("dragImageContainer", dragImageContainer);
-    }
-    getDragSource(): JSComponent {
-        return this.dragSource;
-    }
-    setDragSource(dragSource: JSComponent) {
-        this.dragSource = dragSource;
+        var dragImageContainer: JSComponent = this.getData("JSBody.dragImageContainer");
+        if (!dragImageContainer) {
+            dragImageContainer = new JSPanel().withName("JSBody.dragImageContainer");
+            dragImageContainer.setVisible(false);
+            dragImageContainer.setStyle("position", "absolute");
+            dragImageContainer.setWidth(0);
+            dragImageContainer.setHeight(0);
+            this.add(dragImageContainer, null, 0);
+            this.setData("JSBody.dragImageContainer", dragImageContainer);
+        }
+        return dragImageContainer;
     }
     getDragImage(): Element {
         return this.dragImage; 
@@ -153,6 +158,12 @@ class JSBody extends JSHTMLComponent {
             }
         }
         this.dragImage = dragImage;
+    }
+    getDragSource(): JSComponent {
+        return this.dragSource;
+    }
+    setDragSource(dragSource: JSComponent) {
+        this.dragSource = dragSource;
     }
     getFileChooser(): JSFileChooser {
         return this.fileChooser;

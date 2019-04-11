@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSButton
+ * 
+ * @author Yassuo Toda
+ */
 class JSButton extends JSHTMLComponent {
     
     constructor();
@@ -42,9 +47,7 @@ class JSButton extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSButton");
+        this.setClass("JSButton");
         this.setStyle("white-space", "nowrap");
     }
     setIcon(icon: JSIcon) {
@@ -58,7 +61,7 @@ class JSButton extends JSHTMLComponent {
             if (icon instanceof JSPathIcon) {
                 image = new JSPathImage(icon);
             } else {
-                image = new JSImageIcon(icon);
+                image = new JSImage(icon);
             }
             image.setStyle("vertical-align", "middle");
             var text = this.getText();

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSSeparator
+ * 
+ * @author Yassuo Toda
+ */
 class JSSeparator extends JSHTMLComponent {
     
     orientation: string = JSSeparator.HORIZONTAL;
@@ -7,13 +12,22 @@ class JSSeparator extends JSHTMLComponent {
     constructor(element: HTMLDivElement);
     constructor(orientation: string);
     // overload
-    constructor(elementOrOrientation?: HTMLDivElement | string) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrOrientation === undefined || !(elementOrOrientation instanceof HTMLDivElement) ? document.createElement("div") : elementOrOrientation);
-        if (elementOrOrientation !== undefined && !(elementOrOrientation instanceof HTMLDivElement)) {
-            // constructor(orientation: string);
-            this.setOrientation(elementOrOrientation);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
+            // constructor(selected: boolean);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (typeof args[0] === "string") {
+                var orientation: string = args[0];
+                this.setOrientation(orientation);
+            }
+            break;
+        default:
         }
         var line = this.getLine();
         if (!line) {
@@ -37,9 +51,7 @@ class JSSeparator extends JSHTMLComponent {
             mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
             }
         }));
-    }
-    init(): void {
-        this.addClass("JSSeparator");
+        this.setClass("JSSeparator");
     }
     getLine(): JSComponent {
         return this.getData("line");

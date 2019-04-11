@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTable
+ * 
+ * @author Yassuo Toda
+ */
 class JSTable extends JSHTMLComponent {
     
     constructor();
@@ -6,10 +11,8 @@ class JSTable extends JSHTMLComponent {
     constructor(rows: any[][]);
     constructor(rows: any[][], columns: string[]);
     // overload
-    constructor(elementOrRows?: HTMLTableElement | any[][], columns?: string[]) {
-        // constructor();
-        // constructor(element: HTMLTableElement);
-        super(elementOrRows === undefined || !(elementOrRows instanceof HTMLTableElement) ? document.createElement("table") : elementOrRows);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
         var tableHeader = this.getTableHeader();
         if (!tableHeader) {
             tableHeader = new JSTableHeader();
@@ -22,17 +25,31 @@ class JSTable extends JSHTMLComponent {
             this.add(tableContent);
             this.setTableContent(tableContent);
         }
-        if (elementOrRows !== undefined && !(elementOrRows instanceof HTMLTableElement)) {
-            if (columns === undefined) {
-                this.setRows(elementOrRows);
-            } else {
-                this.setRows(elementOrRows);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLTableElement);
+            // constructor(rows: any[][]);
+            if (args[0] instanceof HTMLTableElement) {
+            } else if (args[0] instanceof Array) {
+                var rows: any[][] = args[0];
+                this.setRows(rows);
+            }
+            break;
+        case 2:
+            // constructor(rows: any[][], columns: string[]);
+            if (args[0] instanceof Array && args[1] instanceof Array) {
+                var rows: any[][] = args[0];
+                var columns: string[] = args[1];
+                this.setRows(rows);
                 this.setColumns(columns);
             }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSTable");
+        this.setClass("JSTable");
         this.setStyle("border-collapse", "collapse");
     }
     getRows(): any[][] {

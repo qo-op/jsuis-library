@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTreeCellRenderer
+ * 
+ * @author Yassuo Toda
+ */
 class JSTreeCellRenderer {
     icons: { [ key: string ]: JSComponent };
     icones: { [ key: string ]: JSIcon };

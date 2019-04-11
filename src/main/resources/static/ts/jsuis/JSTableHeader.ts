@@ -1,17 +1,18 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTableHeader
+ * 
+ * @author Yassuo Toda
+ */
 class JSTableHeader extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLTableSectionElement);
     // overload
-    constructor(element?: HTMLTableSectionElement) {
-        // constructor();
-        // constructor(element: HTMLTableSectionElement);
-        super(element === undefined ? document.createElement("thead") : element);
-    }
-    init(): void {
-        this.addClass("JSTableHeader");
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]);
         this.setBackground("#f2f2f2");
+        this.setClass("JSTableHeader");
     }
     getColumns(): string[] {
         var columns: string[] = [];

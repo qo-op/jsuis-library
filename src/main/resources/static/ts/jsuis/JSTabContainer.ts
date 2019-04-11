@@ -1,17 +1,31 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTabContainer
+ * 
+ * @author Yassuo Toda
+ */
 class JSTabContainer extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
     constructor(tabPlacement: string);
     // overload
-    constructor(elementOrTabPlacement?: HTMLDivElement | string) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrTabPlacement === undefined || !(elementOrTabPlacement instanceof HTMLDivElement) ? document.createElement("div") : elementOrTabPlacement);
-        if (elementOrTabPlacement !== undefined && !(elementOrTabPlacement instanceof HTMLDivElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
             // constructor(tabPlacement: string);
-            this.setTabPlacement(elementOrTabPlacement);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (typeof args[0] === "string") {
+                var tabPlacement: string = args[0];
+                this.setTabPlacement(tabPlacement);
+            }
+            break;
+        default:
         }
         var tabPlacement = this.getTabPlacement();
         if (!tabPlacement) {
@@ -43,9 +57,7 @@ class JSTabContainer extends JSHTMLComponent {
             this.setStyle("padding", "0 1px");
         }
         this.setStyle("font-size", "0");
-    }
-    init(): void {
-        this.addClass("JSTabContainer");
+        this.setClass("JSTabContainer");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");
@@ -154,20 +166,23 @@ class JSTabContainer extends JSHTMLComponent {
         tabComponents.push(tabComponent);
         return tabComponent;
     }
-    remove(index: number): void;
     remove(component: JSComponent): void;
+    remove(index: number): void;
     // overload
-    remove(indexOrComponent: number | JSComponent): void {
+    remove(...args: any[]): void {
         var component: JSComponent;
-        var components: JSComponent[] = this.getComponents();
-        if (typeof indexOrComponent === "number") {
-            if (indexOrComponent < components.length) {
-                component = components[indexOrComponent];
-            } else {
-                return;
+        switch (args.length) {
+        case 1:
+            // remove(index: number): void;
+            if (args[0] instanceof JSComponent) {
+                component = args[0];
+            } else if (typeof args[0] === "number") {
+                var index: number = args[0];
+                var components: JSComponent[] = this.getComponents();
+                component = components[index];
             }
-        } else {
-            component = indexOrComponent;
+            break;
+        default:
         }
         var tabSelection: JSSelection = this.getTabSelection();
         tabSelection.remove(component);
@@ -205,27 +220,43 @@ class JSTabContainer extends JSHTMLComponent {
     addButton(button: JSComponent): void;
     addButton(button: JSComponent, constraints: { [ key: string]: number | string }): void
     // overload
-    addButton(button: JSComponent, constraints?: { [ key: string]: number | string }): void {
-        if (constraints === undefined) {
-            var tabPlacement: string = this.getTabPlacement();
-            switch (tabPlacement) {
-            case JSTabContainer.RIGHT:
-                constraints = { anchor: JSFlowLayout.EAST };
-                break;
-            case JSTabContainer.LEFT:
-                constraints = { anchor: JSFlowLayout.WEST };
-                break;
-            case JSTabContainer.BOTTOM:
-                // constraints = { anchor: JSFlowLayout.SOUTHEAST };
-                button.setStyle("float", "right");
-                break;
-            case JSTabContainer.TOP:
-            default:
-                // constraints = { anchor: JSFlowLayout.NORTHEAST };
-                button.setStyle("float", "right");
+    addButton(...args: any[]): void {
+        switch (args.length) {
+        case 1:
+            // addButton(button: JSComponent): void;
+            if (args[0] instanceof JSComponent) {
+                var button: JSComponent = args[0];
+                var tabPlacement: string = this.getTabPlacement();
+                switch (tabPlacement) {
+                case JSTabContainer.RIGHT:
+                    constraints = { anchor: JSFlowLayout.EAST };
+                    this.add(button, constraints);
+                    break;
+                case JSTabContainer.LEFT:
+                    constraints = { anchor: JSFlowLayout.WEST };
+                    this.add(button, constraints);
+                    break;
+                case JSTabContainer.BOTTOM:
+                    button.setStyle("float", "right");
+                    this.add(button);
+                    break;
+                case JSTabContainer.TOP:
+                default:
+                    button.setStyle("float", "right");
+                    this.add(button);
+                }
             }
+            break;
+        case 2:
+            // addButton(button: JSComponent, constraints: { [ key: string]: number | string }): void
+            if (args[0] instanceof JSComponent && args[1] instanceof Object) {
+                var button: JSComponent = args[0];
+                var constraints: { [ key: string]: number | string } = args[1];
+                this.add(button, constraints);
+            }
+            break;
+        default:
         }
-        this.add(button, constraints);
     }
     getSelectedIndex(): number {
         var tabSelection: JSSelection = this.getTabSelection();

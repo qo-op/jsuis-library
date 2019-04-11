@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTreeNode
+ * 
+ * @author Yassuo Toda
+ */
 class JSTreeNode {
     
     userObject: any = null;
@@ -10,15 +15,26 @@ class JSTreeNode {
     constructor(userObject: any);
     constructor(userObject: any, allowsChildren: boolean);
     // overload
-    constructor(userObject?: any, allowsChildren?: boolean) {
-        // constructor();
-        if (userObject !== undefined) {
+    constructor(...args: any[]) {
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
             // constructor(userObject: any);
-            // constructor(userObject: any, allowsChildren: boolean);
+            var userObject: any = args[0];
             this.setUserObject(userObject);
-            if (allowsChildren !== undefined) {
+            break;
+        case 2:
+            // constructor(userObject: any, allowsChildren: boolean);
+            if (typeof args[1] === "boolean") {
+                var userObject: any = args[0];
+                var allowsChildren: boolean = args[1];
+                this.setUserObject(userObject);
                 this.setAllowsChildren(allowsChildren);
             }
+            break;
+        default:
         }
     }
     getAllowsChildren(): boolean {

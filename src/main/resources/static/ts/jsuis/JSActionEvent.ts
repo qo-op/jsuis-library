@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSActionEvent
+ * 
+ * @author Yassuo Toda
+ */
 class JSActionEvent {
     
     source: any;

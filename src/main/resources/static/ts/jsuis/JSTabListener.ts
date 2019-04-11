@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTabListener
+ * 
+ * @author Yassuo Toda
+ */
 class JSTabListener implements TabListener {
     
     tabOpened: (tabEvent: JSTabEvent, component?: JSComponent) => void;

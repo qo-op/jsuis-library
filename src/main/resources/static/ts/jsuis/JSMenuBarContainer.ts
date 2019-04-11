@@ -1,13 +1,16 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSMenuBarContainer
+ * 
+ * @author Yassuo Toda
+ */
 class JSMenuBarContainer extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
     // overload
-    constructor(element?: HTMLDivElement) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(element === undefined ? document.createElement("div") : element);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var menuBarContainer: JSMenuBarContainer = this;
         var body: JSBody = JSBody.getInstance();
         body.addMouseListener({
@@ -26,9 +29,7 @@ class JSMenuBarContainer extends JSHTMLComponent {
                 menuBarContainer.setData("pressed", true);
             }
         }, true);
-    }
-    init(): void {
-        this.addClass("JSMenuBarContainer");
+        this.setClass("JSMenuBarContainer");
         this.setStyle("display", "inline-block");
     }
     add(menu: JSMenu): void {
@@ -38,7 +39,6 @@ class JSMenuBarContainer extends JSHTMLComponent {
             this.setSelection(selection);
         }
         selection.add(menu);
-        menu.getLabel().setStyle("margin", "0 8px");
         menu.setStyle("display", "inline-block");
         super.add(menu);
     }

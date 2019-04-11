@@ -1,21 +1,35 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPath
+ * 
+ * @author Yassuo Toda
+ */
 class JSPath extends JSSVGComponent {
     
     constructor();
     constructor(element: SVGPathElement);
     constructor(pathDefinition: string);
     // overload
-    constructor(elementOrPathDefinition?: SVGPathElement | string) {
+    constructor(...args: any[]) {
         // constructor();
         // constructor(element: SVGPathElement);
-        super(elementOrPathDefinition === undefined || !(elementOrPathDefinition instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : elementOrPathDefinition);
-        if (elementOrPathDefinition !== undefined && !(elementOrPathDefinition instanceof SVGPathElement)) {
+        super(args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: SVGPathElement);
             // constructor(pathDefinition: string);
-            this.setPathDefinition(elementOrPathDefinition);
+            if (args[0] instanceof SVGPathElement) {
+            } else if (typeof args[0] === "string") {
+                var pathDefinition: string = args[0];
+                this.setPathDefinition(pathDefinition);
+            }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSPath");
+        this.setClass("JSPath");
     }
     getPathDefinition(): string {
         return this.getAttributeNS("d");

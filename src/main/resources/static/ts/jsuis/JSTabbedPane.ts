@@ -1,17 +1,31 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTabbedPane
+ * 
+ * @author Yassuo Toda
+ */
 class JSTabbedPane extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
     constructor(tabPlacement: string);
     // overload
-    constructor(elementOrTabPlacement?: HTMLDivElement | string) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrTabPlacement === undefined || !(elementOrTabPlacement instanceof HTMLDivElement) ? document.createElement("div") : elementOrTabPlacement);
-        if (elementOrTabPlacement !== undefined && !(elementOrTabPlacement instanceof HTMLDivElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
             // constructor(tabPlacement: string);
-            this.setTabPlacement(elementOrTabPlacement);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (typeof args[0] === "string") {
+                var tabPlacement: string = args[0];
+                this.setTabPlacement(tabPlacement);
+            }
+            break;
+        default:
         }
         var tabPlacement = this.getTabPlacement();
         if (!tabPlacement) {
@@ -61,9 +75,7 @@ class JSTabbedPane extends JSHTMLComponent {
                 }
             }
         }));
-    }
-    init(): void {
-        this.addClass("JSTabbedPane");
+        this.setClass("JSTabbedPane");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");
@@ -252,14 +264,25 @@ class JSTabbedPane extends JSHTMLComponent {
     addButton(button: JSComponent): void;
     addButton(button: JSComponent, constraints: { [ key: string]: number | string }): void
     // overload
-    addButton(button: JSComponent, constraints?: { [ key: string]: number | string }): void {
+    addButton(...args: any[]): void {
         var tabContainer: JSTabContainer = this.getTabContainer();
-        if (constraints !== undefined) {
-            // addButton(button: JSButton): void;
-            tabContainer.addButton(button);
-        } else {
-            // addButton(button: JSButton, constraints: { [ key: string]: number | string }): void
-            tabContainer.addButton(button, constraints);
+        switch (args.length) {
+        case 1:
+            // addButton(button: JSComponent): void;
+            if (args[0] instanceof JSComponent) {
+                var button: JSComponent = args[0];
+                tabContainer.addButton(button);
+            }
+            break;
+        case 2:
+            // addButton(button: JSComponent, constraints: { [ key: string]: number | string }): void;
+            if (args[0] instanceof JSComponent && args[1] instanceof Object) {
+                var button: JSComponent = args[0];
+                var constraints: { [ key: string]: number | string } = args[1];
+                tabContainer.addButton(button, constraints);
+            }
+            break;
+        default:
         }
     }
     getSelectedIndex(): number {

@@ -1,15 +1,16 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSSpan
+ * 
+ * @author Yassuo Toda
+ */
 class JSSpan extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLSpanElement);
     // overload
-    constructor(element?: HTMLSpanElement) {
-        // constructor();
-        // constructor(element: HTMLSpanElement);
-        super(element === undefined ? document.createElement("span") : element);
-    }
-    init(): void {
-        this.addClass("JSSpan");
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]);
+        this.setClass("JSSpan");
     }
 }

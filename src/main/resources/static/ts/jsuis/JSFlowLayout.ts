@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSFlowLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSFlowLayout extends JSLayout {
     
     hgap: number = 0;

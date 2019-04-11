@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSFileUtils
+ * 
+ * @author Yassuo Toda
+ */
 class JSFileUtils {
     
     static writeStringToFile(filename: string, text: string) {

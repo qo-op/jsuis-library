@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTree
+ * 
+ * @author Yassuo Toda
+ */
 class JSTree extends JSHTMLComponent {
     
     selectionTreeNode: JSTreeNode;
@@ -7,13 +12,22 @@ class JSTree extends JSHTMLComponent {
     constructor(element: HTMLDivElement);
     constructor(root: JSTreeNode);
     // overload
-    constructor(elementOrRoot?: HTMLDivElement | JSTreeNode) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrRoot === undefined || !(elementOrRoot instanceof HTMLDivElement) ? document.createElement("div") : elementOrRoot);
-        if (elementOrRoot !== undefined && !(elementOrRoot instanceof HTMLDivElement)) {
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
             // constructor(root: JSTreeNode);
-            this.setRoot(elementOrRoot);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (args[0] instanceof JSTreeNode) {
+                var root: JSTreeNode = args[0];
+                this.setRoot(root);
+            }
+            break;
+        default:
         }
         var root = this.getRoot();
         if (!root) {
@@ -22,10 +36,8 @@ class JSTree extends JSHTMLComponent {
         }
         this.setLayout(new JSTreeLayout());
         this.setRootVisible(true);
-    }
-    init(): void {
-        this.addClass("JSTree");
         this.setStyle("white-space", "nowrap");
+        this.setClass("JSTree");
     }
     getRoot(): JSTreeNode {
         return this.getData("root"); 

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPropertyChangeEvent
+ * 
+ * @author Yassuo Toda
+ */
 class JSPropertyChangeEvent {
     
     source: any;

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * MouseListener
+ * 
+ * @author Yassuo Toda
+ */
 interface MouseListener {
     mouseClicked?(mouseEvent: MouseEvent, component?: JSComponent): void;
     mousePressed?(mouseEvent: MouseEvent, component?: JSComponent): void;

@@ -1,15 +1,18 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSMarker
+ * 
+ * @author Yassuo Toda
+ */
 class JSMarker extends JSSVGComponent {
     
     constructor();
     constructor(element: SVGMarkerElement);
     // overload
-    constructor(element?: SVGMarkerElement) {
+    constructor(...args: any[]) {
         // constructor();
         // constructor(element: SVGMarkerElement);
-        super(element === undefined ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : element);
-    }
-    init(): void {
-        this.addClass("JSMarker");
+        super(args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]);
+        this.setClass("JSMarker");
     }
 }

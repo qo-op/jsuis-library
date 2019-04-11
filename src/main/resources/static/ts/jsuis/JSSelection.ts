@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSSelection
+ * 
+ * @author Yassuo Toda
+ */
 class JSSelection {
     components: JSComponent[] = [];
     selected: JSComponent = null;

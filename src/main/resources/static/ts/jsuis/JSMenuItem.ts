@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSMenuItem
+ * 
+ * @author Yassuo Toda
+ */
 class JSMenuItem extends JSHTMLComponent {
     
     delay: number = 500;
@@ -12,7 +17,6 @@ class JSMenuItem extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var signature: string;
         switch (args.length) {
         case 0:
             // constructor();
@@ -45,6 +49,7 @@ class JSMenuItem extends JSHTMLComponent {
             break;
         default:
         }
+        this.setStyle("padding", "0 4px");
         this.addMouseListener({
             mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
                 mouseEvent.stopPropagation();
@@ -91,9 +96,7 @@ class JSMenuItem extends JSHTMLComponent {
                 mouseEvent.stopPropagation();
             }
         });
-    }
-    init(): void {
-        this.addClass("JSMenuItem");
+        this.setClass("JSMenuItem");
         this.setStyle("white-space", "nowrap");
     }
     setIcon(icon: JSIcon) {
@@ -103,30 +106,41 @@ class JSMenuItem extends JSHTMLComponent {
             this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSComponent;
+            if (icon instanceof JSPathIcon) {
+                image = new JSPathImage(icon);
+            } else {
+                image = new JSImage(icon);
+            }
             image.setStyle("vertical-align", "middle");
+            var text = this.getText();
+            if (text) {
+                image.setStyle("margin-right", "4px");
+            }
             this.add(image, null, 0);
             this.setImage(image);
         }
     }
     getLabel(): JSLabel {
-        return this.getData("label"); 
-    }
-    setLabel(label: JSLabel) {
-        this.setData("label", label);
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSLabel();
+            label.setStyle("vertical-align", "middle");
+            this.add(label);
+            this.setData("label", label);
+        }
+        return label; 
     }
     getText(): string {
         var label: JSComponent = this.getLabel();
         return label.getText(); 
     }
     setText(text: string) {
-        var label: JSLabel = this.getLabel();
-        if (!label) {
-            label = new JSLabel();
-            label.setStyle("vertical-align", "middle");
-            this.add(label);
-            this.setLabel(label);
+        var image = this.getImage();
+        if (image) {
+            image.setStyle("margin-right", text ? "4px" : "0");
         }
+        var label: JSLabel = this.getLabel();
         label.setText(text);
     }
     getDelay(): number {

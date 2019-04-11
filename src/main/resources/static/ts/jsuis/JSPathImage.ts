@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPathImage
+ * 
+ * @author Yassuo Toda
+ */
 class JSPathImage extends JSHTMLComponent {
     
     constructor();
@@ -72,9 +77,7 @@ class JSPathImage extends JSHTMLComponent {
         }
         this.setStyle("display", "inline-block");
         this.setStyle("font-size", "0");
-    }
-    init(): void {
-        this.addClass("JSPathImage");
+        this.setClass("JSPathImage");
     }
     getGraphics(): JSGraphics {
         return this.getData("graphics");
@@ -88,30 +91,24 @@ class JSPathImage extends JSHTMLComponent {
     setPath(path: JSPath) {
         this.setData("path", path);
     }
-    setWidth(width: number): void;
-    setWidth(width: string): void;
-    // overload
-    setWidth(width: number | string): void {
+    
+    getWidth(): number {
         var graphics: JSGraphics = this.getGraphics();
-        if (typeof width === "number") {
-            graphics.setWidth(width);
-            super.setWidth(width);
-        } else {
-            graphics.setWidth(width);
-            super.setWidth(width);
-        }
+        return graphics.getWidth();
     }
-    setHeight(height: number): void;
-    setHeight(height: string): void;
-    // overload
-    setHeight(height: number | string): void {
+    setWidth(pixels: number, percent?: number) {
         var graphics: JSGraphics = this.getGraphics();
-        if (typeof height === "number") {
-            graphics.setHeight(height);
-        } else {
-            graphics.setHeight(height);
-        }
+        graphics.setWidth(pixels);
     }
+    getHeight(): number {
+        var graphics: JSGraphics = this.getGraphics();
+        return graphics.getHeight();
+    }
+    setHeight(pixels: number) {
+        var graphics: JSGraphics = this.getGraphics();
+        graphics.setHeight(pixels);
+    }
+    
     getPathDefinition(): string {
         var path: JSPath = this.getPath();
         return path.getPathDefinition();
@@ -149,12 +146,5 @@ class JSPathImage extends JSHTMLComponent {
     setForeground(foreground: string) {
         var path = this.getPath();
         path.setForeground(foreground);
-    }
-    clone(): JSPathImage {
-        var clone = new JSPathImage();
-        clone.setWidth(this.getWidth());
-        clone.setHeight(this.getHeight());
-        clone.setPathDefinition(this.getPathDefinition());
-        return clone;
     }
 }

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSMenu
+ * 
+ * @author Yassuo Toda
+ */
 class JSMenu extends JSHTMLComponent {
     
     delay: number = 500;
@@ -11,13 +16,7 @@ class JSMenu extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var popupMenuContainer = this.getPopupMenuContainer();
-        if (!popupMenuContainer) {
-            popupMenuContainer = new JSDiv();
-            popupMenuContainer.setStyle("position", "absolute");
-            super.add(popupMenuContainer);
-            this.setPopupMenuContainer(popupMenuContainer);
-        }
+        this.setLayout(new JSBorderLayout());
         switch (args.length) {
         case 0:
             // constructor();
@@ -46,6 +45,7 @@ class JSMenu extends JSHTMLComponent {
             break;
         default:
         }
+        this.setStyle("padding", "0 4px");
         this.addMouseListener({
             mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
                 var menu: JSMenu = <JSMenu> component;
@@ -112,9 +112,7 @@ class JSMenu extends JSHTMLComponent {
                 mouseEvent.stopPropagation();
             }
         });
-    }
-    init(): void {
-        this.addClass("JSMenu");
+        this.setClass("JSMenu");
         this.setBackground("#f2f2f2");
     }
     setIcon(icon: JSIcon) {
@@ -124,17 +122,21 @@ class JSMenu extends JSHTMLComponent {
             this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSImage = new JSImage(icon);
             image.setStyle("vertical-align", "middle");
-            super.add(image, null, 1);
+            super.add(image, JSBorderLayout.WEST);
             this.setImage(image);
         }
     }
     getLabel(): JSLabel {
-        return this.getData("label"); 
-    }
-    setLabel(label: JSLabel) {
-        this.setData("label", label);
+        var label: JSLabel = this.getData("label");
+        if (!label) {
+            label = new JSLabel();
+            label.setStyle("vertical-align", "middle");
+            super.add(label);
+            this.setData("label", label);
+        }
+        return label;
     }
     getText(): string {
         var label: JSComponent = this.getLabel();
@@ -142,12 +144,6 @@ class JSMenu extends JSHTMLComponent {
     }
     setText(text: string) {
         var label: JSLabel = this.getLabel();
-        if (!label) {
-            label = new JSLabel();
-            label.setStyle("vertical-align", "middle");
-            super.add(label);
-            this.setLabel(label);
-        }
         label.setText(text);
     }
     getExpandIcon(): JSPathIcon {
@@ -155,9 +151,37 @@ class JSMenu extends JSHTMLComponent {
     }
     setExpandIcon(expandIcon: JSPathIcon) {
         this.setData("expandIcon", expandIcon);
+        var oldExpandImage: JSComponent = this.getExpandImage();
+        if (oldExpandImage) {
+            this.remove(oldExpandImage);
+        }
+        if (expandIcon) {
+            var expandImage: JSComponent;
+            if (expandIcon instanceof JSPathIcon) {
+                expandImage = new JSPathImage(expandIcon);
+            } else {
+                expandImage = new JSImage(expandIcon);
+            }
+            expandImage.setStyle("vertical-align", "middle");
+            super.add(expandImage, JSBorderLayout.EAST);
+            this.setExpandImage(expandImage);
+        }
+    }
+    getExpandImage(): JSComponent {
+        return this.getData("expandImage");
+    }
+    setExpandImage(expandImage: JSComponent) {
+        this.setData("expandImage", expandImage);
     }
     getPopupMenuContainer(): JSComponent {
-        return this.getData("popupMenuContainer");
+        var popupMenuContainer = this.getData("popupMenuContainer");
+        if (!popupMenuContainer) {
+            popupMenuContainer = new JSDiv();
+            popupMenuContainer.setStyle("position", "absolute");
+            super.add(popupMenuContainer, JSBorderLayout.SOUTH);
+            this.setPopupMenuContainer(popupMenuContainer);
+        }
+        return popupMenuContainer;
     }
     setPopupMenuContainer(popupMenuContainer: JSComponent) {
         this.setData("popupMenuContainer", popupMenuContainer);
@@ -186,20 +210,15 @@ class JSMenu extends JSHTMLComponent {
             var popupMenu: JSPopupMenu = this.getPopupMenu();
             if (!popupMenu) {
                 popupMenu = new JSPopupMenu();
-                this.setPopupMenu(popupMenu); 
+                this.setPopupMenu(popupMenu);
             }
             popupMenu.add(component);
             if (component instanceof JSMenu) {
                 var expandIcon: JSPathIcon = component.getExpandIcon();
                 if (!expandIcon) {
-                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16);
+                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", "gray", "none", 16, 16);
                     component.setExpandIcon(expandIcon);
                 }
-                var expandImage: JSPathImage = new JSPathImage(expandIcon);
-                expandImage.getPath().setBackground("gray");
-                expandImage.setStyle("vertical-align", "middle");
-                component.setImage(expandImage);
-                component.add(expandImage);
             }
         } else {
             super.add(component);
@@ -214,15 +233,19 @@ class JSMenu extends JSHTMLComponent {
     setDelay(delay: number) {
         this.delay = delay;
     }
+    getPreferredWidth(): number {
+        return super.getPreferredWidth();
+    }
     setSelected(selected: boolean) {
         var popupMenu: JSPopupMenu = this.getPopupMenu();
         if (popupMenu) {
             if (selected) {
                 var parent: JSComponent = this.getParent();
                 if (parent instanceof JSPopupMenu) {
-                    popupMenu.show(this, this.getWidth() - 4, 0 - popupMenu.getPaddingTop() - popupMenu.getBorderTopWidth());
+                    var oldExpandImage: JSComponent = this.getExpandImage();
+                    popupMenu.show(this, this.getWidth(), 0 - this.getHeight() - popupMenu.getPaddingTop() - popupMenu.getBorderTopWidth());
                 } else {
-                    popupMenu.show(this, 0, this.getHeight());
+                    popupMenu.show(this, 0 - this.getPaddingLeft(), this.getPaddingBottom());
                 }
             } else {
                 popupMenu.setSelected(false);

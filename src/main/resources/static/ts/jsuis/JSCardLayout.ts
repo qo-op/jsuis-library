@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSCardLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSCardLayout extends JSLayout {
     
     addLayoutComponent(component: JSComponent): void {
@@ -33,6 +38,8 @@ class JSCardLayout extends JSLayout {
     layoutContainer(container: JSComponent): void {
         var width: number = container.getWidth();
         var height: number = container.getHeight();
+        var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
+        var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
         var x: number = container.getInsetLeft();
         var y: number = container.getInsetTop();
         var components: JSComponent[] = container.getComponents();
@@ -42,11 +49,15 @@ class JSCardLayout extends JSLayout {
                 continue;
             }
             // component.setOuterWidth(width);
-            component.setWidth("100%");
+            // component.setWidthPercent(100);
+            // component.setOuterWidthPixels(width - width100);
+            component.setOuterWidth(width - width100, 100);
             // component.setOuterHeight(height);
-            component.setHeight("100%");
-            // component.setX(x);
-            // component.setY(y);
+            // component.setHeightPercent(100);
+            // component.setOuterHeightPixels(height - height100);
+            component.setOuterHeight(height - height100, 100);
+            component.setX(x);
+            component.setY(y);
         }
         var selected = this.getSelected();
         if (!selected) {
@@ -104,21 +115,31 @@ class JSCardLayout extends JSLayout {
     show(container: JSComponent, index: number): void;
     show(container: JSComponent, constraints: string): void;
     // overload
-    show(container: JSComponent, indexOrConstraints: number | string): void {
-        if (typeof indexOrConstraints === "number") {
-            // show(container: JSComponent, index: number);
-            this.setSelectedIndex(container, indexOrConstraints);
-        } else {
-            // show(container: JSComponent, constraints: string);
-            var components: JSComponent[] = container.getComponents();
-            for (var i: number = 0; i < components.length; i++) {
-                var component: JSComponent = components[i];
-                var constraints: string = <string> component.getConstraints();
-                if (constraints === indexOrConstraints) {
-                    this.setSelectedIndex(container, i);
-                    break;
+    show(...args: any[]) {
+    // show(container: JSComponent, indexOrConstraints: number | string): void {
+        switch (args.length) {
+        case 2:
+            // show(container: JSComponent, index: number): void;
+            // show(container: JSComponent, constraints: string): void;
+            if (args[0] instanceof JSComponent && typeof args[1] === "number") {
+                var container: JSComponent = args[0];
+                var index: number = args[1];
+                this.setSelectedIndex(container, index);
+            } else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
+                var container: JSComponent = args[0];
+                var constraints: string = args[1];
+                var components: JSComponent[] = container.getComponents();
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    var componentConstraints: string = <string> component.getConstraints();
+                    if (componentConstraints === constraints) {
+                        this.setSelectedIndex(container, i);
+                        break;
+                    }
                 }
             }
+            break;
+        default:
         }
     }
 }

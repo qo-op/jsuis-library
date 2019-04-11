@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTreeLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSTreeLayout extends JSLayout {
     
     preferredLayoutWidth(tree: JSTree): number {

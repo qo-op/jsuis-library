@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSScrollPaneLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSScrollPaneLayout extends JSLayout {
     
     preferredLayoutWidth(scrollPane: JSScrollPane): number {

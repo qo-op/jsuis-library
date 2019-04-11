@@ -1,17 +1,18 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSToolBar
+ * 
+ * @author Yassuo Toda
+ */
 class JSToolBar extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
     // overload
-    constructor(element?: HTMLDivElement) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(element === undefined ? document.createElement("div") : element);
-    }
-    init(): void {
-        this.addClass("JSToolBar");
-	    this.setBackground("#f2f2f2");
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setBackground("#f2f2f2");
+        this.setClass("JSToolBar");
     }
     addSeparator(): void {
         var separator = new JSPanel();

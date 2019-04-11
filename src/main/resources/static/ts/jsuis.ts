@@ -12,6 +12,8 @@
 /// <reference path = "jsuis/ChangeListener.ts"/>
 /// <reference path = "jsuis/DragListener.ts"/>
 /// <reference path = "jsuis/DropListener.ts"/>
+/// <reference path = "jsuis/DragSourceListener.ts"/>
+/// <reference path = "jsuis/DropTargetListener.ts"/>
 /// <reference path = "jsuis/MouseDraggedListener.ts"/>
 /// <reference path = "jsuis/MouseListener.ts"/>
 /// <reference path = "jsuis/PropertyChangeListener.ts"/>
@@ -34,6 +36,8 @@
 /// <reference path = "jsuis/JSDiv.ts"/>
 /// <reference path = "jsuis/JSDragListener.ts"/>
 /// <reference path = "jsuis/JSDropListener.ts"/>
+/// <reference path = "jsuis/JSDragSourceListener.ts"/>
+/// <reference path = "jsuis/JSDropTargetListener.ts"/>
 /// <reference path = "jsuis/JSFileChooser.ts"/>
 /// <reference path = "jsuis/JSFileUtils.ts"/>
 /// <reference path = "jsuis/JSFlowLayout.ts"/>
@@ -41,7 +45,7 @@
 /// <reference path = "jsuis/JSGraphics.ts"/>
 /// <reference path = "jsuis/JSGridBagLayout.ts"/>
 /// <reference path = "jsuis/JSIcon.ts"/>
-/// <reference path = "jsuis/JSImageIcon.ts"/>
+/// <reference path = "jsuis/JSImage.ts"/>
 /// <reference path = "jsuis/JSLabel.ts"/>
 /// <reference path = "jsuis/JSLayeredPane.ts"/>
 /// <reference path = "jsuis/JSLayeredPaneLayout.ts"/>

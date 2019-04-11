@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPopupMenuLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSPopupMenuLayout extends JSLayout {
     
     hgap: number = 8;

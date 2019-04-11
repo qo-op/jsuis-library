@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSResourceBundle
+ * 
+ * @author Yassuo Toda
+ */
 class JSResourceBundle {
 
     contents: { [ key: string ]: string };

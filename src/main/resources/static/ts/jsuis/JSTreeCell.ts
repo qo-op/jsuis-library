@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTreeCell
+ * 
+ * @author Yassuo Toda
+ */
 class JSTreeCell extends JSHTMLComponent {
     
     static COLLAPSED_PATH_DEFINITION: string = "M5.17,2.34L10.83,8L5.17,13.66Z";
@@ -27,7 +32,7 @@ class JSTreeCell extends JSHTMLComponent {
             // constructor(value: any);
             if (args[0] instanceof HTMLDivElement) {
             } else {
-                var value: any= args[0];
+                var value: any = args[0];
                 this.setValue(value);
             }
             break;
@@ -50,10 +55,8 @@ class JSTreeCell extends JSHTMLComponent {
                 component.setBackground(null);
             }
         }));
-    }
-    init(): void {
-        this.addClass("JSTreeCell");
         this.setStyle("padding", "0 4px");
+        this.setClass("JSTreeCell");
     }
     getValue(): any {
         return this.getData("value");
@@ -119,7 +122,7 @@ class JSTreeCell extends JSHTMLComponent {
             this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSImage = new JSImage(icon);
             image.setStyle("vertical-align", "middle");
             image.setStyle("margin-right", "4px");
             var branchButton: JSButton = this.getBranchButton();

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * TabListener
+ * 
+ * @author Yassuo Toda
+ */
 interface TabListener {
     tabOpened?(tabEvent: JSTabEvent, component?: JSComponent): void
     tabClosing?(tabEvent: JSTabEvent, component?: JSComponent): void;

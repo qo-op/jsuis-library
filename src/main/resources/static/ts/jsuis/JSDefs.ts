@@ -1,15 +1,16 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSDefs
+ * 
+ * @author Yassuo Toda
+ */
 class JSDefs extends JSSVGComponent {
     
     constructor();
     constructor(element: SVGDefsElement);
     // overload
-    constructor(element?: SVGDefsElement) {
-        // constructor();
-        // constructor(element: SVGDefsElement);
-        super(element === undefined ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : element);
-    }
-    init(): void {
-        this.addClass("JSDefs");
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]);
+        this.setClass("JSDefs");
     }
 }

@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPathIcon
+ * 
+ * @author Yassuo Toda
+ */
 class JSPathIcon extends JSIcon {
     
     background: string;

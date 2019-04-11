@@ -1,34 +1,55 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSSVGImage
+ * 
+ * @author Yassuo Toda
+ */
 class JSSVGImage extends JSSVGComponent {
     
     constructor();
     constructor(element: SVGImageElement);
-    constructor(width: number, height: number);
     constructor(location: string);
+    constructor(width: number, height: number);
     constructor(location: string, width: number, height: number);
     // overload
-    constructor(elementOrWidthOrLocation?: SVGImageElement | number | string, heightOrWidth?: number, height?: number) {
-        // constructor();
-        // constructor(element: SVGImageElement);
-        super(elementOrWidthOrLocation === undefined || !(elementOrWidthOrLocation instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : elementOrWidthOrLocation);
-        if (elementOrWidthOrLocation !== undefined && !(elementOrWidthOrLocation instanceof SVGImageElement)) {
-            if (typeof elementOrWidthOrLocation === "number") {
-                // constructor(width: number, height: number);
-                this.setWidth(elementOrWidthOrLocation);
-                this.setHeight(heightOrWidth);
-            } else {
-                // constructor(location: string);
-                // constructor(location: string, width: number, height: number);
-                this.setLocation(elementOrWidthOrLocation);
-                if (heightOrWidth !== undefined) {
-                    this.setWidth(heightOrWidth);
-                    this.setHeight(height);
-                }
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: SVGImageElement);
+            // constructor(location: string);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (typeof args[0] === "string") {
+                var location: string = args[0];
+                this.setLocation(location);
             }
+            break;
+        case 2:
+            // constructor(width: number, height: number);
+            if (typeof args[0] === "number" && typeof args[1] === "number") {
+                var width: number = args[0];
+                var height: number = args[1];
+                this.setWidth(width);
+                this.setHeight(height);
+            }
+            break;
+        case 3:
+            // constructor(location: string, width: number, height: number);
+            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                var location: string = args[0];
+                var width: number = args[1];
+                var height: number = args[2];
+                this.setLocation(location);
+                this.setWidth(width);
+                this.setHeight(height);
+            }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSSVGImage");
+        this.setClass("JSSVGImage");
     }
     getPreferredWidth(): number {
         var preferredWidth: string = this.getAttribute("data-preferred-width");

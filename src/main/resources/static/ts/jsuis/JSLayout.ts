@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSLayout {
     
     /*

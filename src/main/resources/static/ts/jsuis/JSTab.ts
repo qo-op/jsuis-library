@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTab
+ * 
+ * @author Yassuo Toda
+ */
 class JSTab extends JSHTMLComponent {
     
     constructor();
@@ -60,32 +65,21 @@ class JSTab extends JSHTMLComponent {
         }
         this.addDragListener(new JSDragListener({
             dragStart(dragEvent: DragEvent, tab: JSTab) {
-                if ((<any> dragEvent.dataTransfer).setDragImage) {
-                    (<any> dragEvent.dataTransfer).setDragImage(JSDataTransfer.getDragImage(), 0, 0);
-                    var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
-                    tabContainer.setSelectedIndex(tabContainer.indexOfTab(tab));
-                    JSDataTransfer.setData("dragSource", tab);
-                } else {
-                
-                    /*
-                    this => tab
-                    var clone: JSTab = this.clone();
-                    var tabContainer: JSTabContainer = this.getParent();
-                    var components: JSComponent[] = tabContainer.getComponents();
-                    var index = components.indexOf(this);
-                    tabContainer.remove(this);
-                    tabContainer.setTabComponentAt(index, clone);
-                    tabContainer.setSelectedIndex(tabContainer.indexOfTab(clone));
-                    JSDataTransfer.setData("dragSource", clone);
-                    tabContainer.revalidate();
-                    
-                    // var srcElement = (<HTMLElement> dragEvent.srcElement);
-                    // var visibility = srcElement.style.visibility;
-                    // srcElement.style.visibility = "hidden";
-                    // setTimeout(function() {
-                        // srcElement.style.visibility = visibility; 
-                    // });
-                    */
+                var dragImage: Element = JSDataTransfer.getDragImage();
+                if (dragImage) {
+                    if ((<any> dragEvent.dataTransfer).setDragImage) {
+                        (<any> dragEvent.dataTransfer).setDragImage(dragImage, 0, 0);
+                        var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
+                        tabContainer.setSelectedIndex(tabContainer.indexOfTab(tab));
+                        JSDataTransfer.setData("dragSource", tab);
+                    } else {
+                        var srcElement = (<HTMLElement> dragEvent.srcElement);
+                        var visibility = srcElement.style.visibility;
+                        srcElement.style.visibility = "hidden";
+                        setTimeout(function() {
+                            srcElement.style.visibility = visibility; 
+                        });
+                    }
                 }
             }
         }));
@@ -117,9 +111,7 @@ class JSTab extends JSHTMLComponent {
         this.setStyle("display", "inline-block");
         this.setStyle("font-size", "0");
         this.setStyle("white-space", "nowrap");
-    }
-    init(): void {
-        this.addClass("JSTab");
+        this.setClass("JSTab");
     }
     getContainer(): JSPanel {
         return this.getData("container"); 
@@ -180,7 +172,7 @@ class JSTab extends JSHTMLComponent {
             container.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSImage = new JSImage(icon);
             var tabPlacement = this.getTabPlacement();
             if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
                 image.setStyle("display", "block");

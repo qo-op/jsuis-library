@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSDataTransfer
+ * 
+ * @author Yassuo Toda
+ */
 class JSDataTransfer {
     
     static instance: JSDataTransfer;
@@ -32,16 +37,9 @@ class JSDataTransfer {
         data[key] = value;
     }
     getDragImage(): Element {
-        var dragImage = this.getData("dragImage");
-        if (!dragImage) {
-            dragImage = new Image(1, 1);
-            dragImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAANSURBVBhXY/j///9/AAn7A/0FQ0XKAAAAAElFTkSuQmCC";
-            this.setDragImage(dragImage);
-        }
-        return dragImage;
+        return JSBody.getInstance().getDragImage();
     }
     setDragImage(dragImage: Element) {
         JSBody.getInstance().setDragImage(dragImage);
-        this.setData("dragImage", dragImage);
     }
 }

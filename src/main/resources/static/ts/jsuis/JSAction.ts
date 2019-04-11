@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSAction
+ * 
+ * @author Yassuo Toda
+ */
 class JSAction {
     
     name: string;

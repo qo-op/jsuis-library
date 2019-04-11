@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPopupMenu
+ * 
+ * @author Yassuo Toda
+ */
 class JSPopupMenu extends JSHTMLComponent {
     
     invoker: JSComponent;
@@ -6,18 +11,9 @@ class JSPopupMenu extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLDivElement);
     // overload
-    constructor(element?: HTMLDivElement) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(element === undefined ? document.createElement("div") : element);
-        this.setLayout(new JSPopupMenuLayout());
-        
-        /*
-        this.addEventListener("contextmenu", function(mouseEvent: MouseEvent) {
-            mouseEvent.preventDefault();
-            mouseEvent.stopPropagation();
-        }, false);
-        */
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        // this.setLayout(new JSPopupMenuLayout());
         var popupMenu: JSPopupMenu = this;
         var body: JSBody = JSBody.getInstance();
         body.addMouseListener({
@@ -39,16 +35,13 @@ class JSPopupMenu extends JSHTMLComponent {
                 popupMenu.setData("close", false);
             }
         }, true);
-        
         this.setBackground("#f2f2f2");
         this.setStyle("border", "1px solid gray");
         this.setStyle("padding", "4px 0");
         this.setStyle("position", "absolute");
         this.setVisible(false);
         this.setZIndex(JSLayeredPane.POPUP_LAYER);
-    }
-    init(): void {
-        this.addClass("JSPopupMenu");
+        this.setClass("JSPopupMenu");
     }
     add(component: JSComponent): void {
         var selection: JSSelection = this.getSelection();

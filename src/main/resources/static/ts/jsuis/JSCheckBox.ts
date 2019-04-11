@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSCheckBox
+ * 
+ * @author Yassuo Toda
+ */
 class JSCheckBox extends JSHTMLComponent {
     
     constructor();
@@ -12,10 +17,10 @@ class JSCheckBox extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setSelected(false);
         switch (args.length) {
         case 0:
             // constructor();
-            this.setSelected(false);
             break;
         case 1:
             // constructor(element: HTMLDivElement);
@@ -23,17 +28,13 @@ class JSCheckBox extends JSHTMLComponent {
             // constructor(icon: JSIcon);
             // constructor(text: string);
             if (args[0] instanceof HTMLDivElement) {
-                this.setSelected(false);
             } else if (args[0] instanceof JSAction) {
-                this.setSelected(false);
                 var action: JSAction = args[0];
                 this.setAction(action);
             } else if (args[0] instanceof JSIcon) {
-                this.setSelected(false);
                 var icon: JSIcon = args[0];
                 this.setIcon(icon);
             } else if (typeof args[0] === "string") {
-                this.setSelected(false);
                 var text: string = args[0];
                 this.setText(text);
             }
@@ -42,13 +43,11 @@ class JSCheckBox extends JSHTMLComponent {
             // constructor(icon: JSIcon, selected: boolean);
             // constructor(text: string, icon: JSIcon);
             if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                this.setSelected(false);
                 var icon: JSIcon = args[0];
                 var selected: boolean = args[1];
                 this.setIcon(icon);
                 this.setSelected(selected);
             } else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                this.setSelected(false);
                 var text: string = args[0];
                 var icon: JSIcon = args[1];
                 this.setText(text);
@@ -57,11 +56,7 @@ class JSCheckBox extends JSHTMLComponent {
             break;
         case 3:
             // constructor(text: string, icon: JSIcon, selected: boolean);
-            var arg0 = args[0];
-            var arg1 = args[1];
-            var arg2 = args[2];
-            if (typeof arg0 === "string" && arg1 instanceof JSIcon && typeof arg2 === "boolean") {
-                this.setSelected(false);
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
                 var text: string = args[0];
                 var icon: JSIcon = args[1];
                 var selected: boolean = args[2];
@@ -72,9 +67,7 @@ class JSCheckBox extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSCheckBox");
+        this.setClass("JSCheckBox");
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
@@ -83,7 +76,7 @@ class JSCheckBox extends JSHTMLComponent {
             this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSImage = new JSImage(icon);
             image.setStyle("vertical-align", "middle");
             var text = this.getText();
             if (text) {

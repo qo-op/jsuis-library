@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSCheckBoxMenuItem
+ * 
+ * @author Yassuo Toda
+ */
 class JSCheckBoxMenuItem extends JSHTMLComponent {
     
     delay: number = 500;
@@ -90,9 +95,7 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
                 mouseEvent.stopPropagation();
             }
         });
-    }
-    init(): void {
-        this.addClass("JSMenuItem");
+        this.setClass("JSMenuItem");
         this.setStyle("white-space", "nowrap");
     }
     setIcon(icon: JSIcon) {
@@ -102,7 +105,7 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
             this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImageIcon = new JSImageIcon(icon);
+            var image: JSImage = new JSImage(icon);
             image.setStyle("vertical-align", "middle");
             var text = this.getText();
             if (text) {

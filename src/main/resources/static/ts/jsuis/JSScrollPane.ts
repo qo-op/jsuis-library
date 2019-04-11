@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSScrollPane
+ * 
+ * @author Yassuo Toda
+ */
 class JSScrollPane extends JSHTMLComponent {
     
     static VERTICAL_SCROLLBAR_AS_NEEDED: string = "auto";
@@ -11,36 +16,51 @@ class JSScrollPane extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLDivElement);
-    constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent);
+    constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
     // overload
-    constructor(elementOrVsbPolicyOrView?: HTMLDivElement | string | JSComponent, hsbPolicyOrVsbPolicy?: string, hsbPolicy?: string) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrVsbPolicyOrView === undefined || !(elementOrVsbPolicyOrView instanceof HTMLDivElement) ? document.createElement("div") : elementOrVsbPolicyOrView);
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setLayout(new JSScrollPaneLayout());
-        if (elementOrVsbPolicyOrView !== undefined && !(elementOrVsbPolicyOrView instanceof HTMLDivElement)) {
-            if (typeof elementOrVsbPolicyOrView === "string") {
-                // constructor(vsbPolicy: string, hsbPolicy: string);
-                this.setVsbPolicy(elementOrVsbPolicyOrView);
-                this.setHsbPolicy(hsbPolicyOrVsbPolicy);
-            } else {
-                // constructor(view: JSComponent);
-                // constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
-                this.setViewportView(elementOrVsbPolicyOrView);
-                if (hsbPolicyOrVsbPolicy !== undefined) {
-                    this.setVsbPolicy(hsbPolicyOrVsbPolicy);
-                    this.setHsbPolicy(hsbPolicy);
-                } else {
-                    this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                    this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-                }
+        this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
+            // constructor(view: JSComponent);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (args[0] instanceof JSComponent) {
+                var view: JSComponent = args[0];
+                this.setViewportView(view);
             }
+            break;
+        case 2:
+            // constructor(vsbPolicy: string, hsbPolicy: string);
+            if (typeof args[0] === "string" && typeof args[1] === "string") {
+                var vsbPolicy: string = args[0];
+                var hsbPolicy: string = args[1];
+                this.setVsbPolicy(vsbPolicy);
+                this.setHsbPolicy(hsbPolicy);
+            }
+            break;
+        case 3:
+            // constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
+            if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
+                var view: JSComponent = args[0];
+                var vsbPolicy: string = args[1];
+                var hsbPolicy: string = args[2];
+                this.setViewportView(view);
+                this.setVsbPolicy(vsbPolicy);
+                this.setHsbPolicy(hsbPolicy);
+            }
+            break;
+        default:
         }
-    }
-    init(): void {
-        this.addClass("JSScrollPane");
+        this.setClass("JSScrollPane");
     }
     getVsbPolicy(): string {
         return this.getStyle("overflow-y");

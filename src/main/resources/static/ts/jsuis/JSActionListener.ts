@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSActionListener
+ * 
+ * @author Yassuo Toda
+ */
 class JSActionListener implements ActionListener {
     
     actionPerformed: (actionEvent: JSActionEvent, component?: JSComponent) => void;

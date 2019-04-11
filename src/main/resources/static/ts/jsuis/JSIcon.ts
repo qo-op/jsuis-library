@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSIcon
+ * 
+ * @author Yassuo Toda
+ */
 class JSIcon {
     
     source: string;

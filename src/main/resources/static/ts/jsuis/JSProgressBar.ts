@@ -1,43 +1,56 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSProgressBar
+ * 
+ * @author Yassuo Toda
+ */
 class JSProgressBar extends JSHTMLComponent {
     
     value: number;
     
     constructor();
     constructor(element: HTMLDivElement);
-    constructor(min: number, max: number);
     constructor(orientation: string);
+    constructor(min: number, max: number);
     constructor(orientation: string, min: number, max: number);
     // overload
-    constructor(elementOrMinOrOrientation?: HTMLDivElement | number | string, maxOrMin?: number, max?: number) {
-        // constructor();
-        // constructor(element: HTMLDivElement);
-        super(elementOrMinOrOrientation === undefined || !(elementOrMinOrOrientation instanceof HTMLDivElement) ? document.createElement("div") : elementOrMinOrOrientation);
-        if (elementOrMinOrOrientation !== undefined && !(elementOrMinOrOrientation instanceof HTMLDivElement)) {
-            if (typeof elementOrMinOrOrientation === "number") {
-                // constructor(min: number, max: number);
-                this.setMin(elementOrMinOrOrientation);
-                this.setMax(maxOrMin);
-            } else {
-                // constructor(orientation: string);
-                // constructor(orientation: string, min: number, max: number);
-                this.setOrientation(elementOrMinOrOrientation);
-                if (maxOrMin !== undefined) {
-                    this.setMin(maxOrMin);
-                    this.setMax(max);
-                }
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 1:
+            // constructor(element: HTMLDivElement);
+            // constructor(orientation: string);
+            if (args[0] instanceof HTMLDivElement) {
+            } else if (typeof args[0] === "string") {
+                var orientation: string = args[0];
+                this.setOrientation(orientation);
             }
+            break;
+        case 2:
+            // constructor(min: number, max: number);
+            if (typeof args[0] === "number" && typeof args[1] === "number") {
+                var min: number = args[0];
+                var max: number = args[1];
+                this.setMin(min);
+                this.setMax(max);
+            }
+            break;
+        case 3:
+            // constructor(orientation: string, min: number, max: number);
+            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                var orientation: string = args[0];
+                var min: number = args[1];
+                var max: number = args[2];
+                this.setOrientation(orientation);
+                this.setMin(min);
+                this.setMax(max);
+            }
+            break;
+        default:
         }
-        /*
-        var barContainer: JSDiv = this.getBarContainer();
-        if (!barContainer) {
-            barContainer = new JSDiv();
-            barContainer.setHeight(16);
-            barContainer.setStyle("border", "1px solid gray");
-            this.add(barContainer);
-            this.setBarContainer(barContainer);
-        }
-        */
         var bar: JSPanel = this.getBar();
         if (!bar) {
             bar = new JSPanel();
@@ -49,9 +62,7 @@ class JSProgressBar extends JSHTMLComponent {
         this.setHeight(14);
         this.setStyle("border", "1px solid gray");
         this.setStyle("white-space", "nowrap");
-    }
-    init(): void {
-        this.addClass("JSProgressBar");
+        this.setClass("JSProgressBar");
     }
     getOrientation(): string {
         return this.getAttribute("data-orientation");

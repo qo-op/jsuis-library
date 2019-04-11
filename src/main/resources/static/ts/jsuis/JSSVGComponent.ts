@@ -1,16 +1,14 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSSVGComponent
+ * 
+ * @author Yassuo Toda
+ */
 class JSSVGComponent extends JSComponent {
     
-    constructor();
-    constructor(element: SVGElement);
-    // overload
-    constructor(element?: SVGElement) {
-        // constructor();
-        // constructor(element: SVGElement);
+    constructor(element: SVGElement) {
         super(element);
-    }
-    init(): void {
-        this.addClass("JSSVGComponent");
+        this.setClass("JSSVGComponent");
     }
     getAttributeNS(attribute: string): string {
         return this.element.getAttributeNS(null, attribute);
@@ -21,66 +19,93 @@ class JSSVGComponent extends JSComponent {
     removeAttributeNS(attribute: string): void {
         this.element.removeAttributeNS(null, attribute);
     }
+    
     getX(): number {
         return +this.getAttribute("x");
-    }
-    setX(x: number): void;
-    setX(x: string): void;
-    // overload
-    setX(x: number | string): void {
-        this.setAttribute("x", "" + x);
     }
     getY(): number {
         return +this.getAttribute("y");
     }
-    setY(y: number): void;
-    setY(y: string): void;
-    // overload
-    setY(y: number | string): void {
-        this.setAttribute("y", "" + y);
-    }
     getWidth(): number {
-        return this.width || this.element.getBoundingClientRect().width;
-    }
-    setWidth(width: number): void;
-    setWidth(width: string): void;
-    // overload
-    setWidth(width: number | string): void {
-        if (typeof width === "number") {
-            this.oldWidth = this.width;
-            this.setAttribute("width", "" + width);
-            this.width = width;
-        } else {
-            this.setAttribute("width", width);
-        }
+        return this.element.getBoundingClientRect().width;
     }
     getHeight(): number {
-        return this.height || this.element.getBoundingClientRect().height;
+        return this.element.getBoundingClientRect().height;
     }
-    setHeight(height: number): void;
-    setHeight(height: string): void;
-    // overload
-    setHeight(height: number | string): void {
-        if (typeof height === "number") {
-            this.oldHeight = this.height;
-            this.setAttribute("height", "" + height);
-            this.height = height;
+    
+    protected setXPixels(xPixels: number) {
+        super.setXPixels(xPixels);
+        var xPercent = this.getXPercent();
+        if (xPercent) {
+            this.setAttribute("x", "calc(" + xPercent + "% + " + xPixels + ")");
         } else {
-            this.setAttribute("height", height);
+            this.setAttribute("x", xPixels + "");
         }
     }
-    getOuterWidth(): number {
-        return this.getWidth();
+    protected setYPixels(yPixels: number) {
+        super.setYPixels(yPixels);
+        var yPercent = this.getYPercent();
+        if (yPercent) {
+            this.setAttribute("y", "calc(" + yPercent + "% + " + yPixels + ")");
+        } else {
+            this.setAttribute("y", yPixels + "");
+        }
     }
-    setOuterWidth(outerWidth: number) {
-        this.setWidth(outerWidth);
+    protected setXPercent(xPercent: number) {
+        super.setXPercent(xPercent);
+        var xPixels = this.getXPixels();
+        if (xPixels) {
+            this.setAttribute("x", "calc(" + xPercent + "% + " + xPixels + ")");
+        } else {
+            this.setAttribute("x", xPercent + "%");
+        }
     }
-    getOuterHeight(): number {
-        return this.getHeight();
+    protected setYPercent(yPercent: number) {
+        super.setYPercent(yPercent);
+        var yPixels = this.getYPixels();
+        if (yPixels) {
+            this.setAttribute("y", "calc(" + yPercent + "% + " + yPixels + ")");
+        } else {
+            this.setAttribute("y", yPercent + "%");
+        }
     }
-    setOuterHeight(outerHeight: number) {
-        this.setHeight(outerHeight);
+    protected setWidthPixels(widthPixels: number) {
+        super.setWidthPixels(widthPixels);
+        var widthPercent = this.getWidthPercent();
+        if (widthPercent) {
+            this.setAttribute("width", "calc(" + widthPercent + "% + " + widthPixels + ")");
+        } else {
+            this.setAttribute("width", widthPixels + "");
+        }
     }
+    protected setHeightPixels(heightPixels: number) {
+        super.setHeightPixels(heightPixels);
+        var heightPercent = this.getHeightPercent();
+        if (heightPercent) {
+            this.setAttribute("height", "calc(" + heightPercent + "% + " + heightPixels + ")");
+        } else {
+            this.setAttribute("height", heightPixels + "");
+        }
+    }
+    protected setWidthPercent(widthPercent: number) {
+        super.setWidthPercent(widthPercent);
+        var widthPixels = this.getWidthPixels();
+        if (widthPixels) {
+            this.setAttribute("width", "calc(" + widthPercent + "% + " + widthPixels + ")");
+        } else {
+            this.setAttribute("width", widthPercent + "%");
+        }
+    }
+    protected setHeightPercent(heightPercent: number) {
+        super.setHeightPercent(heightPercent);
+        var heightPixels = this.getHeightPixels();
+        if (heightPixels) {
+            this.setAttribute("height", "calc(" + heightPercent + "% + " + heightPixels + ")");
+        } else {
+            this.setAttribute("height", heightPercent + "%");
+        }
+    }
+    
     getPreferredOuterWidth(): number {
         return this.getPreferredWidth();
     }

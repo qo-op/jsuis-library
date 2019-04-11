@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSGridBagLayout
+ * 
+ * @author Yassuo Toda
+ */
 class JSGridBagLayout extends JSLayout {
     
     hgap: number = 0;
@@ -13,13 +18,23 @@ class JSGridBagLayout extends JSLayout {
     constructor();
     constructor(hgap: number, vgap: number);
     // overload
-    constructor(hgap?: number, vgap?: number) {
+    constructor(...args: any[]) {
         // constructor();
         super();
-        if (hgap !== undefined) {
+        switch (args.length) {
+        case 0:
+            // constructor();
+            break;
+        case 2:
             // constructor(hgap: number, vgap: number);
-            this.setHgap(hgap);
-            this.setVgap(vgap);
+            if (typeof args[0] === "number" && typeof args[1] === "number") {
+                var hgap: number = args[0];
+                var vgap: number = args[1];
+                this.setHgap(hgap);
+                this.setVgap(vgap);
+            }
+            break;
+        default:
         }
     }
     getHgap(): number {
@@ -190,10 +205,8 @@ class JSGridBagLayout extends JSLayout {
         var weightys: number[] = this.getWeightys();
         var containerWidth: number = container.getWidth();
         var containerHeight: number = container.getHeight();
-        // var left: number = container.getInsetLeft();
         var leftPc: number = 0;
         var leftPx: number = container.getInsetLeft();
-        // var widths: number[] = preferredWidths.slice();
         var widthsPc: number[] = [];
         var widthsPx: number[] = [];
         for (var i: number = 0; i < preferredWidths.length; i++) {
@@ -208,7 +221,6 @@ class JSGridBagLayout extends JSLayout {
             }
             if (sum) {
                 for (var i: number = 0; i < preferredWidths.length; i++) {
-                    // widths[i] = (widths[i] || 0) + extraHorizontalSpace * (weightxs[i] || 0) / sum;
                     widthsPc[i] += 100 * (weightxs[i] || 0) / sum;
                     widthsPx[i] -= (preferredLayoutWidth +
                             container.getMarginLeft() + container.getBorderLeftWidth() + container.getPaddingLeft() +
@@ -216,23 +228,18 @@ class JSGridBagLayout extends JSLayout {
                             (weightxs[i] || 0) / sum;
                 }
             } else {
-                // left += extraHorizontalSpace / 2;
                 leftPc += 50;
                 leftPx -= preferredLayoutWidth / 2;
             }
         }
-        // var xs: number[] = [ left ];
         var xsPc: number[] = [ leftPc ];
         var xsPx: number[] = [ leftPx ];
         for (var i: number = 0; i < preferredWidths.length; i++) {
-            // xs[i + 1] = xs[i] + (widths[i] || 0) + hgap;
             xsPc[i + 1] = xsPc[i] + widthsPc[i];
             xsPx[i + 1] = xsPx[i] + widthsPx[i] + hgap;
         }
-        // var top: number = container.getInsetTop();
         var topPc: number = 0;
         var topPx: number = container.getInsetTop();
-        // var heights: number[] = preferredHeights.slice();
         var heightsPc: number[] = [];
         var heightsPx: number[] = [];
         for (var i: number = 0; i < preferredHeights.length; i++) {
@@ -247,7 +254,6 @@ class JSGridBagLayout extends JSLayout {
             }
             if (sum) {
                 for (var i: number = 0; i < preferredHeights.length; i++) {
-                    // heights[i] = (heights[i] || 0) + extraVerticalSpace * (weightys[i] || 0) / sum;
                     heightsPc[i] += 100 * (weightys[i] || 0) / sum;
                     heightsPx[i] -= (preferredLayoutHeight +
                         container.getMarginTop() + container.getBorderTopWidth() + container.getPaddingTop() +
@@ -255,16 +261,13 @@ class JSGridBagLayout extends JSLayout {
                         (weightys[i] || 0) / sum;
                 }
             } else {
-                // top +=  extraVerticalSpace / 2;
                 topPc += 50;
                 topPx -= preferredLayoutHeight / 2;
             }
         }
-        // var ys: number[] = [ top ];
         var ysPc: number[] = [ topPc ];
         var ysPx: number[] = [ topPx ];
         for (var i: number = 0; i < preferredHeights.length; i++) {
-            // ys[i + 1] = ys[i] + (heights[i] || 0) + vgap;
             ysPc[i + 1] = ysPc[i] + heightsPc[i];
             ysPx[i + 1] = ysPx[i] + heightsPx[i] + vgap;
         }
@@ -283,79 +286,49 @@ class JSGridBagLayout extends JSLayout {
             var anchor: string = constraints.anchor;
             switch (fill) {
             case JSGridBagLayout.BOTH:
-                // component.setX(xs[gridx]);
-                component.setX("calc(" + xsPc[gridx] + "%" + (xsPx[gridx] > 0 ? " + " : " - ") + Math.abs(xsPx[gridx]) + "px)");
-                // component.setY(ys[gridy]);
-                component.setY("calc(" + ysPc[gridy] + "%" + (ysPx[gridy] > 0 ? " + " : " - ") + Math.abs(ysPx[gridy]) + "px)");
-                // component.setOuterWidth(xs[gridx + gridwidth] - hgap - xs[gridx]);
-                var widthPc = xsPc[gridx + gridwidth] - xsPc[gridx];
-                var widthPx = xsPx[gridx + gridwidth] - xsPx[gridx] - hgap -
-                        component.getMarginLeft() - component.getBorderLeftWidth() - component.getPaddingLeft() -
-                        component.getPaddingRight() - component.getBorderRightWidth() - component.getMarginRight();
-                component.setWidth("calc(" + widthPc + "%" + (widthPx > 0 ? " + " : " - ") + Math.abs(widthPx) + "px)");
-                // component.setOuterHeight(ys[gridy + gridheight] - vgap - ys[gridy]);
-                var heightPc = ysPc[gridy + gridheight] - ysPc[gridy];
-                var heightPx = ysPx[gridy + gridheight] - ysPx[gridy] - vgap -
-                        component.getMarginTop() - component.getBorderTopWidth() - component.getPaddingTop() -
-                        component.getPaddingBottom() - component.getBorderBottomWidth() - component.getMarginBottom();
-                component.setHeight("calc(" + heightPc + "%" + (heightPx > 0 ? " + " : " - ") + Math.abs(heightPx) + "px)");
+                component.setX(xsPx[gridx], xsPc[gridx]);
+                component.setY(ysPx[gridy], ysPc[gridy]);
+                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap, xsPc[gridx + gridwidth] - xsPc[gridx]);
+                component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap, ysPc[gridy + gridheight] - ysPc[gridy]);
                 break;
             case JSGridBagLayout.HORIZONTAL:
-                // component.setOuterWidth(xs[gridx + gridwidth] - hgap - xs[gridx]);
-                var widthPc = xsPc[gridx + gridwidth] - xsPc[gridx];
-                var widthPx = xsPx[gridx + gridwidth] - xsPx[gridx] - hgap -
-                        component.getMarginLeft() - component.getBorderLeftWidth() - component.getPaddingLeft() -
-                        component.getPaddingRight() - component.getBorderRightWidth() - component.getMarginRight();
-                component.setWidth("calc(" + widthPc + "%" + (widthPx > 0 ? " + " : " - ") + Math.abs(widthPx) + "px)");
+                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap, xsPc[gridx + gridwidth] - xsPc[gridx]);
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
-                // component.setX(xs[gridx]);
-                component.setX("calc(" + xsPc[gridx] + "%" + (xsPx[gridx] > 0 ? " + " : " - ") + Math.abs(xsPx[gridx]) + "px)");
+                component.setX(xsPx[gridx], xsPc[gridx]);
                 switch (anchor) {
                 case JSGridBagLayout.NORTH:
-                    // component.setY(ys[gridy]);
-                    component.setY("calc(" + ysPc[gridy] + "%" + (ysPx[gridy] > 0 ? " + " : " - ") + Math.abs(ysPx[gridy]) + "px)");
+                    component.setY(ysPx[gridy], ysPc[gridy]);
                     break;
                 case JSGridBagLayout.SOUTH:
-                    // component.setY(ys[gridy + gridheight] - vgap - componentPreferredOuterHeight);
                     var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
-                    component.setY("calc(" + ysPc[gridy + gridheight] + "%" + (yPx > 0 ? " + " : " - ") + Math.abs(yPx) + "px)");
+                    component.setY(yPx, ysPc[gridy + gridheight]);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
-                    // component.setY(ys[gridy] + (ys[gridy + gridheight] - vgap - ys[gridy] - componentPreferredOuterHeight) / 2);
                     var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
                     var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
-                    component.setY("calc(" + yPc + "%" + (yPx > 0 ? " + " : " - ") + Math.abs(yPx) + "px)");
+                    component.setY(yPx, yPc);
                 }
                 break;
             case JSGridBagLayout.VERTICAL:
-                // component.setOuterHeight(ys[gridy + gridheight] - vgap - ys[gridy]);
-                var heightPc = ysPc[gridy + gridheight] - ysPc[gridy];
-                var heightPx = ysPx[gridy + gridheight] - ysPx[gridy] - vgap -
-                        component.getMarginTop() - component.getBorderTopWidth() - component.getPaddingTop() -
-                        component.getPaddingBottom() - component.getBorderBottomWidth() - component.getMarginBottom();
-                component.setHeight("calc(" + heightPc + "%" + (heightPx > 0 ? " + " : " - ") + Math.abs(heightPx) + "px)");
+                component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap, ysPc[gridy + gridheight] - ysPc[gridy]);
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
-                // component.setY(ys[gridy]);
-                component.setY("calc(" + ysPc[gridy] + "%" + (ysPx[gridy] > 0 ? " + " : " - ") + Math.abs(ysPx[gridy]) + "px)");
+                component.setY(ysPx[gridy], ysPc[gridy]);
                 switch (anchor) {
                 case JSGridBagLayout.WEST:
-                    // component.setX(xs[gridx]);
-                    component.setX("calc(" + xsPc[gridx] + "%" + (xsPx[gridx] > 0 ? " + " : " - ") + Math.abs(xsPx[gridx]) + "px)");
+                    component.setX(xsPx[gridx], xsPc[gridx]);
                     break;
                 case JSGridBagLayout.EAST:
-                    // component.setX(xs[gridx + gridwidth] - hgap - componentPreferredOuterWidth);
                     var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                    component.setX("calc(" + xsPc[gridx + gridwidth] + "%" + (xPx > 0 ? " + " : " - ") + Math.abs(xPx) + "px)");
+                    component.setX(xPx, xsPc[gridx + gridwidth]);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
-                    // component.setX(xs[gridx] + (xs[gridx + gridwidth] - hgap - xs[gridx] - componentPreferredOuterWidth) / 2);
                     var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
                     var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                    component.setX("calc(" + xPc + "%" + (xPx > 0 ? " + " : " - ") + Math.abs(xPx) + "px)");
+                    component.setX(xPx, xPc);
                 }
                 break;
             case JSGridBagLayout.NONE:
@@ -368,43 +341,37 @@ class JSGridBagLayout extends JSLayout {
                 case JSGridBagLayout.WEST:
                 case JSGridBagLayout.NORTHWEST:
                 case JSGridBagLayout.SOUTHWEST:
-                    // component.setX(xs[gridx]);
-                    component.setX("calc(" + xsPc[gridx] + "%" + (xsPx[gridx] > 0 ? " + " : " - ") + Math.abs(xsPx[gridx]) + "px)");
+                    component.setX(xsPx[gridx], xsPc[gridx]);
                     break;
                 case JSGridBagLayout.EAST:
                 case JSGridBagLayout.NORTHEAST:
                 case JSGridBagLayout.SOUTHEAST:
-                    // component.setX(xs[gridx + gridwidth] - hgap - componentPreferredOuterWidth);
                     var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                    component.setX("calc(" + xsPc[gridx + gridwidth] + "%" + (xPx > 0 ? " + " : " - ") + Math.abs(xPx) + "px)");
+                    component.setX(xPx, xsPc[gridx + gridwidth]);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
-                    // component.setX(xs[gridx] + (xs[gridx + gridwidth] - hgap - xs[gridx] - componentPreferredOuterWidth) / 2);
                     var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
                     var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                    component.setX("calc(" + xPc + "%" + (xPx > 0 ? " + " : " - ") + Math.abs(xPx) + "px)");
+                    component.setX(xPx, xPc);
                 }
                 switch (anchor) {
                 case JSGridBagLayout.NORTH:
                 case JSGridBagLayout.NORTHWEST:
                 case JSGridBagLayout.NORTHEAST:
-                    // component.setY(ys[gridy]);
-                    component.setY("calc(" + ysPc[gridy] + "%" + (ysPx[gridy] > 0 ? " + " : " - ") + Math.abs(ysPx[gridy]) + "px)");
+                    component.setY(ysPx[gridy], ysPc[gridy]);
                     break;
                 case JSGridBagLayout.SOUTH:
                 case JSGridBagLayout.SOUTHWEST:
                 case JSGridBagLayout.SOUTHEAST:
-                    // component.setY(ys[gridy + gridheight] - vgap - componentPreferredOuterHeight);
                     var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
-                    component.setY("calc(" + ysPc[gridy + gridheight] + "%" + (yPx > 0 ? " + " : " - ") + Math.abs(yPx) + "px)");
+                    component.setY(yPx, ysPc[gridy + gridheight]);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
-                    // component.setY(ys[gridy] + (ys[gridy + gridheight] - vgap - ys[gridy] - componentPreferredOuterHeight) / 2);
                     var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
                     var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
-                    component.setY("calc(" + yPc + "%" + (yPx > 0 ? " + " : " - ") + Math.abs(yPx) + "px)");
+                    component.setY(yPx, yPc);
                 }
             }
         }

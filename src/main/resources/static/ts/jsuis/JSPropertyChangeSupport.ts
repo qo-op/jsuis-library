@@ -1,4 +1,9 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSPropertyChangeSupport
+ * 
+ * @author Yassuo Toda
+ */
 class JSPropertyChangeSupport {
     
     propertyChangeListeners: PropertyChangeListener[];

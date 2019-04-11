@@ -1,16 +1,17 @@
 /// <reference path = "../jsuis.ts"/>
+/**
+ * JSTableContent
+ * 
+ * @author Yassuo Toda
+ */
 class JSTableContent extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLTableSectionElement);
     // overload
-    constructor(element?: HTMLTableSectionElement) {
-        // constructor();
-        // constructor(element: HTMLTableSectionElement);
-        super(element === undefined ? document.createElement("tbody") : element);
-    }
-    init(): void {
-        this.addClass("JSTableBody");
+    constructor(...args: any[]) {
+        super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]);
+        this.setClass("JSTableBody");
         this.setEditable(true);
     }
     getRows(): any[][] {
