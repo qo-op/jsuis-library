@@ -12,7 +12,6 @@ class JSIcon {
     
     constructor();
     constructor(source: string);
-    constructor(iconWidth: number, iconHeight: number);
     constructor(source: string, iconWidth: number, iconHeight: number);
     // overload
     constructor(...args: any[]) {
@@ -25,15 +24,6 @@ class JSIcon {
             if (typeof args[0] === "string") {
                 var source: string = args[0];
                 this.setSource(source);
-            }
-            break;
-        case 2:
-            // constructor(iconWidth: number, iconHeight: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var iconWidth: number = args[0];
-                var iconHeight: number = args[1];
-                this.setIconWidth(iconWidth);
-                this.setIconHeight(iconHeight);
             }
             break;
         case 3:

@@ -12,6 +12,7 @@ class JSTabbedPane extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSTabbedPane");
         switch (args.length) {
         case 0:
             // constructor();
@@ -75,7 +76,6 @@ class JSTabbedPane extends JSHTMLComponent {
                 }
             }
         }));
-        this.setClass("JSTabbedPane");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");

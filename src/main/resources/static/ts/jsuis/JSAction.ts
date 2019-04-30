@@ -4,14 +4,16 @@
  * 
  * @author Yassuo Toda
  */
-class JSAction {
+class JSAction implements ActionListener {
     
     name: string;
     icon: JSIcon;
     enabled: boolean;
     
+    /*
     actionListener: ActionListener;
     mouseListener: MouseListener;
+    */
     
     propertyChangeSupport: JSPropertyChangeSupport;
     
@@ -71,6 +73,9 @@ class JSAction {
             this.firePropertyChange(new JSPropertyChangeEvent(this, "enabled", oldEnabled, enabled));
         }
     }
+    actionPerformed(mouseEvent: MouseEvent, component: JSComponent): void {
+    }
+    /*
     getActionListener(): ActionListener {
         return this.actionListener;
     }
@@ -83,6 +88,7 @@ class JSAction {
     setMouseListener(mouseListener: MouseListener) {
         this.mouseListener = mouseListener;
     }
+    */
     getPropertyChangeSupport(): JSPropertyChangeSupport {
         return this.propertyChangeSupport;
     }

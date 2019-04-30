@@ -12,6 +12,9 @@ class JSTableDataCell extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]);
+        this.setClass("JSTableDataCell");
+        this.setStyle("border", "1px solid gray");
+        this.setStyle("border-collapse", "collapse");
         switch (args.length) {
         case 0:
             // constructor();
@@ -27,9 +30,6 @@ class JSTableDataCell extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSTableDataCell");
-        this.setStyle("border", "1px solid gray");
-        this.setStyle("border-collapse", "collapse");
     }
     getValue(): any {
         return this.getData("value") || this.getText();

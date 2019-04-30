@@ -12,6 +12,8 @@ class JSTabContainer extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSTabContainer");
+        this.setStyle("font-size", "0");
         switch (args.length) {
         case 0:
             // constructor();
@@ -37,7 +39,7 @@ class JSTabContainer extends JSHTMLComponent {
             tabSelection = new JSSelection();
             this.setTabSelection(tabSelection);
         }
-        this.setBackground("#BFBFBF");
+        // this.setBackground("#BFBFBF");
         switch (tabPlacement) {
         case JSTabContainer.RIGHT:
             // this.setLayout(new JSFlowLayout(JSFlowLayout.RIGHT_TO_LEFT, JSFlowLayout.TOP));
@@ -56,8 +58,6 @@ class JSTabContainer extends JSHTMLComponent {
             // this.setLayout(new JSFlowLayout(JSFlowLayout.TOP_TO_BOTTOM, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
         }
-        this.setStyle("font-size", "0");
-        this.setClass("JSTabContainer");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");

@@ -15,6 +15,7 @@ class JSButton extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
+        this.setClass("JSButton");
         switch (args.length) {
         case 0:
             // constructor();
@@ -47,8 +48,6 @@ class JSButton extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSButton");
-        this.setStyle("white-space", "nowrap");
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
@@ -63,51 +62,32 @@ class JSButton extends JSHTMLComponent {
             } else {
                 image = new JSImage(icon);
             }
-            image.setStyle("vertical-align", "middle");
+            image.setName("buttonImage");
             var text = this.getText();
-            if (text) {
-                image.setStyle("margin-right", "4px");
-            }
+            image.setStyle("margin-right", text ? "4px" : "0");
             this.add(image, null, 0);
             this.setImage(image);
         }
-    }
-    getSpan(): JSSpan {
-        var span = this.getData("span");
-        if (!span) {
-            span = new JSSpan();
-            span.setStyle("vertical-align", "middle");
-            this.add(span);
-            this.setData("span", span);
-        }
-        return span;
     }
     getText(): string {
         var span: JSSpan = this.getSpan();
         return span.getText();
     }
     setText(text: string) {
+        var span: JSSpan = this.getSpan();
+        span.setText(text);
         var image = this.getImage();
         if (image) {
             image.setStyle("margin-right", text ? "4px" : "0");
         }
-        var span: JSSpan = this.getSpan();
-        span.setText(text);
     }
-    getPropertyChangeListener(): PropertyChangeListener {
-        var propertyChangeListener = this.getData("propertyChangeListener");
-        if (!propertyChangeListener) {
-            propertyChangeListener = new JSPropertyChangeListener({
-                propertyChange(propertyChangeEvent: JSPropertyChangeEvent) {
-                    var propertyName: string = propertyChangeEvent.getPropertyName();
-                    if (propertyName === "enabled") {
-                        var newValue = propertyChangeEvent.getNewValue();
-                        this.setEnabled(newValue);
-                    }
-                }
-            });
-            this.setData("propertyChangeListener", propertyChangeListener);
+    getSpan(): JSSpan {
+        var span = this.getData("span");
+        if (!span) {
+            span = new JSSpan().withName("buttonSpan");
+            this.add(span);
+            this.setData("span", span);
         }
-        return propertyChangeListener;
+        return span;
     }
 }

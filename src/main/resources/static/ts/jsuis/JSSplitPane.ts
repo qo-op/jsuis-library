@@ -16,6 +16,7 @@ class JSSplitPane extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSSplitPane");
         switch (args.length) {
         case 0:
             // constructor();
@@ -32,58 +33,6 @@ class JSSplitPane extends JSHTMLComponent {
         default:
         }
         this.setLayout(new JSSplitPaneLayout());
-        var orientation: string = this.getOrientation();
-        var leftContainer: JSPanel = this.getLeftContainer();
-        if (!leftContainer) {
-            leftContainer = new JSPanel(new JSBorderLayout());
-            leftContainer.setBackground("white");
-            leftContainer.setStyle("overflow", "hidden");
-            this.add(leftContainer);
-            this.setLeftContainer(leftContainer);
-        }
-        var rightContainer: JSPanel = this.getRightContainer();
-        if (!rightContainer) {
-            rightContainer = new JSPanel(new JSBorderLayout());
-            rightContainer.setBackground("white");
-            rightContainer.setStyle("overflow", "hidden");
-            this.add(rightContainer);
-            this.setRightContainer(rightContainer);
-        }
-        var divider: JSPanel = this.getDivider();
-        if (!divider) {
-            divider = new JSPanel(new JSBorderLayout());
-            divider.setBackground("#f2f2f2");
-            divider.setCursor(orientation === JSSplitPane.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
-            this.add(divider);
-            divider.addMouseListener(new JSMouseListener({
-                mousePressed(mouseEvent: MouseEvent, source: JSComponent) {
-                    var splitPane = <JSSplitPane> source.getParent();
-                    var orientation = splitPane.getOrientation();
-                    if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                        splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
-                    } else {
-                        splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
-                    }
-                },
-                mouseDragged(mouseEvent: MouseEvent, source: JSComponent) {
-                    var splitPane = <JSSplitPane> source.getParent();
-                    var orientation = splitPane.getOrientation();
-                    if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                        var y = mouseEvent.y;
-                        if (y) {
-                            (<JSSplitPane> splitPane).setDividerLocation(y - splitPane.getData("dy"));
-                        }
-                    } else {
-                        var x = mouseEvent.x;
-                        if (x) {
-                            (<JSSplitPane> splitPane).setDividerLocation(x - splitPane.getData("dx"));
-                        }
-                    }
-                }
-            }));
-            this.setDivider(divider);
-        }
-        this.setClass("JSSplitPane");
         this.setDividerSize(4);
     }
     getOrientation(): string {
@@ -93,17 +42,37 @@ class JSSplitPane extends JSHTMLComponent {
         this.setAttribute("data-orientation", orientation);
     }
     getLeftContainer(): JSPanel {
-        return this.getData("leftContainer"); 
+        var leftContainer: JSPanel = this.getData("leftContainer");
+        if (!leftContainer) {
+            leftContainer = new JSPanel(new JSBorderLayout());
+            leftContainer.setBackground("white");
+            leftContainer.setStyle("overflow", "hidden");
+            this.add(leftContainer);
+            this.setData("leftContainer", leftContainer);
+        }
+        return leftContainer;
     }
+    /*
     setLeftContainer(leftContainer: JSPanel) {
         this.setData("leftContainer", leftContainer);
     }
+    */
     getRightContainer(): JSPanel {
-        return this.getData("rightContainer"); 
+        var rightContainer: JSPanel = this.getData("rightContainer");
+        if (!rightContainer) {
+            rightContainer = new JSPanel(new JSBorderLayout());
+            rightContainer.setBackground("white");
+            rightContainer.setStyle("overflow", "hidden");
+            this.add(rightContainer);
+            this.setData("rightContainer", rightContainer);
+        }
+        return rightContainer;
     }
+    /*
     setRightContainer(rightContainer: JSPanel) {
         this.setData("rightContainer", rightContainer);
     }
+    */
     getLeftComponent(): JSComponent {
         var leftContainer: JSPanel = this.getLeftContainer();
         var components: JSComponent[] = leftContainer.getComponents();
@@ -143,11 +112,47 @@ class JSSplitPane extends JSHTMLComponent {
         this.setRightComponent(component);
     }
     getDivider(): JSPanel {
-        return this.getData("divider");
+        var divider: JSPanel = this.getData("divider");
+        if (!divider) {
+            divider = new JSPanel(new JSBorderLayout());
+            var orientation: string = this.getOrientation();
+            divider.setCursor(orientation === JSSplitPane.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
+            this.add(divider);
+            divider.addMouseListener(new JSMouseListener({
+                mousePressed(mouseEvent: MouseEvent, source: JSComponent) {
+                    var splitPane = <JSSplitPane> source.getParent();
+                    var orientation = splitPane.getOrientation();
+                    if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+                        splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
+                    } else {
+                        splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
+                    }
+                },
+                mouseDragged(mouseEvent: MouseEvent, source: JSComponent) {
+                    var splitPane = <JSSplitPane> source.getParent();
+                    var orientation = splitPane.getOrientation();
+                    if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+                        var y = mouseEvent.y;
+                        if (y) {
+                            (<JSSplitPane> splitPane).setDividerLocation(y - splitPane.getData("dy"));
+                        }
+                    } else {
+                        var x = mouseEvent.x;
+                        if (x) {
+                            (<JSSplitPane> splitPane).setDividerLocation(x - splitPane.getData("dx"));
+                        }
+                    }
+                }
+            }));
+            this.setData("divider", divider);
+        }
+        return divider;
     }
+    /*
     setDivider(divider: JSPanel) {
         this.setData("divider", divider);
     }
+    */
     getDividerSize() {
         return +this.getAttribute("data-divider-size");
     }

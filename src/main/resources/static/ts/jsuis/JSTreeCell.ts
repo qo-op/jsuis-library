@@ -8,6 +8,8 @@ class JSTreeCell extends JSHTMLComponent {
     
     static COLLAPSED_PATH_DEFINITION: string = "M5.17,2.34L10.83,8L5.17,13.66Z";
     static EXPANDED_PATH_DEFINITION: string = "M12,4L12,12L4,12Z";
+    static COLLAPSED_PATH_ICON: JSPathIcon = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16).withBackground("gray");
+    static EXPANDED_PATH_ICON: JSPathIcon = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withBackground("gray");
     
     constructor();
     constructor(element: HTMLDivElement);
@@ -16,6 +18,8 @@ class JSTreeCell extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSTreeCell");
+        this.setStyle("padding", "0 4px");
         var label: JSLabel = this.getLabel();
         if (!label) {
             label = new JSLabel();
@@ -47,16 +51,6 @@ class JSTreeCell extends JSHTMLComponent {
             break;
         default:
         }
-        this.addMouseListener(new JSMouseListener({
-            mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
-                component.setBackground("#e6e6e6");
-            },
-            mouseExited(mouseEvent: MouseEvent, component: JSComponent) {
-                component.setBackground(null);
-            }
-        }));
-        this.setStyle("padding", "0 4px");
-        this.setClass("JSTreeCell");
     }
     getValue(): any {
         return this.getData("value");
@@ -73,7 +67,7 @@ class JSTreeCell extends JSHTMLComponent {
                     branchButton.setStyle("background", "none");
                     branchButton.setStyle("border", "none");
                     branchButton.setStyle("padding", "0 2px");
-                    branchButton.setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
+                    branchButton.setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                     branchButton.setStyle("margin-right", "4px");
                     branchButton.setStyle("vertical-align", "middle");
                     this.add(branchButton, null, 0);
@@ -81,10 +75,10 @@ class JSTreeCell extends JSHTMLComponent {
                         mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
                             var container: JSDiv = (<JSTreeCell> component).getContainer();
                             if (container.isDisplayable()) {
-                                (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
+                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                                 container.setStyle("display", "none");
                             } else {
-                                (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
+                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
                                 container.setStyle("display", "");
                             }
                         }
@@ -92,17 +86,14 @@ class JSTreeCell extends JSHTMLComponent {
                     this.setBranchButton(branchButton);
                     this.addMouseListener(new JSMouseListener({
                         mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
-                            // var clickCount = mouseEvent.detail;
-                            // if (clickCount === 2) {
-                                var container: JSDiv = (<JSTreeCell> component).getContainer();
-                                if (container.isDisplayable()) {
-                                    (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, "gray", "none", 16, 16));
-                                    container.setStyle("display", "none");
-                                } else {
-                                    (<JSTreeCell> component).getBranchButton().setIcon(new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, "gray", "none", 16, 16));
-                                    container.setStyle("display", "");
-                                }
-                            // }
+                            var container: JSDiv = (<JSTreeCell> component).getContainer();
+                            if (container.isDisplayable()) {
+                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+                                container.setStyle("display", "none");
+                            } else {
+                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
+                                container.setStyle("display", "");
+                            }
                         }
                     }));
                 }

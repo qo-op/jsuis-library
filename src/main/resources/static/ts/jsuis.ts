@@ -20,7 +20,6 @@
 /// <reference path = "jsuis/TabListener.ts"/>
 
 /// <reference path = "jsuis/JSAction.ts"/>
-/// <reference path = "jsuis/JSActionEvent.ts"/>
 /// <reference path = "jsuis/JSActionListener.ts"/>
 /// <reference path = "jsuis/JSAdjustmentListener.ts"/>
 /// <reference path = "jsuis/JSBody.ts"/>
@@ -56,6 +55,7 @@
 /// <reference path = "jsuis/JSMenuItem.ts"/>
 /// <reference path = "jsuis/JSMouseListener.ts"/>
 /// <reference path = "jsuis/JSOption.ts"/>
+/// <reference path = "jsuis/JSP.ts"/>
 /// <reference path = "jsuis/JSPanel.ts"/>
 /// <reference path = "jsuis/JSPath.ts"/>
 /// <reference path = "jsuis/JSPathIcon.ts"/>

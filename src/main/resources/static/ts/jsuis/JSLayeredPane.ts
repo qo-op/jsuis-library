@@ -14,6 +14,7 @@ class JSLayeredPane extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLDivElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSLayeredPane");
         switch (args.length) {
         case 0:
             // constructor();
@@ -33,7 +34,6 @@ class JSLayeredPane extends JSHTMLComponent {
         if (!layout) {
             this.setLayout(new JSLayeredPaneLayout());
         }
-        this.setClass("JSLayeredPane");
     }
     setLayer(component: JSComponent, layer: number) {
         component.setZIndex(layer);

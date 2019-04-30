@@ -10,6 +10,7 @@ class JSTreeNode {
     allowsChildren: boolean = true;
     nodes: JSTreeNode[] = [];
     parent: JSTreeNode = null;
+    expanded: boolean = false;
     
     constructor();
     constructor(userObject: any);
@@ -75,6 +76,15 @@ class JSTreeNode {
             parent = parent.getParent();
         }
         return treePath;
+    }
+    isLeaf(): boolean {
+        return this.children().length === 0;
+    }
+    isExpanded(): boolean {
+        return this.expanded;
+    }
+    setExpanded(expanded: boolean) {
+        this.expanded = expanded;
     }
     toString(): string {
         return "" + (this.userObject || "");

@@ -11,6 +11,8 @@ class JSMenuBarContainer extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSMenuBarContainer");
+        this.setStyle("display", "inline-block");
         var menuBarContainer: JSMenuBarContainer = this;
         var body: JSBody = JSBody.getInstance();
         body.addMouseListener({
@@ -29,8 +31,6 @@ class JSMenuBarContainer extends JSHTMLComponent {
                 menuBarContainer.setData("pressed", true);
             }
         }, true);
-        this.setClass("JSMenuBarContainer");
-        this.setStyle("display", "inline-block");
     }
     add(menu: JSMenu): void {
         var selection: JSSelection = this.getSelection();

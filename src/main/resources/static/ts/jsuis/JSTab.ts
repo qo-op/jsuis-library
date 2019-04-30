@@ -14,6 +14,10 @@ class JSTab extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSTab");
+        this.setStyle("display", "inline-block");
+        this.setStyle("font-size", "0");
+        this.setStyle("white-space", "nowrap");
         var container: JSPanel = this.getContainer();
         if (!container) {
             container = new JSPanel();
@@ -63,55 +67,37 @@ class JSTab extends JSHTMLComponent {
             break;
         default:
         }
-        this.addDragListener(new JSDragListener({
-            dragStart(dragEvent: DragEvent, tab: JSTab) {
-                var dragImage: Element = JSDataTransfer.getDragImage();
-                if (dragImage) {
-                    if ((<any> dragEvent.dataTransfer).setDragImage) {
-                        (<any> dragEvent.dataTransfer).setDragImage(dragImage, 0, 0);
-                        var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
-                        tabContainer.setSelectedIndex(tabContainer.indexOfTab(tab));
-                        JSDataTransfer.setData("dragSource", tab);
-                    } else {
-                        var srcElement = (<HTMLElement> dragEvent.srcElement);
-                        var visibility = srcElement.style.visibility;
-                        srcElement.style.visibility = "hidden";
-                        setTimeout(function() {
-                            srcElement.style.visibility = visibility; 
-                        });
-                    }
-                }
+        this.addDragSourceListener(new JSDragListener({
+            dragStart(mouseEvent: MouseEvent, tab: JSTab) {
+                var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
+                tabContainer.setSelectedIndex(tabContainer.indexOfTab(tab));
+                JSDataTransfer.setData("dragSource", tab);
             }
         }));
-        this.addDropListener(new JSDropListener({
-            dragOver(dragEvent: DragEvent, tab: JSTab): boolean {
+        this.addDropTargetListener(new JSDropListener({
+            dragOver(mouseEvent: MouseEvent, tab: JSTab): boolean {
                 var container: JSPanel = tab.getContainer();
                 tab.setStyle("z-index", "1");
                 var boundingClientRect = tab.getBoundingClientRect();
-                if (dragEvent.x >= (boundingClientRect.left + boundingClientRect.width / 2)) {
+                if (mouseEvent.x >= (boundingClientRect.left + boundingClientRect.width / 2)) {
                     container.setStyle("box-shadow", "2px 0 #404040, -1px 0 #404040 inset");
                 } else {
                     container.setStyle("box-shadow", "-2px 0 #404040, 1px 0 #404040 inset");
                 }
                 return true;
             },
-            dragLeave(dragEent: DragEvent, tab: JSTab): void {
+            dragLeave(mouseEvent: MouseEvent, tab: JSTab): void {
                 var container: JSPanel = tab.getContainer();
                 tab.setStyle("z-index", "0");
                 container.setStyle("box-shadow", "none");
             },
-            drop(dragEvent: DragEvent, tab: JSTab): boolean {
+            drop(mouseEvent: MouseEvent, tab: JSTab): boolean {
                 console.log("drop");
                 tab.setStyle("z-index", "0");
                 container.setStyle("box-shadow", "none");
                 return true;
             }
         }));
-        this.setBackground("gray");
-        this.setStyle("display", "inline-block");
-        this.setStyle("font-size", "0");
-        this.setStyle("white-space", "nowrap");
-        this.setClass("JSTab");
     }
     getContainer(): JSPanel {
         return this.getData("container"); 
@@ -156,7 +142,7 @@ class JSTab extends JSHTMLComponent {
                 closeButton.setStyle("background", "none");
                 closeButton.setStyle("border", "none");
                 closeButton.setStyle("padding", "0 2px");
-                var icon = new JSPathIcon("M4,4L12,12M12,4L4,12", "", "red", 16, 16);
+                var icon = new JSPathIcon("M4,4L12,12M12,4L4,12", 16, 16).withForeground("red");
                 closeButton.setIcon(icon);
                 // closeButton = new JSPathImage(new JSPathIcon("M4,4L12,12M12,4L4,12", 16, 16));
                 // (<JSPathImage> closeButton).getPath().setForeground("red");

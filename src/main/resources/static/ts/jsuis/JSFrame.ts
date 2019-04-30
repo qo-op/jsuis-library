@@ -11,19 +11,10 @@ class JSFrame extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSFrame");
+        this.setVisible(false);
         var body: JSBody = JSBody.getInstance();
         body.setContentPane(this);
-        this.setLayout(new JSBorderLayout());
-        this.setClass("JSFrame");
-        this.setStyle("height", "100%");
-        this.setVisible(false);
-    }
-    getMenuBar(): JSMenuBar {
-        return this.getData("menuBar");
-    }
-    setMenuBar(menuBar: JSMenuBar) {
-        this.add(menuBar, JSBorderLayout.NORTH, 0);
-        this.setData("menuBar", menuBar);
     }
     setVisible(visible: boolean) {
         if (visible) {

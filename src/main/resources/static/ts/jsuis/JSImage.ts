@@ -10,11 +10,11 @@ class JSImage extends JSHTMLComponent {
     constructor(element: HTMLImageElement);
     constructor(icon: JSIcon);
     constructor(source: string);
-    constructor(width: number, height: number);
     constructor(source: string, width: number, height: number);
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]);
+        this.setClass("JSImage");
         switch (args.length) {
         case 0:
             // constructor();
@@ -32,15 +32,6 @@ class JSImage extends JSHTMLComponent {
                 this.setSource(source);
             }
             break;
-        case 2:
-            // constructor(width: number, height: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var width: number = args[0];
-                var height: number = args[1];
-                this.setWidth(width);
-                this.setHeight(height);
-            }
-            break;
         case 3:
             // constructor(source: string, width: number, height: number);
             if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
@@ -54,20 +45,18 @@ class JSImage extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSImageIcon");
-        this.setDraggable(false);
     }
     setIcon(icon: JSIcon) {
-        var source = icon.getSource();
-        if (source) {
+        var source: string = icon.getSource();
+        if (source !== undefined) {
             this.setSource(source);
         }
-        var iconWidth = icon.getIconWidth();
-        if (iconWidth) {
+        var iconWidth: number = icon.getIconWidth();
+        if (iconWidth !== undefined) {
             this.setWidth(iconWidth);
         }
-        var iconHeight = icon.getIconHeight();
-        if (iconHeight) {
+        var iconHeight: number = icon.getIconHeight();
+        if (iconHeight !== undefined) {
             this.setHeight(iconHeight);
         }
     }
@@ -76,63 +65,5 @@ class JSImage extends JSHTMLComponent {
     }
     setSource(source: string) {
         this.setAttribute("src", source);
-    }
-    getWidth(): number {
-        return +this.getAttribute("width");
-    }
-    getHeight(): number {
-        return +this.getAttribute("height");
-    }
-    
-    protected setWidthPixels(widthPixels: number) {
-        super.setWidthPixels(widthPixels);
-        var widthPercent = this.getWidthPercent();
-        if (widthPercent) {
-            this.setStyle("width", "calc(" + widthPercent + "% + " + widthPixels + ")");
-        } else {
-            this.setStyle("width", widthPixels + "");
-        }
-    }
-    protected setHeightPixels(heightPixels: number) {
-        super.setHeightPixels(heightPixels);
-        var heightPercent = this.getHeightPercent();
-        if (heightPercent) {
-            this.setStyle("height", "calc(" + heightPercent + "% + " + heightPixels + ")");
-        } else {
-            this.setStyle("height", heightPixels + "");
-        }
-    }
-    protected setWidthPercent(widthPercent: number) {
-        super.setWidthPercent(widthPercent);
-        var widthPixels = this.getWidthPixels();
-        if (widthPixels) {
-            this.setStyle("width", "calc(" + widthPercent + "% + " + widthPixels + ")");
-        } else {
-            this.setStyle("width", widthPercent + "%");
-        }
-    }
-    protected setHeightPercent(heightPercent: number) {
-        super.setHeightPercent(heightPercent);
-        var heightPixels = this.getHeightPixels();
-        if (heightPixels) {
-            this.setStyle("height", "calc(" + heightPercent + "% + " + heightPixels + ")");
-        } else {
-            this.setStyle("height", heightPercent + "%");
-        }
-    }
-    
-    getPreferredWidth(): number {
-        var preferredWidth: string = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
-        }
-        return this.getWidth();
-    }
-    getPreferredHeight(): number {
-        var preferredHeight: string = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        return this.getHeight();
     }
 }

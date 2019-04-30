@@ -11,14 +11,14 @@ class JSMenuBar extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSMenuBar");
         var menuBarContainer: JSMenuBarContainer = this.getMenuBarContainer();
         if (!menuBarContainer) {
             menuBarContainer = new JSMenuBarContainer();
             super.add(menuBarContainer);
             this.setMenuBarContainer(menuBarContainer);
         }
-        this.setClass("JSMenuBar");
-        this.setBackground("#f2f2f2");
+        // this.setBackground("#f2f2f2");
     }
     getMenuBarContainer(): JSMenuBarContainer {
         return this.getData("menuBarContainer");

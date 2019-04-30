@@ -13,6 +13,10 @@ class JSPopupMenu extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSPopupMenu");
+        this.setStyle("border", "1px solid gray");
+        this.setStyle("padding", "4px 0");
+        this.setStyle("position", "absolute");
         // this.setLayout(new JSPopupMenuLayout());
         var popupMenu: JSPopupMenu = this;
         var body: JSBody = JSBody.getInstance();
@@ -35,13 +39,8 @@ class JSPopupMenu extends JSHTMLComponent {
                 popupMenu.setData("close", false);
             }
         }, true);
-        this.setBackground("#f2f2f2");
-        this.setStyle("border", "1px solid gray");
-        this.setStyle("padding", "4px 0");
-        this.setStyle("position", "absolute");
         this.setVisible(false);
         this.setZIndex(JSLayeredPane.POPUP_LAYER);
-        this.setClass("JSPopupMenu");
     }
     add(component: JSComponent): void {
         var selection: JSSelection = this.getSelection();

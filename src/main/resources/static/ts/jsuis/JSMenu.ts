@@ -16,6 +16,8 @@ class JSMenu extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSMenu");
+        this.setStyle("padding", "0 4px");
         this.setLayout(new JSBorderLayout());
         switch (args.length) {
         case 0:
@@ -45,7 +47,6 @@ class JSMenu extends JSHTMLComponent {
             break;
         default:
         }
-        this.setStyle("padding", "0 4px");
         this.addMouseListener({
             mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
                 var menu: JSMenu = <JSMenu> component;
@@ -103,17 +104,9 @@ class JSMenu extends JSHTMLComponent {
                         parent.getSelection().setSelected(menu);
                     }
                 }
-                menu.setBackground("#e6e6e6");
-                mouseEvent.stopPropagation();
-            },
-            mouseExited(mouseEvent: MouseEvent, component: JSComponent) {
-                var menu: JSMenu = <JSMenu> component;
-                menu.setBackground(null);
                 mouseEvent.stopPropagation();
             }
         });
-        this.setClass("JSMenu");
-        this.setBackground("#f2f2f2");
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
@@ -163,7 +156,7 @@ class JSMenu extends JSHTMLComponent {
                 expandImage = new JSImage(expandIcon);
             }
             expandImage.setStyle("vertical-align", "middle");
-            super.add(expandImage, JSBorderLayout.EAST);
+            super.add(expandImage, JSBorderLayout.EAST, 0);
             this.setExpandImage(expandImage);
         }
     }
@@ -216,7 +209,7 @@ class JSMenu extends JSHTMLComponent {
             if (component instanceof JSMenu) {
                 var expandIcon: JSPathIcon = component.getExpandIcon();
                 if (!expandIcon) {
-                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", "gray", "none", 16, 16);
+                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withBackground("gray");
                     component.setExpandIcon(expandIcon);
                 }
             }

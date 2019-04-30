@@ -14,6 +14,7 @@ class JSSeparator extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSSeparator");
         switch (args.length) {
         case 0:
             // constructor();
@@ -51,7 +52,6 @@ class JSSeparator extends JSHTMLComponent {
             mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
             }
         }));
-        this.setClass("JSSeparator");
     }
     getLine(): JSComponent {
         return this.getData("line");

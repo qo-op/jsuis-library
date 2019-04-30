@@ -13,6 +13,9 @@ class JSLabel extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]);
+        this.setClass("JSLabel");
+        this.setStyle("font-size", "medium");
+        this.setStyle("white-space", "nowrap");
         switch (args.length) {
         case 0:
             // constructor();
@@ -37,10 +40,6 @@ class JSLabel extends JSHTMLComponent {
             break;
         default:
         }
-        // this.setStyle("display", "inline-block");
-        this.setStyle("font-size", "medium");
-        this.setStyle("white-space", "nowrap");
-        this.setClass("JSLabel");
     }
     getFor(): string {
         return this.getAttribute("for");

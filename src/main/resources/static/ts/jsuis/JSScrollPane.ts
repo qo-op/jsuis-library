@@ -22,6 +22,7 @@ class JSScrollPane extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSScrollPane");
         this.setLayout(new JSScrollPaneLayout());
         this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -60,7 +61,6 @@ class JSScrollPane extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSScrollPane");
     }
     getVsbPolicy(): string {
         return this.getStyle("overflow-y");

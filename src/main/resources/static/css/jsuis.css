@@ -1,0 +1,61 @@
+html {
+	height: 100%;
+}
+.JSBody {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+.JSButton {
+	white-space: nowrap;
+}
+.JSButton>.JSImage, .JSButton>.JSPathImage, .JSButton>.JSSpan {
+	vertical-align: middle;
+}
+.JSCheckBoxMenuItem: hover {
+	background-color: #e6e6e6;
+}
+.JSFrame {
+	height: 100%;
+}
+.JSImage {
+	draggable: false;
+	-webkit-user-drag: none;
+}
+.JSMenu:hover {
+	background-color: #e6e6e6;
+}
+.JSMenuBar {
+	background-color: #f2f2f2;
+}
+.JSMenuItem:hover {
+	background-color: #e6e6e6;
+}
+.JSPathImage {
+	display: inline-block;
+	font-size: 0;
+	draggable: false;
+	-webkit-user-drag: none;
+}
+.JSPopupMenu {
+	background-color: #f2f2f2;
+}
+.JSTab {
+	background-color: gray;
+}
+.JSTabContainer {
+	background-color: #BFBFBF;
+}
+.JSTableHeader {
+	background-color: #f2f2f2
+}
+.JSToolBar {
+	background-color: #f2f2f2
+}
+.JSTreeCell:hover {
+	background-color: #e6e6e6;
+}

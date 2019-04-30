@@ -14,6 +14,8 @@ class JSGraphics extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGSVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        this.setClass("JSGraphics");
+        this.setStyle("display", "inline-block");
         switch (args.length) {
         case 0:
             // constructor();
@@ -34,7 +36,47 @@ class JSGraphics extends JSSVGComponent {
             break;
         default:
         }
-        this.setClass("JSGraphics");
-        this.setStyle("display", "inline-block");
+    }
+    getX(): number {
+        return +this.getComputedStyle("left").replace("px", "");
+    }
+    getY(): number {
+        return +this.getComputedStyle("top").replace("px", "");
+    }
+    protected setXPixels(xPixels: number) {
+        super.setXPixels(xPixels);
+        var xPercent = this.getXPercent();
+        if (xPercent) {
+            this.setStyle("left", "calc(" + xPercent + "% + " + xPixels + "px)");
+        } else {
+            this.setStyle("left", xPixels + "px");
+        }
+    }
+    protected setYPixels(yPixels: number) {
+        super.setYPixels(yPixels);
+        var yPercent = this.getYPercent();
+        if (yPercent) {
+            this.setStyle("top", "calc(" + yPercent + "% + " + yPixels + "px)");
+        } else {
+            this.setStyle("top", yPixels + "px");
+        }
+    }
+    protected setXPercent(xPercent: number) {
+        super.setXPercent(xPercent);
+        var xPixels = this.getXPixels();
+        if (xPixels) {
+            this.setStyle("left", "calc(" + xPercent + "% + " + xPixels + "px)");
+        } else {
+            this.setStyle("left", xPercent + "%");
+        }
+    }
+    protected setYPercent(yPercent: number) {
+        super.setYPercent(yPercent);
+        var yPixels = this.getYPixels();
+        if (yPixels) {
+            this.setStyle("top", "calc(" + yPercent + "% + " + yPixels + "px)");
+        } else {
+            this.setStyle("top", yPercent + "%");
+        }
     }
 }

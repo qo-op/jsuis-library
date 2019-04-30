@@ -11,8 +11,8 @@ class JSTableHeader extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]);
-        this.setBackground("#f2f2f2");
         this.setClass("JSTableHeader");
+        // this.setBackground("#f2f2f2");
     }
     getColumns(): string[] {
         var columns: string[] = [];

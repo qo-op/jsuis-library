@@ -6,11 +6,11 @@
  */
 class JSActionListener implements ActionListener {
     
-    actionPerformed: (actionEvent: JSActionEvent, component?: JSComponent) => void;
+    actionPerformed: (mouseEvent: MouseEvent, component?: JSComponent) => void;
     
     constructor(actionListener: ActionListener) {
-        this.actionPerformed = function(actionEvent: JSActionEvent, component: JSComponent) {
-            actionListener.actionPerformed.call(actionListener, actionEvent, component);
+        this.actionPerformed = function(mouseEvent: MouseEvent, component: JSComponent) {
+            actionListener.actionPerformed.call(actionListener, mouseEvent, component);
         }
     }
 }

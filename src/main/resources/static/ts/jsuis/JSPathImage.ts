@@ -4,132 +4,86 @@
  * 
  * @author Yassuo Toda
  */
-class JSPathImage extends JSHTMLComponent {
+class JSPathImage extends JSGraphics {
     
     constructor();
-    constructor(element: HTMLDivElement);
-    constructor(pathDefinition: string);
-    constructor(pathIcon: JSPathIcon);
-    constructor(width: number, height: number);
-    constructor(pathDefinition: string, width: number, height: number);
+    constructor(element: SVGSVGElement);
+    constructor(icon: JSPathIcon);
+    constructor(source: string);
+    constructor(source: string, width: number, height: number);
     // overload
     constructor(...args: any[]) {
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var graphics: JSGraphics = this.getGraphics();
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.add(graphics);
-            this.setGraphics(graphics);
-        }
-        var path: JSPath = this.getPath();
-        if (!path) {
-            path = new JSPath();
-            graphics.add(path);
-            this.setPath(path);
-        }
+        super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        this.setClass("JSPathImage");
         switch (args.length) {
         case 0:
             // constructor();
             break;
         case 1:
-            // constructor(element: HTMLDivElement);
-            // constructor(pathDefinition: string);
-            // constructor(pathIcon: JSPathIcon);
-            if (args[0] instanceof HTMLDivElement) {
-            } else if (typeof args[0] === "string") {
-                var pathDefinition: string = args[0];
-                this.setPathDefinition(pathDefinition);
+            // constructor(element: SVGSVGElement);
+            // constructor(icon: JSPathIcon);
+            // constructor(source: string);
+            if (args[0] instanceof SVGSVGElement) {
             } else if (args[0] instanceof JSPathIcon) {
-                var pathIcon: JSPathIcon = args[0];
-                var pathDefinition: string = pathIcon.getSource();
-                var width: number = pathIcon.getIconWidth();
-                var height: number = pathIcon.getIconHeight();
-                var background: string = pathIcon.getBackground();
-                var foreground: string = pathIcon.getForeground();
-                this.setPathDefinition(pathDefinition);
-                this.setWidth(width);
-                this.setHeight(height);
-                this.setBackground(background);
-                this.setForeground(foreground);
-            }
-            break;
-        case 2:
-            // constructor(width: number, height: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var width: number = args[0];
-                var height: number = args[1];
-                this.setWidth(width);
-                this.setHeight(height);
+                var icon: JSPathIcon = args[0];
+                this.setIcon(icon);
+            } else if (typeof args[0] === "string") {
+                var source: string = args[0];
+                this.setSource(source);
             }
             break;
         case 3:
-            // constructor(pathDefinition: string, width: number, height: number);
+            // constructor(source: string, width: number, height: number);
             if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                var pathDefinition: string = args[0];
+                var source: string = args[0];
                 var width: number = args[1];
                 var height: number = args[2];
-                this.setPathDefinition(pathDefinition);
+                this.setSource(source);
                 this.setWidth(width);
                 this.setHeight(height);
             }
             break;
         default:
         }
-        this.setStyle("display", "inline-block");
-        this.setStyle("font-size", "0");
-        this.setClass("JSPathImage");
     }
-    getGraphics(): JSGraphics {
-        return this.getData("graphics");
-    }
-    setGraphics(graphics: JSGraphics) {
-        this.setData("graphics", graphics);
+    setIcon(icon: JSPathIcon) {
+        var source: string = icon.getSource();
+        if (source !== undefined) {
+            this.setSource(source);
+        }
+        var iconWidth: number = icon.getIconWidth();
+        if (iconWidth !== undefined) {
+            this.setWidth(iconWidth);
+        }
+        var iconHeight: number = icon.getIconHeight();
+        if (iconHeight !== undefined) {
+            this.setHeight(iconHeight);
+        }
+        var background: string = icon.getBackground();
+        if (background !== undefined) {
+            this.setBackground(background);
+        }
+        var foreground: string = icon.getForeground();
+        if (foreground !== undefined) {
+            this.setForeground(foreground);
+        }
     }
     getPath(): JSPath {
-        return this.getData("path");
-    }
-    setPath(path: JSPath) {
-        this.setData("path", path);
-    }
-    
-    getWidth(): number {
-        var graphics: JSGraphics = this.getGraphics();
-        return graphics.getWidth();
-    }
-    setWidth(pixels: number, percent?: number) {
-        var graphics: JSGraphics = this.getGraphics();
-        graphics.setWidth(pixels);
-    }
-    getHeight(): number {
-        var graphics: JSGraphics = this.getGraphics();
-        return graphics.getHeight();
-    }
-    setHeight(pixels: number) {
-        var graphics: JSGraphics = this.getGraphics();
-        graphics.setHeight(pixels);
-    }
-    
-    getPathDefinition(): string {
-        var path: JSPath = this.getPath();
-        return path.getPathDefinition();
-    }
-    setPathDefinition(pathDefinition: string) {
-        var path: JSPath = this.getPath();
-        path.setPathDefinition(pathDefinition);
-    }
-    getPreferredWidth(): number {
-        var preferredWidth: string = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
+        var path = this.getData("path");
+        if (!path) {
+            path = new JSPath();
+            this.add(path);
+            this.setData("path", path);
         }
-        return this.getWidth();
+        return path;
     }
-    getPreferredHeight(): number {
-        var preferredHeight: string = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        return this.getHeight();
+    getSource(): string {
+        var path: JSPath = this.getPath();
+        return path.getDefinition();
+    }
+    setSource(source: string) {
+        var path: JSPath = this.getPath();
+        path.setDefinition(source);
     }
     getBackground(): string {
         var path = this.getPath();
@@ -146,5 +100,11 @@ class JSPathImage extends JSHTMLComponent {
     setForeground(foreground: string) {
         var path = this.getPath();
         path.setForeground(foreground);
+    }
+    getPreferredWidth(): number {
+        return this.getWidth();
+    }
+    getPreferredHeight(): number {
+        return this.getHeight();
     }
 }

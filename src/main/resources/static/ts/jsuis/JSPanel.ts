@@ -12,6 +12,9 @@ class JSPanel extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSPanel");
+        this.setStyle("display", "inline-block");
+        this.setStyle("font-size", "0");
         switch (args.length) {
         case 0:
             // constructor();
@@ -27,8 +30,5 @@ class JSPanel extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSPanel");
-        this.setStyle("display", "inline-block");
-        this.setStyle("font-size", "0");
     }
 }

@@ -17,6 +17,9 @@ class JSMenuItem extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setClass("JSMenuItem");
+        this.setStyle("padding", "0 4px");
+        this.setStyle("white-space", "nowrap");
         switch (args.length) {
         case 0:
             // constructor();
@@ -49,7 +52,6 @@ class JSMenuItem extends JSHTMLComponent {
             break;
         default:
         }
-        this.setStyle("padding", "0 4px");
         this.addMouseListener({
             mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
                 mouseEvent.stopPropagation();
@@ -58,17 +60,11 @@ class JSMenuItem extends JSHTMLComponent {
                 mouseEvent.stopPropagation();
             },
             mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
-                component.setBackground("#e6e6e6");
-                mouseEvent.stopPropagation();
                 var parent: JSComponent = component.getParent();
                 var parentSelected = parent.isSelected();
                 if (parentSelected) {
                     parent.getSelection().setSelected(component);
                 }
-                mouseEvent.stopPropagation();
-            },
-            mouseExited(mouseEvent: MouseEvent, component: JSComponent) {
-                component.setBackground(null);
                 mouseEvent.stopPropagation();
             },
             mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
@@ -96,8 +92,6 @@ class JSMenuItem extends JSHTMLComponent {
                 mouseEvent.stopPropagation();
             }
         });
-        this.setClass("JSMenuItem");
-        this.setStyle("white-space", "nowrap");
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);

@@ -51,12 +51,18 @@ class JSComponent {
             (<any> this.element).data = {};
         }
         this.setClass("JSComponent");
-        this.setStyle("cursor", "inherit");
     }
     getAttribute(attribute: string): string {
         return this.element.getAttribute(attribute);
     }
     setAttribute(attribute: string, value: string): void {
+        if (attribute === "width" && +value < 0) {
+            try {
+                throw "";
+            } catch (e) {
+                console.log(this.getName());
+            }
+        }
         this.element.setAttribute(attribute, value);
     }
     removeAttribute(attribute: string): void {
@@ -562,8 +568,9 @@ class JSComponent {
         return this.getData("action");
     }
     setAction(action: JSAction) {
-        var oldAction = this.getAction();
+        var oldAction: JSAction = this.getAction();
         if (oldAction) {
+            /*
             var actionListener = oldAction.getActionListener();
             if (actionListener) {
                 this.removeActionListener(actionListener);
@@ -572,6 +579,8 @@ class JSComponent {
             if (mouseListener) {
                 this.removeMouseListener(mouseListener);
             }
+            */
+            this.removeActionListener(oldAction);
         }
         var name = action.getName();
         if (name) {
@@ -581,6 +590,7 @@ class JSComponent {
         if (icon) {
             this.setIcon(icon);
         }
+        /*
         actionListener = action.getActionListener();
         if (actionListener) {
             this.addActionListener(actionListener);
@@ -589,6 +599,8 @@ class JSComponent {
         if (mouseListener) {
             this.addMouseListener(mouseListener);
         }
+        */
+        this.addActionListener(action);
         this.setData("action", action);
     }
     getComponentPopupMenu(): JSPopupMenu {
@@ -773,7 +785,7 @@ class JSComponent {
         if (!mouseListener) {
             mouseListener = new JSMouseListener({
                 mouseClicked(mouseEvent: MouseEvent, component: JSComponent): void {
-                    component.fireActionPerformed(new JSActionEvent(component, component.getActionCommand()), component);
+                    component.fireActionPerformed(mouseEvent, component);
                 }
             });
             this.addMouseListener(mouseListener);
@@ -789,11 +801,11 @@ class JSComponent {
             actionListeners.splice(index, 1);
         }
     }
-    fireActionPerformed(actionEvent: JSActionEvent, component: JSComponent): void {
+    fireActionPerformed(mouseEvent: MouseEvent, component: JSComponent): void {
         var actionListeners: ActionListener[] = this.getActionListeners();
         for (var i: number = 0; i < actionListeners.length; i++) {
             var actionListener = actionListeners[i];
-            actionListener.actionPerformed(actionEvent, component);
+            actionListener.actionPerformed(mouseEvent, component);
         }
     }
     getMouseDraggedListeners(): MouseDraggedListener[] {
@@ -993,6 +1005,7 @@ class JSComponent {
             }
         }
     }
+    /*
     isDraggable(): boolean {
         return this.getAttribute("draggable") === "true";
     }
@@ -1001,6 +1014,7 @@ class JSComponent {
         this.setStyle("-webkit-user-drag", draggable? "element" : "none");
         this.setDragEnabled(draggable);
     }
+    */
     getJSDragListeners(): JSDragListener[] {
         var jsDragListeners: JSDragListener[] = this.getData("jsDragListeners");
         if (jsDragListeners === undefined) {
@@ -1010,7 +1024,7 @@ class JSComponent {
         return jsDragListeners;
     }
     addDragListener(dragListener: DragListener, useCapture?: boolean): void {
-        this.setDraggable(true);
+        // this.setDraggable(true);
         var jsDragListener: JSDragListener = new JSDragListener(dragListener, true);
         jsDragListener.setComponent(this);
         var jsDragListeners: JSDragListener[] = this.getJSDragListeners();

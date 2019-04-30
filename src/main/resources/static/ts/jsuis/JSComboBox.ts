@@ -12,6 +12,7 @@ class JSComboBox extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]);
+        this.setClass("JSComboBox");
         switch (args.length) {
         case 0:
             // constructor();
@@ -27,7 +28,6 @@ class JSComboBox extends JSHTMLComponent {
             break;
         default:
         }
-        this.setClass("JSComboBox");
     }
     getItems(): Array<any> {
         return this.getData("item");
