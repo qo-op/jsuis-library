@@ -46,9 +46,18 @@ html {
 }
 .JSTab {
 	background-color: gray;
+	display: inline-block;
+	font-size: 0;
+	white-space: nowrap;
+}
+.JSTab>.JSPanel>.JSButton {
+	background: none;
+	border: none;
+	padding: 0 2px;
 }
 .JSTabContainer {
 	background-color: #BFBFBF;
+	font-size: 0;
 }
 .JSTableHeader {
 	background-color: #f2f2f2

@@ -79,4 +79,10 @@ class JSGraphics extends JSSVGComponent {
             this.setStyle("top", yPercent + "%");
         }
     }
+    getPreferredWidth(): number {
+        return this.getWidth();
+    }
+    getPreferredHeight(): number {
+        return this.getHeight();
+    }
 }

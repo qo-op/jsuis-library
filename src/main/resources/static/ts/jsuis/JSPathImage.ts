@@ -101,10 +101,4 @@ class JSPathImage extends JSGraphics {
         var path = this.getPath();
         path.setForeground(foreground);
     }
-    getPreferredWidth(): number {
-        return this.getWidth();
-    }
-    getPreferredHeight(): number {
-        return this.getHeight();
-    }
 }

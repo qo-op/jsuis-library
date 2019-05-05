@@ -2,6 +2,8 @@
 /**
  * JSTabContainer
  * 
+ * @see JSTabbedPane
+ * 
  * @author Yassuo Toda
  */
 class JSTabContainer extends JSHTMLComponent {
@@ -13,7 +15,6 @@ class JSTabContainer extends JSHTMLComponent {
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setClass("JSTabContainer");
-        this.setStyle("font-size", "0");
         switch (args.length) {
         case 0:
             // constructor();
@@ -34,29 +35,24 @@ class JSTabContainer extends JSHTMLComponent {
             tabPlacement = JSTabContainer.TOP;
             this.setTabPlacement(tabPlacement);
         }
-        var tabSelection: JSSelection = this.getTabSelection();
-        if (!tabSelection) {
-            tabSelection = new JSSelection();
-            this.setTabSelection(tabSelection);
-        }
-        // this.setBackground("#BFBFBF");
         switch (tabPlacement) {
         case JSTabContainer.RIGHT:
-            // this.setLayout(new JSFlowLayout(JSFlowLayout.RIGHT_TO_LEFT, JSFlowLayout.TOP));
             this.setStyle("padding", "1px 0");
             break;
         case JSTabContainer.LEFT:
-            // this.setLayout(new JSFlowLayout(JSFlowLayout.LEFT_TO_RIGHT, JSFlowLayout.TOP));
             this.setStyle("padding", "1px 0");
             break;
         case JSTabContainer.BOTTOM:
-            // this.setLayout(new JSFlowLayout(JSFlowLayout.BOTTOM_TO_TOP, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
             break;
         case JSTabContainer.TOP:
         default:
-            // this.setLayout(new JSFlowLayout(JSFlowLayout.TOP_TO_BOTTOM, JSFlowLayout.LEFT));
             this.setStyle("padding", "0 1px");
+        }
+        var tabSelection: JSSelection = this.getTabSelection();
+        if (!tabSelection) {
+            tabSelection = new JSSelection();
+            this.setTabSelection(tabSelection);
         }
     }
     getTabPlacement(): string {
@@ -65,70 +61,20 @@ class JSTabContainer extends JSHTMLComponent {
     setTabPlacement(tabPlacement: string) {
         this.setAttribute("data-tab-placement", tabPlacement);
     }
-    getTabSelection(): JSSelection {
-        return this.getData("tabSelection");
-    }
-    setTabSelection(tabSelection: JSSelection) {
-        this.setData("tabSelection", tabSelection);
-    }
-    getTabComponents(): JSComponent[] {
-        var tabComponents: JSComponent[] = this.getData("tabComponents");
-        if (tabComponents === undefined) {
-            tabComponents = [];
-            this.setData("tabComponents", tabComponents);
-        }
-        return tabComponents;
-    }
-    /*
-    getPreferredWidth(): number {
-        var _preferredWidth: string = this.getAttribute("data-preferred-width");
-        if (_preferredWidth) {
-            return +_preferredWidth;
-        }
-        var preferredWidth: number = 0;
-        var tabComponents: JSComponent[] = this.getData("tabComponents");
-        for (var i: number = 0; i < tabComponents.length; i++) {
-            var tabComponent: JSComponent = tabComponents[i];
-            preferredWidth = Math.max(preferredWidth, tabComponent.getPreferredWidth());
-        }
-        return preferredWidth;
-    }
-    */
-    getTabCount(): number {
-        var tabComponents: JSComponent[] = this.getTabComponents();
-        return tabComponents.length;
-    }
-    getTabComponentAt(index: number): JSComponent {
-        var tabComponents: JSComponent[] = this.getTabComponents();
-        return tabComponents[index];
-    }
-    indexOfTab(tabComponent: JSComponent): number {
-        var tabComponents: JSComponent[] = this.getTabComponents();
-        return tabComponents.indexOf(tabComponent);
-    }
-    addTab(icon: JSIcon, closeable: boolean): JSComponent;
     addTab(title: string, closeable: boolean): JSComponent;
     addTab(title: string, icon: JSIcon, closeable: boolean): JSComponent;
     // overload
-    addTab(...args: any[]): JSComponent { 
+    addTab(...args: any[]): JSComponent {
         var tabPlacement: string = this.getTabPlacement();
         var tabComponent: JSComponent;
         switch (args.length) {
-        case 0:
-            break;
-        case 1:
-            break;
         case 2:
             // addTab(icon: JSIcon, closeable: boolean): JSComponent;
             // addTab(title: string, closeable: boolean): JSComponent;
-            if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                var icon: JSIcon = args[0];
-                var closeable: boolean = args[1];
-                tabComponent = new JSTab(tabPlacement, icon, closeable);
-            } else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
+            if (typeof args[0] === "string" && typeof args[1] === "boolean") {
                 var title: string = args[0];
                 var closeable: boolean = args[1];
-                tabComponent = new JSTab(tabPlacement, title, closeable);
+                tabComponent = new JSTab(tabPlacement, false, title);
             }
             break;
         case 3:
@@ -137,7 +83,58 @@ class JSTabContainer extends JSHTMLComponent {
                 var title: string = args[0];
                 var icon: JSIcon = args[1];
                 var closeable: boolean = args[2];
-                tabComponent = new JSTab(tabPlacement, title, icon, closeable);
+                tabComponent = new JSTab(tabPlacement, false, title, icon);
+            }
+            break;
+        default:
+        }
+        var tabSelection: JSSelection = this.getTabSelection();
+        tabSelection.add(tabComponent);
+        var selected: JSComponent = tabSelection.getSelected();
+        if (!selected) {
+            tabSelection.setSelectedIndex(0);
+        }
+        switch (tabPlacement) {
+        case JSTabContainer.RIGHT:
+            this.add(tabComponent, { anchor: JSFlowLayout.WEST });
+            break;
+        case JSTabContainer.LEFT:
+            this.add(tabComponent, { anchor: JSFlowLayout.EAST });
+            break;
+        case JSTabContainer.BOTTOM:
+            this.add(tabComponent, { anchor: JSFlowLayout.NORTH });
+            break;
+        case JSTabContainer.TOP:
+        default:
+            this.add(tabComponent, { anchor: JSFlowLayout.SOUTH });
+        }
+        var tabComponents: JSComponent[] = this.getTabComponents();
+        tabComponents.push(tabComponent);
+        return tabComponent;
+    }
+    addCloseabeTab(title: string, closeable: boolean): JSComponent;
+    addCloseabeTab(title: string, icon: JSIcon, closeable: boolean): JSComponent;
+    // overload
+    addCloseabeTab(...args: any[]): JSComponent {
+        var tabPlacement: string = this.getTabPlacement();
+        var tabComponent: JSComponent;
+        switch (args.length) {
+        case 2:
+            // addTab(icon: JSIcon, closeable: boolean): JSComponent;
+            // addTab(title: string, closeable: boolean): JSComponent;
+            if (typeof args[0] === "string" && typeof args[1] === "boolean") {
+                var title: string = args[0];
+                var closeable: boolean = args[1];
+                tabComponent = new JSTab(tabPlacement, true, title);
+            }
+            break;
+        case 3:
+            // addTab(title: string, icon: JSIcon, closeable: boolean): JSComponent;
+            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
+                var title: string = args[0];
+                var icon: JSIcon = args[1];
+                var closeable: boolean = args[2];
+                tabComponent = new JSTab(tabPlacement, true, title, icon);
             }
             break;
         default:
@@ -190,6 +187,47 @@ class JSTabContainer extends JSHTMLComponent {
         var tabComponents: JSComponent[] = this.getTabComponents();
         var index = tabComponents.indexOf(component);
         tabComponents.splice(index, 1);
+    }
+    getTabSelection(): JSSelection {
+        return this.getData("tabSelection");
+    }
+    setTabSelection(tabSelection: JSSelection) {
+        this.setData("tabSelection", tabSelection);
+    }
+    getTabComponents(): JSComponent[] {
+        var tabComponents: JSComponent[] = this.getData("tabComponents");
+        if (tabComponents === undefined) {
+            tabComponents = [];
+            this.setData("tabComponents", tabComponents);
+        }
+        return tabComponents;
+    }
+    /*
+    getPreferredWidth(): number {
+        var _preferredWidth: string = this.getAttribute("data-preferred-width");
+        if (_preferredWidth) {
+            return +_preferredWidth;
+        }
+        var preferredWidth: number = 0;
+        var tabComponents: JSComponent[] = this.getData("tabComponents");
+        for (var i: number = 0; i < tabComponents.length; i++) {
+            var tabComponent: JSComponent = tabComponents[i];
+            preferredWidth = Math.max(preferredWidth, tabComponent.getPreferredWidth());
+        }
+        return preferredWidth;
+    }
+    */
+    getTabCount(): number {
+        var tabComponents: JSComponent[] = this.getTabComponents();
+        return tabComponents.length;
+    }
+    getTabComponentAt(index: number): JSComponent {
+        var tabComponents: JSComponent[] = this.getTabComponents();
+        return tabComponents[index];
+    }
+    indexOfTab(tabComponent: JSComponent): number {
+        var tabComponents: JSComponent[] = this.getTabComponents();
+        return tabComponents.indexOf(tabComponent);
     }
     setTabComponentAt(index: number, tabComponent: JSComponent) {
         var tabPlacement: string = this.getTabPlacement();
