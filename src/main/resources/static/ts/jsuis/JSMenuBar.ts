@@ -11,23 +11,43 @@ class JSMenuBar extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSMenuBar");
-        var menuBarContainer: JSMenuBarContainer = this.getMenuBarContainer();
-        if (!menuBarContainer) {
-            menuBarContainer = new JSMenuBarContainer();
-            super.add(menuBarContainer);
-            this.setMenuBarContainer(menuBarContainer);
-        }
-        // this.setBackground("#f2f2f2");
+        JSBody.getInstance().addMouseListener({
+            mousePressed(mouseEvent: MouseEvent, menuBar: JSMenuBar) {
+                menuBar.setData("pressed", false);
+                JSBody.getInstance().setTimeout(menuBar, function() {
+                    var pressed = menuBar.getData("pressed");
+                    if (!pressed) {
+                        menuBar.setSelected(false);
+                    }
+                });
+            }
+        }, true).withArgs(this);
+        this.addMouseListener({
+            mousePressed(mouseEvent: MouseEvent, menuBar: JSMenuBar) {
+                menuBar.setData("pressed", true);
+            }
+        }, true).withArgs(this);
     }
-    getMenuBarContainer(): JSMenuBarContainer {
-        return this.getData("menuBarContainer");
-    }
-    setMenuBarContainer(menuBarContainer: JSMenuBarContainer) {
-        this.setData("menuBarContainer", menuBarContainer);
+    init(): void {
+        this.addClass("JSMenuBar");
     }
     add(menu: JSMenu): void {
-        var menuBarContainer: JSMenuBarContainer = this.getMenuBarContainer();
-        menuBarContainer.add(menu);
+        var selection: JSSelection = this.getSelection();
+        if (!selection) {
+            selection = new JSSelection();
+            this.setSelection(selection);
+        }
+        selection.add(menu);
+        menu.setStyle("display", "inline-block");
+        super.add(menu);
+    }
+    setSelected(selected: boolean) {
+        if (!selected) {
+            var selection: JSSelection = this.getSelection();
+            if (selection) {
+                selection.setSelected(null);
+            }
+        }
+        super.setSelected(selected);
     }
 }

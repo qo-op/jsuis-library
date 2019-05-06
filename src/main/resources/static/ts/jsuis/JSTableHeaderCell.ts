@@ -12,15 +12,11 @@ class JSTableHeaderCell extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]);
-        this.setClass("JSTableHeaderCell");
-        this.setStyle("outline", "1px solid gray");
-        this.setStyle("outline-offset", "-1px");
-        this.setStyle("border-collapse", "collapse");
-        var div: JSDiv = this.getDiv();
-        if (!div) {
-            div = new JSDiv();
-            this.add(div);
-            this.setDiv(div);
+        var cell: JSDiv = this.getCell();
+        if (!cell) {
+            cell = new JSDiv();
+            this.add(cell);
+            this.setCell(cell);
         }
         switch (args.length) {
         case 0:
@@ -32,16 +28,19 @@ class JSTableHeaderCell extends JSHTMLComponent {
             if (args[0] instanceof HTMLTableCellElement) {
             } else if (typeof args[0] === "string") {
                 var text: string = args[0];
-                div.setText(text);
+                cell.setText(text);
             }
             break;
         default:
         }
     }
-    getDiv(): JSDiv {
-        return this.getData("div");
+    init(): void {
+        this.addClass("JSTableHeaderCell");
     }
-    setDiv(div: JSDiv) {
-        this.setData("div", div);
+    getCell(): JSDiv {
+        return this.getData("container");
+    }
+    setCell(container: JSDiv) {
+        this.setData("container", container);
     }
 }

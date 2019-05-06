@@ -17,9 +17,10 @@ class JSMenuItem extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSMenuItem");
-        this.setStyle("padding", "0 4px");
-        this.setStyle("white-space", "nowrap");
+        
+        var label: JSLabel = this.getLabel();
+        this.add(label);
+        
         switch (args.length) {
         case 0:
             // constructor();
@@ -53,22 +54,22 @@ class JSMenuItem extends JSHTMLComponent {
         default:
         }
         this.addMouseListener({
-            mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
+            mousePressed(mouseEvent: MouseEvent) {
                 mouseEvent.stopPropagation();
             },
-            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
+            mouseReleased(mouseEvent: MouseEvent) {
                 mouseEvent.stopPropagation();
             },
-            mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
-                var parent: JSComponent = component.getParent();
+            mouseEntered(mouseEvent: MouseEvent, menuItem: JSMenuItem) {
+                var parent: JSComponent = menuItem.getParent();
                 var parentSelected = parent.isSelected();
                 if (parentSelected) {
-                    parent.getSelection().setSelected(component);
+                    parent.getSelection().setSelected(menuItem);
                 }
                 mouseEvent.stopPropagation();
             },
-            mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
-                var parent: JSComponent = component.getParent();
+            mouseClicked(mouseEvent: MouseEvent, menuItem: JSMenuItem) {
+                var parent: JSComponent = menuItem.getParent();
                 if (parent instanceof JSPopupMenu) {
                     var popuMenu: JSPopupMenu = <JSPopupMenu> parent;
                     var invoker: JSComponent = popuMenu.getInvoker();
@@ -81,7 +82,8 @@ class JSMenuItem extends JSHTMLComponent {
                             break;
                         }
                     }
-                    if (parent instanceof JSMenuBarContainer) {
+                    // if (parent instanceof JSMenuBarContainer) {
+                    if (parent instanceof JSMenuBar) {
                         parent.setSelected(false);
                     } else if (invoker instanceof JSMenu) {
                         invoker.setSelected(false);
@@ -91,51 +93,34 @@ class JSMenuItem extends JSHTMLComponent {
                 }
                 mouseEvent.stopPropagation();
             }
-        });
+        }).withArgs(this);
+    }
+    init(): void {
+        this.addClass("JSMenuItem");
+    }
+    getIcon(): JSIcon {
+        var label: JSLabel = this.getLabel();
+        return label.getIcon();
     }
     setIcon(icon: JSIcon) {
-        super.setIcon(icon);
-        var oldImage: JSComponent = this.getImage();
-        if (oldImage) {
-            this.remove(oldImage);
-        }
-        if (icon) {
-            var image: JSComponent;
-            if (icon instanceof JSPathIcon) {
-                image = new JSPathImage(icon);
-            } else {
-                image = new JSImage(icon);
-            }
-            image.setStyle("vertical-align", "middle");
-            var text = this.getText();
-            if (text) {
-                image.setStyle("margin-right", "4px");
-            }
-            this.add(image, null, 0);
-            this.setImage(image);
-        }
-    }
-    getLabel(): JSLabel {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            label.setStyle("vertical-align", "middle");
-            this.add(label);
-            this.setData("label", label);
-        }
-        return label; 
+        var label: JSLabel = this.getLabel();
+        label.setIcon(icon);
     }
     getText(): string {
         var label: JSComponent = this.getLabel();
         return label.getText(); 
     }
     setText(text: string) {
-        var image = this.getImage();
-        if (image) {
-            image.setStyle("margin-right", text ? "4px" : "0");
-        }
         var label: JSLabel = this.getLabel();
         label.setText(text);
+    }
+    getLabel(): JSLabel {
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSLabel();
+            this.setData("label", label);
+        }
+        return label; 
     }
     getDelay(): number {
         return this.delay;

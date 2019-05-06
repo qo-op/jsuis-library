@@ -4,6 +4,7 @@
  * 
  * @author Yassuo Toda
  */
+/// <reference path = "../jsuis.ts"/>
 class JSMenu extends JSHTMLComponent {
     
     delay: number = 500;
@@ -16,9 +17,13 @@ class JSMenu extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSMenu");
-        this.setStyle("padding", "0 4px");
-        this.setLayout(new JSBorderLayout());
+        
+        var label: JSLabel = this.getLabel();
+        super.add(label);
+        
+        var popupMenuContainer: JSDiv = this.getPopupMenuContainer();
+        super.add(popupMenuContainer);
+        
         switch (args.length) {
         case 0:
             // constructor();
@@ -108,28 +113,16 @@ class JSMenu extends JSHTMLComponent {
             }
         });
     }
-    setIcon(icon: JSIcon) {
-        super.setIcon(icon);
-        var oldImage: JSComponent = this.getImage();
-        if (oldImage) {
-            this.remove(oldImage);
-        }
-        if (icon) {
-            var image: JSImage = new JSImage(icon);
-            image.setStyle("vertical-align", "middle");
-            super.add(image, JSBorderLayout.WEST);
-            this.setImage(image);
-        }
+    init(): void {
+        this.addClass("JSMenu");
     }
-    getLabel(): JSLabel {
-        var label: JSLabel = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            label.setStyle("vertical-align", "middle");
-            super.add(label);
-            this.setData("label", label);
-        }
-        return label;
+    getIcon(): JSIcon {
+        var label: JSLabel = this.getLabel();
+        return label.getIcon();
+    }
+    setIcon(icon: JSIcon) {
+        var label: JSLabel = this.getLabel();
+        label.setIcon(icon);
     }
     getText(): string {
         var label: JSComponent = this.getLabel();
@@ -139,10 +132,18 @@ class JSMenu extends JSHTMLComponent {
         var label: JSLabel = this.getLabel();
         label.setText(text);
     }
+    getLabel(): JSLabel {
+        var label: JSLabel = this.getData("label");
+        if (!label) {
+            label = new JSLabel();
+            this.setData("label", label);
+        }
+        return label;
+    }
     getExpandIcon(): JSPathIcon {
         return this.getData("expandIcon");
     }
-    setExpandIcon(expandIcon: JSPathIcon) {
+    setExpandIcon(expandIcon: JSIcon) {
         this.setData("expandIcon", expandIcon);
         var oldExpandImage: JSComponent = this.getExpandImage();
         if (oldExpandImage) {
@@ -155,8 +156,10 @@ class JSMenu extends JSHTMLComponent {
             } else {
                 expandImage = new JSImage(expandIcon);
             }
-            expandImage.setStyle("vertical-align", "middle");
-            super.add(expandImage, JSBorderLayout.EAST, 0);
+            expandImage.setStyle("top", "calc(50% - " + (expandIcon.getIconHeight() / 2) + "px)");
+            var label: JSLabel = this.getLabel();
+            label.setStyle("margin-right", expandIcon.getIconWidth() + "px");
+            super.add(expandImage);
             this.setExpandImage(expandImage);
         }
     }
@@ -166,18 +169,14 @@ class JSMenu extends JSHTMLComponent {
     setExpandImage(expandImage: JSComponent) {
         this.setData("expandImage", expandImage);
     }
-    getPopupMenuContainer(): JSComponent {
+    getPopupMenuContainer(): JSDiv {
         var popupMenuContainer = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
             popupMenuContainer = new JSDiv();
             popupMenuContainer.setStyle("position", "absolute");
-            super.add(popupMenuContainer, JSBorderLayout.SOUTH);
-            this.setPopupMenuContainer(popupMenuContainer);
+            this.setData("popupMenuContainer", popupMenuContainer);
         }
         return popupMenuContainer;
-    }
-    setPopupMenuContainer(popupMenuContainer: JSComponent) {
-        this.setData("popupMenuContainer", popupMenuContainer);
     }
     getPopupMenu(): JSPopupMenu {
         return this.getData("popupMenu"); 
@@ -199,7 +198,7 @@ class JSMenu extends JSHTMLComponent {
         this.setData("popupMenu", popupMenu);
     }
     add(component: JSComponent): void {
-        if (component instanceof JSMenu || component instanceof JSMenuItem || component instanceof JSSeparator) {
+        if (component instanceof JSMenu || component instanceof JSMenuItem || component instanceof JSMenuSeparator) {
             var popupMenu: JSPopupMenu = this.getPopupMenu();
             if (!popupMenu) {
                 popupMenu = new JSPopupMenu();
@@ -209,7 +208,7 @@ class JSMenu extends JSHTMLComponent {
             if (component instanceof JSMenu) {
                 var expandIcon: JSPathIcon = component.getExpandIcon();
                 if (!expandIcon) {
-                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withBackground("gray");
+                    expandIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withBackground("gray");;
                     component.setExpandIcon(expandIcon);
                 }
             }
@@ -218,7 +217,7 @@ class JSMenu extends JSHTMLComponent {
         }
     }
     addSeparator(): void {
-        this.add(new JSSeparator());
+        this.add(new JSMenuSeparator());
     }
     getDelay(): number {
         return this.delay;
@@ -226,16 +225,12 @@ class JSMenu extends JSHTMLComponent {
     setDelay(delay: number) {
         this.delay = delay;
     }
-    getPreferredWidth(): number {
-        return super.getPreferredWidth();
-    }
     setSelected(selected: boolean) {
         var popupMenu: JSPopupMenu = this.getPopupMenu();
         if (popupMenu) {
             if (selected) {
                 var parent: JSComponent = this.getParent();
                 if (parent instanceof JSPopupMenu) {
-                    var oldExpandImage: JSComponent = this.getExpandImage();
                     popupMenu.show(this, this.getWidth(), 0 - this.getHeight() - popupMenu.getPaddingTop() - popupMenu.getBorderTopWidth());
                 } else {
                     popupMenu.show(this, 0 - this.getPaddingLeft(), this.getPaddingBottom());

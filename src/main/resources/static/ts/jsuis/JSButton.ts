@@ -15,7 +15,6 @@ class JSButton extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
-        this.setClass("JSButton");
         switch (args.length) {
         case 0:
             // constructor();
@@ -49,6 +48,9 @@ class JSButton extends JSHTMLComponent {
         default:
         }
     }
+    init(): void {
+        this.addClass("JSButton");
+    }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
         var oldImage: JSComponent = this.getImage();
@@ -62,7 +64,6 @@ class JSButton extends JSHTMLComponent {
             } else {
                 image = new JSImage(icon);
             }
-            image.setName("buttonImage");
             var text = this.getText();
             image.setStyle("margin-right", text ? "4px" : "0");
             this.add(image, null, 0);
@@ -84,10 +85,20 @@ class JSButton extends JSHTMLComponent {
     getSpan(): JSSpan {
         var span = this.getData("span");
         if (!span) {
-            span = new JSSpan().withName("buttonSpan");
+            span = new JSSpan();
             this.add(span);
             this.setData("span", span);
         }
         return span;
+    }
+    isUndecorated(): boolean {
+        return this.hasClass("undecorated");
+    }
+    setUndecorated(undecorated: boolean) {
+        if (undecorated) {
+            this.addClass("undecorated");
+        } else {
+            this.removeClass("undecorated");
+        }
     }
 }

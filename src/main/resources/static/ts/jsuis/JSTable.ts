@@ -13,7 +13,6 @@ class JSTable extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
-        this.setClass("JSTable");
         this.setStyle("border-collapse", "collapse");
         var tableHeader = this.getTableHeader();
         if (!tableHeader) {
@@ -51,6 +50,9 @@ class JSTable extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSTable");
     }
     getRows(): any[][] {
         var tableContent = this.getTableContent();

@@ -6,61 +6,26 @@
  */
 class JSChangeListener implements ChangeListener {
     
-    changeListener: ChangeListener;
-    propagate: boolean;
-    component: JSComponent;
+    stateChanged: (event: Event, ...parameters: any[]) => void;
     
-    stateChanged: (event: Event, component?: JSComponent) => void;
+    parameters: any[] = [];
     
-    constructor(changeListener: ChangeListener);
-    constructor(changeListener: ChangeListener, propagate: boolean);
-    // overload
-    constructor(...args: any[]) {
-        var changeListener: ChangeListener = args[0];
-        switch (args.length) {
-        case 1:
-            // constructor(changeListener: ChangeListener);
-            this.setChangeListener(changeListener);
-            break;
-        case 2:
-            // constructor(changeListener: ChangeListener, propagate: boolean);
-            if (typeof args[1] === "boolean") {
-                var propagate: boolean = args[1];
-                this.setChangeListener(changeListener);
-                this.setPropagate(propagate);
-            }
-            break;
-        default:
-        }
+    constructor(changeListener: ChangeListener) {
         var jsChangeListener: JSChangeListener = this;
-        this.stateChanged = function(event: Event, component: JSComponent) {
-            if (component === undefined) {
-                component = jsChangeListener.getComponent();
-            }
-            var changeListener: ChangeListener = jsChangeListener.getChangeListener();
-            changeListener.stateChanged.call(changeListener, event, component);
-            var propagate = jsChangeListener.getPropagate();
-            if (!propagate) {
-                event.stopPropagation();
-            }
+        this.stateChanged = function(event: Event) {
+            var args: any[] = jsChangeListener.getArgs().slice();
+            args.unshift(event);
+            changeListener.stateChanged.apply(changeListener, args);
         }
     }
-    getChangeListener(): ChangeListener {
-        return this.changeListener;
+    getArgs(): any[] {
+        return this.parameters;
     }
-    setChangeListener(changeListener: ChangeListener) {
-        this.changeListener = changeListener;
+    setArgs(...parameters: any[]) {
+        this.parameters = parameters;
     }
-    getPropagate(): boolean {
-        return this.propagate;
-    }
-    setPropagate(propagate: boolean) {
-        this.propagate = propagate;
-    } 
-    getComponent(): JSComponent {
-        return this.component;
-    }
-    setComponent(component: JSComponent) {
-        this.component = component;
+    withArgs(...parameters: any[]) {
+        this.parameters = parameters;
+        return this;
     }
 }

@@ -1,14 +1,10 @@
 package jsuis.jsuislibrary;
 
 import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Color;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTree;
 
 public class Test {
 
@@ -16,33 +12,19 @@ public class Test {
 		
 		JFrame frame = new JFrame();
 		
-		JPanel panel = new JPanel(new CardLayout());
-		frame.setContentPane(panel);
+		JPanel cards = new JPanel(new CardLayout());
+		frame.add(cards);
 		
-		JLabel label = new JLabel("Hello World!");
-		panel.add(label);
+		JPanel green = new JPanel();
+		green.setBackground(Color.green);
+		cards.add(green);
 		
-		JLabel label2 = new JLabel("Hello World2!");
-		panel.add(label2);
+		JPanel red = new JPanel();
+		red.setBackground(Color.red);
+		cards.add(red);
 		
-		JTree tree = new JTree();
-		panel.add(tree);
-		
-		System.out.println(tree.isRootVisible());
-		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(800, 600));
 		frame.pack();
-		
-		frame.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowOpened(WindowEvent windowEvent) {
-				System.out.println("windowOpened");
-				
-			}
-		});
-		
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 }

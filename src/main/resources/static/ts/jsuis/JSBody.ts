@@ -21,36 +21,39 @@ class JSBody extends JSHTMLComponent {
     
     constructor() {
         super(document.body);
-        this.setClass("JSBody");
         this.addMouseListener({
-            mouseMoved(mouseEvent: MouseEvent, component: JSComponent) {
-                var body: JSBody = <JSBody> component;
-                var dragSource: JSComponent = body.getDragSource();
+            mouseMoved(mouseEvent: MouseEvent) {
+                var dragSource: JSComponent = JSBody.getInstance().getDragSource();
                 if (dragSource) {
                     var dragStart = dragSource.getData("dragStart");
                     if (!dragStart) {
-                        dragSource.fireDragStart(mouseEvent, dragSource);
+                        dragSource.fireDragStart(mouseEvent);
                         dragSource.setData("dragStart", true);
                     }
-                    dragSource.fireDrag(mouseEvent, dragSource);
-                    dragSource.fireMouseDragged(mouseEvent, dragSource);
+                    dragSource.fireDrag(mouseEvent);
+                    dragSource.fireMouseDragged(mouseEvent);
                 }
             },
-            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
-                var body: JSBody = <JSBody> component;
-                var dragSource: JSComponent = body.getDragSource();
+            mouseReleased(mouseEvent: MouseEvent) {
+                var dragSource: JSComponent = JSBody.getInstance().getDragSource();
                 if (dragSource) {
                     setTimeout(function() {
                         var dragStart = dragSource.getData("dragStart");
                         if (dragStart) {
-                            dragSource.fireDragEnd(mouseEvent, dragSource);
+                            dragSource.fireDragEnd(mouseEvent);
                             dragSource.setData("dragStart", false);
                         }
-                        body.setDragSource(null);
+                        JSBody.getInstance().setDragSource(null);
                     });
                 }
             }
         }, true);
+        window.addEventListener("resize", function() {
+            JSBody.getInstance().validate();
+        });
+    }
+    init(): void {
+        this.addClass("JSBody");
     }
     getContentPane(): JSComponent {
         var contentPane = this.getData("contentPane");
@@ -74,7 +77,7 @@ class JSBody extends JSHTMLComponent {
     getDefs(): JSDefs {
         var defs: JSDefs = this.getData("defs");
         if (!defs) {
-            defs = new JSDefs().withName("bodyDefs");
+            defs = new JSDefs();
             var graphics: JSGraphics = this.getGraphics();
             graphics.add(defs);
             this.setData("defs", defs);
@@ -84,8 +87,7 @@ class JSBody extends JSHTMLComponent {
     getGraphics(): JSGraphics {
         var graphics: JSGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSGraphics().withName("bodyGraphics");
-            graphics.setStyle("position", "absolute");
+            graphics = new JSGraphics();
             graphics.setWidth(0);
             graphics.setHeight(0);
             this.add(graphics, null, 0);
@@ -116,21 +118,18 @@ class JSBody extends JSHTMLComponent {
         }
         this.dragImage = dragImage;
     }
-    getDragImageContainer(): JSComponent {
-        var dragImageContainer: JSComponent = this.getData("dragImageContainer");
+    getDragImageContainer(): JSPanel {
+        var dragImageContainer: JSPanel = this.getData("dragImageContainer");
         if (!dragImageContainer) {
-            dragImageContainer = new JSPanel().withName("bodyDragImageContainer");
+            dragImageContainer = new JSPanel();
             dragImageContainer.setVisible(false);
-            dragImageContainer.setStyle("position", "absolute");
-            dragImageContainer.setWidth(0);
-            dragImageContainer.setHeight(0);
             this.add(dragImageContainer, null, 0);
             this.setData("dragImageContainer", dragImageContainer);
         }
         return dragImageContainer;
     }
     getPopupMenu(): JSComponent {
-        return this.popupMenu; 
+        return this.popupMenu;
     }
     setPopupMenu(popupMenu: JSComponent) {
         var oldPopupMenu: JSComponent = this.getPopupMenu();
@@ -146,13 +145,10 @@ class JSBody extends JSHTMLComponent {
         }
         this.popupMenu = popupMenu;
     }
-    getPopupMenuContainer(): JSComponent {
-        var popupMenuContainer: JSComponent = this.getData("popupMenuContainer");
+    getPopupMenuContainer(): JSPanel {
+        var popupMenuContainer: JSPanel = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
-            popupMenuContainer = new JSPanel().withName("bodyPopupMenuContainer");
-            popupMenuContainer.setStyle("position", "absolute");
-            popupMenuContainer.setWidth(0);
-            popupMenuContainer.setHeight(0);
+            popupMenuContainer = new JSPanel();
             this.add(popupMenuContainer, null, 0);
             this.setData("popupMenuContainer", popupMenuContainer);
         }

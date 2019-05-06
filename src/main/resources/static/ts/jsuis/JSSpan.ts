@@ -11,6 +11,8 @@ class JSSpan extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]);
-        this.setClass("JSSpan");
+    }
+    init(): void {
+        this.addClass("JSSpan");
     }
 }

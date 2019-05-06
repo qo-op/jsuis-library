@@ -14,7 +14,6 @@ class JSPathImage extends JSGraphics {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
-        this.setClass("JSPathImage");
         switch (args.length) {
         case 0:
             // constructor();
@@ -45,6 +44,9 @@ class JSPathImage extends JSGraphics {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSPathImage");
     }
     setIcon(icon: JSPathIcon) {
         var source: string = icon.getSource();

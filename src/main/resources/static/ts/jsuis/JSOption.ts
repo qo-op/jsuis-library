@@ -14,7 +14,6 @@ class JSOption extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLOptionElement);
         super(args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]);
-        this.setClass("JSOption");
         switch (args.length) {
         case 0:
             // constructor();
@@ -31,6 +30,9 @@ class JSOption extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSOption");
     }
     getText(): string {
         return (<HTMLOptionElement> this.element).text;

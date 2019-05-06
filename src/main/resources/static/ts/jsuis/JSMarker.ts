@@ -13,6 +13,8 @@ class JSMarker extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGMarkerElement);
         super(args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]);
-        this.setClass("JSMarker");
+    }
+    init(): void {
+        this.addClass("JSMarker");
     }
 }

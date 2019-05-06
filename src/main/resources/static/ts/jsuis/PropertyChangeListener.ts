@@ -6,4 +6,5 @@
  */
 interface PropertyChangeListener {
     propertyChange(propertyChangeEvent: JSPropertyChangeEvent): void;
+    getSource?(): JSComponent;
 }

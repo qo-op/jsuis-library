@@ -43,11 +43,8 @@ class JSSplitPaneLayout extends JSLayout {
         var dividerLocation: number = splitPane.getDividerLocation();
         var dividerProportionalLocation: number = splitPane.getDividerProportionalLocation();
         if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            // leftContainer.setOuterWidth(width);
             leftContainer.setOuterWidth(width - width100, 100);
-            // rightContainer.setOuterWidth(width);
             rightContainer.setOuterWidth(width - width100, 100);
-            // divider.setOuterWidth(width);
             divider.setOuterWidth(width - width100, 100);
             leftContainer.setX(x);
             rightContainer.setX(x);
@@ -62,11 +59,8 @@ class JSSplitPaneLayout extends JSLayout {
                 }
             }
         } else {
-            // leftContainer.setOuterHeight(height);
             leftContainer.setOuterHeight(height - height100, 100);
-            // rightContainer.setOuterHeight(height);
             rightContainer.setOuterHeight(height - height100, 100);
-            // divider.setOuterHeight(height);
             divider.setOuterHeight(height - height100, 100);
             leftContainer.setY(y);
             rightContainer.setY(y);

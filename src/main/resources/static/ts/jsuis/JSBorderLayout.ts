@@ -56,7 +56,7 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
+            if (!constraints || constraints === JSLayout.CENTER) {
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                 preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
             }
@@ -67,7 +67,7 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
+            if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
@@ -98,7 +98,7 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
+            if (!constraints || constraints === JSLayout.CENTER) {
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                 preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
             }
@@ -109,7 +109,7 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
+            if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
@@ -146,46 +146,123 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
+            if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
+            var align: string = <string> component.getAlign();
             switch (constraints) {
             case JSBorderLayout.NORTH:
-                component.setOuterWidth(width - width100, 100);
+                
+                switch (align) {
+                case JSLayout.LEFT:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x);
+                    break;
+                case JSLayout.RIGHT:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x + width - componentPreferredOuterWidth - width100, 100);
+                    break;
+                case JSLayout.CENTER:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x + (width - componentPreferredOuterWidth) / 2 - width100, 100);
+                    break;
+                default:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setX(x);
+                }
+                    
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
-                component.setX(x);
                 component.setY(y);
                 height -= componentPreferredOuterHeight + vgap;
                 y += componentPreferredOuterHeight + vgap;
                 break;
             case JSBorderLayout.SOUTH:
-                component.setOuterWidth(width - width100, 100);
+                
+                switch (align) {
+                case JSLayout.LEFT:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x);
+                    break;
+                case JSLayout.RIGHT:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x + width - componentPreferredOuterWidth - width100, 100);
+                    break;
+                case JSLayout.CENTER:
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x + (width - componentPreferredOuterWidth) / 2 - width100, 100);
+                    break;
+                default:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setX(x);
+                }
+                
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
-                component.setX(x);
-                component.setY(height - height100 + y - componentPreferredOuterHeight -
-                        component.getMarginTop() - component.getBorderTopWidth() - component.getPaddingTop() -
-                        component.getPaddingBottom() - component.getBorderBottomWidth() - component.getMarginBottom(), 100);
+                component.setY(y + height - componentPreferredOuterHeight - height100, 100);
                 height -= componentPreferredOuterHeight + vgap;
                 break;
             case JSBorderLayout.WEST:
-                component.setOuterHeight(height - height100, 100);
+                
+                switch (align) {
+                case JSLayout.TOP:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y);
+                    break;
+                case JSLayout.BOTTOM:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y + height - componentPreferredOuterHeight - height100, 100);
+                    break;
+                case JSLayout.CENTER:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y + (height - componentPreferredOuterHeight) / 2 - height100, 100);
+                    break;
+                default:
+                    component.setOuterHeight(height - height100, 100);
+                    component.setY(y);
+                }
+                
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
                 component.setX(x);
-                component.setY(y);
                 width -= componentPreferredOuterWidth + hgap;
                 x += componentPreferredOuterWidth + hgap;
                 break;
             case JSBorderLayout.EAST:
-                component.setOuterHeight(height - height100, 100);
+                
+                switch (align) {
+                case JSLayout.TOP:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y);
+                    break;
+                case JSLayout.BOTTOM:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y + height - componentPreferredOuterHeight - height100, 100);
+                    break;
+                case JSLayout.CENTER:
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y + (height - componentPreferredOuterHeight) / 2 - height100, 100);
+                    break;
+                default:
+                    component.setOuterHeight(height - height100, 100);
+                    component.setY(y);
+                }
+                
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
-                component.setX(width - width100 + x - componentPreferredOuterWidth -
-                        component.getMarginLeft() - component.getBorderLeftWidth() - component.getPaddingLeft() -
-                        component.getPaddingRight() - component.getBorderRightWidth() - component.getMarginRight(), 100);
-                component.setY(y);
+                component.setX(x + width - componentPreferredOuterWidth - width100, 100);
                 width -= componentPreferredOuterWidth + hgap;
                 break;
             default:
@@ -197,11 +274,45 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var constraints: string = <string> component.getConstraints();
-            if (!constraints || constraints === JSBorderLayout.CENTER) {
-                component.setOuterWidth(width - width100, 100);
-                component.setOuterHeight(height - height100, 100);
-                component.setX(x);
-                component.setY(y);
+            if (!constraints || constraints === JSLayout.CENTER) {
+                
+                switch (align) {
+                case JSLayout.TOP:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x + (width - componentPreferredOuterWidth) / 2 - width100, 100);
+                    component.setY(y);
+                    break;
+                case JSLayout.BOTTOM:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x + (width - componentPreferredOuterWidth) / 2 - width100, 100);
+                    component.setY(y + height - componentPreferredOuterHeight - height100, 100);
+                    break;
+                case JSLayout.LEFT:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x);
+                    component.setY(y + (height - componentPreferredOuterHeight) / 2 - height100, 100);
+                    break;
+                case JSLayout.RIGHT:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x + width - componentPreferredOuterWidth - width100, 100);
+                    component.setY(y + (height - componentPreferredOuterHeight) / 2 - height100, 100);
+                    break;
+                case JSLayout.CENTER:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x + (width - componentPreferredOuterWidth) / 2 - width100, 100);
+                    component.setY(y + (height - componentPreferredOuterHeight) / 2 - height100, 100);
+                    break;
+                default:
+                    component.setOuterWidth(width - width100, 100);
+                    component.setOuterHeight(height - height100, 100);
+                    component.setX(x);
+                    component.setY(y);
+                }
             }
         }
     }

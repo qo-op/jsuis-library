@@ -18,7 +18,6 @@ class JSTreeCell extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSTreeCell");
         this.setStyle("padding", "0 4px");
         var label: JSLabel = this.getLabel();
         if (!label) {
@@ -52,6 +51,9 @@ class JSTreeCell extends JSHTMLComponent {
         default:
         }
     }
+    init(): void {
+        this.addClass("JSTreeCell");
+    }
     getValue(): any {
         return this.getData("value");
     }
@@ -71,31 +73,33 @@ class JSTreeCell extends JSHTMLComponent {
                     branchButton.setStyle("margin-right", "4px");
                     branchButton.setStyle("vertical-align", "middle");
                     this.add(branchButton, null, 0);
-                    branchButton.addMouseListener(new JSMouseListener({
-                        mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
-                            var container: JSDiv = (<JSTreeCell> component).getContainer();
+                    branchButton.addMouseListener({
+                        mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
+                            var container: JSDiv = treeCell.getContainer();
                             if (container.isDisplayable()) {
-                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+                                treeCell.getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                                 container.setStyle("display", "none");
                             } else {
-                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
+                                treeCell.getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
                                 container.setStyle("display", "");
                             }
+                            mouseEvent.stopPropagation();
                         }
-                    }));
+                    }).withArgs(this);
                     this.setBranchButton(branchButton);
-                    this.addMouseListener(new JSMouseListener({
-                        mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
-                            var container: JSDiv = (<JSTreeCell> component).getContainer();
+                    this.addMouseListener({
+                        mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
+                            var container: JSDiv = treeCell.getContainer();
                             if (container.isDisplayable()) {
-                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+                                treeCell.getBranchButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                                 container.setStyle("display", "none");
                             } else {
-                                (<JSTreeCell> component).getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
+                                treeCell.getBranchButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
                                 container.setStyle("display", "");
                             }
+                            mouseEvent.stopPropagation();
                         }
-                    }));
+                    }).withArgs(this);
                 }
             }
         }

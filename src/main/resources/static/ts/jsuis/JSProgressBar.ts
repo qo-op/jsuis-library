@@ -16,7 +16,6 @@ class JSProgressBar extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSProgressBar");
         this.setStyle("border", "1px solid gray");
         this.setStyle("white-space", "nowrap");
         switch (args.length) {
@@ -63,6 +62,9 @@ class JSProgressBar extends JSHTMLComponent {
             this.setBar(bar);
         }
         this.setHeight(14);
+    }
+    init(): void {
+        this.addClass("JSProgressBar");
     }
     getOrientation(): string {
         return this.getAttribute("data-orientation");

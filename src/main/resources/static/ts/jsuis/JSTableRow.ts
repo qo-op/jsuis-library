@@ -12,7 +12,6 @@ class JSTableRow extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]);
-        this.setClass("JSTableRow");
         switch (args.length) {
         case 0:
             // constructor();
@@ -28,6 +27,9 @@ class JSTableRow extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSTableRow");
     }
     getValues(): any[] {
         var values: any[] = [];

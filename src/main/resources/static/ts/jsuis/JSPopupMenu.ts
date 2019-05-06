@@ -13,19 +13,16 @@ class JSPopupMenu extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSPopupMenu");
         this.setStyle("border", "1px solid gray");
         this.setStyle("padding", "4px 0");
         this.setStyle("position", "absolute");
         // this.setLayout(new JSPopupMenuLayout());
-        var popupMenu: JSPopupMenu = this;
-        var body: JSBody = JSBody.getInstance();
-        body.addMouseListener({
-            mousePressed(mouseEvent: MouseEvent) {
+        JSBody.getInstance().addMouseListener({
+            mousePressed(mouseEvent: MouseEvent, popupMenu: JSPopupMenu) {
                 var invoker: JSComponent = popupMenu.getInvoker();
                 if (!(invoker instanceof JSMenu)) {
                     popupMenu.setData("close", true);
-                    body.setTimeout(popupMenu, function() {
+                    JSBody.getInstance().setTimeout(popupMenu, function() {
                         var close = popupMenu.getData("close");
                         if (close) {
                             popupMenu.setSelected(false);
@@ -33,14 +30,17 @@ class JSPopupMenu extends JSHTMLComponent {
                     });
                 }
             }
-        }, true);
+        }, true).withArgs(this);
         this.addMouseListener({
-            mousePressed() {
+            mousePressed(mouseEvent: MouseEvent, popupMenu: JSPopupMenu) {
                 popupMenu.setData("close", false);
             }
-        }, true);
+        }, true).withArgs(this);
         this.setVisible(false);
         this.setZIndex(JSLayeredPane.POPUP_LAYER);
+    }
+    init(): void {
+        this.addClass("JSPopupMenu");
     }
     add(component: JSComponent): void {
         var selection: JSSelection = this.getSelection();
@@ -52,7 +52,7 @@ class JSPopupMenu extends JSHTMLComponent {
         super.add(component);
     }
     addSeparator(): void {
-        this.add(new JSSeparator());
+        this.add(new JSMenuSeparator());
     }
     getInvoker(): JSComponent {
         return this.invoker;

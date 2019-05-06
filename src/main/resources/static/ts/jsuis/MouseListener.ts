@@ -5,11 +5,11 @@
  * @author Yassuo Toda
  */
 interface MouseListener {
-    mouseClicked?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mousePressed?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mouseReleased?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mouseEntered?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mouseExited?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mouseMoved?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    mouseDragged?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseClicked?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mousePressed?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mouseReleased?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mouseEntered?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mouseExited?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mouseMoved?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    mouseDragged?(mouseEvent: MouseEvent, ...parameters: any[]): void;
 }

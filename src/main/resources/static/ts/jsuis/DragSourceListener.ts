@@ -5,7 +5,7 @@
  * @author Yassuo Toda
  */
 interface DragSourceListener {
-    dragStart?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    drag?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    dragEnd?(mouseEvent: MouseEvent, component?: JSComponent): void;
+    dragStart?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    drag?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    dragEnd?(mouseEvent: MouseEvent, ...parameters: any[]): void;
 }

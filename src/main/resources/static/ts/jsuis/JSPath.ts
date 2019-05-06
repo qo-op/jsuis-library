@@ -14,7 +14,6 @@ class JSPath extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGPathElement);
         super(args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]);
-        this.setClass("JSPath");
         switch (args.length) {
         case 0:
             // constructor();
@@ -30,6 +29,9 @@ class JSPath extends JSSVGComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSPath");
     }
     getDefinition(): string {
         return this.getAttributeNS("d");

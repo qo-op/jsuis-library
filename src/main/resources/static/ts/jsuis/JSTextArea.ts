@@ -14,7 +14,6 @@ class JSTextArea extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]);
-        this.setClass("JSTextArea");
         this.setStyle("border", "0");
         this.setStyle("margin", "0");
         this.setStyle("padding", "0");
@@ -53,6 +52,9 @@ class JSTextArea extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSTextArea");
     }
     getRows(): number {
         return +this.getAttribute("rows");

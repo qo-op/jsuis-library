@@ -10,11 +10,25 @@ html {
 	-moz-user-select: none;
 	-webkit-user-select: none;
 }
+.JSBody>.JSPanel {
+	height: 0;
+ 	position: absolute;
+	with: 0;
+}
+.JSBody>.JSGraphics {
+	position: absolute;
+}
 .JSButton {
 	white-space: nowrap;
 }
 .JSButton>.JSImage, .JSButton>.JSPathImage, .JSButton>.JSSpan {
 	vertical-align: middle;
+}
+.JSButton.undecorated {
+	background: none;
+	border: none;
+	font-size: 0;
+	padding: 0;
 }
 .JSCheckBoxMenuItem: hover {
 	background-color: #e6e6e6;
@@ -22,27 +36,77 @@ html {
 .JSFrame {
 	height: 100%;
 }
+.JSGraphics {
+	display: inline-block;
+}
 .JSImage {
 	draggable: false;
 	-webkit-user-drag: none;
 }
+.JSLabel {
+	white-space: nowrap;
+}
+.JSLabel>.JSImage, .JSLabel>.JSPathImage, .JSLabel>.JSSpan {
+	vertical-align: middle;
+}
+.JSLabel.undecorated {
+	background: none;
+	border: none;
+	font-size: 0;
+	padding: 0;
+}
+.JSMenu {
+	display: inline-block;
+	padding: 0 4px;
+	position: relative;
+}
 .JSMenu:hover {
 	background-color: #e6e6e6;
 }
+.JSMenu>.JSLabel {
+	vertical-align: middle;
+}
+.JSMenu>.JSImage, .JSMenu>.JSPathImage {
+	position: absolute;
+	right: 0;
+}
+/*
+.JSMenu>.JSPanel {
+	position: absolute;
+}
+*/
 .JSMenuBar {
-	background-color: #f2f2f2;
+	/* background-color: #f2f2f2; */
+	display: inline-block;
+}
+.JSMenuItem {
+	padding: 0 4px;
 }
 .JSMenuItem:hover {
 	background-color: #e6e6e6;
 }
-.JSPathImage {
+.JSMenuSeparator {
+	padding-bottom: 4px;
+}
+.JSMenuSeparator>.JSDiv {
+	height: 4px;
+	border-bottom: 1px solid gray;
+}
+.JSPanel {
 	display: inline-block;
 	font-size: 0;
+}
+.JSPathImage {
+	display: inline-block;
 	draggable: false;
+	font-size: 0;
 	-webkit-user-drag: none;
 }
 .JSPopupMenu {
 	background-color: #f2f2f2;
+}
+.JSSplitPane>.JSPanel {
+	overflow: hidden;
 }
 .JSTab {
 	background-color: gray;
@@ -50,10 +114,10 @@ html {
 	font-size: 0;
 	white-space: nowrap;
 }
-.JSTab>.JSPanel>.JSButton {
+.JSTab>.JSButton {
 	background: none;
 	border: none;
-	padding: 0 2px;
+	padding: 0;
 }
 .JSTabContainer {
 	background-color: #BFBFBF;
@@ -61,6 +125,11 @@ html {
 }
 .JSTableHeader {
 	background-color: #f2f2f2
+}
+.JSTableHeaderCell {
+	border-collapse: collapse;
+	outline: 1px solid gray;
+	outline-offset: -1px;
 }
 .JSToolBar {
 	background-color: #f2f2f2

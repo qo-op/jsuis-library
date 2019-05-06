@@ -11,10 +11,12 @@ class JSFrame extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSFrame");
         this.setVisible(false);
         var body: JSBody = JSBody.getInstance();
         body.setContentPane(this);
+    }
+    init(): void {
+        this.addClass("JSFrame");
     }
     setVisible(visible: boolean) {
         if (visible) {

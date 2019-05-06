@@ -6,73 +6,52 @@
  */
 class JSDropTargetListener implements DropTargetListener {
     
-    dropTargetListener: DropTargetListener;
-    propagate: boolean;
-    component: JSComponent;
+    dragEnter: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    dragOver: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    dragLeave: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    drop: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
     
-    dragEnter: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    dragOver: (mouseEvent: MouseEvent, component?: JSComponent) => boolean;
-    dragLeave: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    drop: (mouseEvent: MouseEvent, component?: JSComponent) => boolean;
+    parameters: any[] = [];
     
     constructor(dropTargetListener: DropTargetListener) {
-        this.setDropTargetListener(dropTargetListener);
         var jsDropTargetListener: JSDropTargetListener = this;
         if (dropTargetListener.dragEnter) {
-            this.dragEnter = function(dragEvent: DragEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDropTargetListener.getComponent();
-                }
-                var dropTargetListener: DropTargetListener = jsDropTargetListener.getDropTargetListener();
-                dropTargetListener.dragEnter.call(dropTargetListener, dragEvent, component);
+            this.dragEnter = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDropTargetListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dropTargetListener.dragEnter.apply(dropTargetListener, args);
             }
         }
         if (dropTargetListener.dragOver) {
-            this.dragOver = function(dragEvent: DragEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDropTargetListener.getComponent();
-                }
-                var dropTargetListener: DropTargetListener = jsDropTargetListener.getDropTargetListener();
-                var preventDefault = dropTargetListener.dragOver.call(dropTargetListener, dragEvent, component);
-                if (preventDefault) {
-                    dragEvent.preventDefault();
-                }
-                return preventDefault;
+            this.dragOver = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDropTargetListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dropTargetListener.dragOver.apply(dropTargetListener, args);
             }
         }
         if (dropTargetListener.dragLeave) {
-            this.dragLeave = function(dragEvent: DragEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDropTargetListener.getComponent();
-                }
-                var dropTargetListener: DropTargetListener = jsDropTargetListener.getDropTargetListener();
-                dropTargetListener.dragLeave.call(dropTargetListener, dragEvent, component);
+            this.dragLeave = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDropTargetListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dropTargetListener.dragLeave.apply(dropTargetListener, args);
             }
         }
         if (dropTargetListener.drop) {
-            this.drop = function(dragEvent: DragEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDropTargetListener.getComponent();
-                }
-                var dropTargetListener: DropTargetListener = jsDropTargetListener.getDropTargetListener();
-                var preventDefault = dropTargetListener.drop.call(dropTargetListener, dragEvent, component);
-                if (preventDefault) {
-                    dragEvent.preventDefault();
-                }
-                return preventDefault;
+            this.drop = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDropTargetListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dropTargetListener.drop.apply(dropTargetListener, args);
             }
         }
     }
-    getDropTargetListener(): DropTargetListener {
-        return this.dropTargetListener;
+    getArgs(): any[] {
+        return this.parameters;
     }
-    setDropTargetListener(dropTargetListener: DropTargetListener) {
-        this.dropTargetListener = dropTargetListener;
+    setArgs(...parameters: any[]) {
+        this.parameters = parameters;
     }
-    getComponent(): JSComponent {
-        return this.component;
-    }
-    setComponent(component: JSComponent) {
-        this.component = component;
+    withArgs(...parameters: any[]) {
+        this.parameters = parameters;
+        return this;
     }
 }

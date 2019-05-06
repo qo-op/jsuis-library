@@ -73,7 +73,7 @@ class JSAction implements ActionListener {
             this.firePropertyChange(new JSPropertyChangeEvent(this, "enabled", oldEnabled, enabled));
         }
     }
-    actionPerformed(mouseEvent: MouseEvent, component: JSComponent): void {
+    actionPerformed(mouseEvent: MouseEvent): void {
     }
     /*
     getActionListener(): ActionListener {

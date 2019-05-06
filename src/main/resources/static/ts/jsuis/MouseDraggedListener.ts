@@ -5,5 +5,5 @@
  * @author Yassuo Toda
  */
 interface MouseDraggedListener {
-    mouseDragged(mouseEvent: MouseEvent, component?: JSComponent): void;
+    mouseDragged(mouseEvent: MouseEvent, ...parameters: any[]): void;
 }

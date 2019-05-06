@@ -7,30 +7,30 @@
 class JSLayout {
     
     /*
+     * border
+     */
+    static NORTH: string = "north";
+    static SOUTH: string = "south";
+    static WEST: string = "west";
+    static EAST: string = "east";
+    static CENTER: string = "center";
+    
+    /*
      * align
      */
     static TOP: string = "top";
     static LEFT: string = "left";
     static BOTTOM: string = "bottom";
     static RIGHT: string = "right";
-    static CENTER: string = "center";
-    
-    /*
-     * region
-     */
-    static NORTH: string = "north";
-    static SOUTH: string = "south";
-    static WEST: string = "west";
-    static EAST: string = "east";
     // static CENTER: string = "center";
     
     /*
      * fill
      */
-    static NONE: string = "none";
     static HORIZONTAL: string = "horizontal";
     static VERTICAL: string = "vertical";
     static BOTH: string = "both";
+    static NONE: string = "none";
     
     /*
      * anchor
@@ -39,19 +39,11 @@ class JSLayout {
     // static SOUTH: string = "south";
     // static WEST: string = "west";
     // static EAST: string = "east";
+    // static CENTER: string = "center";
     static NORTHWEST: string = "northwest";
     static NORTHEAST: string = "northeast";
     static SOUTHWEST: string = "southwest";
     static SOUTHEAST: string = "southeast";
-    // static CENTER: string = "center";
-    
-    /*
-     * orientation
-     */
-    static TOP_TO_BOTTOM: string = "topToBottom";
-    static BOTTOM_TO_TOP: string = "bottomToTop";
-    static LEFT_TO_RIGHT: string = "leftToRight";
-    static RIGHT_TO_LEFT: string = "rightToLeft";
     
     addLayoutComponent(component: JSComponent): void {
     }

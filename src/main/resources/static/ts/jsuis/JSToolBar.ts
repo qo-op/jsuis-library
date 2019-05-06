@@ -11,8 +11,9 @@ class JSToolBar extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSToolBar");
-        // this.setBackground("#f2f2f2");
+    }
+    init(): void {
+        this.addClass("JSToolBar");
     }
     addSeparator(): void {
         var separator = new JSPanel();

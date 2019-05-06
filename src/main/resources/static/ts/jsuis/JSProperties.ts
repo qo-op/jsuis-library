@@ -50,4 +50,7 @@ class JSProperties {
         var properties = this.getProperties();
         properties[key] = value;
     }
+    load() {
+        
+    }
 }

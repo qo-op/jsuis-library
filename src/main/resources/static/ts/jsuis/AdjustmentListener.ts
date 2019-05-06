@@ -5,5 +5,5 @@
  * @author Yassuo Toda
  */
 interface AdjustmentListener {
-    adjustmentValueChanged(event: Event, component?: JSComponent): void;
+    adjustmentValueChanged(event: Event, ...parameters: any[]): void;
 }

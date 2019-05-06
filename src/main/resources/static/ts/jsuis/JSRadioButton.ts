@@ -13,7 +13,6 @@ class JSRadioButton extends JSHTMLComponent {
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "radio");
-        this.setClass("JSRadioButton");
         switch (args.length) {
         case 0:
             // constructor();
@@ -29,5 +28,8 @@ class JSRadioButton extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSRadioButton");
     }
 }

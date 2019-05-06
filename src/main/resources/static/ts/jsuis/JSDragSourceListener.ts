@@ -6,59 +6,44 @@
  */
 class JSDragSourceListener implements DragSourceListener {
     
-    dragSourceListener: DragSourceListener;
-    propagate: boolean;
-    component: JSComponent;
+    dragStart: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    drag: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    dragEnd: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
     
-    dragStart: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    drag: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    dragEnd: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    dragEnter: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    dragOver: (mouseEvent: MouseEvent, component?: JSComponent) => boolean;
-    dragLeave: (mouseEvent: MouseEvent, component?: JSComponent) => void;
-    drop: (mouseEvent: MouseEvent, component?: JSComponent) => boolean;
+    parameters: any[] = [];
     
     constructor(dragSourceListener: DragSourceListener) {
-        this.setDragSourceListener(dragSourceListener);
         var jsDragSourceListener: JSDragSourceListener = this;
         if (dragSourceListener.dragStart) {
-            this.dragStart = function(mouseEvent: MouseEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDragSourceListener.getComponent();
-                }
-                var dragSourceListener: DragSourceListener = jsDragSourceListener.getDragSourceListener();
-                dragSourceListener.dragStart.call(dragSourceListener, mouseEvent, component);
+            this.dragStart = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDragSourceListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dragSourceListener.dragStart.apply(dragSourceListener, args);
             }
         }
         if (dragSourceListener.drag) {
-            this.drag = function(mouseEvent: MouseEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDragSourceListener.getComponent();
-                }
-                var dragSourceListener: DragSourceListener = jsDragSourceListener.getDragSourceListener();
-                dragSourceListener.drag.call(dragSourceListener, mouseEvent, component);
+            this.drag = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDragSourceListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dragSourceListener.drag.apply(dragSourceListener, args);
             }
         }
         if (dragSourceListener.dragEnd) {
-            this.dragEnd = function(mouseEvent: MouseEvent, component: JSComponent) {
-                if (component === undefined) {
-                    component = jsDragSourceListener.getComponent();
-                }
-                var dragSourceListener: DragSourceListener = jsDragSourceListener.getDragSourceListener();
-                dragSourceListener.dragEnd.call(dragSourceListener, mouseEvent, component);
+            this.dragEnd = function(mouseEvent: MouseEvent) {
+                var args: any[] = jsDragSourceListener.getArgs().slice();
+                args.unshift(mouseEvent);
+                dragSourceListener.dragEnd.apply(dragSourceListener, args);
             }
         }
     }
-    getDragSourceListener(): DragSourceListener {
-        return this.dragSourceListener;
+    getArgs(): any[] {
+        return this.parameters;
     }
-    setDragSourceListener(dragSourceListener: DragSourceListener) {
-        this.dragSourceListener = dragSourceListener;
+    setArgs(...parameters: any[]) {
+        this.parameters = parameters;
     }
-    getComponent(): JSComponent {
-        return this.component;
-    }
-    setComponent(component: JSComponent) {
-        this.component = component;
+    withArgs(...parameters: any[]) {
+        this.parameters = parameters;
+        return this;
     }
 }

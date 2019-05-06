@@ -6,6 +6,8 @@
  */
 class JSTab extends JSHTMLComponent {
     
+    static CLOSE_ICON: JSPathIcon = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withForeground("red");
+    
     constructor();
     constructor(element: HTMLDivElement);
     constructor(tabPlacement: string, closeable: boolean, text: string);
@@ -13,7 +15,6 @@ class JSTab extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSTab");
         switch (args.length) {
         case 0:
             // constructor();
@@ -49,6 +50,10 @@ class JSTab extends JSHTMLComponent {
             break;
         default:
         }
+        
+        
+        
+        /*
         this.addDragSourceListener(new JSDragListener({
             dragStart(mouseEvent: MouseEvent, tab: JSTab) {
                 var tabContainer: JSTabContainer = <JSTabContainer> tab.getParent();
@@ -58,91 +63,94 @@ class JSTab extends JSHTMLComponent {
         }));
         this.addDropTargetListener(new JSDropListener({
             dragOver(mouseEvent: MouseEvent, tab: JSTab): boolean {
-                var panel: JSPanel = tab.getPanel();
                 tab.setStyle("z-index", "1");
                 var boundingClientRect = tab.getBoundingClientRect();
                 if (mouseEvent.x >= (boundingClientRect.left + boundingClientRect.width / 2)) {
-                    panel.setStyle("box-shadow", "2px 0 #404040, -1px 0 #404040 inset");
+                    tab.setStyle("box-shadow", "2px 0 #404040, -1px 0 #404040 inset");
                 } else {
-                    panel.setStyle("box-shadow", "-2px 0 #404040, 1px 0 #404040 inset");
+                    tab.setStyle("box-shadow", "-2px 0 #404040, 1px 0 #404040 inset");
                 }
                 return true;
             },
             dragLeave(mouseEvent: MouseEvent, tab: JSTab): void {
-                var panel: JSPanel = tab.getPanel();
                 tab.setStyle("z-index", "0");
-                panel.setStyle("box-shadow", "none");
+                tab.setStyle("box-shadow", "none");
             },
             drop(mouseEvent: MouseEvent, component: JSComponent): boolean {
                 console.log("drop");
                 var tab: JSTab = <JSTab> component;
-                var panel: JSPanel = tab.getPanel();
                 tab.setStyle("z-index", "0");
-                panel.setStyle("box-shadow", "none");
+                tab.setStyle("box-shadow", "none");
                 return true;
             }
         }));
+        */
+    }
+    init(): void {
+        this.addClass("JSTab");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");
     }
     setTabPlacement(tabPlacement: string) {
         this.setAttribute("data-tab-placement", tabPlacement);
-        var panel: JSPanel = this.getPanel();
         switch (tabPlacement) {
         case JSTabbedPane.RIGHT:
-            this.setStyle("padding", "0 0 1px 0");
-            panel.setStyle("border-right", "1px solid gray");
+            // this.setStyle("padding", "0 0 1px 0");
+            this.setStyle("border-right", "1px solid darkGray");
+            this.setStyle("border-bottom", "1px solid darkGray");
             break;
         case JSTabbedPane.LEFT:
-            this.setStyle("padding", "0 0 1px 0");
-            panel.setStyle("border-left", "1px solid gray");
+            // this.setStyle("padding", "0 0 1px 0");
+            this.setStyle("border-left", "1px solid darkGray");
+            this.setStyle("border-bottom", "1px solid darkGray");
             break;
         case JSTabbedPane.BOTTOM:
-            this.setStyle("padding", "0 1px 0 0");
-            panel.setStyle("border-bottom", "1px solid gray");
+            // this.setStyle("padding", "0 1px 0 0");
+            this.setStyle("border-bottom", "1px solid darkGray");
+            this.setStyle("border-right", "1px solid darkGray");
             break;
         case JSTabbedPane.TOP:
         default:
-            this.setStyle("padding", "0 1px 0 0");
-            panel.setStyle("border-top", "1px solid gray");
+            // this.setStyle("padding", "0 1px 0 0");
+            this.setStyle("border-top", "1px solid darkGray");
+            this.setStyle("border-right", "1px solid darkGray");
         }
     }
     isCloseable() {
-        var button: JSButton = this.getButton();
+        var button: JSButton = this.getCloseButton();
         return !!button;
     }
     setCloseable(closeable: boolean) {
         if (closeable) {
-            var button: JSButton = this.getButton();
+            var button: JSButton = this.getCloseButton();
             if (!button) {
-                button = new JSButton();
-                var icon = new JSPathIcon("M4,4L12,12M12,4L4,12", 16, 16).withForeground("red");
-                button.setIcon(icon);
+                button = new JSButton(JSTab.CLOSE_ICON);
                 var tabPlacement = this.getTabPlacement();
                 if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                    button.setStyle("margin", "-4px auto 0");
+                    button.setStyle("margin", "0 auto 4px");
                 } else {
-                    button.setStyle("margin-left", "-4px");
+                    button.setStyle("margin-right", "4px");
                     button.setStyle("vertical-align", "middle");
                 }
-                this.setButton(button);
+                this.setCloseButton(button);
             }
+        } else {
+            this.setCloseButton(null);
         }
     }
-    getButton(): JSButton {
-        return this.getData("button");
+    getCloseButton(): JSButton {
+        return this.getData("closeButton");
     }
-    setButton(button: JSButton) {
-        var panel: JSPanel = this.getPanel();
-        var oldCloseButton: JSComponent = this.getButton();
+    setCloseButton(closeButton: JSButton) {
+        var oldCloseButton: JSComponent = this.getData("closeButton");
         if (oldCloseButton) {
-            panel.remove(oldCloseButton);
+            this.remove(oldCloseButton);
         }
-        if (button) {
-            panel.add(button);
+        if (closeButton) {
+            this.add(closeButton);
         }
-        this.setData("button", button);
+        this.setData("closeButton", closeButton);
     }
     getText(): string {
         return this.getData("text");
@@ -174,14 +182,13 @@ class JSTab extends JSHTMLComponent {
                 label.setStyle("margin", "0 4px");
                 label.setStyle("vertical-align", "middle");
             }
-            var panel: JSPanel = this.getPanel();
-            var button = this.getButton();
+            var button = this.getCloseButton();
             if (button) {
-                var components: JSComponent[] = panel.getComponents();
+                var components: JSComponent[] = this.getComponents();
                 var index: number = components.indexOf(button);
-                panel.add(label, null, index);
+                this.add(label, null, index);
             } else {
-                panel.add(label);
+                this.add(label);
             }
             this.setData("label", label);
         }
@@ -189,13 +196,17 @@ class JSTab extends JSHTMLComponent {
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
-        var panel: JSPanel = this.getPanel();
         var oldImage: JSComponent = this.getImage();
         if (oldImage) {
-            panel.remove(oldImage);
+            this.remove(oldImage);
         }
         if (icon) {
-            var image: JSImage = new JSImage(icon);
+            var image: JSComponent;
+            if (icon instanceof JSPathIcon) {
+                image = new JSPathImage(icon);
+            } else {
+                image = new JSImage(icon);
+            }
             var tabPlacement = this.getTabPlacement();
             if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
                 image.setStyle("display", "block");
@@ -204,22 +215,12 @@ class JSTab extends JSHTMLComponent {
                 image.setStyle("margin-left", "4px");
                 image.setStyle("vertical-align", "middle");
             }
-            panel.add(image, null, 0);
+            this.add(image, null, 0);
             this.setImage(image);
         }
     }
-    getPanel(): JSPanel {
-        var panel: JSPanel = this.getData("panel");
-        if (!panel) {
-            panel = new JSPanel();
-            this.add(panel);
-            this.setData("panel", panel);
-        }
-        return panel;
-    }
     setSelected(selected: boolean) {
-        var panel: JSPanel = this.getPanel();
-        panel.setBackground(selected ? "white" : "#BFBFBF");
+        this.setBackground(selected ? "white" : "#BFBFBF");
         var label: JSLabel = this.getLabel();
         if (label) {
             label.setForeground(selected ? "black" : "#404040");

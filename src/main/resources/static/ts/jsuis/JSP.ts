@@ -11,6 +11,8 @@ class JSP extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]);
-        this.setClass("JSP");
+    }
+    init(): void {
+        this.addClass("JSP");
     }
 }

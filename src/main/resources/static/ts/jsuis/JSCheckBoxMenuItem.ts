@@ -17,7 +17,6 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSMenuItem");
         this.setStyle("white-space", "nowrap");
         switch (args.length) {
         case 0:
@@ -52,22 +51,22 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
         default:
         }
         this.addMouseListener({
-            mousePressed(mouseEvent: MouseEvent, component: JSComponent) {
+            mousePressed(mouseEvent: MouseEvent) {
                 mouseEvent.stopPropagation();
             },
-            mouseReleased(mouseEvent: MouseEvent, component: JSComponent) {
+            mouseReleased(mouseEvent: MouseEvent) {
                 mouseEvent.stopPropagation();
             },
-            mouseEntered(mouseEvent: MouseEvent, component: JSComponent) {
-                var parent: JSComponent = component.getParent();
+            mouseEntered(mouseEvent: MouseEvent, checkBoxMenuItem: JSCheckBoxMenuItem) {
+                var parent: JSComponent = checkBoxMenuItem.getParent();
                 var parentSelected = parent.isSelected();
                 if (parentSelected) {
-                    parent.getSelection().setSelected(component);
+                    parent.getSelection().setSelected(checkBoxMenuItem);
                 }
                 mouseEvent.stopPropagation();
             },
-            mouseClicked(mouseEvent: MouseEvent, component: JSComponent) {
-                var parent: JSComponent = component.getParent();
+            mouseClicked(mouseEvent: MouseEvent, checkBoxMenuItem: JSCheckBoxMenuItem) {
+                var parent: JSComponent = checkBoxMenuItem.getParent();
                 if (parent instanceof JSPopupMenu) {
                     var popuMenu: JSPopupMenu = <JSPopupMenu> parent;
                     var invoker: JSComponent = popuMenu.getInvoker();
@@ -80,7 +79,8 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
                             break;
                         }
                     }
-                    if (parent instanceof JSMenuBarContainer) {
+                    // if (parent instanceof JSMenuBarContainer) {
+                    if (parent instanceof JSMenuBar) {
                         parent.setSelected(false);
                     } else if (invoker instanceof JSMenu) {
                         invoker.setSelected(false);
@@ -90,7 +90,10 @@ class JSCheckBoxMenuItem extends JSHTMLComponent {
                 }
                 mouseEvent.stopPropagation();
             }
-        });
+        }).setArgs(this);
+    }
+    init(): void {
+        this.addClass("JSMenuItem");
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);

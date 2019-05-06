@@ -5,8 +5,8 @@
  * @author Yassuo Toda
  */
 interface DropTargetListener {
-    dragEnter?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    dragOver?(mouseEvent: MouseEvent, component?: JSComponent): boolean;
-    dragLeave?(mouseEvent: MouseEvent, component?: JSComponent): void;
-    drop?(mouseEvent: MouseEvent, component?: JSComponent): boolean;
+    dragEnter?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    dragOver?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    dragLeave?(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    drop?(mouseEvent: MouseEvent, ...parameters: any[]): void;
 }

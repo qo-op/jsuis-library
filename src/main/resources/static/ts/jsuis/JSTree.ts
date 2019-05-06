@@ -14,7 +14,6 @@ class JSTree extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSTree");
         this.setStyle("white-space", "nowrap");
         switch (args.length) {
         case 0:
@@ -33,6 +32,9 @@ class JSTree extends JSHTMLComponent {
         }
         this.setLayout(new JSTreeLayout());
         this.setRootVisible(true);
+    }
+    init(): void {
+        this.addClass("JSTree");
     }
     getRoot(): JSTreeNode {
         var root: JSTreeNode = this.getData("root");
@@ -102,12 +104,11 @@ class JSTree extends JSHTMLComponent {
         container.add(treeCell);
         var treePath: string = treeNode.getTreePath();
         this.setTreeCell(treePath, treeCell);
-        var tree: JSTree = this;
         treeCell.addMouseListener({
-            mousePressed(mouseEvent: MouseEvent) {
+            mousePressed(mouseEvent: MouseEvent, treeCell: JSTreeCell, tree: JSTree) {
                 tree.setSelectionTreeNode(treeCell.getValue());
             }
-        });
+        }).withArgs(treeCell, this);
     }
     getSelectionTreeNode(): JSTreeNode {
         return this.selectionTreeNode;

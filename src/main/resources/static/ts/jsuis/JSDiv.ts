@@ -11,6 +11,8 @@ class JSDiv extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSDiv");
+    }
+    init(): void {
+        this.addClass("JSDiv");
     }
 }

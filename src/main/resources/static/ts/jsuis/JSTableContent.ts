@@ -11,8 +11,10 @@ class JSTableContent extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]);
-        this.setClass("JSTableContent");
         this.setEditable(true);
+    }
+    init(): void {
+        this.addClass("JSTableContent");
     }
     getRows(): any[][] {
         var rows: any[][] = [];

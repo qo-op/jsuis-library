@@ -17,7 +17,6 @@ class JSCheckBox extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setClass("JSCheckBox");
         this.setSelected(false);
         switch (args.length) {
         case 0:
@@ -69,6 +68,9 @@ class JSCheckBox extends JSHTMLComponent {
         default:
         }
     }
+    init(): void {
+        this.addClass("JSCheckBox");
+    }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
         var oldImage: JSComponent = this.getImage();
@@ -100,7 +102,7 @@ class JSCheckBox extends JSHTMLComponent {
     getSpan(): JSSpan {
         var span = this.getData("span");
         if (!span) {
-            span = new JSSpan().withName("checkBoxSpan");
+            span = new JSSpan();
             span.setStyle("vertical-align", "middle");
             this.add(span);
             this.setData("span", span);

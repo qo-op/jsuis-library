@@ -14,7 +14,6 @@ class JSImage extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         super(args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]);
-        this.setClass("JSImage");
         switch (args.length) {
         case 0:
             // constructor();
@@ -45,6 +44,9 @@ class JSImage extends JSHTMLComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSImage");
     }
     setIcon(icon: JSIcon) {
         var source: string = icon.getSource();

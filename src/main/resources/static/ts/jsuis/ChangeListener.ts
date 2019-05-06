@@ -5,5 +5,5 @@
  * @author Yassuo Toda
  */
 interface ChangeListener {
-    stateChanged(event: Event, component: JSComponent): void;
+    stateChanged(event: Event, ...parameters: any[]): void;
 }

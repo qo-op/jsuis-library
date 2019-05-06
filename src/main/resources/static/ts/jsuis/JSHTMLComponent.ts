@@ -8,9 +8,10 @@ class JSHTMLComponent extends JSComponent {
     
     constructor(element: HTMLElement) {
         super(element);
-        this.setClass("JSHTMLComponent");
     }
-    
+    init(): void {
+        this.addClass("JSHTMLComponent");
+    }
     getX(): number {
         return +this.getComputedStyle("left").replace("px", "");
     }

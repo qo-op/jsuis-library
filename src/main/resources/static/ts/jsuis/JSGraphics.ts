@@ -14,8 +14,6 @@ class JSGraphics extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGSVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
-        this.setClass("JSGraphics");
-        this.setStyle("display", "inline-block");
         switch (args.length) {
         case 0:
             // constructor();
@@ -36,6 +34,9 @@ class JSGraphics extends JSSVGComponent {
             break;
         default:
         }
+    }
+    init(): void {
+        this.addClass("JSGraphics");
     }
     getX(): number {
         return +this.getComputedStyle("left").replace("px", "");
