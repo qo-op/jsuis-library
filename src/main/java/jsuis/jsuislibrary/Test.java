@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 
 public class Test {
@@ -26,5 +27,7 @@ public class Test {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		
+		System.out.println(new JMenu().getDelay());
 	}
 }

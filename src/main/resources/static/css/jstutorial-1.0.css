@@ -1,0 +1,37 @@
+.JSDiv.JSDiv_JSButtonTutorial,
+.JSDiv.JSDiv_JSTutorial {
+    padding: 4px 8px;
+}
+.JSDiv.JSDiv_JSButtonTutorial > .JSP,
+.JSDiv.JSDiv_JSTutorial > .JSP {
+    margin-block-start: 0;
+}
+.JSFrame.JSFrame_JSButtonTutorial > .JSTabbedPaneTabContainer,
+.JSFrame.JSFrame_JSTutorial > .JSTabbedPaneTabContainer {
+	border-top: 1px solid gray;
+	border-left: 1px solid gray;
+	border-bottom: 1px solid gray;
+}
+.JSMenu.JSMenu_Examples:hover,
+.JSMenu.JSMenu_Help:hover,
+.JSMenu.JSMenu_Tutorials:hover {
+	background-image: linear-gradient(#cccccc, #dddddd);
+}
+.JSMenuBar.JSMenuBar_JSTutorial {
+	background-image: linear-gradient(#dddddd, #eeeeee);
+}
+.JSPanel.JSPanel_Title {
+	padding: 4px;
+	background-image: linear-gradient(#cccccc, #dddddd);
+}
+.JSSplitPane.JSSplitPane_JSTutorial > .JSSplitPaneLeftContainer {
+	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
+	border-right: 1px solid gray;
+}
+.JSSplitPane.JSSplitPane_JSTutorial > .JSSplitPaneDivider {
+	background-color: #eeeeee;
+}
+.JSSplitPane.JSSplitPane_JSTutorial > .JSSplitPaneRightContainer {
+	border: 1px solid gray;
+}

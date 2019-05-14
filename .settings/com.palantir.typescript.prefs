@@ -1,5 +1,5 @@
 build.path.exportedFolder=bin
-build.path.sourceFolder=src/main/resources/static/ts
+build.path.sourceFolder=src/main/ts
 compiler.outputDirOption=src/main/resources/static/js/lib
 compiler.outputFileOption=jsuis.js
 eclipse.preferences.version=1

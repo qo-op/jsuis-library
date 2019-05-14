@@ -38,6 +38,8 @@ dependencies {
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	compile 'com.google.appengine:appengine-api-1.0-sdk:+'  // Latest App Engine Api's
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
 }
 
 appengine {  // App Engine tasks configuration

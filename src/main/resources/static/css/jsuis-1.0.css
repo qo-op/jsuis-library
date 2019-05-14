@@ -1,0 +1,242 @@
+html {
+	height: 100%;
+}
+.JSBody {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+.JSBody > .JSPanel {
+	height: 0;
+ 	position: absolute;
+	with: 0;
+}
+.JSBody > .JSSVG {
+	height: 0;
+	position: absolute;
+	with: 0;
+}
+.JSButton {
+	white-space: nowrap;
+}
+.JSButton.undecorated {
+	background: none;
+	border: none;
+	font-size: 0;
+	padding: 0;
+}
+.JSButton > .JSImage,
+.JSButton > .JSPathImage,
+.JSButton > .JSSpan {
+	vertical-align: middle;
+}
+.JSCheckBox {
+	white-space: nowrap;
+}
+.JSCheckBox > .JSCheckBoxInput,
+.JSCheckBox > .JSLabel {
+	vertical-align: middle;
+}
+.JSCheckBoxMenuItem {
+	white-space: nowrap;
+}
+.JSCheckBoxMenuItem: hover {
+	background-color: #e6e6e6;
+}
+.JSCheckBoxMenuItem > .JSCheckBoxMenuItem,
+.JSCheckBoxMenuItem > .JSLabel {
+	vertical-align: middle;
+}
+.JSDialog {
+	background-clip: padding-box;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 8px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, .5);
+	display: inline-block;
+	outline: 0;
+	position: absolute;
+}
+.JSDiv {
+}
+.JSFileChooser {
+	display: none;
+}
+.JSFrame {
+}
+.JSHorizontalSeparator {
+}
+.JSHorizontalSeparator > .JSDiv {
+	border-top: 1px solid gray;
+	height: 4px;
+	margin-top: 4px;
+}
+.JSImage {
+	draggable: false;
+	-webkit-user-drag: none;
+}
+.JSGraphics {
+	display: inline-block;
+	font-size: 0;
+	vertical-align: middle;
+}
+.JSLabel {
+	white-space: nowrap;
+}
+.JSLabel.undecorated {
+	background: none;
+	border: none;
+	font-size: 0;
+	padding: 0;
+}
+.JSLabel > .JSImage,
+.JSLabel > .JSPathImage,
+.JSLabel > .JSSpan {
+	vertical-align: middle;
+}
+.JSMenu {
+	display: inline-block;
+	padding: 0 4px;
+	position: relative;
+}
+.JSMenu:hover {
+	background-color: #e6e6e6;
+}
+.JSMenu > .JSLabel {
+	vertical-align: middle;
+}
+.JSMenu > .JSImage,
+.JSMenu > .JSPathImage {
+	position: absolute;
+	right: 0;
+}
+.JSMenuBar {
+	background-color: #f2f2f2;
+	display: inline-block;
+}
+.JSMenuContainer {
+	display: inline-block;
+}
+.JSMenuItem {
+	padding: 0 4px;
+}
+.JSMenuItem:hover {
+	background-color: #e6e6e6;
+}
+.JSMenuItem > .JSLabel {
+	vertical-align: middle;
+}
+.JSPanel {
+	display: inline-block;
+}
+.JSPathImage {
+	draggable: false;
+	-webkit-user-drag: none;
+}
+.JSPopupMenu {
+	background-color: #f2f2f2;
+	border: 1px solid gray;
+	padding: 4px 0;
+	position: absolute;
+}
+.JSProgressBar {
+	border: 1px solid gray;
+	white-space: nowrap;
+}
+.JSSplitPane > .JSPanel {
+	overflow: hidden;
+}
+.JSSplitPaneLeftContainer {
+	display: inline-block;
+	overflow: hidden;
+}
+.JSSplitPaneRightContainer {
+	display: inline-block;
+	overflow: hidden;
+}
+.JSSVG {
+	display: inline-block;
+}
+.JSTab {
+	background-color: gray;
+	display: inline-block;
+	white-space: nowrap;
+}
+.JSTab > .JSButton {
+	background: none;
+	border: none;
+	padding: 0;
+}
+.JSTabbedPaneCardContainer {
+	display: inline-block;
+}
+.JSTabbedPaneTabContainer {
+	background-color: #BFBFBF;
+}
+/*
+.JSTable {
+	border-collapse: collapse;
+}
+.JSTableCell {
+	border: 1px solid gray;
+	border-collapse: collapse;
+}
+.JSTableHeader {
+}
+.JSTableHeaderCell {
+	border-collapse: collapse;
+	outline: 1px solid gray;
+	outline-offset: -1px;
+	white-space: nowrap;
+}
+*/
+.JSTable {
+	border-left: 1px solid gray;
+	border-spacing: 0;
+	display: inline-block;
+}
+.JSTableHeader {
+}
+.JSTableBody {
+}
+.JSTableRow {
+}
+.JSTableHeaderCell {
+	background-color: Silver;
+	border-bottom: 1px solid gray;
+	border-right: 1px solid gray;
+	border-top: 1px solid gray;
+	white-space: nowrap;
+}
+.JSTableCell {
+	border-bottom: 1px solid gray;
+	border-right: 1px solid gray;
+	white-space: nowrap;
+}
+.JSTextArea {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+.JSToolBar {
+	background-color: #f2f2f2;
+}
+.JSTree {
+	white-space: nowrap;
+}
+.JSTreeCell {
+	padding: 0 8px;
+	position: relative;
+}
+.JSTreeCell:hover {
+	background-color: #e6e6e6;
+}
+.JSTreeCellButton {
+	background: none;
+	border: none;
+	position: absolute;
+	vertical-align: middle;
+}
