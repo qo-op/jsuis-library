@@ -16,6 +16,9 @@ class JSTreeLayout extends JSLayout {
         for (var treePath in treeCells) {
             var treeCell: JSTreeCell = treeCells[treePath];
             var treeCellPreferredWidth: number = treeCell.getPreferredWidth();
+            if (treeCellPreferredWidth === null) {
+                return null;
+            }
             preferredLayoutWidth = Math.max(preferredLayoutWidth, treeCellPreferredWidth);
         }
         return preferredLayoutWidth;
@@ -26,11 +29,5 @@ class JSTreeLayout extends JSLayout {
             tree.load();
         }
         return super.preferredLayoutHeight(tree);
-    }
-    layoutContainer(tree: JSTree): void {
-        var components: JSComponent[] = tree.getComponents();
-        if (!components.length) {
-            tree.load();
-        }
     }
 }

@@ -1,19 +1,19 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSP
+ * JSParagraph
  * 
  * @author Yassuo Toda
  */
-class JSP extends JSHTMLComponent {
+class JSParagraph extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLParagraphElement);
+    constructor(element: HTMLElement);
     constructor(text: string);
     constructor(text: string, horizontalAlignment: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLLabelElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]);
         switch (args.length) {
         case 1:
@@ -36,6 +36,6 @@ class JSP extends JSHTMLComponent {
         }
     }
     init(): void {
-        this.addClass("JSP");
+        this.addClass("JSParagraph");
     }
 }

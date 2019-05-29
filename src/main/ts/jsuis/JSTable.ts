@@ -4,15 +4,15 @@
  * 
  * @author Yassuo Toda
  */
-class JSTable extends JSHTMLComponent {
+class JSTable extends JSPanel {
     
     constructor();
-    constructor(element: HTMLTableElement);
+    constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLTableElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
         var tableHeader = this.getTableHeader();
         this.add(tableHeader);

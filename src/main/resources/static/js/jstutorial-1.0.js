@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48,7 +48,7 @@ var jstutorial;
             var jsSplitPane_Main_JSSplitPaneLeftContainer = jsSplitPane_Main.getLeftContainer();
             jsSplitPane_Main.setDividerLocation(jsSplitPane_Main_JSSplitPaneLeftContainer.getBorderRightWidth());
             var jsPanel_ToggleButtonPanel = jstutorial.JSPanel_ToggleButtonPanel.getInstance();
-            jsPanel_ToggleButtonPanel.last();
+            jsPanel_ToggleButtonPanel.first();
         };
         return JSAction_Collapse;
     }(JSAction));
@@ -71,7 +71,7 @@ var jstutorial;
             var jsSplitPane_Main = jstutorial.JSSplitPane_JSTutorial.getInstance();
             jsSplitPane_Main.setDividerLocation(jsSplitPane_Main.getLeftComponent().getPreferredOuterWidth() + 1);
             var jsPanel_ToggleButtonPanel = jstutorial.JSPanel_ToggleButtonPanel.getInstance();
-            jsPanel_ToggleButtonPanel.first();
+            jsPanel_ToggleButtonPanel.last();
         };
         return JSAction_Expand;
     }(JSAction));
@@ -91,7 +91,7 @@ var jstutorial;
             return JSAction_JSButtonTutorial.instance;
         };
         JSAction_JSButtonTutorial.prototype.actionPerformed = function (mouseEvent) {
-            JSForm.post("/tutorials/jsbutton.html");
+            JSForm.post("/tutorials/jsbutton");
         };
         return JSAction_JSButtonTutorial;
     }(JSAction));
@@ -159,57 +159,14 @@ var jstutorial;
 })(jstutorial || (jstutorial = {}));
 var jstutorial;
 (function (jstutorial) {
-    var JSDiv_JSButtonTutorial = (function (_super) {
-        __extends(JSDiv_JSButtonTutorial, _super);
-        function JSDiv_JSButtonTutorial() {
-            var _this = _super.call(this) || this;
-            _this.addClass("JSDiv_JSButtonTutorial");
-            var p = new JSP("JSButton is a button.");
-            _this.add(p);
-            return _this;
-        }
-        JSDiv_JSButtonTutorial.getInstance = function () {
-            if (JSDiv_JSButtonTutorial.instance === undefined) {
-                JSDiv_JSButtonTutorial.instance = new JSDiv_JSButtonTutorial();
-            }
-            return JSDiv_JSButtonTutorial.instance;
-        };
-        return JSDiv_JSButtonTutorial;
-    }(JSDiv));
-    jstutorial.JSDiv_JSButtonTutorial = JSDiv_JSButtonTutorial;
-})(jstutorial || (jstutorial = {}));
-var jstutorial;
-(function (jstutorial) {
-    var JSDiv_JSTutorial = (function (_super) {
-        __extends(JSDiv_JSTutorial, _super);
-        function JSDiv_JSTutorial() {
-            var _this = _super.call(this) || this;
-            _this.addClass("JSDiv_JSTutorial");
-            var p = new JSP("JSUIS is a javascript library to build complex user interfaces.");
-            _this.add(p);
-            return _this;
-        }
-        JSDiv_JSTutorial.getInstance = function () {
-            if (JSDiv_JSTutorial.instance === undefined) {
-                JSDiv_JSTutorial.instance = new JSDiv_JSTutorial();
-            }
-            return JSDiv_JSTutorial.instance;
-        };
-        return JSDiv_JSTutorial;
-    }(JSDiv));
-    jstutorial.JSDiv_JSTutorial = JSDiv_JSTutorial;
-})(jstutorial || (jstutorial = {}));
-var jstutorial;
-(function (jstutorial) {
     var JSFrame_JSTutorial = (function (_super) {
         __extends(JSFrame_JSTutorial, _super);
         function JSFrame_JSTutorial() {
             var _this = _super.call(this) || this;
             _this.setLayout(new JSBorderLayout());
-            var jsPanel_Title = jstutorial.JSPanel_Title.getInstance();
-            _this.add(jsPanel_Title, JSBorderLayout.NORTH);
+            _this.setTitle("JSUIS - JavaScript User Interface");
             var jsMenuBar_Main = jstutorial.JSMenuBar_JSTutorial.getInstance();
-            _this.add(jsMenuBar_Main, JSBorderLayout.NORTH);
+            _this.setMenuBar(jsMenuBar_Main);
             var jsMenu_Tutorials = jstutorial.JSMenu_Tutorials.getInstance();
             jsMenuBar_Main.add(jsMenu_Tutorials);
             var jsMenu_Examples = jstutorial.JSMenu_Examples.getInstance();
@@ -247,13 +204,10 @@ var jstutorial;
             var jsTabbedPaneButtonContainer_JSTutorial = jsTabbedPane_JSTutorial.getButtonContainer();
             var jsPanel_ToogleButtonPanel = jstutorial.JSPanel_ToggleButtonPanel.getInstance();
             jsTabbedPaneButtonContainer_JSTutorial.add(jsPanel_ToogleButtonPanel);
-            var jsButton_CollapseButton = jstutorial.JSButton_CollapseButton.getInstance();
-            jsPanel_ToogleButtonPanel.add(jsButton_CollapseButton);
             var jsButton_ExpandButton = jstutorial.JSButton_ExpandButton.getInstance();
             jsPanel_ToogleButtonPanel.add(jsButton_ExpandButton);
-            var jsIcon_Leaf = jstutorial.JSIcon_Leaf.getInstance();
-            var jsIcon_Open = jstutorial.JSIcon_Open.getInstance();
-            var jsIcon_Closed = jstutorial.JSIcon_Closed.getInstance();
+            var jsButton_CollapseButton = jstutorial.JSButton_CollapseButton.getInstance();
+            jsPanel_ToogleButtonPanel.add(jsButton_CollapseButton);
             var jsTree_Tutorials = jstutorial.JSTree_Tutorials.getInstance();
             jsTabbedPane_JSTutorial.addTab("Tutorials", new JSImageIcon("/img/baseline-local_library-24px.svg", 24, 24), new JSScrollPane(jsTree_Tutorials));
             var jsTreeNode_TutorialsRoot = new JSTreeNode();
@@ -266,6 +220,9 @@ var jstutorial;
             jsTreeNode_TutorialsRoot.add(jsTreeNode_ComponentTutorials);
             var jsTreeNode_JSButtonTutorial = new JSTreeNode("How to use JS Button");
             jsTreeNode_ComponentTutorials.add(jsTreeNode_JSButtonTutorial);
+            var jsIcon_Leaf = jstutorial.JSIcon_Leaf.getInstance();
+            var jsIcon_Open = jstutorial.JSIcon_Open.getInstance();
+            var jsIcon_Closed = jstutorial.JSIcon_Closed.getInstance();
             var treeCellRenderer_Tutorials = jsTree_Tutorials.getTreeCellRenderer();
             treeCellRenderer_Tutorials.setLeafIcon(jsIcon_Leaf);
             treeCellRenderer_Tutorials.setOpenIcon(jsIcon_Open);
@@ -301,8 +258,8 @@ var jstutorial;
             this.addClass("JSFrame");
             this.addClass("JSFrame_JSTutorial");
             var jsSplitPane_JSTutorial = jstutorial.JSSplitPane_JSTutorial.getInstance();
-            var jsDiv_JSTutorial = jstutorial.JSDiv_JSTutorial.getInstance();
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsDiv_JSTutorial));
+            var jsPanel = new JSPanel(document.getElementById("content"));
+            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
         };
         return JSFrame_JSTutorial;
     }(JSFrame));
@@ -633,35 +590,6 @@ var jstutorial;
 })(jstutorial || (jstutorial = {}));
 var jstutorial;
 (function (jstutorial) {
-    var JSPanel_Title = (function (_super) {
-        __extends(JSPanel_Title, _super);
-        function JSPanel_Title() {
-            var _this = _super.call(this, new JSGridBagLayout()) || this;
-            _this.addClass("JSPanel_Title");
-            var label = _this.getLabel();
-            _this.add(label);
-            return _this;
-        }
-        JSPanel_Title.getInstance = function () {
-            if (JSPanel_Title.instance === undefined) {
-                JSPanel_Title.instance = new JSPanel_Title();
-            }
-            return JSPanel_Title.instance;
-        };
-        JSPanel_Title.prototype.getLabel = function () {
-            var titleLabel = this.getData("titleLabel");
-            if (!titleLabel) {
-                titleLabel = new JSLabel("JSUIS - JavaScript User Interface");
-                this.setData("titleLabel", titleLabel);
-            }
-            return titleLabel;
-        };
-        return JSPanel_Title;
-    }(JSPanel));
-    jstutorial.JSPanel_Title = JSPanel_Title;
-})(jstutorial || (jstutorial = {}));
-var jstutorial;
-(function (jstutorial) {
     var JSPanel_ToggleButtonPanel = (function (_super) {
         __extends(JSPanel_ToggleButtonPanel, _super);
         function JSPanel_ToggleButtonPanel() {
@@ -785,8 +713,8 @@ var jstutorial;
             this.addClass("JSFrame");
             this.addClass("JSFrame_JSButtonTutorial");
             var jsSplitPane_JSTutorial = jstutorial.JSSplitPane_JSTutorial.getInstance();
-            var jsDiv_JSButtonTutorial = jstutorial.JSDiv_JSButtonTutorial.getInstance();
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsDiv_JSButtonTutorial));
+            var jsPanel = new JSPanel(document.getElementById("content"));
+            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
         };
         return JSFrame_JSButtonTutorial;
     }(jstutorial.JSFrame_JSTutorial));

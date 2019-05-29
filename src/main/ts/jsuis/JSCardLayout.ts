@@ -8,7 +8,9 @@ class JSCardLayout extends JSLayout {
     
     addLayoutComponent(component: JSComponent): void {
         component.setStyle("position", "absolute");
+        this.setSelected(component.getParent(), component);
     }
+    
     preferredLayoutWidth(container: JSComponent): number {
         var preferredLayoutWidth: number = 0;
         var components: JSComponent[] = container.getComponents();
@@ -18,10 +20,14 @@ class JSCardLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return null;
+            }
             preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth);
         }
         return preferredLayoutWidth;
     }
+    
     preferredLayoutHeight(container: JSComponent): number {
         var preferredLayoutHeight: number = 0;
         var components: JSComponent[] = container.getComponents();
@@ -31,16 +37,37 @@ class JSCardLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return null;
+            }
             preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight);
         }
         return preferredLayoutHeight;
     }
-    layoutContainer(container: JSComponent): void {
+    
+    layoutContainerHorizontally(container: JSComponent): void {
+        if (container.isValidHorizontally()) {
+            return;
+        }
         var width: number = container.getWidth();
-        var height: number = container.getHeight();
-        var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
         var x: number = container.getInsetLeft();
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setOuterWidth(width); // 100%
+            component.setX(x);
+        }
+        container.setValidHorizontally(true);
+    }
+    
+    layoutContainerVertically(container: JSComponent): void {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var height: number = container.getHeight();
         var y: number = container.getInsetTop();
         var components: JSComponent[] = container.getComponents();
         for (var i: number = 0; i < components.length; i++) {
@@ -48,17 +75,10 @@ class JSCardLayout extends JSLayout {
             if (!component.isDisplayable()) {
                 continue;
             }
-            // component.setOuterWidth(width);
-            component.setOuterWidth(width); // 100%
-            // component.setOuterHeight(height);
             component.setOuterHeight(height); // 100%
-            component.setX(x);
             component.setY(y);
         }
-        var selected = this.getSelected();
-        if (!selected) {
-            this.first(container);
-        }
+        container.setValidVertically(true);
     }
     
     selected: JSComponent = null;

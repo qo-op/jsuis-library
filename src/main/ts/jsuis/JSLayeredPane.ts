@@ -4,15 +4,15 @@
  * 
  * @author Yassuo Toda
  */
-class JSLayeredPane extends JSHTMLComponent {
+class JSLayeredPane extends JSPanel {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(layout: JSLayout);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         switch (args.length) {
         case 1:
@@ -23,10 +23,6 @@ class JSLayeredPane extends JSHTMLComponent {
             }
             break;
         default:
-        }
-        var layout = this.getLayout();
-        if (!layout) {
-            this.setLayout(new JSLayeredPaneLayout());
         }
     }
     init(): void {

@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSScrollPane extends JSHTMLComponent {
+class JSScrollPane extends JSPanel {
     
     static VERTICAL_SCROLLBAR_AS_NEEDED: string = "auto";
     static VERTICAL_SCROLLBAR_NEVER: string = "hidden";
@@ -15,14 +15,14 @@ class JSScrollPane extends JSHTMLComponent {
     static HORIZONTAL_SCROLLBAR_ALWAYS: string = "scroll";
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(view: JSComponent);
     constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         var viewContainer: JSPanel = this.getViewContainer();
         this.add(viewContainer);
@@ -62,6 +62,14 @@ class JSScrollPane extends JSHTMLComponent {
     init(): void {
         this.addClass("JSScrollPane");
     }
+    getViewContainer(): JSScrollPaneViewContainer {
+        var viewContainer: JSScrollPaneViewContainer = this.getData("viewContainer");
+        if (!viewContainer) {
+            viewContainer = new JSScrollPaneViewContainer();
+            this.setData("viewContainer", viewContainer);
+        }
+        return viewContainer;
+    }
     getVsbPolicy(): string {
         return this.getStyle("overflow-y");
     }
@@ -73,14 +81,6 @@ class JSScrollPane extends JSHTMLComponent {
     }
     setHsbPolicy(hsbPolicy: string) {
         this.setStyle("overflow-x", hsbPolicy);
-    }
-    getViewContainer(): JSPanel {
-        var viewContainer: JSPanel = this.getData("viewContainer");
-        if (!viewContainer) {
-            viewContainer = new JSPanel();
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
     }
     getViewportView(): JSComponent {
         return this.getData("viewportView");

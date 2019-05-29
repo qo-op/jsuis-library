@@ -9,11 +9,14 @@ class JSFileChooser extends JSHTMLComponent {
     selectedFiles: FileList;
     
     constructor();
-    constructor(element: HTMLInputElement);
+    constructor(element: HTMLElement);
     // overload
     constructor(...args: any[]) {
+        // constructor();
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "file");
+        this.setStyle("display", "none");
         JSBody.getInstance().setFileChooser(this);
         
         this.addChangeListener({

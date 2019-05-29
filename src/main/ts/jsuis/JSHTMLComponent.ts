@@ -47,16 +47,16 @@ class JSHTMLComponent extends JSComponent {
     }
     
     setWidth(width: number): void {
-        super.setWidth(width);
         this.setStyle("width", width + "px");
+        super.setWidth(width);
     }
     setOuterWidth(outerWidth: number): void {
         this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
                 this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     }
     setHeight(height: number): void {
-        super.setHeight(height);
         this.setStyle("height", height + "px");
+        super.setHeight(height);
     }
     setOuterHeight(outerHeight: number): void {
         this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
@@ -128,14 +128,24 @@ class JSHTMLComponent extends JSComponent {
     }
     
     getPreferredOuterWidth(): number {
-        return this.getPreferredWidth() +
-            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
-            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        var preferredOuterWidth: number = this.getPreferredWidth();
+        if (preferredOuterWidth === null) {
+            return null;
+        } else {
+            return preferredOuterWidth +
+                this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+                this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        }
     }
     getPreferredOuterHeight(): number {
-        return this.getPreferredHeight() +
-            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
-            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        var preferredOuterHeight: number = this.getPreferredHeight();
+        if (preferredOuterHeight === null) {
+            return null;
+        } else {
+            return preferredOuterHeight +
+                this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+                this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        }
     }
     getMarginTop(): number {
         return +this.getComputedStyle("margin-top").replace("px", "");

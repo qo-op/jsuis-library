@@ -4,10 +4,10 @@
  * 
  * @author Yassuo Toda
  */
-class JSMenuItem extends JSHTMLComponent implements MouseListener {
+class JSMenuItem extends JSPanel implements MouseListener {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(action: JSAction);
     constructor(icon: JSIcon);
     constructor(text: string);
@@ -15,10 +15,11 @@ class JSMenuItem extends JSHTMLComponent implements MouseListener {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setStyle("display", "block");
         
-        var label: JSLabel = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         this.add(label);
         
         switch (args.length) {
@@ -54,28 +55,28 @@ class JSMenuItem extends JSHTMLComponent implements MouseListener {
     init(): void {
         this.addClass("JSMenuItem");
     }
-    getLabel(): JSLabel {
-        var label = this.getData("label");
+    getLabel(): JSMenuItemLabel {
+        var label: JSMenuItemLabel = this.getData("label");
         if (!label) {
-            label = new JSLabel();
+            label = new JSMenuItemLabel();
             this.setData("label", label);
         }
         return label; 
     }
     getIcon(): JSIcon {
-        var label: JSComponent = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         return label.getIcon();
     }
     setIcon(icon: JSIcon) {
-        var label: JSComponent = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         label.setIcon(icon);
     }
     getText(): string {
-        var label: JSComponent = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         return label.getText(); 
     }
     setText(text: string) {
-        var label: JSLabel = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         label.setText(text);
     }
     mouseEntered(mouseEvent: MouseEvent) {

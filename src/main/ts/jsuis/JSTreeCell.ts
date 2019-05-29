@@ -15,13 +15,13 @@ class JSTreeCell extends JSHTMLComponent {
     static EXPANDED_PATH_ICON: JSPathIcon = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withFill("gray");
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(value: any);
     constructor(value: any, icon: JSIcon);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         
         var graphics: JSGraphics = this.getGraphics();
@@ -66,7 +66,7 @@ class JSTreeCell extends JSHTMLComponent {
             if (!closedIcon && !openIcon) {
                 this.addMouseListener({
                     mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
-                        var container: JSDiv = treeCell.getContainer();
+                        var container: JSPanel = treeCell.getContainer();
                         if (container.isDisplayable()) {
                             // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                             treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
@@ -115,11 +115,13 @@ class JSTreeCell extends JSHTMLComponent {
             } else {
                 graphics.removeAll();
             }
-            graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
+            // graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
+            graphics.setStyle("vertical-align", "middle");
         }
         if (icon) {
             var label: JSLabel = this.getLabel();
             label.setStyle("margin-left", icon.getIconWidth() + "px");
+            label.setX(-icon.getIconWidth());
         }
     }
     getOpenIcon(): JSIcon {
@@ -134,18 +136,20 @@ class JSTreeCell extends JSHTMLComponent {
             } else {
                 graphics.removeAll();
             }
-            graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
+            // graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
+            graphics.setStyle("vertical-align", "middle");
         }
         if (icon) {
             var label: JSLabel = this.getLabel();
             label.setStyle("margin-left", icon.getIconWidth() + "px");
+            label.setX(-icon.getIconWidth());
         }
     }
     getGraphics(): JSGraphics {
         var graphics: JSGraphics = this.getData("graphics");
         if (!graphics) {
             graphics = new JSGraphics();
-            graphics.setStyle("position", "absolute");
+            // graphics.setStyle("position", "absolute");
             this.setData("graphics", graphics);
         }
         return graphics;
@@ -179,6 +183,7 @@ class JSTreeCell extends JSHTMLComponent {
         var label: JSLabel = this.getData("label");
         if (!label) {
             label = new JSLabel();
+            label.setStyle("position", "relative");
             label.setStyle("vertical-align", "middle");
             this.setData("label", label);
         }
@@ -200,10 +205,10 @@ class JSTreeCell extends JSHTMLComponent {
         var label: JSLabel = this.getLabel();
         label.setText(text);
     }
-    getContainer(): JSDiv {
+    getContainer(): JSPanel {
         return this.getData("container");
     }
-    setContainer(container: JSDiv) {
+    setContainer(container: JSPanel) {
         this.setData("container", container);
     }
 }

@@ -7,12 +7,12 @@
 class JSSVG extends JSSVGComponent {
     
     constructor();
-    constructor(element: SVGSVGElement);
+    constructor(element: SVGElement);
     constructor(width: number, height: number);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: SVGSVGElement);
+        // constructor(element: SVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
         switch (args.length) {
         case 2:
@@ -26,6 +26,7 @@ class JSSVG extends JSSVGComponent {
             break;
         default:
         }
+        this.setStyle("display", "inline-block");
     }
     init(): void {
         this.addClass("JSSVG");
@@ -36,14 +37,6 @@ class JSSVG extends JSSVGComponent {
     setY(y: number) {
         this.setStyle("top", y + "px");
     }
-    /* Quarantine
-    getPreferredWidth(): number {
-        return this.getWidth();
-    }
-    getPreferredHeight(): number {
-        return this.getHeight();
-    }
-    */
     getViewBox(): string {
         return this.getAttribute("viewBox");
     }

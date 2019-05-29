@@ -4,17 +4,17 @@
  * 
  * @author Yassuo Toda
  */
-class JSTree extends JSHTMLComponent {
+class JSTree extends JSPanel {
     
     selectionTreeNode: JSTreeNode;
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(root: JSTreeNode);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         switch (args.length) {
         case 1:
@@ -86,7 +86,7 @@ class JSTree extends JSHTMLComponent {
             var parentTreeCell: JSTreeCell = this.getTreeCell(parentNode.getTreePath());
             container = parentTreeCell.getContainer();
             if (!container) {
-                container = new JSDiv();
+                container = new JSPanel();
                 container.setStyle("display", "none");
                 var grandParentContainer: JSHTMLComponent = this; 
                 var grandParentNode: JSTreeNode = parentNode.getParent();
@@ -120,7 +120,7 @@ class JSTree extends JSHTMLComponent {
         var treePath: string = treeNode.getTreePath();
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         if (!treeCell) {
-            this.validate();
+            this.load();
         }
         treeCell = this.getTreeCell(treePath);
         var container = treeCell.getContainer();
@@ -134,7 +134,7 @@ class JSTree extends JSHTMLComponent {
         var treePath: string = treeNode.getTreePath();
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         if (!treeCell) {
-            this.validate();
+            this.load();
         }
         treeCell = this.getTreeCell(treePath);
         var container = treeCell.getContainer();
@@ -152,7 +152,7 @@ class JSTree extends JSHTMLComponent {
         var rootTreeCell: JSTreeCell = this.getTreeCell(root.getTreePath());
         // rootTreeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
         rootTreeCell.setStyle("display", rootVisible ? "" : "none");
-        var rootContainer: JSDiv = rootTreeCell.getContainer();
+        var rootContainer: JSPanel = rootTreeCell.getContainer();
         rootContainer.setStyle("display", "");
     }
     loadTreeNode(treeNode: JSTreeNode): void {
@@ -164,4 +164,12 @@ class JSTree extends JSHTMLComponent {
             this.loadTreeNode(child);
         }
     }
+    /*
+    validate(): void {
+        var components: JSComponent[] = this.getComponents();
+        if (!components.length) {
+            this.load();
+        }
+    }
+    */
 }

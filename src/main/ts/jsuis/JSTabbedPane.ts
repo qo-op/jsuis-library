@@ -4,15 +4,15 @@
  * 
  * @author Yassuo Toda
  */
-class JSTabbedPane extends JSHTMLComponent {
+class JSTabbedPane extends JSPanel {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(tabPlacement: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         switch (args.length) {
         case 1:
@@ -132,7 +132,7 @@ class JSTabbedPane extends JSHTMLComponent {
             actionPerformed(mouseEvent: MouseEvent, tab: JSTab, tabbedPane: JSTabbedPane) {
                 tabbedPane.removeTabAt(tabbedPane.indexOfTab(tab));
                 var tabContainer = tabbedPane.getTabContainer();
-                tabContainer.getParent().validate();
+                tabContainer.getParent().revalidate();
                 var selectedIndex: number = tabbedPane.getSelectedIndex();
                 if (selectedIndex === -1) {
                     tabbedPane.setSelectedIndex(0);

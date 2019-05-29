@@ -11,8 +11,170 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var JSAction = (function () {
+    function JSAction() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var name = args[0];
+                    this.setName(name);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var name = args[0];
+                    var icon = args[1];
+                    this.setName(name);
+                    this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        this.setPropertyChangeSupport(new JSPropertyChangeSupport());
+    }
+    JSAction.prototype.getName = function () {
+        return this.name;
+    };
+    JSAction.prototype.setName = function (name) {
+        this.name = name;
+    };
+    JSAction.prototype.getIcon = function () {
+        return this.icon;
+    };
+    JSAction.prototype.setIcon = function (icon) {
+        this.icon = icon;
+    };
+    JSAction.prototype.isEnabled = function () {
+        return this.enabled;
+    };
+    JSAction.prototype.setEnabled = function (enabled) {
+        var oldEnabled = this.isEnabled();
+        if (oldEnabled !== enabled) {
+            this.enabled = enabled;
+            this.firePropertyChange(new JSPropertyChangeEvent(this, "enabled", oldEnabled, enabled));
+        }
+    };
+    JSAction.prototype.actionPerformed = function (mouseEvent) {
+    };
+    JSAction.prototype.getPropertyChangeSupport = function () {
+        return this.propertyChangeSupport;
+    };
+    JSAction.prototype.setPropertyChangeSupport = function (propertyChangeSupport) {
+        this.propertyChangeSupport = propertyChangeSupport;
+    };
+    JSAction.prototype.addPropertyChangeListener = function (propertyChangeListener) {
+        this.getPropertyChangeSupport().addPropertyChangeListener(propertyChangeListener);
+    };
+    JSAction.prototype.removePropertyChangeListener = function (propertyChangeListener) {
+        this.getPropertyChangeSupport().removePropertyChangeListener(propertyChangeListener);
+    };
+    JSAction.prototype.firePropertyChange = function (propertyChangeEvent) {
+        this.getPropertyChangeSupport().firePropertyChange(propertyChangeEvent);
+    };
+    return JSAction;
+}());
+var JSActionListener = (function () {
+    function JSActionListener(actionListener) {
+        this.parameters = [];
+        var jsActionListener = this;
+        this.actionPerformed = function (mouseEvent) {
+            var parameters = jsActionListener.getParameters().slice();
+            parameters.unshift(mouseEvent);
+            actionListener.actionPerformed.apply(actionListener, parameters);
+        };
+    }
+    JSActionListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSActionListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSActionListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSActionListener;
+}());
+var JSAdjustmentListener = (function () {
+    function JSAdjustmentListener(adjustmentListener) {
+        this.parameters = [];
+        var jsAdjustmentListener = this;
+        this.adjustmentValueChanged = function (event) {
+            var parameters = jsAdjustmentListener.getParameters().slice();
+            parameters.unshift(event);
+            adjustmentListener.adjustmentValueChanged.apply(adjustmentListener, parameters);
+        };
+    }
+    JSAdjustmentListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSAdjustmentListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSAdjustmentListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSAdjustmentListener;
+}());
+var JSChangeListener = (function () {
+    function JSChangeListener(changeListener) {
+        this.parameters = [];
+        var jsChangeListener = this;
+        this.stateChanged = function (event) {
+            var parameters = jsChangeListener.getParameters().slice();
+            parameters.unshift(event);
+            changeListener.stateChanged.apply(changeListener, parameters);
+        };
+    }
+    JSChangeListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSChangeListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSChangeListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSChangeListener;
+}());
 var JSComponent = (function () {
     function JSComponent(element) {
+        this.validHorizontally = false;
+        this.validVertically = false;
         this.element = element;
         if (this.element.data === undefined) {
             this.element.data = {};
@@ -26,14 +188,6 @@ var JSComponent = (function () {
         return this.element.getAttribute(attribute);
     };
     JSComponent.prototype.setAttribute = function (attribute, value) {
-        if (attribute === "width" && +value < 0) {
-            try {
-                throw "";
-            }
-            catch (e) {
-                console.log(this.getName());
-            }
-        }
         this.element.setAttribute(attribute, value);
     };
     JSComponent.prototype.removeAttribute = function (attribute) {
@@ -115,7 +269,7 @@ var JSComponent = (function () {
         if (clazzes.indexOf(" " + clazz + " ") !== -1) {
             return;
         }
-        this.setClass(clazzes.trim() + " " + clazz);
+        this.setClass((clazzes.trim() + " " + clazz).trim());
     };
     JSComponent.prototype.removeClass = function (clazz) {
         var clazzes = " " + (this.getAttribute("class") || "").trim() + " ";
@@ -139,23 +293,25 @@ var JSComponent = (function () {
     JSComponent.prototype.getWidth = function () {
         return this.width;
     };
-    JSComponent.prototype.getOuterWidth = function () {
-        return this.getWidth();
+    JSComponent.prototype.setWidth = function (width) {
+        this.width = width;
+        this.revalidateHorizontally();
     };
     JSComponent.prototype.getHeight = function () {
         return this.height;
     };
-    JSComponent.prototype.getOuterHeight = function () {
-        return this.getHeight();
+    JSComponent.prototype.setHeight = function (height) {
+        this.height = height;
+        this.revalidateVertically();
     };
-    JSComponent.prototype.setWidth = function (width) {
-        this.width = width;
+    JSComponent.prototype.getOuterWidth = function () {
+        return this.getWidth();
     };
     JSComponent.prototype.setOuterWidth = function (outerWidth) {
         this.setWidth(outerWidth);
     };
-    JSComponent.prototype.setHeight = function (height) {
-        this.height = height;
+    JSComponent.prototype.getOuterHeight = function () {
+        return this.getHeight();
     };
     JSComponent.prototype.setOuterHeight = function (outerHeight) {
         this.setHeight(outerHeight);
@@ -278,28 +434,130 @@ var JSComponent = (function () {
             this.remove(component);
         }
     };
-    JSComponent.prototype.validate = function () {
-        var layout = this.getLayout();
-        if (layout) {
-            var parent = this.getParent();
-            if (parent) {
-                var parentLayout = parent.getLayout();
-                if (!parentLayout) {
-                    this.setStyle("min-width", this.getPreferredWidth() + "px");
-                    this.setStyle("min-height", this.getPreferredHeight() + "px");
-                    this.setStyle("position", "relative");
-                }
-            }
-            layout.layoutContainer(this);
-        }
-        this.validateChildren();
+    JSComponent.prototype.isValid = function () {
+        return this.isValidHorizontally() && this.isValidVertically();
     };
-    JSComponent.prototype.validateChildren = function () {
+    JSComponent.prototype.setValid = function (valid) {
+        this.setValidHorizontally(valid);
+        this.setValidVertically(valid);
+    };
+    JSComponent.prototype.isValidHorizontally = function () {
+        return this.validHorizontally;
+    };
+    JSComponent.prototype.setValidHorizontally = function (validHorizontally) {
+        this.validHorizontally = validHorizontally;
+    };
+    JSComponent.prototype.isValidVertically = function () {
+        return this.validVertically;
+    };
+    JSComponent.prototype.setValidVertically = function (validVertically) {
+        this.validVertically = validVertically;
+    };
+    JSComponent.prototype.invalidate = function () {
+        var valid = this.isValid();
+        this.setValid(false);
+        this.invalidateChildren();
+    };
+    JSComponent.prototype.invalidateHorizontally = function () {
+        var validHorizontally = this.isValidHorizontally();
+        this.setValidHorizontally(false);
+        this.invalidateChildrenHorizontally();
+    };
+    JSComponent.prototype.invalidateVertically = function () {
+        var validVertically = this.isValidVertically();
+        this.setValidVertically(false);
+        this.invalidateChildrenVertically();
+    };
+    JSComponent.prototype.invalidateChildren = function () {
         var components = this.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
-            component.validate();
+            component.invalidate();
         }
+    };
+    JSComponent.prototype.invalidateChildrenHorizontally = function () {
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            component.invalidateHorizontally();
+        }
+    };
+    JSComponent.prototype.invalidateChildrenVertically = function () {
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            component.invalidateVertically();
+        }
+    };
+    JSComponent.prototype.validate = function () {
+        JSLayout.validateLater(this);
+        JSLayout.validateContainers();
+    };
+    JSComponent.prototype.validateHorizontally = function () {
+        var validHorizontally = this.isValidHorizontally();
+        if (!validHorizontally) {
+            var layout = this.getLayout();
+            if (layout) {
+                layout.layoutContainerHorizontally(this);
+                validHorizontally = this.isValidHorizontally();
+            }
+            else {
+                this.setValidHorizontally(true);
+                validHorizontally = true;
+            }
+            if (validHorizontally) {
+                this.validateChildrenHorizontally();
+            }
+            else {
+                JSLayout.validateLater(this);
+            }
+        }
+    };
+    JSComponent.prototype.validateVertically = function () {
+        var validVertically = this.isValidVertically();
+        if (!validVertically) {
+            var layout = this.getLayout();
+            if (layout) {
+                layout.layoutContainerVertically(this);
+                validVertically = this.isValidVertically();
+            }
+            else {
+                this.setValidVertically(true);
+                validVertically = true;
+            }
+            if (validVertically) {
+                this.validateChildrenVertically();
+            }
+            else {
+                JSLayout.validateLater(this);
+            }
+        }
+    };
+    JSComponent.prototype.validateChildrenHorizontally = function () {
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            component.validateHorizontally();
+        }
+    };
+    JSComponent.prototype.validateChildrenVertically = function () {
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            component.validateVertically();
+        }
+    };
+    JSComponent.prototype.revalidate = function () {
+        this.invalidate();
+        this.validate();
+    };
+    JSComponent.prototype.revalidateHorizontally = function () {
+        this.invalidateHorizontally();
+        this.validateHorizontally();
+    };
+    JSComponent.prototype.revalidateVertically = function () {
+        this.invalidateVertically();
+        this.validateVertically();
     };
     JSComponent.prototype.isVisible = function () {
         return this.getStyle("visibility") !== "hidden";
@@ -336,10 +594,10 @@ var JSComponent = (function () {
         }
     };
     JSComponent.prototype.getPreferredOuterWidth = function () {
-        return 0;
+        return this.getPreferredWidth();
     };
     JSComponent.prototype.getPreferredOuterHeight = function () {
-        return 0;
+        return this.getPreferredHeight();
     };
     JSComponent.prototype.getMarginTop = function () {
         return 0;
@@ -501,9 +759,14 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addMouseListener = function (mouseListener, useCapture) {
         var mouseListeners = this.getMouseListeners();
+        var jsMouseListeners = this.getJSMouseListeners();
+        var index = mouseListeners.indexOf(mouseListener);
+        if (index !== -1) {
+            return jsMouseListeners[index];
+            ;
+        }
         mouseListeners.push(mouseListener);
         var jsMouseListener = new JSMouseListener(mouseListener);
-        var jsMouseListeners = this.getJSMouseListeners();
         jsMouseListeners.push(jsMouseListener);
         if (jsMouseListener.mouseClicked) {
             this.element.addEventListener("click", jsMouseListener.mouseClicked, !!useCapture);
@@ -583,9 +846,14 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addActionListener = function (actionListener, useCapture) {
         var actionListeners = this.getActionListeners();
+        var jsActionListeners = this.getJSActionListeners();
+        var index = actionListeners.indexOf(actionListener);
+        if (index !== -1) {
+            return jsActionListeners[index];
+            ;
+        }
         actionListeners.push(actionListener);
         var jsActionListener = new JSActionListener(actionListener);
-        var jsActionListeners = this.getJSActionListeners();
         jsActionListeners.push(jsActionListener);
         var mouseListener = this.getData("actionListener" + !!useCapture);
         if (!mouseListener) {
@@ -634,9 +902,13 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addMouseDraggedListener = function (mouseDraggedListener, useCapture) {
         var mouseDraggedListeners = this.getMouseDraggedListeners();
+        var jsMouseDraggedListeners = this.getJSMouseDraggedListeners();
+        var index = mouseDraggedListeners.indexOf(mouseDraggedListener);
+        if (index !== -1) {
+            return jsMouseDraggedListeners[index];
+        }
         mouseDraggedListeners.push(mouseDraggedListener);
         var jsMouseDraggedListener = new JSMouseDraggedListener(mouseDraggedListener);
-        var jsMouseDraggedListeners = this.getJSMouseDraggedListeners();
         jsMouseDraggedListeners.push(jsMouseDraggedListener);
         var mouseListener = this.getData("mouseDraggedListener" + !!useCapture);
         if (!mouseListener) {
@@ -692,9 +964,13 @@ var JSComponent = (function () {
     JSComponent.prototype.addDragSourceListener = function (dragSourceListener, useCapture) {
         this.setDragEnabled(true);
         var dragSourceListeners = this.getDragSourceListeners();
+        var jsDragSourceListeners = this.getJSDragSourceListeners();
+        var index = dragSourceListeners.indexOf(dragSourceListener);
+        if (index !== -1) {
+            return jsDragSourceListeners[index];
+        }
         dragSourceListeners.push(dragSourceListener);
         var jsDragSourceListener = new JSDragSourceListener(dragSourceListener);
-        var jsDragSourceListeners = this.getJSDragSourceListeners();
         jsDragSourceListeners.push(jsDragSourceListener);
         var mouseListener = this.getData("dragSourceListener" + !!useCapture);
         if (!mouseListener) {
@@ -766,9 +1042,13 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addDropTargetListener = function (dropTargetListener, useCapture) {
         var dropTargetListeners = this.getDropTargetListeners();
+        var jsDropTargetListeners = this.getJSDropTargetListeners();
+        var index = dropTargetListeners.indexOf(dropTargetListener);
+        if (index !== -1) {
+            return jsDropTargetListeners[index];
+        }
         dropTargetListeners.push(dropTargetListener);
         var jsDropTargetListener = new JSDropTargetListener(dropTargetListener);
-        var jsDropTargetListeners = this.getJSDropTargetListeners();
         jsDropTargetListeners.push(jsDropTargetListener);
         var mouseListener = this.getData("dropTargetListener" + !!useCapture);
         if (!mouseListener) {
@@ -882,9 +1162,13 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addAdjustmentListener = function (adjustmentListener, useCapture) {
         var adjustmentListeners = this.getAdjustmentListeners();
+        var jsAdjustmentListeners = this.getJSAdjustmentListeners();
+        var index = adjustmentListeners.indexOf(adjustmentListener);
+        if (index !== -1) {
+            return jsAdjustmentListeners[index];
+        }
         adjustmentListeners.push(adjustmentListener);
         var jsAdjustmentListener = new JSAdjustmentListener(adjustmentListener);
-        var jsAdjustmentListeners = this.getJSAdjustmentListeners();
         jsAdjustmentListeners.push(jsAdjustmentListener);
         this.element.addEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, !!useCapture);
         return jsAdjustmentListener.withParameters(this);
@@ -918,9 +1202,13 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.addChangeListener = function (changeListener, useCapture) {
         var changeListeners = this.getChangeListeners();
+        var jsChangeListeners = this.getJSChangeListeners();
+        var index = changeListeners.indexOf(changeListener);
+        if (index !== -1) {
+            return jsChangeListeners[index];
+        }
         changeListeners.push(changeListener);
         var jsChangeListener = new JSChangeListener(changeListener);
-        var jsChangeListeners = this.getJSChangeListeners();
         jsChangeListeners.push(jsChangeListener);
         this.element.addEventListener("change", jsChangeListener.stateChanged, !!useCapture);
         return jsChangeListener.withParameters(this);
@@ -953,20 +1241,260 @@ var JSComponent = (function () {
     JSComponent.VERTICAL_SPLIT = "vertical";
     return JSComponent;
 }());
+var JSDataTransfer = (function () {
+    function JSDataTransfer() {
+        this.data = {};
+    }
+    JSDataTransfer.getInstance = function () {
+        if (JSDataTransfer.instance === undefined) {
+            JSDataTransfer.instance = new JSDataTransfer();
+        }
+        return JSDataTransfer.instance;
+    };
+    JSDataTransfer.getData = function (key) {
+        return JSDataTransfer.getInstance().getData(key);
+    };
+    JSDataTransfer.setData = function (key, value) {
+        JSDataTransfer.getInstance().setData(key, value);
+    };
+    JSDataTransfer.getDragImage = function () {
+        return JSDataTransfer.getInstance().getDragImage();
+    };
+    JSDataTransfer.setDragImage = function (dragImage) {
+        JSDataTransfer.getInstance().setDragImage(dragImage);
+    };
+    JSDataTransfer.prototype.getData = function (key) {
+        var data = this.data;
+        return data[key];
+    };
+    JSDataTransfer.prototype.setData = function (key, value) {
+        var data = this.data;
+        data[key] = value;
+    };
+    JSDataTransfer.prototype.getDragImage = function () {
+        return JSBody.getInstance().getDragImage();
+    };
+    JSDataTransfer.prototype.setDragImage = function (dragImage) {
+        JSBody.getInstance().setDragImage(dragImage);
+    };
+    return JSDataTransfer;
+}());
+var JSDragSourceListener = (function () {
+    function JSDragSourceListener(dragSourceListener) {
+        this.parameters = [];
+        var jsDragSourceListener = this;
+        if (dragSourceListener.dragStart) {
+            this.dragStart = function (mouseEvent) {
+                var parameters = jsDragSourceListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dragSourceListener.dragStart.apply(dragSourceListener, parameters);
+            };
+        }
+        if (dragSourceListener.drag) {
+            this.drag = function (mouseEvent) {
+                var parameters = jsDragSourceListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dragSourceListener.drag.apply(dragSourceListener, parameters);
+            };
+        }
+        if (dragSourceListener.dragEnd) {
+            this.dragEnd = function (mouseEvent) {
+                var parameters = jsDragSourceListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dragSourceListener.dragEnd.apply(dragSourceListener, parameters);
+            };
+        }
+    }
+    JSDragSourceListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSDragSourceListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSDragSourceListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSDragSourceListener;
+}());
+var JSDropTargetListener = (function () {
+    function JSDropTargetListener(dropTargetListener) {
+        this.parameters = [];
+        var jsDropTargetListener = this;
+        if (dropTargetListener.dragEnter) {
+            this.dragEnter = function (mouseEvent) {
+                var parameters = jsDropTargetListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dropTargetListener.dragEnter.apply(dropTargetListener, parameters);
+            };
+        }
+        if (dropTargetListener.dragOver) {
+            this.dragOver = function (mouseEvent) {
+                var parameters = jsDropTargetListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dropTargetListener.dragOver.apply(dropTargetListener, parameters);
+            };
+        }
+        if (dropTargetListener.dragLeave) {
+            this.dragLeave = function (mouseEvent) {
+                var parameters = jsDropTargetListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dropTargetListener.dragLeave.apply(dropTargetListener, parameters);
+            };
+        }
+        if (dropTargetListener.drop) {
+            this.drop = function (mouseEvent) {
+                var parameters = jsDropTargetListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                dropTargetListener.drop.apply(dropTargetListener, parameters);
+            };
+        }
+    }
+    JSDropTargetListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSDropTargetListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSDropTargetListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSDropTargetListener;
+}());
+var JSFileUtils = (function () {
+    function JSFileUtils() {
+    }
+    JSFileUtils.writeStringToFile = function (filename, text) {
+        var a = document.createElement("a");
+        a.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
+        a.setAttribute("download", filename);
+        var event = document.createEvent("MouseEvents");
+        event.initEvent("click", true, true);
+        a.dispatchEvent(event);
+    };
+    return JSFileUtils;
+}());
+var JSIcon = (function () {
+    function JSIcon() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        switch (args.length) {
+            case 2:
+                if (typeof args[0] === "number" && typeof args[1] === "number") {
+                    var iconWidth = args[0];
+                    var iconHeight = args[1];
+                    this.setIconWidth(iconWidth);
+                    this.setIconHeight(iconHeight);
+                }
+                break;
+            default:
+        }
+    }
+    JSIcon.prototype.getIconWidth = function () {
+        return this.iconWidth;
+    };
+    JSIcon.prototype.setIconWidth = function (iconWidth) {
+        this.iconWidth = iconWidth;
+    };
+    JSIcon.prototype.getIconHeight = function () {
+        return this.iconHeight;
+    };
+    JSIcon.prototype.setIconHeight = function (iconHeight) {
+        this.iconHeight = iconHeight;
+    };
+    JSIcon.prototype.paintIcon = function (component, graphics) {
+    };
+    return JSIcon;
+}());
 var JSLayout = (function () {
     function JSLayout() {
     }
+    JSLayout.getContainers = function () {
+        return JSLayout.containers;
+    };
+    JSLayout.validateLater = function (container) {
+        var containers = JSLayout.getContainers();
+        if (containers.indexOf(container) === -1) {
+            containers.push(container);
+        }
+    };
+    JSLayout.validateContainers = function () {
+        var containers = JSLayout.getContainers();
+        var container = containers.shift();
+        var valid = container.isValid();
+        if (!valid) {
+            var layout = container.getLayout();
+            if (layout) {
+                layout.layoutContainer(container);
+            }
+        }
+        while (container = containers.shift()) {
+            var validHorizontally = container.isValidHorizontally();
+            var validVertically = container.isValidVertically();
+            if (!validHorizontally && !validVertically) {
+                console.log("WARNING: Incompatible layout types!");
+                continue;
+            }
+            if (!validHorizontally || !validVertically) {
+                var layout = container.getLayout();
+                if (layout) {
+                    layout.layoutContainer(container);
+                }
+            }
+        }
+    };
     JSLayout.prototype.addLayoutComponent = function (component) {
     };
     JSLayout.prototype.removeLayoutComponent = function (component) {
     };
     JSLayout.prototype.preferredLayoutWidth = function (container) {
-        return 0;
+        var layout = container.getLayout();
+        container.setLayout(null);
+        var preferredLayoutWidth = container.getPreferredWidth();
+        container.setLayout(layout);
+        return preferredLayoutWidth;
     };
     JSLayout.prototype.preferredLayoutHeight = function (container) {
-        return 0;
+        var layout = container.getLayout();
+        container.setLayout(null);
+        var preferredLayoutHeight = container.getPreferredHeight();
+        container.setLayout(layout);
+        return preferredLayoutHeight;
     };
     JSLayout.prototype.layoutContainer = function (container) {
+        this.layoutContainerHorizontally(container);
+        this.layoutContainerVertically(container);
+    };
+    JSLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        container.setValidHorizontally(true);
+    };
+    JSLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        container.setValidVertically(true);
     };
     JSLayout.NORTH = "north";
     JSLayout.SOUTH = "south";
@@ -986,8 +1514,1834 @@ var JSLayout = (function () {
     JSLayout.NORTHEAST = "northeast";
     JSLayout.SOUTHWEST = "southwest";
     JSLayout.SOUTHEAST = "southeast";
+    JSLayout.containers = [];
     return JSLayout;
 }());
+var JSMatteBorder = (function () {
+    function JSMatteBorder(top, left, bottom, right, color) {
+        this.setTop(top);
+        this.setLeft(left);
+        this.setBottom(bottom);
+        this.setRight(right);
+        this.setColor(color);
+    }
+    JSMatteBorder.prototype.getTop = function () {
+        return this.top;
+    };
+    JSMatteBorder.prototype.setTop = function (top) {
+        this.top = top;
+    };
+    JSMatteBorder.prototype.getLeft = function () {
+        return this.left;
+    };
+    JSMatteBorder.prototype.setLeft = function (left) {
+        this.left = left;
+    };
+    JSMatteBorder.prototype.getBottom = function () {
+        return this.bottom;
+    };
+    JSMatteBorder.prototype.setBottom = function (bottom) {
+        this.bottom = bottom;
+    };
+    JSMatteBorder.prototype.getRight = function () {
+        return this.right;
+    };
+    JSMatteBorder.prototype.setRight = function (right) {
+        this.right = right;
+    };
+    JSMatteBorder.prototype.getColor = function () {
+        return this.color;
+    };
+    JSMatteBorder.prototype.setColor = function (color) {
+        this.color = color;
+    };
+    JSMatteBorder.prototype.paintBorder = function (component) {
+        var top = this.getTop();
+        var left = this.getLeft();
+        var bottom = this.getBottom();
+        var right = this.getRight();
+        var color = this.getColor();
+        if (top) {
+            component.setStyle("border-top", top + "px solid " + color);
+        }
+        if (left) {
+            component.setStyle("border-left", left + "px solid " + color);
+        }
+        if (bottom) {
+            component.setStyle("border-bottom", bottom + "px solid " + color);
+        }
+        if (right) {
+            component.setStyle("border-right", right + "px solid " + color);
+        }
+    };
+    return JSMatteBorder;
+}());
+var JSMouseDraggedListener = (function () {
+    function JSMouseDraggedListener(mouseDraggedListener) {
+        this.parameters = [];
+        var jsMouseDraggedListener = this;
+        this.mouseDragged = function (mouseEvent) {
+            var parameters = jsMouseDraggedListener.getParameters().slice();
+            parameters.unshift(mouseEvent);
+            mouseDraggedListener.mouseDragged.apply(mouseDraggedListener, parameters);
+        };
+    }
+    JSMouseDraggedListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSMouseDraggedListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSMouseDraggedListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSMouseDraggedListener;
+}());
+var JSMouseListener = (function () {
+    function JSMouseListener(mouseListener) {
+        this.parameters = [];
+        var jsMouseListener = this;
+        if (mouseListener.mouseClicked) {
+            this.mouseClicked = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseClicked.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mousePressed) {
+            this.mousePressed = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mousePressed.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mouseReleased) {
+            this.mouseReleased = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseReleased.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mouseEntered) {
+            this.mouseEntered = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseEntered.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mouseExited) {
+            this.mouseExited = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseExited.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mouseMoved) {
+            this.mouseMoved = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseMoved.apply(mouseListener, parameters);
+            };
+        }
+        if (mouseListener.mouseDragged) {
+            this.mouseDragged = function (mouseEvent) {
+                var parameters = jsMouseListener.getParameters().slice();
+                parameters.unshift(mouseEvent);
+                mouseListener.mouseDragged.apply(mouseListener, parameters);
+            };
+        }
+    }
+    JSMouseListener.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSMouseListener.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSMouseListener.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSMouseListener;
+}());
+var JSProperties = (function () {
+    function JSProperties() {
+        this.setProperties({});
+    }
+    JSProperties.prototype.getProperties = function () {
+        return this.properties;
+    };
+    JSProperties.prototype.setProperties = function (properties) {
+        this.properties = properties;
+    };
+    JSProperties.prototype.getProperty = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var value;
+        var properties = this.getProperties();
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var key = args[0];
+                    value = properties[key];
+                }
+            case 2:
+                if (typeof args[0] === "string" && typeof args[1] === "string") {
+                    var key = args[0];
+                    var defaultValue = args[1];
+                    value = properties[key];
+                    if (value === undefined) {
+                        value = defaultValue;
+                    }
+                }
+                break;
+            default:
+        }
+        return value;
+    };
+    JSProperties.prototype.setProperty = function (key, value) {
+        var properties = this.getProperties();
+        properties[key] = value;
+    };
+    JSProperties.prototype.load = function () {
+    };
+    return JSProperties;
+}());
+var JSPropertyChangeEvent = (function () {
+    function JSPropertyChangeEvent(source, propertyName, oldValue, newValue) {
+        this.setSource(source);
+        this.setPropertyName(propertyName);
+        this.setOldValue(oldValue);
+        this.setNewValue(newValue);
+    }
+    JSPropertyChangeEvent.prototype.getSource = function () {
+        return this.source;
+    };
+    JSPropertyChangeEvent.prototype.setSource = function (source) {
+        this.source = source;
+    };
+    JSPropertyChangeEvent.prototype.getPropertyName = function () {
+        return this.propertyName;
+    };
+    JSPropertyChangeEvent.prototype.setPropertyName = function (propertyName) {
+        this.propertyName = propertyName;
+    };
+    JSPropertyChangeEvent.prototype.getOldValue = function () {
+        return this.oldValue;
+    };
+    JSPropertyChangeEvent.prototype.setOldValue = function (oldValue) {
+        this.oldValue = oldValue;
+    };
+    JSPropertyChangeEvent.prototype.getNewValue = function () {
+        return this.newValue;
+    };
+    JSPropertyChangeEvent.prototype.setNewValue = function (newValue) {
+        this.newValue = newValue;
+    };
+    return JSPropertyChangeEvent;
+}());
+var JSPropertyChangeListener = (function () {
+    function JSPropertyChangeListener(propertyChangeListener) {
+        this.propertyChange = propertyChangeListener.propertyChange;
+    }
+    return JSPropertyChangeListener;
+}());
+var JSPropertyChangeSupport = (function () {
+    function JSPropertyChangeSupport() {
+    }
+    JSPropertyChangeSupport.prototype.getPropertyChangeListeners = function () {
+        var propertyChangeListeners = this.propertyChangeListeners;
+        if (propertyChangeListeners === undefined) {
+            propertyChangeListeners = [];
+            this.propertyChangeListeners = propertyChangeListeners;
+        }
+        return propertyChangeListeners;
+    };
+    JSPropertyChangeSupport.prototype.addPropertyChangeListener = function (propertyChangeListener) {
+        var propertyChangeListeners = this.getPropertyChangeListeners();
+        propertyChangeListeners.push(propertyChangeListener);
+    };
+    JSPropertyChangeSupport.prototype.removePropertyChangeListener = function (propertyChangeListener) {
+        var propertyChangeListeners = this.getPropertyChangeListeners();
+        var index = propertyChangeListeners.indexOf(propertyChangeListener);
+        if (index !== -1) {
+            propertyChangeListeners.splice(index, 1);
+        }
+    };
+    JSPropertyChangeSupport.prototype.firePropertyChange = function (propertyChangeEvent) {
+        var propertyChangeListeners = this.getPropertyChangeListeners();
+        for (var i = 0; i < propertyChangeListeners.length; i++) {
+            var propertyChangeListener = propertyChangeListeners[i];
+            propertyChangeListener.propertyChange(propertyChangeEvent);
+        }
+    };
+    return JSPropertyChangeSupport;
+}());
+var JSResourceBundle = (function () {
+    function JSResourceBundle() {
+        this.setContents({});
+    }
+    JSResourceBundle.prototype.getContents = function () {
+        return this.contents;
+    };
+    JSResourceBundle.prototype.setContents = function (contents) {
+        this.contents = contents;
+    };
+    return JSResourceBundle;
+}());
+var JSRunnable = (function () {
+    function JSRunnable(runnable) {
+        this.parameters = [];
+        var jsRunnable = this;
+        this.run = function () {
+            var parameters = jsRunnable.getParameters().slice();
+            runnable.run.apply(runnable, parameters);
+        };
+    }
+    JSRunnable.prototype.getPid = function () {
+        return this.pid;
+    };
+    JSRunnable.prototype.setPid = function (pid) {
+        this.pid = pid;
+    };
+    JSRunnable.prototype.getParameters = function () {
+        return this.parameters;
+    };
+    JSRunnable.prototype.setParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+    };
+    JSRunnable.prototype.withParameters = function () {
+        var parameters = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            parameters[_i] = arguments[_i];
+        }
+        this.parameters = parameters;
+        return this;
+    };
+    return JSRunnable;
+}());
+var JSSelection = (function () {
+    function JSSelection() {
+        this.components = [];
+        this.selected = null;
+    }
+    JSSelection.prototype.add = function (component) {
+        var components = this.getComponents();
+        components.push(component);
+    };
+    JSSelection.prototype.remove = function (component) {
+        var components = this.getComponents();
+        var index = components.indexOf(component);
+        if (index === -1) {
+            return;
+        }
+        components.splice(index, 1);
+        var selected = this.getSelected();
+        if (selected === component) {
+            this.setSelected(null);
+        }
+    };
+    JSSelection.prototype.getComponents = function () {
+        return this.components;
+    };
+    JSSelection.prototype.getSelected = function () {
+        return this.selected;
+    };
+    JSSelection.prototype.setSelected = function (component) {
+        var selected = this.getSelected();
+        if (selected === component) {
+            return;
+        }
+        if (selected) {
+            selected.setSelected(false);
+        }
+        else {
+            var components = this.getComponents();
+            for (var i = 0; i < components.length; i++) {
+                components[i].setSelected(false);
+            }
+        }
+        if (component) {
+            component.setSelected(true);
+        }
+        this.selected = component;
+    };
+    JSSelection.prototype.setSelectedIndex = function (selectedIndex) {
+        var components = this.getComponents();
+        this.setSelected(components[selectedIndex]);
+    };
+    JSSelection.prototype.getSelectedIndex = function () {
+        var components = this.getComponents();
+        return components.indexOf(this.getSelected());
+    };
+    return JSSelection;
+}());
+var JSTimer = (function () {
+    function JSTimer() {
+        this.pids = {};
+    }
+    JSTimer.prototype.getPids = function () {
+        return this.pids;
+    };
+    JSTimer.prototype.schedule = function (runnable, delay) {
+        var jsRunnable = new JSRunnable(runnable);
+        var pids = this.getPids();
+        var pid = setTimeout(function () {
+            jsRunnable.run();
+            var pid = jsRunnable.getPid();
+            delete pids["" + pid];
+        }, delay);
+        pids["" + pid] = null;
+        jsRunnable.setPid(pid);
+        return jsRunnable;
+    };
+    JSTimer.prototype.cancel = function () {
+        var pids = this.getPids();
+        for (var pid in pids) {
+            clearTimeout(+pid);
+            delete pids[pid];
+        }
+    };
+    return JSTimer;
+}());
+var JSTreeCellRenderer = (function () {
+    function JSTreeCellRenderer() {
+        this.icons = {};
+        this.leafMargin = 32;
+        this.openMargin = 0;
+        this.closedMargin = 0;
+    }
+    JSTreeCellRenderer.prototype.getTreeCellRendererComponent = function (tree, value) {
+        var treeNode = value;
+        var treeCell = new JSTreeCell(value);
+        var icon = this.getIcon(treeNode);
+        if (icon) {
+            treeCell.setIcon(icon);
+        }
+        else if (treeNode.isLeaf()) {
+            var leafIcon = this.getLeafIcon();
+            if (leafIcon) {
+                treeCell.setIcon(leafIcon);
+            }
+        }
+        else if (treeNode.isExpanded()) {
+            var openIcon = this.getOpenIcon();
+            if (openIcon) {
+                treeCell.setIcon(openIcon);
+            }
+        }
+        else {
+            var closedIcon = this.getClosedIcon();
+            if (closedIcon) {
+                treeCell.setIcon(closedIcon);
+            }
+        }
+        var margin = 0;
+        var root = tree.getRoot();
+        var rootVisible = tree.isRootVisible();
+        var parentNode = treeNode.getParent();
+        while (treeNode !== root && (rootVisible || parentNode !== root)) {
+            margin += treeNode.isLeaf() ? this.getLeafMargin() : treeNode.isExpanded() ? this.getOpenMargin() : this.getClosedMargin();
+            treeNode = parentNode;
+            parentNode = treeNode.getParent();
+        }
+        treeCell.getLabel().setStyle("margin-left", margin + "px");
+        return treeCell;
+    };
+    JSTreeCellRenderer.prototype.getIcon = function (treeNode) {
+        var treePath = treeNode.getTreePath();
+        return this.icons[treePath];
+    };
+    JSTreeCellRenderer.prototype.setIcon = function (treeNode, icon) {
+        var treePath = treeNode.getTreePath();
+        this.icons[treePath] = icon;
+    };
+    JSTreeCellRenderer.prototype.getLeafIcon = function () {
+        return this.leafIcon;
+    };
+    JSTreeCellRenderer.prototype.setLeafIcon = function (leafIcon) {
+        this.leafIcon = leafIcon;
+    };
+    JSTreeCellRenderer.prototype.getOpenIcon = function () {
+        return this.openIcon;
+    };
+    JSTreeCellRenderer.prototype.setOpenIcon = function (openIcon) {
+        this.openIcon = openIcon;
+    };
+    JSTreeCellRenderer.prototype.getClosedIcon = function () {
+        return this.closedIcon;
+    };
+    JSTreeCellRenderer.prototype.setClosedIcon = function (closedIcon) {
+        this.closedIcon = closedIcon;
+    };
+    JSTreeCellRenderer.prototype.getLeafMargin = function () {
+        return this.leafMargin;
+    };
+    JSTreeCellRenderer.prototype.setLeafMargin = function (leafMargin) {
+        this.leafMargin = leafMargin;
+    };
+    JSTreeCellRenderer.prototype.getOpenMargin = function () {
+        return this.openMargin;
+    };
+    JSTreeCellRenderer.prototype.setOpenMargin = function (openMargin) {
+        this.openMargin = openMargin;
+    };
+    JSTreeCellRenderer.prototype.getClosedMargin = function () {
+        return this.closedMargin;
+    };
+    JSTreeCellRenderer.prototype.setClosedMargin = function (closedMargin) {
+        this.closedMargin = closedMargin;
+    };
+    return JSTreeCellRenderer;
+}());
+var JSTreeNode = (function () {
+    function JSTreeNode() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        this.userObject = null;
+        this.nodes = [];
+        this.parent = null;
+        this.expanded = false;
+        switch (args.length) {
+            case 1:
+                var userObject = args[0];
+                this.setUserObject(userObject);
+                break;
+            default:
+        }
+    }
+    JSTreeNode.prototype.add = function (node) {
+        this.nodes.push(node);
+        node.parent = this;
+    };
+    JSTreeNode.prototype.remove = function (node) {
+        var index = this.nodes.indexOf(node);
+        if (index === -1) {
+            return;
+        }
+        this.nodes.splice(index, 1);
+        node.parent = null;
+    };
+    JSTreeNode.prototype.children = function () {
+        return this.nodes;
+    };
+    JSTreeNode.prototype.getParent = function () {
+        return this.parent;
+    };
+    JSTreeNode.prototype.getUserObject = function () {
+        return this.userObject;
+    };
+    JSTreeNode.prototype.setUserObject = function (userObject) {
+        this.userObject = userObject;
+    };
+    JSTreeNode.prototype.getTreePath = function () {
+        var treePath = this.toString();
+        var parent = this.getParent();
+        while (parent) {
+            treePath = parent.toString() + "/" + treePath;
+            parent = parent.getParent();
+        }
+        return treePath;
+    };
+    JSTreeNode.prototype.isLeaf = function () {
+        return this.children().length === 0;
+    };
+    JSTreeNode.prototype.isExpanded = function () {
+        return this.expanded;
+    };
+    JSTreeNode.prototype.setExpanded = function (expanded) {
+        this.expanded = expanded;
+    };
+    JSTreeNode.prototype.toString = function () {
+        return "" + (this.userObject || "");
+    };
+    return JSTreeNode;
+}());
+var JSBorderLayout = (function (_super) {
+    __extends(JSBorderLayout, _super);
+    function JSBorderLayout() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this) || this;
+        _this.hgap = 0;
+        _this.vgap = 0;
+        switch (args.length) {
+            case 2:
+                if (typeof args[0] === "number" && typeof args[1] === "number") {
+                    var hgap = args[0];
+                    var vgap = args[1];
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSBorderLayout.prototype.getHgap = function () {
+        return this.hgap;
+    };
+    JSBorderLayout.prototype.setHgap = function (hgap) {
+        this.hgap = hgap;
+    };
+    JSBorderLayout.prototype.getVgap = function () {
+        return this.vgap;
+    };
+    JSBorderLayout.prototype.setVgap = function (vgap) {
+        this.vgap = vgap;
+    };
+    JSBorderLayout.prototype.addLayoutComponent = function (component) {
+        component.setStyle("position", "absolute");
+    };
+    JSBorderLayout.prototype.preferredLayoutWidth = function (container) {
+        var preferredLayoutWidth = 0;
+        var hgap = this.getHgap();
+        var components = container.getComponents();
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return null;
+                }
+                preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
+            }
+        }
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                continue;
+            }
+            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return null;
+            }
+            switch (constraints) {
+                case JSBorderLayout.WEST:
+                case JSBorderLayout.EAST:
+                    preferredLayoutWidth += componentPreferredOuterWidth + hgap;
+                    break;
+                case JSBorderLayout.NORTH:
+                case JSBorderLayout.SOUTH:
+                    preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
+                    break;
+                default:
+            }
+        }
+        if (preferredLayoutWidth != 0) {
+            preferredLayoutWidth -= hgap;
+        }
+        return preferredLayoutWidth;
+    };
+    JSBorderLayout.prototype.preferredLayoutHeight = function (container) {
+        var preferredLayoutHeight = 0;
+        var vgap = this.getVgap();
+        var components = container.getComponents();
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return null;
+                }
+                preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
+            }
+        }
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                continue;
+            }
+            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return null;
+            }
+            switch (constraints) {
+                case JSBorderLayout.NORTH:
+                case JSBorderLayout.SOUTH:
+                    preferredLayoutHeight += componentPreferredOuterHeight + vgap;
+                    break;
+                case JSBorderLayout.EAST:
+                case JSBorderLayout.WEST:
+                    preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
+                    break;
+                default:
+            }
+        }
+        if (preferredLayoutHeight != 0) {
+            preferredLayoutHeight -= vgap;
+        }
+        return preferredLayoutHeight;
+    };
+    JSBorderLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var hgap = this.getHgap();
+        var width = container.getWidth();
+        var x = container.getInsetLeft();
+        var components = container.getComponents().slice();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                continue;
+            }
+            var align = component.getAlign();
+            switch (constraints) {
+                case JSBorderLayout.NORTH:
+                case JSBorderLayout.SOUTH:
+                    switch (align) {
+                        case JSLayout.LEFT:
+                            var componentOuterWidth = component.getPreferredOuterWidth();
+                            if (componentOuterWidth === null) {
+                                return;
+                            }
+                            component.setOuterWidth(componentOuterWidth);
+                            component.setX(x);
+                            break;
+                        case JSLayout.RIGHT:
+                            var componentOuterWidth = component.getPreferredOuterWidth();
+                            if (componentOuterWidth === null) {
+                                return;
+                            }
+                            component.setOuterWidth(componentOuterWidth);
+                            component.setX(x + width - componentOuterWidth);
+                            break;
+                        case JSLayout.CENTER:
+                            var componentOuterWidth = component.getPreferredOuterWidth();
+                            if (componentOuterWidth === null) {
+                                return;
+                            }
+                            component.setOuterWidth(componentOuterWidth);
+                            component.setX(x + (width - componentOuterWidth) / 2);
+                            break;
+                        default:
+                            component.setOuterWidth(width);
+                            component.setX(x);
+                    }
+                    break;
+                case JSBorderLayout.WEST:
+                    var componentOuterWidth = component.getPreferredOuterWidth();
+                    if (componentOuterWidth === null) {
+                        return;
+                    }
+                    component.setOuterWidth(componentOuterWidth);
+                    component.setX(x);
+                    width -= componentOuterWidth + hgap;
+                    x += componentOuterWidth + hgap;
+                    break;
+                case JSBorderLayout.EAST:
+                    var componentOuterWidth = component.getPreferredOuterWidth();
+                    if (componentOuterWidth === null) {
+                        return;
+                    }
+                    component.setOuterWidth(componentOuterWidth);
+                    component.setX(x + width - componentOuterWidth);
+                    width -= componentOuterWidth + hgap;
+                    break;
+                default:
+            }
+        }
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                var align = component.getAlign();
+                switch (align) {
+                    case JSLayout.TOP:
+                        var componentOuterWidth = component.getPreferredOuterWidth();
+                        if (componentOuterWidth === null) {
+                            return;
+                        }
+                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        component.setOuterWidth(componentOuterWidth);
+                        component.setX(x + (width - componentOuterWidth) / 2);
+                        break;
+                    case JSLayout.BOTTOM:
+                        var componentOuterWidth = component.getPreferredOuterWidth();
+                        if (componentOuterWidth === null) {
+                            return;
+                        }
+                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        component.setOuterWidth(componentOuterWidth);
+                        component.setX(x + (width - componentOuterWidth) / 2);
+                        break;
+                    case JSLayout.LEFT:
+                        var componentOuterWidth = component.getPreferredOuterWidth();
+                        if (componentOuterWidth === null) {
+                            return;
+                        }
+                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        component.setOuterWidth(componentOuterWidth);
+                        component.setX(x);
+                        break;
+                    case JSLayout.RIGHT:
+                        var componentOuterWidth = component.getPreferredOuterWidth();
+                        if (componentOuterWidth === null) {
+                            return;
+                        }
+                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        component.setOuterWidth(componentOuterWidth);
+                        component.setX(x + width - componentOuterWidth);
+                        break;
+                    case JSLayout.CENTER:
+                        var componentOuterWidth = component.getPreferredOuterWidth();
+                        if (componentOuterWidth === null) {
+                            return;
+                        }
+                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        component.setOuterWidth(componentOuterWidth);
+                        component.setX(x + (width - componentOuterWidth) / 2);
+                        break;
+                    case JSLayout.LEFT_RIGHT:
+                        component.setOuterWidth(width);
+                        component.setX(x);
+                        break;
+                    default:
+                        component.setOuterWidth(width);
+                        component.setX(x);
+                }
+            }
+        }
+        container.setValidHorizontally(true);
+    };
+    JSBorderLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var vgap = this.getVgap();
+        var height = container.getHeight();
+        var y = container.getInsetTop();
+        var components = container.getComponents().slice();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                continue;
+            }
+            var align = component.getAlign();
+            switch (constraints) {
+                case JSBorderLayout.NORTH:
+                    var componentOuterHeight = component.getPreferredOuterHeight();
+                    if (componentOuterHeight === null) {
+                        return;
+                    }
+                    component.setOuterHeight(componentOuterHeight);
+                    component.setY(y);
+                    height -= componentOuterHeight + vgap;
+                    y += componentOuterHeight + vgap;
+                    break;
+                case JSBorderLayout.SOUTH:
+                    var componentOuterHeight = component.getPreferredOuterHeight();
+                    if (componentOuterHeight === null) {
+                        return;
+                    }
+                    component.setOuterHeight(componentOuterHeight);
+                    component.setY(y + height - componentOuterHeight);
+                    height -= componentOuterHeight + vgap;
+                    break;
+                case JSBorderLayout.WEST:
+                case JSBorderLayout.EAST:
+                    switch (align) {
+                        case JSLayout.TOP:
+                            var componentOuterHeight = component.getPreferredOuterHeight();
+                            if (componentOuterHeight === null) {
+                                return;
+                            }
+                            component.setOuterHeight(componentOuterHeight);
+                            component.setY(y);
+                            break;
+                        case JSLayout.BOTTOM:
+                            var componentOuterHeight = component.getPreferredOuterHeight();
+                            if (componentOuterHeight === null) {
+                                return;
+                            }
+                            component.setOuterHeight(componentOuterHeight);
+                            component.setY(y + height - componentOuterHeight);
+                            break;
+                        case JSLayout.CENTER:
+                            var componentOuterHeight = component.getPreferredOuterHeight();
+                            if (componentOuterHeight === null) {
+                                return;
+                            }
+                            component.setOuterHeight(componentOuterHeight);
+                            component.setY(y + (height - componentOuterHeight) / 2);
+                            break;
+                        default:
+                            component.setOuterHeight(height);
+                            component.setY(y);
+                    }
+                    break;
+                default:
+            }
+        }
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints();
+            if (!constraints || constraints === JSLayout.CENTER) {
+                var align = component.getAlign();
+                switch (align) {
+                    case JSLayout.TOP:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y);
+                        break;
+                    case JSLayout.BOTTOM:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y + height - componentOuterHeight);
+                        break;
+                    case JSLayout.LEFT:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y + (height - componentOuterHeight) / 2);
+                        break;
+                    case JSLayout.RIGHT:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y + (height - componentOuterHeight) / 2);
+                        break;
+                    case JSLayout.CENTER:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y + (height - componentOuterHeight) / 2);
+                        break;
+                    case JSLayout.LEFT_RIGHT:
+                        var componentOuterHeight = component.getPreferredOuterHeight();
+                        if (componentOuterHeight === null) {
+                            return;
+                        }
+                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        component.setOuterHeight(componentOuterHeight);
+                        component.setY(y + (height - componentOuterHeight) / 2);
+                        break;
+                    default:
+                        component.setOuterHeight(height);
+                        component.setY(y);
+                }
+            }
+        }
+        container.setValidVertically(true);
+    };
+    return JSBorderLayout;
+}(JSLayout));
+var JSCardLayout = (function (_super) {
+    __extends(JSCardLayout, _super);
+    function JSCardLayout() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.selected = null;
+        return _this;
+    }
+    JSCardLayout.prototype.addLayoutComponent = function (component) {
+        component.setStyle("position", "absolute");
+        this.setSelected(component.getParent(), component);
+    };
+    JSCardLayout.prototype.preferredLayoutWidth = function (container) {
+        var preferredLayoutWidth = 0;
+        var components = container.getComponents();
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return null;
+            }
+            preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth);
+        }
+        return preferredLayoutWidth;
+    };
+    JSCardLayout.prototype.preferredLayoutHeight = function (container) {
+        var preferredLayoutHeight = 0;
+        var components = container.getComponents();
+        for (var i = components.length - 1; i >= 0; i--) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return null;
+            }
+            preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight);
+        }
+        return preferredLayoutHeight;
+    };
+    JSCardLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var width = container.getWidth();
+        var x = container.getInsetLeft();
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setOuterWidth(width);
+            component.setX(x);
+        }
+        container.setValidHorizontally(true);
+    };
+    JSCardLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var height = container.getHeight();
+        var y = container.getInsetTop();
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setOuterHeight(height);
+            component.setY(y);
+        }
+        container.setValidVertically(true);
+    };
+    JSCardLayout.prototype.getSelected = function () {
+        return this.selected;
+    };
+    JSCardLayout.prototype.setSelected = function (container, component) {
+        var selected = this.getSelected();
+        if (selected === component) {
+            return;
+        }
+        if (selected) {
+            selected.setVisible(false);
+        }
+        else {
+            var components = container.getComponents();
+            for (var i = 0; i < components.length; i++) {
+                components[i].setVisible(false);
+            }
+        }
+        if (component) {
+            component.setVisible(true);
+        }
+        this.selected = component;
+    };
+    JSCardLayout.prototype.setSelectedIndex = function (container, selectedIndex) {
+        var components = container.getComponents();
+        this.setSelected(container, components[selectedIndex]);
+    };
+    JSCardLayout.prototype.getSelectedIndex = function (container) {
+        var components = container.getComponents();
+        return components.indexOf(this.getSelected());
+    };
+    JSCardLayout.prototype.first = function (container) {
+        this.setSelectedIndex(container, 0);
+    };
+    JSCardLayout.prototype.next = function (container) {
+        var componentCount = container.getComponentCount();
+        this.setSelectedIndex(container, (this.getSelectedIndex(container) + 1) % componentCount);
+    };
+    JSCardLayout.prototype.previous = function (container) {
+        var componentCount = container.getComponentCount();
+        this.setSelectedIndex(container, (this.getSelectedIndex(container) - 1 + componentCount) % componentCount);
+    };
+    JSCardLayout.prototype.last = function (container) {
+        var componentCount = container.getComponentCount();
+        this.setSelectedIndex(container, componentCount - 1);
+    };
+    JSCardLayout.prototype.show = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        switch (args.length) {
+            case 2:
+                if (args[0] instanceof JSComponent && typeof args[1] === "number") {
+                    var container = args[0];
+                    var index = args[1];
+                    this.setSelectedIndex(container, index);
+                }
+                else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
+                    var container = args[0];
+                    var constraints = args[1];
+                    var components = container.getComponents();
+                    for (var i = 0; i < components.length; i++) {
+                        var component = components[i];
+                        var componentConstraints = component.getConstraints();
+                        if (componentConstraints === constraints) {
+                            this.setSelectedIndex(container, i);
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+        }
+    };
+    return JSCardLayout;
+}(JSLayout));
+var JSFlowLayout = (function (_super) {
+    __extends(JSFlowLayout, _super);
+    function JSFlowLayout() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this) || this;
+        _this.border = JSFlowLayout.NORTH;
+        _this.align = JSFlowLayout.CENTER;
+        _this.hgap = 0;
+        _this.vgap = 0;
+        switch (args.length) {
+            case 0:
+                break;
+            case 2:
+                if (typeof args[0] === "string" && typeof args[1] === "string") {
+                    var border = args[0];
+                    var align = args[1];
+                    _this.setBorder(border);
+                    _this.setAlign(align);
+                }
+                break;
+            case 4:
+                if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
+                    var border = args[0];
+                    var align = args[1];
+                    var hgap = args[2];
+                    var vgap = args[3];
+                    _this.setBorder(border);
+                    _this.setAlign(align);
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSFlowLayout.prototype.getHgap = function () {
+        return this.hgap;
+    };
+    JSFlowLayout.prototype.setHgap = function (hgap) {
+        this.hgap = hgap;
+    };
+    JSFlowLayout.prototype.getVgap = function () {
+        return this.vgap;
+    };
+    JSFlowLayout.prototype.setVgap = function (vgap) {
+        this.vgap = vgap;
+    };
+    JSFlowLayout.prototype.getAlign = function () {
+        return this.align;
+    };
+    JSFlowLayout.prototype.setAlign = function (align) {
+        this.align = align;
+    };
+    JSFlowLayout.prototype.getBorder = function () {
+        return this.border;
+    };
+    JSFlowLayout.prototype.setBorder = function (region) {
+        this.border = region;
+    };
+    JSFlowLayout.prototype.addLayoutComponent = function (component) {
+        component.setStyle("position", "absolute");
+    };
+    JSFlowLayout.prototype.preferredLayoutWidth = function (container) {
+        var preferredLayoutWidth = 0;
+        var border = this.getBorder();
+        var hgap = this.getHgap();
+        var vgap = this.getVgap();
+        var components = container.getComponents();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            if (!container.isValidVertically()) {
+                return null;
+            }
+            var containerHeight = container.getHeight();
+            var rowHeight = 0;
+            var rowWidth = 0;
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return null;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return null;
+                }
+                if (rowHeight + componentPreferredOuterHeight > containerHeight) {
+                    preferredLayoutWidth += rowWidth;
+                    rowHeight = 0;
+                    rowWidth = 0;
+                }
+                rowHeight += componentPreferredOuterHeight + vgap;
+                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
+            }
+            preferredLayoutWidth += rowWidth;
+            if (preferredLayoutWidth != 0) {
+                preferredLayoutWidth -= hgap;
+            }
+        }
+        else {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return null;
+                }
+                preferredLayoutWidth += componentPreferredOuterWidth + hgap;
+            }
+            if (preferredLayoutWidth != 0) {
+                preferredLayoutWidth -= hgap;
+            }
+            var width = container.getWidth();
+            if (width) {
+                preferredLayoutWidth = Math.min(preferredLayoutWidth, width);
+            }
+        }
+        return preferredLayoutWidth;
+    };
+    JSFlowLayout.prototype.preferredLayoutHeight = function (container) {
+        var preferredLayoutHeight = 0;
+        var border = this.getBorder();
+        var hgap = this.getHgap();
+        var vgap = this.getVgap();
+        var components = container.getComponents();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return null;
+                }
+                preferredLayoutHeight += componentPreferredOuterHeight + vgap;
+            }
+            if (preferredLayoutHeight != 0) {
+                preferredLayoutHeight -= vgap;
+            }
+            var height = container.getHeight();
+            if (height) {
+                preferredLayoutHeight = Math.min(preferredLayoutHeight, height);
+            }
+        }
+        else {
+            if (!container.isValidHorizontally()) {
+                return null;
+            }
+            var containerWidth = container.getWidth();
+            var rowWidth = 0;
+            var rowHeight = 0;
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return null;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return null;
+                }
+                if (rowWidth + componentPreferredOuterWidth > containerWidth) {
+                    preferredLayoutHeight += rowHeight;
+                    rowWidth = 0;
+                    rowHeight = 0;
+                }
+                rowWidth += componentPreferredOuterWidth + hgap;
+                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
+            }
+            preferredLayoutHeight += rowHeight;
+            if (preferredLayoutHeight != 0) {
+                preferredLayoutHeight -= vgap;
+            }
+        }
+        return preferredLayoutHeight;
+    };
+    JSFlowLayout.prototype.layoutContainer = function (container) {
+        var border = this.getBorder();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            this.layoutContainerVertically(container);
+            this.layoutContainerHorizontally(container);
+        }
+        else {
+            this.layoutContainerHorizontally(container);
+            this.layoutContainerVertically(container);
+        }
+    };
+    JSFlowLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var border = this.getBorder();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            if (!container.isValidVertically()) {
+                return;
+            }
+        }
+        var hgap = this.getHgap();
+        var vgap = this.getVgap();
+        var width = container.getWidth();
+        var height = container.getHeight();
+        var rowWidth = 0;
+        var rowHeight = 0;
+        var n = 0;
+        var components = container.getComponents();
+        if (border === JSFlowLayout.WEST) {
+            var x = container.getInsetLeft();
+            var y = container.getInsetTop();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                if (rowHeight + componentPreferredOuterHeight > height) {
+                    rowHeight -= vgap;
+                    this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+                    x += rowWidth;
+                    rowWidth = 0;
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
+                rowHeight += componentPreferredOuterHeight + vgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                rowHeight -= vgap;
+                this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+            }
+        }
+        else if (border === JSFlowLayout.EAST) {
+            var x = width - container.getInsetRight();
+            var y = container.getInsetTop();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                if (rowHeight + componentPreferredOuterHeight > height) {
+                    rowHeight -= vgap;
+                    this.layoutComponentsHorizontally(container, components.slice(n, i), x - rowWidth, rowWidth);
+                    x -= rowWidth;
+                    rowWidth = 0;
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
+                rowHeight += componentPreferredOuterHeight + vgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                rowHeight -= vgap;
+                this.layoutComponentsHorizontally(container, components.slice(n, i), x - rowWidth, rowWidth);
+            }
+        }
+        else if (border === JSFlowLayout.SOUTH) {
+            var x = container.getInsetLeft();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                if (rowWidth + componentPreferredOuterWidth > width) {
+                    rowWidth -= hgap;
+                    this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+                    rowWidth = 0;
+                    n = i;
+                }
+                rowWidth += componentPreferredOuterWidth + hgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+            }
+        }
+        else {
+            var x = container.getInsetLeft();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                if (rowWidth + componentPreferredOuterWidth > width) {
+                    rowWidth -= hgap;
+                    this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+                    rowWidth = 0;
+                    n = i;
+                }
+                rowWidth += componentPreferredOuterWidth + hgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                this.layoutComponentsHorizontally(container, components.slice(n, i), x, rowWidth);
+            }
+        }
+        container.setValidHorizontally(true);
+    };
+    JSFlowLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var border = this.getBorder();
+        if (border !== JSFlowLayout.WEST && border !== JSFlowLayout.EAST) {
+            if (!container.isValidHorizontally()) {
+                return;
+            }
+        }
+        var hgap = this.getHgap();
+        var vgap = this.getVgap();
+        var width = container.getWidth();
+        var height = container.getHeight();
+        var rowWidth = 0;
+        var rowHeight = 0;
+        var n = 0;
+        var components = container.getComponents();
+        if (border === JSFlowLayout.WEST) {
+            var y = container.getInsetTop();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                if (rowHeight + componentPreferredOuterHeight > height) {
+                    rowHeight -= vgap;
+                    this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowHeight += componentPreferredOuterHeight + vgap;
+            }
+            if (n < i) {
+                rowHeight -= vgap;
+                this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+            }
+        }
+        else if (border === JSFlowLayout.EAST) {
+            var y = container.getInsetTop();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                if (rowHeight + componentPreferredOuterHeight > height) {
+                    rowHeight -= vgap;
+                    this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowHeight += componentPreferredOuterHeight + vgap;
+            }
+            if (n < i) {
+                rowHeight -= vgap;
+                this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+            }
+        }
+        else if (border === JSFlowLayout.SOUTH) {
+            var x = container.getInsetLeft();
+            var y = height - container.getInsetBottom();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                if (rowWidth + componentPreferredOuterWidth > width) {
+                    rowWidth -= hgap;
+                    this.layoutComponentsVertically(container, components.slice(n, i), y - rowHeight, rowHeight);
+                    y -= rowHeight;
+                    rowWidth = 0;
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
+                rowWidth += componentPreferredOuterWidth + hgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                rowHeight -= vgap;
+                this.layoutComponentsVertically(container, components.slice(n, i), y - rowHeight, rowHeight);
+            }
+        }
+        else {
+            var x = container.getInsetLeft();
+            var y = container.getInsetTop();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
+                if (rowWidth + componentPreferredOuterWidth > width) {
+                    rowWidth -= hgap;
+                    this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+                    y += rowHeight;
+                    rowWidth = 0;
+                    rowHeight = 0;
+                    n = i;
+                }
+                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
+                rowWidth += componentPreferredOuterWidth + hgap;
+            }
+            if (n < i) {
+                rowWidth -= hgap;
+                rowHeight -= vgap;
+                this.layoutComponentsVertically(container, components.slice(n, i), y, rowHeight);
+            }
+        }
+        container.setValidVertically(true);
+    };
+    JSFlowLayout.prototype.layoutComponentsHorizontally = function (container, components, x, rowWidth) {
+        var border = this.getBorder();
+        var align = this.getAlign();
+        var hgap = this.getHgap();
+        var width = container.getWidth();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
+                    continue;
+                }
+                var constraints = component.getConstraints();
+                if (constraints === JSFlowLayout.BOTH || constraints === JSFlowLayout.HORIZONTAL) {
+                    component.setOuterWidth(rowWidth);
+                    component.setX(x);
+                }
+                else {
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x + (rowWidth - componentPreferredOuterWidth) / 2);
+                }
+            }
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                    continue;
+                }
+                switch (componentAlign) {
+                    case JSFlowLayout.BOTH:
+                        component.setOuterWidth(rowWidth);
+                        component.setX(x);
+                        break;
+                    case JSFlowLayout.LEFT:
+                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                        component.setOuterWidth(componentPreferredOuterWidth);
+                        component.setX(x);
+                        break;
+                    case JSFlowLayout.RIGHT:
+                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                        component.setOuterWidth(componentPreferredOuterWidth);
+                        component.setX(x + rowWidth - componentPreferredOuterWidth);
+                        break;
+                    case JSFlowLayout.CENTER:
+                    default:
+                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                        component.setOuterWidth(componentPreferredOuterWidth);
+                        component.setX(x + (rowWidth - componentPreferredOuterWidth) / 2);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                component.setOuterWidth(componentPreferredOuterWidth);
+                if (componentAlign === JSFlowLayout.LEFT) {
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + hgap;
+                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
+                        rowWidth -= componentPreferredOuterWidth + hgap;
+                    }
+                    else {
+                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
+                    }
+                }
+                else {
+                    component.setX(x + width - componentPreferredOuterWidth);
+                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
+                        rowWidth -= componentPreferredOuterWidth + hgap;
+                    }
+                    else {
+                        x += componentPreferredOuterWidth + hgap;
+                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
+                    }
+                }
+            }
+            switch (align) {
+                case JSFlowLayout.LEFT:
+                    break;
+                case JSFlowLayout.RIGHT:
+                    x += width - rowWidth;
+                    break;
+                case JSFlowLayout.CENTER:
+                default:
+                    x += (width - rowWidth) / 2;
+            }
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                    continue;
+                }
+                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                component.setOuterWidth(componentPreferredOuterWidth);
+                component.setX(x);
+                x += componentPreferredOuterWidth + hgap;
+            }
+        }
+    };
+    JSFlowLayout.prototype.layoutComponentsVertically = function (container, components, y, rowHeight) {
+        var border = this.getBorder();
+        var align = this.getAlign();
+        var vgap = this.getVgap();
+        var height = container.getHeight();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                component.setOuterHeight(componentPreferredOuterHeight);
+                if (componentAlign === JSFlowLayout.TOP) {
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + vgap;
+                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
+                        rowHeight -= componentPreferredOuterHeight + vgap;
+                    }
+                    else {
+                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
+                    }
+                }
+                else {
+                    component.setY(y + height - componentPreferredOuterHeight);
+                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
+                        rowHeight -= componentPreferredOuterHeight + vgap;
+                    }
+                    else {
+                        y += componentPreferredOuterHeight + vgap;
+                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
+                    }
+                }
+            }
+            switch (align) {
+                case JSFlowLayout.TOP:
+                    break;
+                case JSFlowLayout.BOTTOM:
+                    y += height - rowHeight;
+                    break;
+                case JSFlowLayout.CENTER:
+                default:
+                    y += (height - rowHeight) / 2;
+            }
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                    continue;
+                }
+                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                component.setOuterHeight(componentPreferredOuterHeight);
+                switch (componentAlign) {
+                    case JSFlowLayout.BOTH:
+                        break;
+                    case JSFlowLayout.LEFT:
+                        break;
+                    case JSFlowLayout.RIGHT:
+                        break;
+                    case JSFlowLayout.CENTER:
+                    default:
+                }
+                component.setY(y);
+                y += componentPreferredOuterHeight + vgap;
+            }
+        }
+        else {
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
+                    continue;
+                }
+                var constraints = component.getConstraints();
+                if (constraints === JSFlowLayout.BOTH || constraints === JSFlowLayout.VERTICAL) {
+                    component.setOuterHeight(rowHeight);
+                    component.setY(y);
+                }
+                else {
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y + (rowHeight - componentPreferredOuterHeight) / 2);
+                }
+            }
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                var componentAlign = component.getAlign();
+                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                    continue;
+                }
+                switch (componentAlign) {
+                    case JSFlowLayout.BOTH:
+                        component.setOuterHeight(rowHeight);
+                        component.setY(y);
+                        break;
+                    case JSFlowLayout.TOP:
+                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                        component.setOuterHeight(componentPreferredOuterHeight);
+                        component.setY(y);
+                        break;
+                    case JSFlowLayout.BOTTOM:
+                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                        component.setOuterHeight(componentPreferredOuterHeight);
+                        component.setY(y + rowHeight - componentPreferredOuterHeight);
+                        break;
+                    case JSFlowLayout.CENTER:
+                    default:
+                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                        component.setOuterHeight(componentPreferredOuterHeight);
+                        component.setY(y + (rowHeight - componentPreferredOuterHeight) / 2);
+                }
+            }
+        }
+    };
+    return JSFlowLayout;
+}(JSLayout));
 var JSHTMLComponent = (function (_super) {
     __extends(JSHTMLComponent, _super);
     function JSHTMLComponent(element) {
@@ -1029,16 +3383,16 @@ var JSHTMLComponent = (function (_super) {
         this.setStyle("top", y + "px");
     };
     JSHTMLComponent.prototype.setWidth = function (width) {
-        _super.prototype.setWidth.call(this, width);
         this.setStyle("width", width + "px");
+        _super.prototype.setWidth.call(this, width);
     };
     JSHTMLComponent.prototype.setOuterWidth = function (outerWidth) {
         this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
             this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     };
     JSHTMLComponent.prototype.setHeight = function (height) {
-        _super.prototype.setHeight.call(this, height);
         this.setStyle("height", height + "px");
+        _super.prototype.setHeight.call(this, height);
     };
     JSHTMLComponent.prototype.setOuterHeight = function (outerHeight) {
         this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
@@ -1103,14 +3457,26 @@ var JSHTMLComponent = (function (_super) {
         return height;
     };
     JSHTMLComponent.prototype.getPreferredOuterWidth = function () {
-        return this.getPreferredWidth() +
-            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
-            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        var preferredOuterWidth = this.getPreferredWidth();
+        if (preferredOuterWidth === null) {
+            return null;
+        }
+        else {
+            return preferredOuterWidth +
+                this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+                this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        }
     };
     JSHTMLComponent.prototype.getPreferredOuterHeight = function () {
-        return this.getPreferredHeight() +
-            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
-            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        var preferredOuterHeight = this.getPreferredHeight();
+        if (preferredOuterHeight === null) {
+            return null;
+        }
+        else {
+            return preferredOuterHeight +
+                this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+                this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        }
     };
     JSHTMLComponent.prototype.getMarginTop = function () {
         return +this.getComputedStyle("margin-top").replace("px", "");
@@ -1269,16 +3635,16 @@ var JSSVGComponent = (function (_super) {
         this.setAttribute("y", y + "");
     };
     JSSVGComponent.prototype.setWidth = function (width) {
-        _super.prototype.setWidth.call(this, width);
         this.setAttribute("width", width + "px");
+        _super.prototype.setWidth.call(this, width);
     };
     JSSVGComponent.prototype.setOuterWidth = function (outerWidth) {
         this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
             this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     };
     JSSVGComponent.prototype.setHeight = function (height) {
-        _super.prototype.setHeight.call(this, height);
         this.setAttribute("height", height + "px");
+        _super.prototype.setHeight.call(this, height);
     };
     JSSVGComponent.prototype.setOuterHeight = function (outerHeight) {
         this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
@@ -1322,12 +3688,6 @@ var JSSVGComponent = (function (_super) {
         }
         return height;
     };
-    JSSVGComponent.prototype.getPreferredOuterWidth = function () {
-        return this.getPreferredWidth();
-    };
-    JSSVGComponent.prototype.getPreferredOuterHeight = function () {
-        return this.getPreferredHeight();
-    };
     JSSVGComponent.prototype.getFill = function () {
         return this.getAttribute("fill");
     };
@@ -1348,19 +3708,1310 @@ var JSSVGComponent = (function (_super) {
     };
     return JSSVGComponent;
 }(JSComponent));
-var JSSVG = (function (_super) {
-    __extends(JSSVG, _super);
-    function JSSVG() {
+var JSSplitPaneLayout = (function (_super) {
+    __extends(JSSplitPaneLayout, _super);
+    function JSSplitPaneLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSSplitPaneLayout.prototype.addLayoutComponent = function (component) {
+        component.setStyle("position", "absolute");
+    };
+    JSSplitPaneLayout.prototype.preferredLayoutWidth = function (splitPane) {
+        var orientation = splitPane.getOrientation();
+        var leftContainer = splitPane.getLeftContainer();
+        var rightContainer = splitPane.getRightContainer();
+        var leftContainerPreferredOuterWidth = leftContainer.getPreferredOuterWidth();
+        if (leftContainerPreferredOuterWidth === null) {
+            return null;
+        }
+        var rightContainerPreferredOuterWidth = rightContainer.getPreferredOuterWidth();
+        if (rightContainerPreferredOuterWidth === null) {
+            return null;
+        }
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            return Math.max(leftContainerPreferredOuterWidth, rightContainer.getPreferredOuterWidth());
+        }
+        else {
+            return leftContainerPreferredOuterWidth + splitPane.getDividerSize() + rightContainerPreferredOuterWidth;
+        }
+    };
+    JSSplitPaneLayout.prototype.preferredLayoutHeight = function (splitPane) {
+        var orientation = splitPane.getOrientation();
+        var leftContainer = splitPane.getLeftContainer();
+        var rightContainer = splitPane.getRightContainer();
+        var leftContainerPreferredOuterHeight = leftContainer.getPreferredOuterHeight();
+        if (leftContainerPreferredOuterHeight === null) {
+            return null;
+        }
+        var rightContainerPreferredOuterHeight = rightContainer.getPreferredOuterHeight();
+        if (rightContainerPreferredOuterHeight === null) {
+            return null;
+        }
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            return leftContainerPreferredOuterHeight + splitPane.getDividerSize() + rightContainerPreferredOuterHeight;
+        }
+        else {
+            return Math.max(leftContainerPreferredOuterHeight, rightContainerPreferredOuterHeight);
+        }
+    };
+    JSSplitPaneLayout.prototype.layoutContainerHorizontally = function (splitPane) {
+        if (splitPane.isValidHorizontally()) {
+            return;
+        }
+        var width = splitPane.getWidth();
+        var width100 = width + splitPane.getPaddingLeft() + splitPane.getPaddingRight();
+        var x = splitPane.getInsetLeft();
+        var leftContainer = splitPane.getLeftContainer();
+        var divider = splitPane.getDivider();
+        var dividerSize = splitPane.getDividerSize();
+        var rightContainer = splitPane.getRightContainer();
+        var orientation = splitPane.getOrientation();
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            leftContainer.setOuterWidth(width);
+            divider.setOuterWidth(width);
+            rightContainer.setOuterWidth(width);
+            leftContainer.setX(x);
+            divider.setX(x);
+            rightContainer.setX(x);
+        }
+        else {
+            var dividerLocation = splitPane.getDividerLocation() || 0;
+            var dividerProportionalLocation = splitPane.getDividerProportionalLocation() || 0;
+            dividerLocation += dividerProportionalLocation * width100;
+            leftContainer.setOuterWidth(dividerLocation - x);
+            leftContainer.setX(x);
+            divider.setOuterWidth(dividerSize);
+            divider.setX(dividerLocation);
+            rightContainer.setOuterWidth(width - (dividerLocation - x) - dividerSize);
+            rightContainer.setX(dividerLocation + dividerSize);
+        }
+        splitPane.setValidHorizontally(true);
+    };
+    JSSplitPaneLayout.prototype.layoutContainerVertically = function (splitPane) {
+        if (splitPane.isValidVertically()) {
+            return;
+        }
+        var height = splitPane.getHeight();
+        var height100 = height + splitPane.getPaddingTop() + splitPane.getPaddingBottom();
+        var y = splitPane.getInsetTop();
+        var leftContainer = splitPane.getLeftContainer();
+        var divider = splitPane.getDivider();
+        var dividerSize = splitPane.getDividerSize();
+        var rightContainer = splitPane.getRightContainer();
+        var orientation = splitPane.getOrientation();
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            var dividerLocation = splitPane.getDividerLocation() || 0;
+            var dividerProportionalLocation = splitPane.getDividerProportionalLocation() || 0;
+            dividerLocation += dividerProportionalLocation * height100;
+            leftContainer.setOuterHeight(dividerLocation - y);
+            leftContainer.setY(y);
+            divider.setOuterHeight(dividerSize);
+            divider.setY(dividerLocation);
+            rightContainer.setOuterHeight(height - (dividerSize - y) - dividerLocation);
+            rightContainer.setY(dividerLocation + dividerSize);
+        }
+        else {
+            leftContainer.setOuterHeight(height);
+            divider.setOuterHeight(height);
+            rightContainer.setOuterHeight(height);
+            leftContainer.setY(y);
+            divider.setY(y);
+            rightContainer.setY(y);
+        }
+        splitPane.setValidVertically(true);
+    };
+    return JSSplitPaneLayout;
+}(JSLayout));
+var JSTreeLayout = (function (_super) {
+    __extends(JSTreeLayout, _super);
+    function JSTreeLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSTreeLayout.prototype.preferredLayoutWidth = function (tree) {
+        var preferredLayoutWidth = 0;
+        var components = tree.getComponents();
+        if (!components.length) {
+            tree.load();
+        }
+        var treeCells = tree.getTreeCells();
+        for (var treePath in treeCells) {
+            var treeCell = treeCells[treePath];
+            var treeCellPreferredWidth = treeCell.getPreferredWidth();
+            if (treeCellPreferredWidth === null) {
+                return null;
+            }
+            preferredLayoutWidth = Math.max(preferredLayoutWidth, treeCellPreferredWidth);
+        }
+        return preferredLayoutWidth;
+    };
+    JSTreeLayout.prototype.preferredLayoutHeight = function (tree) {
+        var components = tree.getComponents();
+        if (!components.length) {
+            tree.load();
+        }
+        return _super.prototype.preferredLayoutHeight.call(this, tree);
+    };
+    return JSTreeLayout;
+}(JSLayout));
+var JSBody = (function (_super) {
+    __extends(JSBody, _super);
+    function JSBody() {
+        var _this = _super.call(this, document.body) || this;
+        document.documentElement.style.height = "100%";
+        _this.setStyle("border", "0");
+        _this.setStyle("height", "100%");
+        _this.setStyle("margin", "0");
+        _this.setStyle("overflow", "hidden");
+        _this.setStyle("padding", "0");
+        _this.setStyle("user-select", "none");
+        _this.setStyle("-ms-user-select", "none");
+        _this.setStyle("-moz-user-select", "none");
+        _this.setStyle("-webkit-user-select", "none");
+        _this.setLayout(new JSBorderLayout());
+        var svg = _this.getDefsContainer();
+        _this.add(svg, JSBorderLayout.NORTH);
+        var defs = _this.getDefs();
+        svg.add(defs);
+        var popupMenuContainer = _this.getPopupMenuContainer();
+        _this.add(popupMenuContainer, JSBorderLayout.NORTH);
+        var dragImageContainer = _this.getDragImageContainer();
+        _this.add(dragImageContainer, JSBorderLayout.NORTH);
+        _this.addMouseListener(_this, true);
+        window.addEventListener("resize", function () {
+            JSBody.getInstance().revalidate();
+        });
+        return _this;
+    }
+    JSBody.getInstance = function () {
+        if (JSBody.instance === undefined) {
+            JSBody.instance = new JSBody();
+        }
+        return JSBody.instance;
+    };
+    JSBody.prototype.init = function () {
+        this.addClass("JSBody");
+    };
+    JSBody.prototype.setContentPane = function (contentPane) {
+        var oldContentPane = this.getData("contentPane");
+        if (oldContentPane) {
+            this.remove(oldContentPane);
+        }
+        if (contentPane) {
+            this.add(contentPane);
+        }
+        this.setData("contentPane", contentPane);
+    };
+    JSBody.prototype.getDefsContainer = function () {
+        var defsContainer = this.getData("defsContainer");
+        if (!defsContainer) {
+            defsContainer = new JSBodyDefsContainer();
+            this.setData("defsContainer", defsContainer);
+        }
+        return defsContainer;
+    };
+    JSBody.prototype.getDefs = function () {
+        var defs = this.getData("defs");
+        if (!defs) {
+            defs = new JSDefs();
+            this.setData("defs", defs);
+        }
+        return defs;
+    };
+    JSBody.prototype.getPopupMenuContainer = function () {
+        var popupMenuContainer = this.getData("popupMenuContainer");
+        if (!popupMenuContainer) {
+            popupMenuContainer = new JSBodyPopupMenuContainer();
+            this.setData("popupMenuContainer", popupMenuContainer);
+        }
+        return popupMenuContainer;
+    };
+    JSBody.prototype.getPopupMenu = function () {
+        return this.popupMenu;
+    };
+    JSBody.prototype.setPopupMenu = function (popupMenu) {
+        var oldPopupMenu = this.getPopupMenu();
+        if (oldPopupMenu !== popupMenu) {
+            var popupMenuContainer = this.getPopupMenuContainer();
+            if (oldPopupMenu) {
+                popupMenuContainer.remove(oldPopupMenu);
+            }
+            if (popupMenu) {
+                popupMenuContainer.add(popupMenu);
+                var popupMenuLayout = popupMenu.getLayout();
+                if (popupMenuLayout) {
+                    popupMenu.setWidth(popupMenu.getPreferredWidth());
+                    popupMenu.setHeight(popupMenu.getPreferredHeight());
+                    popupMenu.revalidate();
+                }
+            }
+        }
+        this.popupMenu = popupMenu;
+    };
+    JSBody.prototype.getDragImageContainer = function () {
+        var dragImageContainer = this.getData("dragImageContainer");
+        if (!dragImageContainer) {
+            dragImageContainer = new JSBodyDragImageContainer();
+            dragImageContainer.setVisible(false);
+            this.setData("dragImageContainer", dragImageContainer);
+        }
+        return dragImageContainer;
+    };
+    JSBody.prototype.getDragImage = function () {
+        return this.dragImage;
+    };
+    JSBody.prototype.setDragImage = function (dragImage) {
+        var oldDragImage = this.getDragImage();
+        if (oldDragImage !== dragImage) {
+            var dragImageContainer = this.getDragImageContainer();
+            if (oldDragImage) {
+                dragImageContainer.remove(oldDragImage);
+            }
+            if (dragImage) {
+                dragImageContainer.add(dragImage);
+                var dragImageLayout = dragImage.getLayout();
+                if (dragImageLayout) {
+                    dragImage.setWidth(dragImage.getPreferredWidth());
+                    dragImage.setHeight(dragImage.getPreferredHeight());
+                    dragImage.revalidate();
+                }
+            }
+        }
+        this.dragImage = dragImage;
+    };
+    JSBody.prototype.getDragSource = function () {
+        return this.dragSource;
+    };
+    JSBody.prototype.setDragSource = function (dragSource) {
+        this.dragSource = dragSource;
+    };
+    JSBody.prototype.getFileChooser = function () {
+        return this.fileChooser;
+    };
+    JSBody.prototype.setFileChooser = function (fileChooser) {
+        var oldFileChooser = this.getFileChooser();
+        if (oldFileChooser !== fileChooser) {
+            if (oldFileChooser) {
+                this.remove(oldFileChooser);
+            }
+            if (fileChooser) {
+                this.add(fileChooser, JSBorderLayout.SOUTH);
+            }
+        }
+        this.fileChooser = fileChooser;
+    };
+    JSBody.prototype.getTimer = function () {
+        var timer = this.getData("timer");
+        if (!timer) {
+            timer = new JSTimer();
+            this.setData("timer", timer);
+        }
+        return timer;
+    };
+    JSBody.prototype.mouseMoved = function (mouseEvent) {
+        var dragSource = this.getDragSource();
+        if (dragSource) {
+            var dragStart = dragSource.getData("dragStart");
+            if (!dragStart) {
+                dragSource.fireDragStart(mouseEvent);
+                dragSource.setData("dragStart", true);
+            }
+            dragSource.fireDrag(mouseEvent);
+            dragSource.fireMouseDragged(mouseEvent);
+        }
+    };
+    JSBody.prototype.mouseReleased = function (mouseEvent) {
+        var dragSource = this.getDragSource();
+        if (dragSource) {
+            var timer = this.getTimer();
+            timer.schedule({
+                run: function () {
+                    var dragStart = dragSource.getData("dragStart");
+                    if (dragStart) {
+                        dragSource.fireDragEnd(mouseEvent);
+                        dragSource.setData("dragStart", false);
+                    }
+                    JSBody.getInstance().setDragSource(null);
+                }
+            }, 0);
+        }
+    };
+    return JSBody;
+}(JSHTMLComponent));
+var JSButton = (function (_super) {
+    __extends(JSButton, _super);
+    function JSButton() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        _this.setStyle("white-space", "nowrap");
+        var graphics = _this.getGraphics();
+        _this.add(graphics);
+        var span = _this.getSpan();
+        _this.add(span);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSAction) {
+                    var action = args[0];
+                    _this.setAction(action);
+                }
+                else if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var text = args[0];
+                    var icon = args[1];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSButton.prototype.init = function () {
+        this.addClass("JSButton");
+    };
+    JSButton.prototype.getGraphics = function () {
+        var graphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSButtonGraphics();
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    };
+    JSButton.prototype.getSpan = function () {
+        var span = this.getData("span");
+        if (!span) {
+            span = new JSButtonSpan();
+            this.setData("span", span);
+        }
+        return span;
+    };
+    JSButton.prototype.setIcon = function (icon) {
+        _super.prototype.setIcon.call(this, icon);
+        var span = this.getSpan();
+        var text = span.getText();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    };
+    JSButton.prototype.getText = function () {
+        var span = this.getSpan();
+        return span.getText();
+    };
+    JSButton.prototype.setText = function (text) {
+        var span = this.getSpan();
+        span.setText(text);
+        var icon = this.getIcon();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    };
+    JSButton.prototype.isUndecorated = function () {
+        return this.hasClass("undecorated");
+    };
+    JSButton.prototype.setUndecorated = function (undecorated) {
+        if (undecorated) {
+            this.addClass("undecorated");
+        }
+        else {
+            this.removeClass("undecorated");
+        }
+    };
+    return JSButton;
+}(JSHTMLComponent));
+var JSCheckBox = (function (_super) {
+    __extends(JSCheckBox, _super);
+    function JSCheckBox() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("white-space", "nowrap");
+        var input = _this.getInput();
+        _this.add(input);
+        var label = _this.getLabel();
+        _this.add(label);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSAction) {
+                    var action = args[0];
+                    _this.setAction(action);
+                }
+                else if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
+                    var icon = args[0];
+                    var selected = args[1];
+                    _this.setIcon(icon);
+                    _this.setSelected(selected);
+                }
+                else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
+                    var text = args[0];
+                    var selected = args[1];
+                    _this.setText(text);
+                    _this.setSelected(selected);
+                }
+                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var text = args[0];
+                    var icon = args[1];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            case 3:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
+                    var text = args[0];
+                    var icon = args[1];
+                    var selected = args[2];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                    _this.setSelected(selected);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSCheckBox.prototype.init = function () {
+        this.addClass("JSCheckBox");
+    };
+    JSCheckBox.prototype.getInput = function () {
+        var input = this.getData("input");
+        if (!input) {
+            input = new JSCheckBoxInput();
+            this.setData("input", input);
+        }
+        return input;
+    };
+    JSCheckBox.prototype.getLabel = function () {
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSCheckBoxLabel();
+            this.setData("label", label);
+        }
+        return label;
+    };
+    JSCheckBox.prototype.getIcon = function () {
+        var label = this.getLabel();
+        return label.getIcon();
+    };
+    JSCheckBox.prototype.setIcon = function (icon) {
+        var label = this.getLabel();
+        label.setIcon(icon);
+    };
+    JSCheckBox.prototype.getText = function () {
+        var label = this.getLabel();
+        return label.getText();
+    };
+    JSCheckBox.prototype.setText = function (text) {
+        var label = this.getLabel();
+        label.setText(text);
+    };
+    JSCheckBox.prototype.isSelected = function () {
+        var input = this.getInput();
+        return input.isSelected();
+    };
+    JSCheckBox.prototype.setSelected = function (selected) {
+        var input = this.getInput();
+        input.setSelected(selected);
+    };
+    return JSCheckBox;
+}(JSHTMLComponent));
+var JSCheckBoxInput = (function (_super) {
+    __extends(JSCheckBoxInput, _super);
+    function JSCheckBoxInput() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        _this.setAttribute("type", "checkbox");
+        _this.setStyle("vertical-align", "middle");
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "boolean") {
+                    var selected = args[0];
+                    _this.setAttribute("checked", "" + selected);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSCheckBoxInput.prototype.init = function () {
+        this.addClass("JSCheckBoxInput");
+    };
+    JSCheckBoxInput.prototype.setSelected = function (selected) {
+        this.element.checked = selected;
+    };
+    JSCheckBoxInput.prototype.isSelected = function () {
+        return this.element.checked;
+    };
+    return JSCheckBoxInput;
+}(JSHTMLComponent));
+var JSComboBox = (function (_super) {
+    __extends(JSComboBox, _super);
+    function JSComboBox() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof Array) {
+                    var items = args[0];
+                    _this.setItems(items);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSComboBox.prototype.init = function () {
+        this.addClass("JSComboBox");
+    };
+    JSComboBox.prototype.getItems = function () {
+        return this.getData("item");
+    };
+    JSComboBox.prototype.setItems = function (items) {
+        this.setData("items", items);
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var option = new JSOption(item);
+            this.add(option);
+        }
+    };
+    JSComboBox.prototype.getSelectedIndex = function () {
+        return this.element.selectedIndex;
+    };
+    JSComboBox.prototype.getSelectedItem = function () {
+        var items = this.getItems();
+        var selectedIndex = this.getSelectedIndex();
+        return items[selectedIndex];
+    };
+    return JSComboBox;
+}(JSHTMLComponent));
+var JSDefs = (function (_super) {
+    __extends(JSDefs, _super);
+    function JSDefs() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]) || this;
+    }
+    JSDefs.prototype.init = function () {
+        this.addClass("JSDefs");
+    };
+    return JSDefs;
+}(JSSVGComponent));
+var JSDiv = (function (_super) {
+    __extends(JSDiv, _super);
+    function JSDiv() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+    }
+    JSDiv.prototype.init = function () {
+        this.addClass("JSDiv");
+    };
+    return JSDiv;
+}(JSHTMLComponent));
+var JSFileChooser = (function (_super) {
+    __extends(JSFileChooser, _super);
+    function JSFileChooser() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        _this.setAttribute("type", "file");
+        _this.setStyle("display", "none");
+        JSBody.getInstance().setFileChooser(_this);
+        _this.addChangeListener({
+            stateChanged: function (event, source) {
+                var fileChooser = source;
+                fileChooser.setSelectedFiles(fileChooser.element.files);
+            }
+        });
+        return _this;
+    }
+    JSFileChooser.prototype.init = function () {
+        this.addClass("JSFileChooser");
+    };
+    JSFileChooser.prototype.getFileFilter = function () {
+        return this.getAttribute("accept");
+    };
+    JSFileChooser.prototype.setFileFilter = function (fileFilter) {
+        this.setAttribute("accept", fileFilter);
+    };
+    JSFileChooser.prototype.showOpenDialog = function () {
+        this.element.click();
+    };
+    JSFileChooser.prototype.getSelectedFiles = function () {
+        return this.selectedFiles;
+    };
+    JSFileChooser.prototype.setSelectedFiles = function (selectedFiles) {
+        this.selectedFiles = selectedFiles;
+    };
+    return JSFileChooser;
+}(JSHTMLComponent));
+var JSForm = (function (_super) {
+    __extends(JSForm, _super);
+    function JSForm() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]) || this;
+    }
+    JSForm.post = function (url, params) {
+        if (params) {
+            new JSForm().post(url, params);
+        }
+        else {
+            new JSForm().post(url);
+        }
+    };
+    JSForm.prototype.init = function () {
+        this.addClass("JSForm");
+    };
+    JSForm.prototype.getMethod = function () {
+        return this.element.method;
+    };
+    JSForm.prototype.setMethod = function (method) {
+        this.element.method = method;
+    };
+    JSForm.prototype.getUrl = function () {
+        return this.element.action;
+    };
+    JSForm.prototype.setUrl = function (url) {
+        this.element.action = url;
+    };
+    JSForm.prototype.submit = function () {
+        JSBody.getInstance().add(this);
+        this.element.submit();
+    };
+    JSForm.prototype.post = function (url, params) {
+        this.setMethod(JSForm.POST);
+        this.setUrl(url);
+        this.submit();
+    };
+    JSForm.POST = "post";
+    JSForm.GET = "get";
+    return JSForm;
+}(JSHTMLComponent));
+var JSFrame = (function (_super) {
+    __extends(JSFrame, _super);
+    function JSFrame() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setVisible(false);
+        var body = JSBody.getInstance();
+        body.setContentPane(_this);
+        _super.prototype.setLayout.call(_this, new JSBorderLayout());
+        var titleLabel = _this.getTitleLabel();
+        _super.prototype.add.call(_this, titleLabel, JSLayout.NORTH);
+        var menuBarContainer = _this.getMenuBarContainer();
+        _super.prototype.add.call(_this, menuBarContainer, JSLayout.NORTH);
+        var contentPane = _this.getContentPane();
+        _super.prototype.add.call(_this, contentPane);
+        return _this;
+    }
+    JSFrame.prototype.init = function () {
+        this.addClass("JSFrame");
+    };
+    JSFrame.prototype.getTitleLabel = function () {
+        var titleLabel = this.getData("frameTitleLabel");
+        if (!titleLabel) {
+            titleLabel = new JSFrameTitleLabel();
+            titleLabel.setPreferredHeight(0);
+            this.setData("frameTitleLabel", titleLabel);
+        }
+        return titleLabel;
+    };
+    JSFrame.prototype.getMenuBarContainer = function () {
+        var menuBarContainer = this.getData("menuBarContainer");
+        if (!menuBarContainer) {
+            menuBarContainer = new JSFrameMenuBarContainer();
+            this.setData("menuBarContainer", menuBarContainer);
+        }
+        return menuBarContainer;
+    };
+    JSFrame.prototype.getContentPane = function () {
+        var contentPane = this.getData("contentPane");
+        if (!contentPane) {
+            contentPane = new JSPanel();
+            this.setData("contentPane", contentPane);
+        }
+        return contentPane;
+    };
+    JSFrame.prototype.setContentPane = function (contentPane) {
+        var oldContentPane = this.getData("contentPane");
+        if (oldContentPane) {
+            this.remove(oldContentPane);
+        }
+        if (contentPane) {
+            _super.prototype.add.call(this, contentPane);
+        }
+        this.setData("contentPane", contentPane);
+    };
+    JSFrame.prototype.getTitle = function () {
+        var titleLabel = this.getTitleLabel();
+        return titleLabel.getText();
+    };
+    JSFrame.prototype.setTitle = function (title) {
+        var titleLabel = this.getTitleLabel();
+        titleLabel.setText(title);
+        if (title) {
+            titleLabel.setPreferredHeight(null);
+        }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    };
+    JSFrame.prototype.setMenuBar = function (menuBar) {
+        var menuBarContainer = this.getMenuBarContainer();
+        menuBarContainer.add(menuBar);
+    };
+    JSFrame.prototype.setLayout = function (layout) {
+        var contentPane = this.getContentPane();
+        contentPane.setLayout(layout);
+    };
+    JSFrame.prototype.add = function () {
+        var contentPane = this.getContentPane();
+        contentPane.add.apply(this, arguments);
+    };
+    JSFrame.prototype.setVisible = function (visible) {
+        if (visible) {
+            var body = JSBody.getInstance();
+            body.revalidate();
+        }
+        _super.prototype.setVisible.call(this, visible);
+    };
+    return JSFrame;
+}(JSHTMLComponent));
+var JSGridBagLayout = (function (_super) {
+    __extends(JSGridBagLayout, _super);
+    function JSGridBagLayout() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this) || this;
+        _this.hgap = 0;
+        _this.vgap = 0;
         switch (args.length) {
             case 2:
                 if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var width = args[0];
-                    var height = args[1];
+                    var hgap = args[0];
+                    var vgap = args[1];
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSGridBagLayout.prototype.getHgap = function () {
+        return this.hgap;
+    };
+    JSGridBagLayout.prototype.setHgap = function (hgap) {
+        this.hgap = hgap;
+    };
+    JSGridBagLayout.prototype.getVgap = function () {
+        return this.vgap;
+    };
+    JSGridBagLayout.prototype.setVgap = function (vgap) {
+        this.vgap = vgap;
+    };
+    JSGridBagLayout.prototype.addLayoutComponent = function (component) {
+        component.setStyle("position", "absolute");
+    };
+    JSGridBagLayout.prototype.preferredLayoutWidth = function (container) {
+        var preferredLayoutWidth = 0;
+        var width = container.getWidth();
+        var components = container.getComponents().slice();
+        components.sort(function (a, b) {
+            var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
+            var d = ((b.getConstraints() || {}).gridx || 0) + ((b.getConstraints() || {}).gridwidth || 1);
+            if (c < d) {
+                return -1;
+            }
+            if (c > d) {
+                return 1;
+            }
+            return 0;
+        });
+        var widthsPx = [];
+        var weightxs = [];
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return null;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridx = constraints.gridx || 0;
+            var gridwidth = constraints.gridwidth || 1;
+            if (gridwidth === 1) {
+                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
+            }
+            else {
+                widthsPx[gridx + gridwidth - 1] = Math.max(widthsPx[gridx + gridwidth - 1] || 0, componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
+            }
+            var weightx = (constraints.weightx || 0) / gridwidth;
+            for (var j = 0; j < gridwidth; j++) {
+                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
+            }
+        }
+        var hgap = this.getHgap();
+        for (var i = 0; i < widthsPx.length; i++) {
+            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
+        }
+        if (preferredLayoutWidth != 0) {
+            preferredLayoutWidth -= hgap;
+        }
+        if (width) {
+            var extraHorizontalSpace = width - preferredLayoutWidth;
+            if (extraHorizontalSpace) {
+                var sum = 0;
+                for (var i = 0; i < weightxs.length; i++) {
+                    sum += weightxs[i] || 0;
+                }
+                if (sum) {
+                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
+                }
+            }
+        }
+        return preferredLayoutWidth;
+    };
+    JSGridBagLayout.prototype.preferredLayoutHeight = function (container) {
+        var preferredLayoutHeight = 0;
+        var height = container.getHeight();
+        var components = container.getComponents().slice();
+        components.sort(function (a, b) {
+            var c = ((a.getConstraints() || {}).gridy || 0) + ((a.getConstraints() || {}).gridheight || 1);
+            var d = ((b.getConstraints() || {}).gridy || 0) + ((b.getConstraints() || {}).gridheight || 1);
+            if (c < d) {
+                return -1;
+            }
+            if (c > d) {
+                return 1;
+            }
+            return 0;
+        });
+        var heightsPx = [];
+        var weightys = [];
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return null;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridy = constraints.gridy || 0;
+            var gridheight = constraints.gridheight || 1;
+            if (gridheight === 1) {
+                heightsPx[gridy] = Math.max(heightsPx[gridy] || 0, componentPreferredOuterHeight);
+            }
+            else {
+                heightsPx[gridy + gridheight - 1] = Math.max(heightsPx[gridy + gridheight - 1] || 0, componentPreferredOuterHeight - (heightsPx[gridy + gridheight - 2] || 0));
+            }
+            var weighty = (constraints.weighty || 0) / gridheight;
+            for (var j = 0; j < gridheight; j++) {
+                weightys[gridy + j] = Math.max(weightys[gridy + j] || 0, weighty);
+            }
+        }
+        var vgap = this.getVgap();
+        for (var i = 0; i < heightsPx.length; i++) {
+            preferredLayoutHeight += (heightsPx[i] || 0) + vgap;
+        }
+        if (preferredLayoutHeight != 0) {
+            preferredLayoutHeight -= vgap;
+        }
+        if (height) {
+            var extraVerticalSpace = height - preferredLayoutHeight;
+            if (extraVerticalSpace) {
+                var sum = 0;
+                for (var i = 0; i < weightys.length; i++) {
+                    sum += weightys[i] || 0;
+                }
+                if (sum) {
+                    preferredLayoutHeight = Math.max(preferredLayoutHeight, height);
+                }
+            }
+        }
+        return preferredLayoutHeight;
+    };
+    JSGridBagLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var preferredLayoutWidth = 0;
+        var width = container.getWidth();
+        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
+        var components = container.getComponents().slice();
+        components.sort(function (a, b) {
+            var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
+            var d = ((b.getConstraints() || {}).gridx || 0) + ((b.getConstraints() || {}).gridwidth || 1);
+            if (c < d) {
+                return -1;
+            }
+            if (c > d) {
+                return 1;
+            }
+            return 0;
+        });
+        var widthsPx = [];
+        var widthsPc = [];
+        var weightxs = [];
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridx = constraints.gridx || 0;
+            var gridwidth = constraints.gridwidth || 1;
+            if (gridwidth === 1) {
+                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
+            }
+            else {
+                widthsPx[gridx + gridwidth - 1] = Math.max(widthsPx[gridx + gridwidth - 1] || 0, componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
+            }
+            var weightx = (constraints.weightx || 0) / gridwidth;
+            for (var j = 0; j < gridwidth; j++) {
+                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
+            }
+        }
+        var hgap = this.getHgap();
+        for (var i = 0; i < widthsPx.length; i++) {
+            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
+        }
+        if (preferredLayoutWidth != 0) {
+            preferredLayoutWidth -= hgap;
+        }
+        if (width) {
+            var extraHorizontalSpace = width - preferredLayoutWidth;
+            if (extraHorizontalSpace) {
+                var sum = 0;
+                for (var i = 0; i < weightxs.length; i++) {
+                    sum += weightxs[i] || 0;
+                }
+                if (sum) {
+                    for (var i = 0; i < widthsPx.length; i++) {
+                        widthsPx[i] = (widthsPx[i] || 0) + extraHorizontalSpace * (weightxs[i] || 0) / sum - width100 * (weightxs[i] || 0) / sum;
+                        widthsPc[i] = 100 * (weightxs[i] || 0) / sum;
+                    }
+                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
+                }
+            }
+        }
+        var xsPx = [];
+        var xsPc = [];
+        var extraHorizontalSpace = width - preferredLayoutWidth;
+        if (extraHorizontalSpace) {
+            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
+            xsPc[0] = 50;
+        }
+        else {
+            xsPx[0] = container.getInsetLeft();
+            xsPc[0] = 0;
+        }
+        for (var i = 0; i < widthsPx.length; i++) {
+            xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
+            xsPc[i + 1] = xsPc[i] + (widthsPc[i] || 0);
+        }
+        components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridx = constraints.gridx || 0;
+            var gridwidth = constraints.gridwidth || 1;
+            var fill = constraints.fill;
+            var anchor = constraints.anchor;
+            switch (fill) {
+                case JSGridBagLayout.BOTH:
+                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
+                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
+                    break;
+                case JSGridBagLayout.HORIZONTAL:
+                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
+                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
+                    break;
+                case JSGridBagLayout.VERTICAL:
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    if (componentPreferredOuterWidth === null) {
+                        return;
+                    }
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    switch (anchor) {
+                        case JSGridBagLayout.WEST:
+                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
+                            break;
+                        case JSGridBagLayout.EAST:
+                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
+                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
+                            break;
+                        case JSGridBagLayout.CENTER:
+                        default:
+                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
+                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
+                            component.setX(xPx + xPc * width100 / 100);
+                    }
+                    break;
+                case JSGridBagLayout.NONE:
+                default:
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    if (componentPreferredOuterWidth === null) {
+                        return;
+                    }
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    switch (anchor) {
+                        case JSGridBagLayout.WEST:
+                        case JSGridBagLayout.NORTHWEST:
+                        case JSGridBagLayout.SOUTHWEST:
+                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
+                            break;
+                        case JSGridBagLayout.EAST:
+                        case JSGridBagLayout.NORTHEAST:
+                        case JSGridBagLayout.SOUTHEAST:
+                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
+                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
+                            break;
+                        case JSGridBagLayout.CENTER:
+                        default:
+                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
+                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
+                            component.setX(xPx + xPc * width100 / 100);
+                    }
+            }
+        }
+        container.setValidHorizontally(true);
+    };
+    JSGridBagLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        if (!container.isValidHorizontally()) {
+            return;
+        }
+        var preferredLayoutHeight = 0;
+        var height = container.getHeight();
+        var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
+        var components = container.getComponents().slice();
+        components.sort(function (a, b) {
+            var c = ((a.getConstraints() || {}).gridy || 0) + ((a.getConstraints() || {}).gridheight || 1);
+            var d = ((b.getConstraints() || {}).gridy || 0) + ((b.getConstraints() || {}).gridheight || 1);
+            if (c < d) {
+                return -1;
+            }
+            if (c > d) {
+                return 1;
+            }
+            return 0;
+        });
+        var heightsPx = [];
+        var heightsPc = [];
+        var weightys = [];
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridy = constraints.gridy || 0;
+            var gridheight = constraints.gridheight || 1;
+            if (gridheight === 1) {
+                heightsPx[gridy] = Math.max(heightsPx[gridy] || 0, componentPreferredOuterHeight);
+            }
+            else {
+                heightsPx[gridy + gridheight - 1] = Math.max(heightsPx[gridy + gridheight - 1] || 0, componentPreferredOuterHeight - (heightsPx[gridy + gridheight - 2] || 0));
+            }
+            var weighty = (constraints.weighty || 0) / gridheight;
+            for (var j = 0; j < gridheight; j++) {
+                weightys[gridy + j] = Math.max(weightys[gridy + j] || 0, weighty);
+            }
+        }
+        var vgap = this.getVgap();
+        for (var i = 0; i < heightsPx.length; i++) {
+            preferredLayoutHeight += (heightsPx[i] || 0) + vgap;
+        }
+        if (preferredLayoutHeight != 0) {
+            preferredLayoutHeight -= vgap;
+        }
+        if (height) {
+            var extraVerticalSpace = height - preferredLayoutHeight;
+            if (extraVerticalSpace) {
+                var sum = 0;
+                for (var i = 0; i < weightys.length; i++) {
+                    sum += weightys[i] || 0;
+                }
+                if (sum) {
+                    for (var i = 0; i < heightsPx.length; i++) {
+                        heightsPx[i] = (heightsPx[i] || 0) + extraVerticalSpace * (weightys[i] || 0) / sum - height100 * (weightys[i] || 0) / sum;
+                        heightsPc[i] = 100 * (weightys[i] || 0) / sum;
+                    }
+                    preferredLayoutHeight = Math.max(preferredLayoutHeight, height);
+                }
+            }
+        }
+        var ysPx = [];
+        var ysPc = [];
+        var extraVerticalSpace = height - preferredLayoutHeight;
+        if (extraVerticalSpace) {
+            ysPx[0] = container.getInsetTop() + (height - preferredLayoutHeight) / 2 - height100 / 2;
+            ysPc[0] = 50;
+        }
+        else {
+            ysPx[0] = container.getInsetTop();
+            ysPc[0] = 0;
+        }
+        for (var i = 0; i < heightsPx.length; i++) {
+            ysPx[i + 1] = ysPx[i] + (heightsPx[i] || 0) + vgap;
+            ysPc[i + 1] = ysPc[i] + (heightsPc[i] || 0);
+        }
+        components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var constraints = component.getConstraints() || {};
+            var gridy = constraints.gridy || 0;
+            var gridheight = constraints.gridheight || 1;
+            var fill = constraints.fill;
+            var anchor = constraints.anchor;
+            switch (fill) {
+                case JSGridBagLayout.BOTH:
+                    component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
+                    component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
+                    break;
+                case JSGridBagLayout.HORIZONTAL:
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    if (componentPreferredOuterHeight === null) {
+                        return;
+                    }
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    switch (anchor) {
+                        case JSGridBagLayout.NORTH:
+                            component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
+                            break;
+                        case JSGridBagLayout.SOUTH:
+                            var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
+                            component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
+                            break;
+                        case JSGridBagLayout.CENTER:
+                        default:
+                            var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
+                            var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
+                            component.setY(yPx + yPc * height100 / 100);
+                    }
+                    break;
+                case JSGridBagLayout.VERTICAL:
+                    component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
+                    component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
+                    break;
+                case JSGridBagLayout.NONE:
+                default:
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    if (componentPreferredOuterHeight === null) {
+                        return;
+                    }
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    switch (anchor) {
+                        case JSGridBagLayout.NORTH:
+                        case JSGridBagLayout.NORTHWEST:
+                        case JSGridBagLayout.NORTHEAST:
+                            component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
+                            break;
+                        case JSGridBagLayout.SOUTH:
+                        case JSGridBagLayout.SOUTHWEST:
+                        case JSGridBagLayout.SOUTHEAST:
+                            var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
+                            component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
+                            break;
+                        case JSGridBagLayout.CENTER:
+                        default:
+                            var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
+                            var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
+                            component.setY(yPx + yPc * height100 / 100);
+                    }
+            }
+        }
+        container.setValidVertically(true);
+    };
+    return JSGridBagLayout;
+}(JSLayout));
+var JSImage = (function (_super) {
+    __extends(JSImage, _super);
+    function JSImage() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]) || this;
+        _this.setStyle("draggable", "false");
+        _this.setStyle("-webkit-user-drag", "none");
+        switch (args.length) {
+            case 0:
+                break;
+            case 1:
+                if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var source = args[0];
+                    _this.setSource(source);
+                }
+                break;
+            case 3:
+                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                    var source = args[0];
+                    var width = args[1];
+                    var height = args[2];
+                    _this.setSource(source);
                     _this.setWidth(width);
                     _this.setHeight(height);
                 }
@@ -1369,57 +5020,17 @@ var JSSVG = (function (_super) {
         }
         return _this;
     }
-    JSSVG.prototype.init = function () {
-        this.addClass("JSSVG");
+    JSImage.prototype.init = function () {
+        this.addClass("JSImage");
     };
-    JSSVG.prototype.setX = function (x) {
-        this.setStyle("left", x + "px");
+    JSImage.prototype.getSource = function () {
+        return this.getAttribute("src");
     };
-    JSSVG.prototype.setY = function (y) {
-        this.setStyle("top", y + "px");
+    JSImage.prototype.setSource = function (source) {
+        this.setAttribute("src", source);
     };
-    JSSVG.prototype.getViewBox = function () {
-        return this.getAttribute("viewBox");
-    };
-    JSSVG.prototype.setViewBox = function (viewBox) {
-        this.setAttribute("viewBox", viewBox);
-    };
-    return JSSVG;
-}(JSSVGComponent));
-var JSIcon = (function () {
-    function JSIcon() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
-            case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var iconWidth = args[0];
-                    var iconHeight = args[1];
-                    this.setIconWidth(iconWidth);
-                    this.setIconHeight(iconHeight);
-                }
-                break;
-            default:
-        }
-    }
-    JSIcon.prototype.getIconWidth = function () {
-        return this.iconWidth;
-    };
-    JSIcon.prototype.setIconWidth = function (iconWidth) {
-        this.iconWidth = iconWidth;
-    };
-    JSIcon.prototype.getIconHeight = function () {
-        return this.iconHeight;
-    };
-    JSIcon.prototype.setIconHeight = function (iconHeight) {
-        this.iconHeight = iconHeight;
-    };
-    JSIcon.prototype.paintIcon = function (component, graphics) {
-    };
-    return JSIcon;
-}());
+    return JSImage;
+}(JSHTMLComponent));
 var JSImageIcon = (function (_super) {
     __extends(JSImageIcon, _super);
     function JSImageIcon() {
@@ -1465,6 +5076,325 @@ var JSImageIcon = (function (_super) {
     };
     return JSImageIcon;
 }(JSIcon));
+var JSLabel = (function (_super) {
+    __extends(JSLabel, _super);
+    function JSLabel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
+        var graphics = _this.getGraphics();
+        _this.add(graphics);
+        var span = _this.getSpan();
+        _this.add(span);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (args[0] instanceof JSIcon && typeof args[1] === "string") {
+                    var icon = args[0];
+                    var horizontalAlignment = args[1];
+                    _this.setIcon(icon);
+                    _this.setStyle("text-align", horizontalAlignment);
+                }
+                else if (typeof args[0] === "string" && typeof args[1] === "string") {
+                    var text = args[0];
+                    var horizontalAlignment = args[1];
+                    _this.setText(text);
+                    _this.setStyle("text-align", horizontalAlignment);
+                }
+                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var text = args[0];
+                    var icon = args[1];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            case 3:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "string") {
+                    var text = args[0];
+                    var icon = args[1];
+                    var horizontalAlignment = args[2];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                    _this.setStyle("text-align", horizontalAlignment);
+                }
+                break;
+            default:
+        }
+        _this.setStyle("white-space", "nowrap");
+        return _this;
+    }
+    JSLabel.prototype.init = function () {
+        this.addClass("JSLabel");
+    };
+    JSLabel.prototype.getGraphics = function () {
+        var graphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSLabelGraphics();
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    };
+    JSLabel.prototype.getSpan = function () {
+        var span = this.getData("span");
+        if (!span) {
+            span = new JSLabelSpan();
+            this.setData("span", span);
+        }
+        return span;
+    };
+    JSLabel.prototype.setIcon = function (icon) {
+        _super.prototype.setIcon.call(this, icon);
+        var span = this.getSpan();
+        var text = span.getText();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    };
+    JSLabel.prototype.getText = function () {
+        var span = this.getSpan();
+        return span.getText();
+    };
+    JSLabel.prototype.setText = function (text) {
+        var span = this.getSpan();
+        span.setText(text);
+        var icon = this.getIcon();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    };
+    JSLabel.prototype.getFor = function () {
+        return this.getAttribute("for");
+    };
+    JSLabel.prototype.setFor = function (id) {
+        this.setAttribute("for", id);
+    };
+    JSLabel.prototype.isUndecorated = function () {
+        return this.hasClass("undecorated");
+    };
+    JSLabel.prototype.setUndecorated = function (undecorated) {
+        if (undecorated) {
+            this.addClass("undecorated");
+        }
+        else {
+            this.removeClass("undecorated");
+        }
+    };
+    return JSLabel;
+}(JSHTMLComponent));
+var JSLI = (function (_super) {
+    __extends(JSLI, _super);
+    function JSLI() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLIElement) ? document.createElement("li") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSLI.prototype.init = function () {
+        this.addClass("JSLI");
+    };
+    return JSLI;
+}(JSHTMLComponent));
+var JSMarker = (function (_super) {
+    __extends(JSMarker, _super);
+    function JSMarker() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]) || this;
+    }
+    JSMarker.prototype.init = function () {
+        this.addClass("JSMarker");
+    };
+    return JSMarker;
+}(JSSVGComponent));
+var JSOList = (function (_super) {
+    __extends(JSOList, _super);
+    function JSOList() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOListElement) ? document.createElement("ol") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof Array) {
+                    var items = args[0];
+                    _this.setItems(items);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSOList.prototype.init = function () {
+        this.addClass("JSOList");
+    };
+    JSOList.prototype.getItems = function () {
+        return this.getData("item");
+    };
+    JSOList.prototype.setItems = function (items) {
+        this.setData("items", items);
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var li = new JSLI(item);
+            this.add(li);
+        }
+    };
+    JSOList.prototype.getType = function () {
+        return this.getAttribute("type");
+    };
+    JSOList.prototype.setType = function (t) {
+        this.setAttribute("type", t);
+    };
+    JSOList.prototype.withType = function (t) {
+        this.setType(t);
+        return this;
+    };
+    return JSOList;
+}(JSHTMLComponent));
+var JSOption = (function (_super) {
+    __extends(JSOption, _super);
+    function JSOption() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                    _this.setValue(text);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSOption.prototype.init = function () {
+        this.addClass("JSOption");
+    };
+    JSOption.prototype.getText = function () {
+        return this.element.text;
+    };
+    JSOption.prototype.setText = function (text) {
+        this.element.text = "" + text;
+    };
+    JSOption.prototype.getValue = function () {
+        return this.element.value;
+    };
+    JSOption.prototype.setValue = function (value) {
+        this.element.value = value;
+    };
+    return JSOption;
+}(JSHTMLComponent));
+var JSParagraph = (function (_super) {
+    __extends(JSParagraph, _super);
+    function JSParagraph() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && typeof args[1] === "string") {
+                    var text = args[0];
+                    var horizontalAlignment = args[1];
+                    _this.setText(text);
+                    _this.setStyle("text-align", horizontalAlignment);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSParagraph.prototype.init = function () {
+        this.addClass("JSParagraph");
+    };
+    return JSParagraph;
+}(JSHTMLComponent));
+var JSPanel = (function (_super) {
+    __extends(JSPanel, _super);
+    function JSPanel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSLayout) {
+                    var layout = args[0];
+                    _this.setLayout(layout);
+                }
+                break;
+            default:
+        }
+        _this.setStyle("display", "inline-block");
+        return _this;
+    }
+    JSPanel.prototype.init = function () {
+        this.addClass("JSPanel");
+    };
+    return JSPanel;
+}(JSHTMLComponent));
+var JSPath = (function (_super) {
+    __extends(JSPath, _super);
+    function JSPath() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var definition = args[0];
+                    _this.setDefinition(definition);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSPath.prototype.init = function () {
+        this.addClass("JSPath");
+    };
+    JSPath.prototype.getDefinition = function () {
+        return this.getAttributeNS("d");
+    };
+    JSPath.prototype.setDefinition = function (definition) {
+        this.setAttributeNS("d", definition);
+    };
+    return JSPath;
+}(JSSVGComponent));
 var JSPathIcon = (function (_super) {
     __extends(JSPathIcon, _super);
     function JSPathIcon() {
@@ -1558,3620 +5488,6 @@ var JSPathIcon = (function (_super) {
     };
     return JSPathIcon;
 }(JSImageIcon));
-var JSPanel = (function (_super) {
-    __extends(JSPanel, _super);
-    function JSPanel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSLayout) {
-                    var layout = args[0];
-                    _this.setLayout(layout);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSPanel.prototype.init = function () {
-        this.addClass("JSPanel");
-    };
-    return JSPanel;
-}(JSHTMLComponent));
-var JSAction = (function () {
-    function JSAction() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var name = args[0];
-                    this.setName(name);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var name = args[0];
-                    var icon = args[1];
-                    this.setName(name);
-                    this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        this.setPropertyChangeSupport(new JSPropertyChangeSupport());
-    }
-    JSAction.prototype.getName = function () {
-        return this.name;
-    };
-    JSAction.prototype.setName = function (name) {
-        this.name = name;
-    };
-    JSAction.prototype.getIcon = function () {
-        return this.icon;
-    };
-    JSAction.prototype.setIcon = function (icon) {
-        this.icon = icon;
-    };
-    JSAction.prototype.isEnabled = function () {
-        return this.enabled;
-    };
-    JSAction.prototype.setEnabled = function (enabled) {
-        var oldEnabled = this.isEnabled();
-        if (oldEnabled !== enabled) {
-            this.enabled = enabled;
-            this.firePropertyChange(new JSPropertyChangeEvent(this, "enabled", oldEnabled, enabled));
-        }
-    };
-    JSAction.prototype.actionPerformed = function (mouseEvent) {
-    };
-    JSAction.prototype.getPropertyChangeSupport = function () {
-        return this.propertyChangeSupport;
-    };
-    JSAction.prototype.setPropertyChangeSupport = function (propertyChangeSupport) {
-        this.propertyChangeSupport = propertyChangeSupport;
-    };
-    JSAction.prototype.addPropertyChangeListener = function (propertyChangeListener) {
-        this.getPropertyChangeSupport().addPropertyChangeListener(propertyChangeListener);
-    };
-    JSAction.prototype.removePropertyChangeListener = function (propertyChangeListener) {
-        this.getPropertyChangeSupport().removePropertyChangeListener(propertyChangeListener);
-    };
-    JSAction.prototype.firePropertyChange = function (propertyChangeEvent) {
-        this.getPropertyChangeSupport().firePropertyChange(propertyChangeEvent);
-    };
-    return JSAction;
-}());
-var JSActionListener = (function () {
-    function JSActionListener(actionListener) {
-        this.parameters = [];
-        var jsActionListener = this;
-        this.actionPerformed = function (mouseEvent) {
-            var parameters = jsActionListener.getParameters().slice();
-            parameters.unshift(mouseEvent);
-            actionListener.actionPerformed.apply(actionListener, parameters);
-        };
-    }
-    JSActionListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSActionListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSActionListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSActionListener;
-}());
-var JSAdjustmentListener = (function () {
-    function JSAdjustmentListener(adjustmentListener) {
-        this.parameters = [];
-        var jsAdjustmentListener = this;
-        this.adjustmentValueChanged = function (event) {
-            var parameters = jsAdjustmentListener.getParameters().slice();
-            parameters.unshift(event);
-            adjustmentListener.adjustmentValueChanged.apply(adjustmentListener, parameters);
-        };
-    }
-    JSAdjustmentListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSAdjustmentListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSAdjustmentListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSAdjustmentListener;
-}());
-var JSBody = (function (_super) {
-    __extends(JSBody, _super);
-    function JSBody() {
-        var _this = _super.call(this, document.body) || this;
-        _this.setLayout(new JSBorderLayout());
-        var svg = _this.getSVG();
-        _this.add(svg, JSBorderLayout.NORTH);
-        var defs = _this.getDefs();
-        svg.add(defs);
-        var popupMenuContainer = _this.getPopupMenuContainer();
-        _this.add(popupMenuContainer, JSBorderLayout.NORTH);
-        var dragImageContainer = _this.getDragImageContainer();
-        _this.add(dragImageContainer, JSBorderLayout.NORTH);
-        _this.addMouseListener(_this, true);
-        window.addEventListener("resize", function () {
-            JSBody.getInstance().validate();
-        });
-        return _this;
-    }
-    JSBody.getInstance = function () {
-        if (JSBody.instance === undefined) {
-            JSBody.instance = new JSBody();
-        }
-        return JSBody.instance;
-    };
-    JSBody.prototype.init = function () {
-        this.addClass("JSBody");
-    };
-    JSBody.prototype.setContentPane = function (contentPane) {
-        var oldContentPane = this.getData("contentPane");
-        if (oldContentPane) {
-            this.remove(oldContentPane);
-        }
-        if (contentPane) {
-            this.add(contentPane);
-        }
-        this.setData("contentPane", contentPane);
-    };
-    JSBody.prototype.getSVG = function () {
-        var svg = this.getData("svg");
-        if (!svg) {
-            svg = new JSSVG();
-            svg.setWidth(0);
-            svg.setHeight(0);
-            this.setData("svg", svg);
-        }
-        return svg;
-    };
-    JSBody.prototype.getDefs = function () {
-        var defs = this.getData("defs");
-        if (!defs) {
-            defs = new JSDefs();
-            this.setData("defs", defs);
-        }
-        return defs;
-    };
-    JSBody.prototype.getPopupMenuContainer = function () {
-        var popupMenuContainer = this.getData("popupMenuContainer");
-        if (!popupMenuContainer) {
-            popupMenuContainer = new JSPanel();
-            this.setData("popupMenuContainer", popupMenuContainer);
-        }
-        return popupMenuContainer;
-    };
-    JSBody.prototype.getPopupMenu = function () {
-        return this.popupMenu;
-    };
-    JSBody.prototype.setPopupMenu = function (popupMenu) {
-        var oldPopupMenu = this.getPopupMenu();
-        if (oldPopupMenu !== popupMenu) {
-            var popupMenuContainer = this.getPopupMenuContainer();
-            if (oldPopupMenu) {
-                popupMenuContainer.remove(oldPopupMenu);
-            }
-            if (popupMenu) {
-                popupMenuContainer.add(popupMenu);
-                popupMenu.validate();
-            }
-        }
-        this.popupMenu = popupMenu;
-    };
-    JSBody.prototype.getDragImageContainer = function () {
-        var dragImageContainer = this.getData("dragImageContainer");
-        if (!dragImageContainer) {
-            dragImageContainer = new JSPanel();
-            dragImageContainer.setVisible(false);
-            this.setData("dragImageContainer", dragImageContainer);
-        }
-        return dragImageContainer;
-    };
-    JSBody.prototype.getDragImage = function () {
-        return this.dragImage;
-    };
-    JSBody.prototype.setDragImage = function (dragImage) {
-        var oldDragImage = this.getDragImage();
-        if (oldDragImage !== dragImage) {
-            var dragImageContainer = this.getDragImageContainer();
-            if (oldDragImage) {
-                dragImageContainer.remove(new JSComponent(oldDragImage));
-            }
-            if (dragImage) {
-                dragImageContainer.add(new JSComponent(dragImage));
-                dragImageContainer.validate();
-            }
-        }
-        this.dragImage = dragImage;
-    };
-    JSBody.prototype.getDragSource = function () {
-        return this.dragSource;
-    };
-    JSBody.prototype.setDragSource = function (dragSource) {
-        this.dragSource = dragSource;
-    };
-    JSBody.prototype.getFileChooser = function () {
-        return this.fileChooser;
-    };
-    JSBody.prototype.setFileChooser = function (fileChooser) {
-        var oldFileChooser = this.getFileChooser();
-        if (oldFileChooser !== fileChooser) {
-            if (oldFileChooser) {
-                this.remove(oldFileChooser);
-            }
-            if (fileChooser) {
-                this.add(fileChooser, JSBorderLayout.SOUTH);
-            }
-        }
-        this.fileChooser = fileChooser;
-    };
-    JSBody.prototype.getTimer = function () {
-        var timer = this.getData("timer");
-        if (!timer) {
-            timer = new JSTimer();
-            this.setData("timer", timer);
-        }
-        return timer;
-    };
-    JSBody.prototype.mouseMoved = function (mouseEvent) {
-        var dragSource = this.getDragSource();
-        if (dragSource) {
-            var dragStart = dragSource.getData("dragStart");
-            if (!dragStart) {
-                dragSource.fireDragStart(mouseEvent);
-                dragSource.setData("dragStart", true);
-            }
-            dragSource.fireDrag(mouseEvent);
-            dragSource.fireMouseDragged(mouseEvent);
-        }
-    };
-    JSBody.prototype.mouseReleased = function (mouseEvent) {
-        var dragSource = this.getDragSource();
-        if (dragSource) {
-            var timer = this.getTimer();
-            timer.schedule({
-                run: function () {
-                    var dragStart = dragSource.getData("dragStart");
-                    if (dragStart) {
-                        dragSource.fireDragEnd(mouseEvent);
-                        dragSource.setData("dragStart", false);
-                    }
-                    JSBody.getInstance().setDragSource(null);
-                }
-            }, 0);
-        }
-    };
-    return JSBody;
-}(JSHTMLComponent));
-var JSBorderLayout = (function (_super) {
-    __extends(JSBorderLayout, _super);
-    function JSBorderLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this) || this;
-        _this.hgap = 0;
-        _this.vgap = 0;
-        switch (args.length) {
-            case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var hgap = args[0];
-                    var vgap = args[1];
-                    _this.setHgap(hgap);
-                    _this.setVgap(vgap);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSBorderLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSBorderLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSBorderLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSBorderLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
-    JSBorderLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    JSBorderLayout.prototype.preferredLayoutWidth = function (container) {
-        var preferredLayoutWidth = 0;
-        var hgap = this.getHgap();
-        var components = container.getComponents();
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
-            }
-        }
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                continue;
-            }
-            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-            switch (constraints) {
-                case JSBorderLayout.WEST:
-                case JSBorderLayout.EAST:
-                    preferredLayoutWidth += componentPreferredOuterWidth + hgap;
-                    break;
-                case JSBorderLayout.NORTH:
-                case JSBorderLayout.SOUTH:
-                    preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
-                    break;
-                default:
-            }
-        }
-        if (preferredLayoutWidth != 0) {
-            preferredLayoutWidth -= hgap;
-        }
-        return preferredLayoutWidth;
-    };
-    JSBorderLayout.prototype.preferredLayoutHeight = function (container) {
-        var preferredLayoutHeight = 0;
-        var vgap = this.getVgap();
-        var components = container.getComponents();
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
-            }
-        }
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                continue;
-            }
-            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-            switch (constraints) {
-                case JSBorderLayout.NORTH:
-                case JSBorderLayout.SOUTH:
-                    preferredLayoutHeight += componentPreferredOuterHeight + vgap;
-                    break;
-                case JSBorderLayout.EAST:
-                case JSBorderLayout.WEST:
-                    preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
-                    break;
-                default:
-            }
-        }
-        if (preferredLayoutHeight != 0) {
-            preferredLayoutHeight -= vgap;
-        }
-        return preferredLayoutHeight;
-    };
-    JSBorderLayout.prototype.layoutContainer = function (container) {
-        var hgap = this.getHgap();
-        var vgap = this.getVgap();
-        var width = container.getWidth();
-        var height = container.getHeight();
-        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
-        var x = container.getInsetLeft();
-        var y = container.getInsetTop();
-        var components = container.getComponents().slice();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                continue;
-            }
-            var align = component.getAlign();
-            switch (constraints) {
-                case JSBorderLayout.NORTH:
-                    switch (align) {
-                        case JSLayout.LEFT:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x);
-                            break;
-                        case JSLayout.RIGHT:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x + width - componentOuterWidth);
-                            break;
-                        case JSLayout.CENTER:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x + (width - componentOuterWidth) / 2);
-                            break;
-                        default:
-                            component.setOuterWidth(width);
-                            component.setX(x);
-                    }
-                    var componentOuterHeight = component.getPreferredOuterHeight();
-                    component.setOuterHeight(componentOuterHeight);
-                    component.setY(y);
-                    height -= componentOuterHeight + vgap;
-                    y += componentOuterHeight + vgap;
-                    break;
-                case JSBorderLayout.SOUTH:
-                    switch (align) {
-                        case JSLayout.LEFT:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x);
-                            break;
-                        case JSLayout.RIGHT:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x + width - componentOuterWidth);
-                            break;
-                        case JSLayout.CENTER:
-                            var componentOuterWidth = component.getPreferredOuterWidth();
-                            component.setOuterWidth(componentOuterWidth);
-                            component.setX(x + (width - componentOuterWidth) / 2);
-                            break;
-                        default:
-                            component.setOuterWidth(width);
-                            component.setX(x);
-                    }
-                    var componentOuterHeight = component.getPreferredOuterHeight();
-                    component.setOuterHeight(componentOuterHeight);
-                    component.setY(y + height - componentOuterHeight);
-                    height -= componentOuterHeight + vgap;
-                    break;
-                case JSBorderLayout.WEST:
-                    switch (align) {
-                        case JSLayout.TOP:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y);
-                            break;
-                        case JSLayout.BOTTOM:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y + height - componentOuterHeight);
-                            break;
-                        case JSLayout.CENTER:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y + (height - componentOuterHeight) / 2);
-                            break;
-                        default:
-                            component.setOuterHeight(height);
-                            component.setY(y);
-                    }
-                    var componentOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentOuterWidth);
-                    component.setX(x);
-                    width -= componentOuterWidth + hgap;
-                    x += componentOuterWidth + hgap;
-                    break;
-                case JSBorderLayout.EAST:
-                    switch (align) {
-                        case JSLayout.TOP:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y);
-                            break;
-                        case JSLayout.BOTTOM:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y + height - componentOuterHeight);
-                            break;
-                        case JSLayout.CENTER:
-                            var componentOuterHeight = component.getPreferredOuterHeight();
-                            component.setOuterHeight(componentOuterHeight);
-                            component.setY(y + (height - componentOuterHeight) / 2);
-                            break;
-                        default:
-                            component.setOuterHeight(height);
-                            component.setY(y);
-                    }
-                    var componentOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentOuterWidth);
-                    component.setX(x + width - componentOuterWidth);
-                    width -= componentOuterWidth + hgap;
-                    break;
-                default:
-            }
-        }
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints();
-            if (!constraints || constraints === JSLayout.CENTER) {
-                var align = component.getAlign();
-                switch (align) {
-                    case JSLayout.TOP:
-                        var componentOuterWidth = Math.min(component.getPreferredOuterWidth(), width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y);
-                        break;
-                    case JSLayout.BOTTOM:
-                        var componentOuterWidth = Math.min(component.getPreferredOuterWidth(), width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + height - componentOuterHeight);
-                        break;
-                    case JSLayout.LEFT:
-                        var componentOuterWidth = Math.min(component.getPreferredOuterWidth(), width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    case JSLayout.RIGHT:
-                        var componentOuterWidth = Math.min(component.getPreferredOuterWidth(), width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + width - componentOuterWidth);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    case JSLayout.LEFT_RIGHT:
-                        component.setOuterWidth(width);
-                        component.setX(x);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    case JSLayout.CENTER:
-                        var componentOuterWidth = Math.min(component.getPreferredOuterWidth(), width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        var componentOuterHeight = Math.min(component.getPreferredOuterHeight(), height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    default:
-                        component.setOuterWidth(width);
-                        component.setOuterHeight(height);
-                        component.setX(x);
-                        component.setY(y);
-                }
-            }
-        }
-    };
-    return JSBorderLayout;
-}(JSLayout));
-var JSButton = (function (_super) {
-    __extends(JSButton, _super);
-    function JSButton() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
-        var graphics = _this.getGraphics();
-        _this.add(graphics);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
-                    _this.setAction(action);
-                }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSButton.prototype.init = function () {
-        this.addClass("JSButton");
-    };
-    JSButton.prototype.setIcon = function (icon) {
-        _super.prototype.setIcon.call(this, icon);
-        if (icon) {
-            var span = this.getData("span");
-            if (span) {
-                var text = span.getText();
-                span.setStyle("margin-left", text ? "4px" : "0");
-            }
-        }
-    };
-    JSButton.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSButton.prototype.getText = function () {
-        var span = this.getSpan();
-        return span.getText();
-    };
-    JSButton.prototype.setText = function (text) {
-        var span = this.getSpan();
-        span.setText(text);
-        var icon = this.getIcon();
-        if (icon) {
-            span.setStyle("margin-left", text ? "4px" : "0");
-        }
-    };
-    JSButton.prototype.getSpan = function () {
-        var span = this.getData("span");
-        if (!span) {
-            span = new JSSpan();
-            this.add(span);
-            this.setData("span", span);
-        }
-        return span;
-    };
-    JSButton.prototype.isUndecorated = function () {
-        return this.hasClass("undecorated");
-    };
-    JSButton.prototype.setUndecorated = function (undecorated) {
-        if (undecorated) {
-            this.addClass("undecorated");
-        }
-        else {
-            this.removeClass("undecorated");
-        }
-    };
-    return JSButton;
-}(JSHTMLComponent));
-var JSCardLayout = (function (_super) {
-    __extends(JSCardLayout, _super);
-    function JSCardLayout() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.selected = null;
-        return _this;
-    }
-    JSCardLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    JSCardLayout.prototype.preferredLayoutWidth = function (container) {
-        var preferredLayoutWidth = 0;
-        var components = container.getComponents();
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-            preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth);
-        }
-        return preferredLayoutWidth;
-    };
-    JSCardLayout.prototype.preferredLayoutHeight = function (container) {
-        var preferredLayoutHeight = 0;
-        var components = container.getComponents();
-        for (var i = components.length - 1; i >= 0; i--) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-            preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight);
-        }
-        return preferredLayoutHeight;
-    };
-    JSCardLayout.prototype.layoutContainer = function (container) {
-        var width = container.getWidth();
-        var height = container.getHeight();
-        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
-        var x = container.getInsetLeft();
-        var y = container.getInsetTop();
-        var components = container.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            component.setOuterWidth(width);
-            component.setOuterHeight(height);
-            component.setX(x);
-            component.setY(y);
-        }
-        var selected = this.getSelected();
-        if (!selected) {
-            this.first(container);
-        }
-    };
-    JSCardLayout.prototype.getSelected = function () {
-        return this.selected;
-    };
-    JSCardLayout.prototype.setSelected = function (container, component) {
-        var selected = this.getSelected();
-        if (selected === component) {
-            return;
-        }
-        if (selected) {
-            selected.setVisible(false);
-        }
-        else {
-            var components = container.getComponents();
-            for (var i = 0; i < components.length; i++) {
-                components[i].setVisible(false);
-            }
-        }
-        if (component) {
-            component.setVisible(true);
-        }
-        this.selected = component;
-    };
-    JSCardLayout.prototype.setSelectedIndex = function (container, selectedIndex) {
-        var components = container.getComponents();
-        this.setSelected(container, components[selectedIndex]);
-    };
-    JSCardLayout.prototype.getSelectedIndex = function (container) {
-        var components = container.getComponents();
-        return components.indexOf(this.getSelected());
-    };
-    JSCardLayout.prototype.first = function (container) {
-        this.setSelectedIndex(container, 0);
-    };
-    JSCardLayout.prototype.next = function (container) {
-        var componentCount = container.getComponentCount();
-        this.setSelectedIndex(container, (this.getSelectedIndex(container) + 1) % componentCount);
-    };
-    JSCardLayout.prototype.previous = function (container) {
-        var componentCount = container.getComponentCount();
-        this.setSelectedIndex(container, (this.getSelectedIndex(container) - 1 + componentCount) % componentCount);
-    };
-    JSCardLayout.prototype.last = function (container) {
-        var componentCount = container.getComponentCount();
-        this.setSelectedIndex(container, componentCount - 1);
-    };
-    JSCardLayout.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
-            case 2:
-                if (args[0] instanceof JSComponent && typeof args[1] === "number") {
-                    var container = args[0];
-                    var index = args[1];
-                    this.setSelectedIndex(container, index);
-                }
-                else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
-                    var container = args[0];
-                    var constraints = args[1];
-                    var components = container.getComponents();
-                    for (var i = 0; i < components.length; i++) {
-                        var component = components[i];
-                        var componentConstraints = component.getConstraints();
-                        if (componentConstraints === constraints) {
-                            this.setSelectedIndex(container, i);
-                            break;
-                        }
-                    }
-                }
-                break;
-            default:
-        }
-    };
-    return JSCardLayout;
-}(JSLayout));
-var JSChangeListener = (function () {
-    function JSChangeListener(changeListener) {
-        this.parameters = [];
-        var jsChangeListener = this;
-        this.stateChanged = function (event) {
-            var parameters = jsChangeListener.getParameters().slice();
-            parameters.unshift(event);
-            changeListener.stateChanged.apply(changeListener, parameters);
-        };
-    }
-    JSChangeListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSChangeListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSChangeListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSChangeListener;
-}());
-var JSCheckBox = (function (_super) {
-    __extends(JSCheckBox, _super);
-    function JSCheckBox() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var checkBoxInput = _this.getCheckBoxInput();
-        _this.add(checkBoxInput);
-        var label = _this.getLabel();
-        _this.add(label);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
-                    _this.setAction(action);
-                }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                    var icon = args[0];
-                    var selected = args[1];
-                    _this.setIcon(icon);
-                    _this.setSelected(selected);
-                }
-                else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                    var text = args[0];
-                    var selected = args[1];
-                    _this.setText(text);
-                    _this.setSelected(selected);
-                }
-                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
-                    var text = args[0];
-                    var icon = args[1];
-                    var selected = args[2];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                    _this.setSelected(selected);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSCheckBox.prototype.init = function () {
-        this.addClass("JSCheckBox");
-    };
-    JSCheckBox.prototype.getCheckBoxInput = function () {
-        var checkBoxInput = this.getData("checkBoxInput");
-        if (!checkBoxInput) {
-            checkBoxInput = new JSCheckBoxInput();
-            this.setData("checkBoxInput", checkBoxInput);
-        }
-        return checkBoxInput;
-    };
-    JSCheckBox.prototype.getLabel = function () {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            this.setData("label", label);
-        }
-        return label;
-    };
-    JSCheckBox.prototype.getIcon = function () {
-        var label = this.getLabel();
-        return label.getIcon();
-    };
-    JSCheckBox.prototype.setIcon = function (icon) {
-        var label = this.getLabel();
-        label.setIcon(icon);
-    };
-    JSCheckBox.prototype.getText = function () {
-        var label = this.getLabel();
-        return label.getText();
-    };
-    JSCheckBox.prototype.setText = function (text) {
-        var label = this.getLabel();
-        label.setText(text);
-    };
-    JSCheckBox.prototype.isSelected = function () {
-        var checkBoxInput = this.getCheckBoxInput();
-        return checkBoxInput.isSelected();
-    };
-    JSCheckBox.prototype.setSelected = function (selected) {
-        var checkBoxInput = this.getCheckBoxInput();
-        checkBoxInput.setSelected(selected);
-    };
-    return JSCheckBox;
-}(JSHTMLComponent));
-var JSCheckBoxInput = (function (_super) {
-    __extends(JSCheckBoxInput, _super);
-    function JSCheckBoxInput() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
-        _this.setAttribute("type", "checkbox");
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "boolean") {
-                    var selected = args[0];
-                    _this.setAttribute("checked", "" + selected);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSCheckBoxInput.prototype.init = function () {
-        this.addClass("JSCheckBoxInput");
-    };
-    JSCheckBoxInput.prototype.setSelected = function (selected) {
-        this.element.checked = selected;
-    };
-    JSCheckBoxInput.prototype.isSelected = function () {
-        return this.element.checked;
-    };
-    return JSCheckBoxInput;
-}(JSHTMLComponent));
-var JSComboBox = (function (_super) {
-    __extends(JSComboBox, _super);
-    function JSComboBox() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof Array) {
-                    var items = args[0];
-                    _this.setItems(items);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSComboBox.prototype.init = function () {
-        this.addClass("JSComboBox");
-    };
-    JSComboBox.prototype.getItems = function () {
-        return this.getData("item");
-    };
-    JSComboBox.prototype.setItems = function (items) {
-        this.setData("items", items);
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var option = new JSOption(item);
-            this.add(option);
-        }
-    };
-    JSComboBox.prototype.getSelectedIndex = function () {
-        return this.element.selectedIndex;
-    };
-    JSComboBox.prototype.getSelectedItem = function () {
-        var items = this.getItems();
-        var selectedIndex = this.getSelectedIndex();
-        return items[selectedIndex];
-    };
-    return JSComboBox;
-}(JSHTMLComponent));
-var JSDataTransfer = (function () {
-    function JSDataTransfer() {
-        this.data = {};
-    }
-    JSDataTransfer.getInstance = function () {
-        if (JSDataTransfer.instance === undefined) {
-            JSDataTransfer.instance = new JSDataTransfer();
-        }
-        return JSDataTransfer.instance;
-    };
-    JSDataTransfer.getData = function (key) {
-        return JSDataTransfer.getInstance().getData(key);
-    };
-    JSDataTransfer.setData = function (key, value) {
-        JSDataTransfer.getInstance().setData(key, value);
-    };
-    JSDataTransfer.getDragImage = function () {
-        return JSDataTransfer.getInstance().getDragImage();
-    };
-    JSDataTransfer.setDragImage = function (dragImage) {
-        JSDataTransfer.getInstance().setDragImage(dragImage);
-    };
-    JSDataTransfer.prototype.getData = function (key) {
-        var data = this.data;
-        return data[key];
-    };
-    JSDataTransfer.prototype.setData = function (key, value) {
-        var data = this.data;
-        data[key] = value;
-    };
-    JSDataTransfer.prototype.getDragImage = function () {
-        return JSBody.getInstance().getDragImage();
-    };
-    JSDataTransfer.prototype.setDragImage = function (dragImage) {
-        JSBody.getInstance().setDragImage(dragImage);
-    };
-    return JSDataTransfer;
-}());
-var JSDefs = (function (_super) {
-    __extends(JSDefs, _super);
-    function JSDefs() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]) || this;
-    }
-    JSDefs.prototype.init = function () {
-        this.addClass("JSDefs");
-    };
-    return JSDefs;
-}(JSSVGComponent));
-var JSDialog = (function (_super) {
-    __extends(JSDialog, _super);
-    function JSDialog() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setVisible(false);
-        switch (args.length) {
-            case 0:
-                break;
-            case 1:
-                if (args[0] instanceof JSComponent) {
-                    var owner = args[0];
-                    _this.setOwner(owner);
-                }
-                break;
-            case 2:
-                if (args[0] instanceof JSComponent && typeof args[1] === "boolean") {
-                    var owner = args[0];
-                    var modal = args[1];
-                    _this.setOwner(owner);
-                    _this.setModal(modal);
-                }
-                else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
-                    var owner = args[0];
-                    var title = args[1];
-                    _this.setOwner(owner);
-                    _this.setTitle(title);
-                }
-                break;
-            case 3:
-                if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "boolean") {
-                    var owner = args[0];
-                    var title = args[1];
-                    var modal = args[2];
-                    _this.setOwner(owner);
-                    _this.setTitle(title);
-                    _this.setModal(modal);
-                }
-                break;
-            default:
-        }
-        _this.setZIndex(JSLayeredPane.MODAL_LAYER);
-        return _this;
-    }
-    JSDialog.prototype.init = function () {
-        this.addClass("JSDialog");
-    };
-    JSDialog.prototype.getOwner = function () {
-        return this.owner;
-    };
-    JSDialog.prototype.setOwner = function (owner) {
-        this.owner = owner;
-    };
-    JSDialog.prototype.isModal = function () {
-        return this.modal;
-    };
-    JSDialog.prototype.setModal = function (modal) {
-        this.modal = modal;
-    };
-    JSDialog.prototype.getTitle = function () {
-        return this.title;
-    };
-    JSDialog.prototype.setTitle = function (title) {
-        this.title = title;
-    };
-    JSDialog.prototype.setVisible = function (visible) {
-        if (visible) {
-            this.setStyle("min-width", this.getPreferredWidth() + "px");
-            this.setStyle("min-height", this.getPreferredHeight() + "px");
-            JSBody.getInstance().setPopupMenu(this);
-            _super.prototype.setVisible.call(this, visible);
-        }
-        else {
-            _super.prototype.setVisible.call(this, visible);
-            JSBody.getInstance().setPopupMenu(null);
-        }
-    };
-    return JSDialog;
-}(JSPanel));
-var JSDiv = (function (_super) {
-    __extends(JSDiv, _super);
-    function JSDiv() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-    }
-    JSDiv.prototype.init = function () {
-        this.addClass("JSDiv");
-    };
-    return JSDiv;
-}(JSHTMLComponent));
-var JSDragSourceListener = (function () {
-    function JSDragSourceListener(dragSourceListener) {
-        this.parameters = [];
-        var jsDragSourceListener = this;
-        if (dragSourceListener.dragStart) {
-            this.dragStart = function (mouseEvent) {
-                var parameters = jsDragSourceListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dragSourceListener.dragStart.apply(dragSourceListener, parameters);
-            };
-        }
-        if (dragSourceListener.drag) {
-            this.drag = function (mouseEvent) {
-                var parameters = jsDragSourceListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dragSourceListener.drag.apply(dragSourceListener, parameters);
-            };
-        }
-        if (dragSourceListener.dragEnd) {
-            this.dragEnd = function (mouseEvent) {
-                var parameters = jsDragSourceListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dragSourceListener.dragEnd.apply(dragSourceListener, parameters);
-            };
-        }
-    }
-    JSDragSourceListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSDragSourceListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSDragSourceListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSDragSourceListener;
-}());
-var JSDropTargetListener = (function () {
-    function JSDropTargetListener(dropTargetListener) {
-        this.parameters = [];
-        var jsDropTargetListener = this;
-        if (dropTargetListener.dragEnter) {
-            this.dragEnter = function (mouseEvent) {
-                var parameters = jsDropTargetListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dropTargetListener.dragEnter.apply(dropTargetListener, parameters);
-            };
-        }
-        if (dropTargetListener.dragOver) {
-            this.dragOver = function (mouseEvent) {
-                var parameters = jsDropTargetListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dropTargetListener.dragOver.apply(dropTargetListener, parameters);
-            };
-        }
-        if (dropTargetListener.dragLeave) {
-            this.dragLeave = function (mouseEvent) {
-                var parameters = jsDropTargetListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dropTargetListener.dragLeave.apply(dropTargetListener, parameters);
-            };
-        }
-        if (dropTargetListener.drop) {
-            this.drop = function (mouseEvent) {
-                var parameters = jsDropTargetListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                dropTargetListener.drop.apply(dropTargetListener, parameters);
-            };
-        }
-    }
-    JSDropTargetListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSDropTargetListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSDropTargetListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSDropTargetListener;
-}());
-var JSFileChooser = (function (_super) {
-    __extends(JSFileChooser, _super);
-    function JSFileChooser() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
-        _this.setAttribute("type", "file");
-        JSBody.getInstance().setFileChooser(_this);
-        _this.addChangeListener({
-            stateChanged: function (event, source) {
-                var fileChooser = source;
-                fileChooser.setSelectedFiles(fileChooser.element.files);
-            }
-        });
-        return _this;
-    }
-    JSFileChooser.prototype.init = function () {
-        this.addClass("JSFileChooser");
-    };
-    JSFileChooser.prototype.getFileFilter = function () {
-        return this.getAttribute("accept");
-    };
-    JSFileChooser.prototype.setFileFilter = function (fileFilter) {
-        this.setAttribute("accept", fileFilter);
-    };
-    JSFileChooser.prototype.showOpenDialog = function () {
-        this.element.click();
-    };
-    JSFileChooser.prototype.getSelectedFiles = function () {
-        return this.selectedFiles;
-    };
-    JSFileChooser.prototype.setSelectedFiles = function (selectedFiles) {
-        this.selectedFiles = selectedFiles;
-    };
-    return JSFileChooser;
-}(JSHTMLComponent));
-var JSFileUtils = (function () {
-    function JSFileUtils() {
-    }
-    JSFileUtils.writeStringToFile = function (filename, text) {
-        var a = document.createElement("a");
-        a.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
-        a.setAttribute("download", filename);
-        var event = document.createEvent("MouseEvents");
-        event.initEvent("click", true, true);
-        a.dispatchEvent(event);
-    };
-    return JSFileUtils;
-}());
-var JSFlowLayout = (function (_super) {
-    __extends(JSFlowLayout, _super);
-    function JSFlowLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this) || this;
-        _this.border = JSFlowLayout.NORTH;
-        _this.align = JSFlowLayout.CENTER;
-        _this.hgap = 0;
-        _this.vgap = 0;
-        switch (args.length) {
-            case 0:
-                break;
-            case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var border = args[0];
-                    var align = args[1];
-                    _this.setBorder(border);
-                    _this.setAlign(align);
-                }
-                break;
-            case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
-                    var border = args[0];
-                    var align = args[1];
-                    var hgap = args[2];
-                    var vgap = args[3];
-                    _this.setBorder(border);
-                    _this.setAlign(align);
-                    _this.setHgap(hgap);
-                    _this.setVgap(vgap);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSFlowLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSFlowLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSFlowLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSFlowLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
-    JSFlowLayout.prototype.getAlign = function () {
-        return this.align;
-    };
-    JSFlowLayout.prototype.setAlign = function (align) {
-        this.align = align;
-    };
-    JSFlowLayout.prototype.getBorder = function () {
-        return this.border;
-    };
-    JSFlowLayout.prototype.setBorder = function (region) {
-        this.border = region;
-    };
-    JSFlowLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    JSFlowLayout.prototype.preferredLayoutWidth = function (container) {
-        var preferredLayoutWidth = 0;
-        var border = this.getBorder();
-        var hgap = this.getHgap();
-        var vgap = this.getVgap();
-        var components = container.getComponents();
-        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
-            var containerHeight = container.getPreferredHeight();
-            var rowHeight = 0;
-            var rowWidth = 0;
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                if (rowHeight + componentPreferredOuterHeight > containerHeight) {
-                    preferredLayoutWidth += rowWidth;
-                    rowHeight = 0;
-                    rowWidth = 0;
-                }
-                rowHeight += componentPreferredOuterHeight + vgap;
-                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
-            }
-            preferredLayoutWidth += rowWidth;
-            if (preferredLayoutWidth != 0) {
-                preferredLayoutWidth -= hgap;
-            }
-        }
-        else {
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                preferredLayoutWidth += componentPreferredOuterWidth + hgap;
-            }
-            if (preferredLayoutWidth != 0) {
-                preferredLayoutWidth -= hgap;
-            }
-            var width = container.getWidth();
-            if (width) {
-                preferredLayoutWidth = Math.min(preferredLayoutWidth, width);
-            }
-        }
-        return preferredLayoutWidth;
-    };
-    JSFlowLayout.prototype.preferredLayoutHeight = function (container) {
-        var preferredLayoutHeight = 0;
-        var border = this.getBorder();
-        var hgap = this.getHgap();
-        var vgap = this.getVgap();
-        var components = container.getComponents();
-        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                preferredLayoutHeight += componentPreferredOuterHeight + vgap;
-            }
-            if (preferredLayoutHeight != 0) {
-                preferredLayoutHeight -= vgap;
-            }
-            var height = container.getHeight();
-            if (height) {
-                preferredLayoutHeight = Math.min(preferredLayoutHeight, height);
-            }
-        }
-        else {
-            var containerWidth = container.getPreferredWidth();
-            var rowWidth = 0;
-            var rowHeight = 0;
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                if (rowWidth + componentPreferredOuterWidth > containerWidth) {
-                    preferredLayoutHeight += rowHeight;
-                    rowWidth = 0;
-                    rowHeight = 0;
-                }
-                rowWidth += componentPreferredOuterWidth + hgap;
-                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
-            }
-            preferredLayoutHeight += rowHeight;
-            if (preferredLayoutHeight != 0) {
-                preferredLayoutHeight -= vgap;
-            }
-        }
-        return preferredLayoutHeight;
-    };
-    JSFlowLayout.prototype.layoutContainer = function (container) {
-        var border = this.getBorder();
-        var hgap = this.getHgap();
-        var vgap = this.getVgap();
-        var width = container.getWidth();
-        var height = container.getHeight();
-        var rowWidth = 0;
-        var rowHeight = 0;
-        var n = 0;
-        var components = container.getComponents();
-        if (border === JSFlowLayout.WEST) {
-            var x = container.getInsetLeft();
-            var y = container.getInsetTop();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                if (rowHeight + componentPreferredOuterHeight > height) {
-                    rowHeight -= vgap;
-                    this.layoutComponents(container, components.slice(n, i), x, y, rowWidth, rowHeight);
-                    x += rowWidth;
-                    rowWidth = 0;
-                    rowHeight = 0;
-                    n = i;
-                }
-                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
-                rowHeight += componentPreferredOuterHeight + vgap;
-            }
-            if (n < i) {
-                rowWidth -= hgap;
-                rowHeight -= vgap;
-                this.layoutComponents(container, components.slice(n, i), x, y, rowWidth, rowHeight);
-            }
-        }
-        else if (border === JSFlowLayout.EAST) {
-            var x = width - container.getInsetRight();
-            var y = container.getInsetTop();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                if (rowHeight + componentPreferredOuterHeight > height) {
-                    rowHeight -= vgap;
-                    this.layoutComponents(container, components.slice(n, i), x - rowWidth, y, rowWidth, rowHeight);
-                    x -= rowWidth;
-                    rowWidth = 0;
-                    rowHeight = 0;
-                    n = i;
-                }
-                rowWidth = Math.max(rowWidth, componentPreferredOuterWidth + hgap);
-                rowHeight += componentPreferredOuterHeight + vgap;
-            }
-            if (n < i) {
-                rowWidth -= hgap;
-                rowHeight -= vgap;
-                this.layoutComponents(container, components.slice(n, i), x - rowWidth, y, rowWidth, rowHeight);
-            }
-        }
-        else if (border === JSFlowLayout.SOUTH) {
-            var x = container.getInsetLeft();
-            var y = height - container.getInsetBottom();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                if (rowWidth + componentPreferredOuterWidth > width) {
-                    rowWidth -= hgap;
-                    this.layoutComponents(container, components.slice(n, i), x, y - rowHeight, rowWidth, rowHeight);
-                    y -= rowHeight;
-                    rowWidth = 0;
-                    rowHeight = 0;
-                    n = i;
-                }
-                rowWidth += componentPreferredOuterWidth + hgap;
-                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
-            }
-            if (n < i) {
-                rowWidth -= hgap;
-                rowHeight -= vgap;
-                this.layoutComponents(container, components.slice(n, i), x, y - rowHeight, rowWidth, rowHeight);
-            }
-        }
-        else {
-            var x = container.getInsetLeft();
-            var y = container.getInsetTop();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                if (rowWidth + componentPreferredOuterWidth > width) {
-                    rowWidth -= hgap;
-                    this.layoutComponents(container, components.slice(n, i), x, y, rowWidth, rowHeight);
-                    y += rowHeight;
-                    rowWidth = 0;
-                    rowHeight = 0;
-                    n = i;
-                }
-                rowWidth += componentPreferredOuterWidth + hgap;
-                rowHeight = Math.max(rowHeight, componentPreferredOuterHeight + vgap);
-            }
-            if (n < i) {
-                rowWidth -= hgap;
-                rowHeight -= vgap;
-                this.layoutComponents(container, components.slice(n, i), x, y, rowWidth, rowHeight);
-            }
-        }
-    };
-    JSFlowLayout.prototype.layoutComponents = function (container, components, x, y, rowWidth, rowHeight) {
-        var border = this.getBorder();
-        var align = this.getAlign();
-        var hgap = this.getHgap();
-        var vgap = this.getVgap();
-        var width = container.getWidth();
-        var height = container.getHeight();
-        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
-        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
-                    continue;
-                }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                component.setOuterHeight(componentPreferredOuterHeight);
-                if (componentAlign === JSFlowLayout.TOP) {
-                    component.setY(y);
-                    y += componentPreferredOuterHeight + vgap;
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
-                }
-                else {
-                    component.setY(y + height - componentPreferredOuterHeight);
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        y += componentPreferredOuterHeight + vgap;
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
-                }
-                var constraints = component.getConstraints();
-                if (constraints === JSFlowLayout.BOTH || constraints === JSFlowLayout.HORIZONTAL) {
-                    component.setOuterWidth(rowWidth);
-                    component.setX(x);
-                }
-                else {
-                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentPreferredOuterWidth);
-                    component.setX(x + (rowWidth - componentPreferredOuterWidth) / 2);
-                }
-            }
-            var yPc = 0;
-            switch (align) {
-                case JSFlowLayout.TOP:
-                    break;
-                case JSFlowLayout.BOTTOM:
-                    y += height - rowHeight;
-                    yPc = 100;
-                    break;
-                case JSFlowLayout.CENTER:
-                default:
-                    y += (height - rowHeight) / 2;
-                    yPc = 50;
-            }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
-                    continue;
-                }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                component.setOuterHeight(componentPreferredOuterHeight);
-                switch (componentAlign) {
-                    case JSFlowLayout.BOTH:
-                        component.setOuterWidth(rowWidth);
-                        component.setX(x);
-                        break;
-                    case JSFlowLayout.LEFT:
-                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                        component.setOuterWidth(componentPreferredOuterWidth);
-                        component.setX(x);
-                        break;
-                    case JSFlowLayout.RIGHT:
-                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                        component.setOuterWidth(componentPreferredOuterWidth);
-                        component.setX(x + rowWidth - componentPreferredOuterWidth);
-                        break;
-                    case JSFlowLayout.CENTER:
-                    default:
-                        var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                        component.setOuterWidth(componentPreferredOuterWidth);
-                        component.setX(x + (rowWidth - componentPreferredOuterWidth) / 2);
-                }
-                component.setY(y);
-                y += componentPreferredOuterHeight + vgap;
-            }
-        }
-        else {
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                if (componentAlign === JSFlowLayout.LEFT) {
-                    component.setX(x);
-                    x += componentPreferredOuterWidth + hgap;
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
-                }
-                else {
-                    component.setX(x + width - componentPreferredOuterWidth);
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        x += componentPreferredOuterWidth + hgap;
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
-                }
-                var constraints = component.getConstraints();
-                if (constraints === JSFlowLayout.BOTH || constraints === JSFlowLayout.VERTICAL) {
-                    component.setOuterHeight(rowHeight);
-                    component.setY(y);
-                }
-                else {
-                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                    component.setOuterHeight(componentPreferredOuterHeight);
-                    component.setY(y + (rowHeight - componentPreferredOuterHeight) / 2);
-                }
-            }
-            var xPc = 0;
-            switch (align) {
-                case JSFlowLayout.LEFT:
-                    break;
-                case JSFlowLayout.RIGHT:
-                    x += width - rowWidth;
-                    xPc = 100;
-                    break;
-                case JSFlowLayout.CENTER:
-                default:
-                    x += (width - rowWidth) / 2;
-                    xPc = 50;
-            }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
-                    continue;
-                }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                switch (componentAlign) {
-                    case JSFlowLayout.BOTH:
-                        component.setOuterHeight(rowHeight);
-                        component.setY(y);
-                        break;
-                    case JSFlowLayout.TOP:
-                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                        component.setOuterHeight(componentPreferredOuterHeight);
-                        component.setY(y);
-                        break;
-                    case JSFlowLayout.BOTTOM:
-                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                        component.setOuterHeight(componentPreferredOuterHeight);
-                        component.setY(y + rowHeight - componentPreferredOuterHeight);
-                        break;
-                    case JSFlowLayout.CENTER:
-                    default:
-                        var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                        component.setOuterHeight(componentPreferredOuterHeight);
-                        component.setY(y + (rowHeight - componentPreferredOuterHeight) / 2);
-                }
-                component.setX(x);
-                x += componentPreferredOuterWidth + hgap;
-            }
-        }
-    };
-    return JSFlowLayout;
-}(JSLayout));
-var JSForm = (function (_super) {
-    __extends(JSForm, _super);
-    function JSForm() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]) || this;
-    }
-    JSForm.post = function (url, params) {
-        if (params) {
-            new JSForm().post(url, params);
-        }
-        else {
-            new JSForm().post(url);
-        }
-    };
-    JSForm.prototype.init = function () {
-        this.addClass("JSForm");
-    };
-    JSForm.prototype.getMethod = function () {
-        return this.element.method;
-    };
-    JSForm.prototype.setMethod = function (method) {
-        this.element.method = method;
-    };
-    JSForm.prototype.getUrl = function () {
-        return this.element.action;
-    };
-    JSForm.prototype.setUrl = function (url) {
-        this.element.action = url;
-    };
-    JSForm.prototype.submit = function () {
-        JSBody.getInstance().add(this);
-        this.element.submit();
-    };
-    JSForm.prototype.post = function (url, params) {
-        this.setMethod(JSForm.POST);
-        this.setUrl(url);
-        this.submit();
-    };
-    JSForm.POST = "post";
-    JSForm.GET = "get";
-    return JSForm;
-}(JSHTMLComponent));
-var JSFrame = (function (_super) {
-    __extends(JSFrame, _super);
-    function JSFrame() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setVisible(false);
-        var body = JSBody.getInstance();
-        body.setContentPane(_this);
-        return _this;
-    }
-    JSFrame.prototype.init = function () {
-        this.addClass("JSFrame");
-    };
-    JSFrame.prototype.setVisible = function (visible) {
-        if (visible) {
-            var body = JSBody.getInstance();
-            for (var i = 0; i < 2; i++) {
-                body.validate();
-            }
-        }
-        _super.prototype.setVisible.call(this, visible);
-    };
-    JSFrame.prototype.validate = function () {
-        var layout = this.getLayout();
-        if (layout) {
-            layout.layoutContainer(this);
-        }
-        this.validateChildren();
-    };
-    return JSFrame;
-}(JSHTMLComponent));
-var JSGraphics = (function (_super) {
-    __extends(JSGraphics, _super);
-    function JSGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-    }
-    JSGraphics.prototype.init = function () {
-        this.addClass("JSGraphics");
-    };
-    return JSGraphics;
-}(JSHTMLComponent));
-var JSGridBagLayout = (function (_super) {
-    __extends(JSGridBagLayout, _super);
-    function JSGridBagLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this) || this;
-        _this.hgap = 0;
-        _this.vgap = 0;
-        switch (args.length) {
-            case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var hgap = args[0];
-                    var vgap = args[1];
-                    _this.setHgap(hgap);
-                    _this.setVgap(vgap);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSGridBagLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSGridBagLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSGridBagLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSGridBagLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
-    JSGridBagLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    JSGridBagLayout.prototype.preferredLayoutWidth = function (container) {
-        var preferredLayoutWidth = 0;
-        var width = container.getWidth();
-        var components = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
-            var d = ((b.getConstraints() || {}).gridx || 0) + ((b.getConstraints() || {}).gridwidth || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1;
-            }
-            return 0;
-        });
-        var widthsPx = [];
-        var weightxs = [];
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-            var constraints = component.getConstraints() || {};
-            var gridx = constraints.gridx || 0;
-            var gridwidth = constraints.gridwidth || 1;
-            if (gridwidth === 1) {
-                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
-            }
-            else {
-                widthsPx[gridx + gridwidth - 1] = Math.max(widthsPx[gridx + gridwidth - 1] || 0, componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
-            }
-            var weightx = (constraints.weightx || 0) / gridwidth;
-            for (var j = 0; j < gridwidth; j++) {
-                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
-            }
-        }
-        var hgap = this.getHgap();
-        for (var i = 0; i < widthsPx.length; i++) {
-            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
-        }
-        if (preferredLayoutWidth != 0) {
-            preferredLayoutWidth -= hgap;
-        }
-        if (width) {
-            var extraHorizontalSpace = width - preferredLayoutWidth;
-            if (extraHorizontalSpace) {
-                var sum = 0;
-                for (var i = 0; i < weightxs.length; i++) {
-                    sum += weightxs[i] || 0;
-                }
-                if (sum) {
-                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
-                }
-            }
-        }
-        return preferredLayoutWidth;
-    };
-    JSGridBagLayout.prototype.preferredLayoutHeight = function (container) {
-        var preferredLayoutWidth = 0;
-        var width = container.getWidth();
-        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height = container.getHeight();
-        var components = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
-            var d = ((b.getConstraints() || {}).gridx || 0) + ((b.getConstraints() || {}).gridwidth || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1;
-            }
-            return 0;
-        });
-        var widthsPx = [];
-        var widthsPc = [];
-        var weightxs = [];
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-            var constraints = component.getConstraints() || {};
-            var gridx = constraints.gridx || 0;
-            var gridwidth = constraints.gridwidth || 1;
-            if (gridwidth === 1) {
-                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
-            }
-            else {
-                widthsPx[gridx + gridwidth - 1] = Math.max(widthsPx[gridx + gridwidth - 1] || 0, componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
-            }
-            var weightx = (constraints.weightx || 0) / gridwidth;
-            for (var j = 0; j < gridwidth; j++) {
-                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
-            }
-        }
-        var hgap = this.getHgap();
-        for (var i = 0; i < widthsPx.length; i++) {
-            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
-        }
-        if (preferredLayoutWidth != 0) {
-            preferredLayoutWidth -= hgap;
-        }
-        if (width) {
-            var extraHorizontalSpace = width - preferredLayoutWidth;
-            if (extraHorizontalSpace) {
-                var sum = 0;
-                for (var i = 0; i < weightxs.length; i++) {
-                    sum += weightxs[i] || 0;
-                }
-                if (sum) {
-                    for (var i = 0; i < widthsPx.length; i++) {
-                        widthsPx[i] = (widthsPx[i] || 0) + extraHorizontalSpace * (weightxs[i] || 0) / sum - width100 * (weightxs[i] || 0) / sum;
-                        widthsPc[i] = 100 * (weightxs[i] || 0) / sum;
-                    }
-                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
-                }
-            }
-        }
-        var xsPx = [];
-        var xsPc = [];
-        var extraHorizontalSpace = width - preferredLayoutWidth;
-        if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        }
-        else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
-        }
-        for (var i = 0; i < widthsPx.length; i++) {
-            xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
-            xsPc[i + 1] = xsPc[i] + (widthsPc[i] || 0);
-        }
-        components = container.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints() || {};
-            var gridx = constraints.gridx || 0;
-            var gridwidth = constraints.gridwidth || 1;
-            var fill = constraints.fill;
-            var anchor = constraints.anchor;
-            switch (fill) {
-                case JSGridBagLayout.BOTH:
-                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.HORIZONTAL:
-                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.VERTICAL:
-                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentPreferredOuterWidth);
-                    switch (anchor) {
-                        case JSGridBagLayout.WEST:
-                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.EAST:
-                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                            component.setX(xPx + xPc * width100 / 100);
-                    }
-                    break;
-                case JSGridBagLayout.NONE:
-                default:
-                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentPreferredOuterWidth);
-                    switch (anchor) {
-                        case JSGridBagLayout.WEST:
-                        case JSGridBagLayout.NORTHWEST:
-                        case JSGridBagLayout.SOUTHWEST:
-                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.EAST:
-                        case JSGridBagLayout.NORTHEAST:
-                        case JSGridBagLayout.SOUTHEAST:
-                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                            component.setX(xPx + xPc * width100 / 100);
-                    }
-            }
-        }
-        var preferredLayoutHeight = 0;
-        components = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c = ((a.getConstraints() || {}).gridy || 0) + ((a.getConstraints() || {}).gridheight || 1);
-            var d = ((b.getConstraints() || {}).gridy || 0) + ((b.getConstraints() || {}).gridheight || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1;
-            }
-            return 0;
-        });
-        var heightsPx = [];
-        var weightys = [];
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-            var constraints = component.getConstraints() || {};
-            var gridy = constraints.gridy || 0;
-            var gridheight = constraints.gridheight || 1;
-            if (gridheight === 1) {
-                heightsPx[gridy] = Math.max(heightsPx[gridy] || 0, componentPreferredOuterHeight);
-            }
-            else {
-                heightsPx[gridy + gridheight - 1] = Math.max(heightsPx[gridy + gridheight - 1] || 0, componentPreferredOuterHeight - (heightsPx[gridy + gridheight - 2] || 0));
-            }
-            var weighty = (constraints.weighty || 0) / gridheight;
-            for (var j = 0; j < gridheight; j++) {
-                weightys[gridy + j] = Math.max(weightys[gridy + j] || 0, weighty);
-            }
-        }
-        var vgap = this.getVgap();
-        for (var i = 0; i < heightsPx.length; i++) {
-            preferredLayoutHeight += (heightsPx[i] || 0) + vgap;
-        }
-        if (preferredLayoutHeight != 0) {
-            preferredLayoutHeight -= vgap;
-        }
-        if (height) {
-            var extraVerticalSpace = height - preferredLayoutHeight;
-            if (extraVerticalSpace) {
-                var sum = 0;
-                for (var i = 0; i < weightys.length; i++) {
-                    sum += weightys[i] || 0;
-                }
-                if (sum) {
-                    preferredLayoutHeight = Math.max(preferredLayoutHeight, height);
-                }
-            }
-        }
-        return preferredLayoutHeight;
-    };
-    JSGridBagLayout.prototype.layoutContainer = function (container) {
-        var preferredLayoutWidth = 0;
-        var width = container.getWidth();
-        var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height = container.getHeight();
-        var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
-        var components = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
-            var d = ((b.getConstraints() || {}).gridx || 0) + ((b.getConstraints() || {}).gridwidth || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1;
-            }
-            return 0;
-        });
-        var widthsPx = [];
-        var widthsPc = [];
-        var weightxs = [];
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-            var constraints = component.getConstraints() || {};
-            var gridx = constraints.gridx || 0;
-            var gridwidth = constraints.gridwidth || 1;
-            if (gridwidth === 1) {
-                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
-            }
-            else {
-                widthsPx[gridx + gridwidth - 1] = Math.max(widthsPx[gridx + gridwidth - 1] || 0, componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
-            }
-            var weightx = (constraints.weightx || 0) / gridwidth;
-            for (var j = 0; j < gridwidth; j++) {
-                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
-            }
-        }
-        var hgap = this.getHgap();
-        for (var i = 0; i < widthsPx.length; i++) {
-            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
-        }
-        if (preferredLayoutWidth != 0) {
-            preferredLayoutWidth -= hgap;
-        }
-        if (width) {
-            var extraHorizontalSpace = width - preferredLayoutWidth;
-            if (extraHorizontalSpace) {
-                var sum = 0;
-                for (var i = 0; i < weightxs.length; i++) {
-                    sum += weightxs[i] || 0;
-                }
-                if (sum) {
-                    for (var i = 0; i < widthsPx.length; i++) {
-                        widthsPx[i] = (widthsPx[i] || 0) + extraHorizontalSpace * (weightxs[i] || 0) / sum - width100 * (weightxs[i] || 0) / sum;
-                        widthsPc[i] = 100 * (weightxs[i] || 0) / sum;
-                    }
-                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
-                }
-            }
-        }
-        var xsPx = [];
-        var xsPc = [];
-        var extraHorizontalSpace = width - preferredLayoutWidth;
-        if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        }
-        else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
-        }
-        for (var i = 0; i < widthsPx.length; i++) {
-            xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
-            xsPc[i + 1] = xsPc[i] + (widthsPc[i] || 0);
-        }
-        components = container.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints() || {};
-            var gridx = constraints.gridx || 0;
-            var gridwidth = constraints.gridwidth || 1;
-            var fill = constraints.fill;
-            var anchor = constraints.anchor;
-            switch (fill) {
-                case JSGridBagLayout.BOTH:
-                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.HORIZONTAL:
-                    component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.VERTICAL:
-                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentPreferredOuterWidth);
-                    switch (anchor) {
-                        case JSGridBagLayout.WEST:
-                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.EAST:
-                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                            component.setX(xPx + xPc * width100 / 100);
-                    }
-                    break;
-                case JSGridBagLayout.NONE:
-                default:
-                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                    component.setOuterWidth(componentPreferredOuterWidth);
-                    switch (anchor) {
-                        case JSGridBagLayout.WEST:
-                        case JSGridBagLayout.NORTHWEST:
-                        case JSGridBagLayout.SOUTHWEST:
-                            component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.EAST:
-                        case JSGridBagLayout.NORTHEAST:
-                        case JSGridBagLayout.SOUTHEAST:
-                            var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                            component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                            var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                            component.setX(xPx + xPc * width100 / 100);
-                    }
-            }
-        }
-        var preferredLayoutHeight = 0;
-        components = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c = ((a.getConstraints() || {}).gridy || 0) + ((a.getConstraints() || {}).gridheight || 1);
-            var d = ((b.getConstraints() || {}).gridy || 0) + ((b.getConstraints() || {}).gridheight || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1;
-            }
-            return 0;
-        });
-        var heightsPx = [];
-        var heightsPc = [];
-        var weightys = [];
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-            var constraints = component.getConstraints() || {};
-            var gridy = constraints.gridy || 0;
-            var gridheight = constraints.gridheight || 1;
-            if (gridheight === 1) {
-                heightsPx[gridy] = Math.max(heightsPx[gridy] || 0, componentPreferredOuterHeight);
-            }
-            else {
-                heightsPx[gridy + gridheight - 1] = Math.max(heightsPx[gridy + gridheight - 1] || 0, componentPreferredOuterHeight - (heightsPx[gridy + gridheight - 2] || 0));
-            }
-            var weighty = (constraints.weighty || 0) / gridheight;
-            for (var j = 0; j < gridheight; j++) {
-                weightys[gridy + j] = Math.max(weightys[gridy + j] || 0, weighty);
-            }
-        }
-        var vgap = this.getVgap();
-        for (var i = 0; i < heightsPx.length; i++) {
-            preferredLayoutHeight += (heightsPx[i] || 0) + vgap;
-        }
-        if (preferredLayoutHeight != 0) {
-            preferredLayoutHeight -= vgap;
-        }
-        if (height) {
-            var extraVerticalSpace = height - preferredLayoutHeight;
-            if (extraVerticalSpace) {
-                var sum = 0;
-                for (var i = 0; i < weightys.length; i++) {
-                    sum += weightys[i] || 0;
-                }
-                if (sum) {
-                    for (var i = 0; i < heightsPx.length; i++) {
-                        heightsPx[i] = (heightsPx[i] || 0) + extraVerticalSpace * (weightys[i] || 0) / sum - height100 * (weightys[i] || 0) / sum;
-                        heightsPc[i] = 100 * (weightys[i] || 0) / sum;
-                    }
-                    preferredLayoutHeight = Math.max(preferredLayoutHeight, height);
-                }
-            }
-        }
-        var ysPx = [];
-        var ysPc = [];
-        var extraVerticalSpace = height - preferredLayoutHeight;
-        if (extraVerticalSpace) {
-            ysPx[0] = container.getInsetTop() + (height - preferredLayoutHeight) / 2 - height100 / 2;
-            ysPc[0] = 50;
-        }
-        else {
-            ysPx[0] = container.getInsetTop();
-            ysPc[0] = 0;
-        }
-        for (var i = 0; i < heightsPx.length; i++) {
-            ysPx[i + 1] = ysPx[i] + (heightsPx[i] || 0) + vgap;
-            ysPc[i + 1] = ysPc[i] + (heightsPc[i] || 0);
-        }
-        components = container.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints = component.getConstraints() || {};
-            var gridy = constraints.gridy || 0;
-            var gridheight = constraints.gridheight || 1;
-            var fill = constraints.fill;
-            var anchor = constraints.anchor;
-            switch (fill) {
-                case JSGridBagLayout.BOTH:
-                    component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
-                    component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                    break;
-                case JSGridBagLayout.HORIZONTAL:
-                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                    component.setOuterHeight(componentPreferredOuterHeight);
-                    switch (anchor) {
-                        case JSGridBagLayout.NORTH:
-                            component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                            break;
-                        case JSGridBagLayout.SOUTH:
-                            var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
-                            component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
-                            var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
-                            component.setY(yPx + yPc * height100 / 100);
-                    }
-                    break;
-                case JSGridBagLayout.VERTICAL:
-                    component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
-                    component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                    break;
-                case JSGridBagLayout.NONE:
-                default:
-                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                    component.setOuterHeight(componentPreferredOuterHeight);
-                    switch (anchor) {
-                        case JSGridBagLayout.NORTH:
-                        case JSGridBagLayout.NORTHWEST:
-                        case JSGridBagLayout.NORTHEAST:
-                            component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                            break;
-                        case JSGridBagLayout.SOUTH:
-                        case JSGridBagLayout.SOUTHWEST:
-                        case JSGridBagLayout.SOUTHEAST:
-                            var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
-                            component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
-                            break;
-                        case JSGridBagLayout.CENTER:
-                        default:
-                            var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
-                            var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
-                            component.setY(yPx + yPc * height100 / 100);
-                    }
-            }
-        }
-    };
-    return JSGridBagLayout;
-}(JSLayout));
-var JSHorizontalSeparator = (function (_super) {
-    __extends(JSHorizontalSeparator, _super);
-    function JSHorizontalSeparator() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var line = _this.getLine();
-        _this.add(line);
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent) {
-                mouseEvent.stopPropagation();
-            },
-            mouseReleased: function (mouseEvent) {
-                mouseEvent.stopPropagation();
-            }
-        });
-        return _this;
-    }
-    JSHorizontalSeparator.prototype.init = function () {
-        this.addClass("JSHorizontalSeparator");
-    };
-    JSHorizontalSeparator.prototype.getLine = function () {
-        var line = this.getData("line");
-        if (!line) {
-            line = new JSDiv();
-            this.setData("line", line);
-        }
-        return line;
-    };
-    return JSHorizontalSeparator;
-}(JSHTMLComponent));
-var JSImage = (function (_super) {
-    __extends(JSImage, _super);
-    function JSImage() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]) || this;
-        switch (args.length) {
-            case 0:
-                break;
-            case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var source = args[0];
-                    _this.setSource(source);
-                }
-                break;
-            case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var width = args[1];
-                    var height = args[2];
-                    _this.setSource(source);
-                    _this.setWidth(width);
-                    _this.setHeight(height);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSImage.prototype.init = function () {
-        this.addClass("JSImage");
-    };
-    JSImage.prototype.getSource = function () {
-        return this.getAttribute("src");
-    };
-    JSImage.prototype.setSource = function (source) {
-        this.setAttribute("src", source);
-    };
-    return JSImage;
-}(JSHTMLComponent));
-var JSLabel = (function (_super) {
-    __extends(JSLabel, _super);
-    function JSLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
-        var graphics = _this.getGraphics();
-        _this.add(graphics);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (args[0] instanceof JSIcon && typeof args[1] === "string") {
-                    var icon = args[0];
-                    var horizontalAlignment = args[1];
-                    _this.setIcon(icon);
-                    _this.setStyle("text-align", horizontalAlignment);
-                }
-                else if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var text = args[0];
-                    var horizontalAlignment = args[1];
-                    _this.setText(text);
-                    _this.setStyle("text-align", horizontalAlignment);
-                }
-                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "string") {
-                    var text = args[0];
-                    var icon = args[1];
-                    var horizontalAlignment = args[2];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                    _this.setStyle("text-align", horizontalAlignment);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSLabel.prototype.init = function () {
-        this.addClass("JSLabel");
-    };
-    JSLabel.prototype.setIcon = function (icon) {
-        _super.prototype.setIcon.call(this, icon);
-        if (icon) {
-            var span = this.getData("span");
-            if (span) {
-                var text = span.getText();
-                span.setStyle("margin-left", text ? "4px" : "0");
-            }
-        }
-    };
-    JSLabel.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSLabel.prototype.getText = function () {
-        var span = this.getSpan();
-        return span.getText();
-    };
-    JSLabel.prototype.setText = function (text) {
-        var span = this.getSpan();
-        span.setText(text);
-        var icon = this.getIcon();
-        if (icon) {
-            span.setStyle("margin-left", text ? "4px" : "0");
-        }
-    };
-    JSLabel.prototype.getSpan = function () {
-        var span = this.getData("span");
-        if (!span) {
-            span = new JSSpan();
-            this.add(span);
-            this.setData("span", span);
-        }
-        return span;
-    };
-    JSLabel.prototype.isUndecorated = function () {
-        return this.hasClass("undecorated");
-    };
-    JSLabel.prototype.setUndecorated = function (undecorated) {
-        if (undecorated) {
-            this.addClass("undecorated");
-        }
-        else {
-            this.removeClass("undecorated");
-        }
-    };
-    JSLabel.prototype.getFor = function () {
-        return this.getAttribute("for");
-    };
-    JSLabel.prototype.setFor = function (id) {
-        this.setAttribute("for", id);
-    };
-    return JSLabel;
-}(JSHTMLComponent));
-var JSLayeredPane = (function (_super) {
-    __extends(JSLayeredPane, _super);
-    function JSLayeredPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSLayout) {
-                    var layout = args[0];
-                    _this.setLayout(layout);
-                }
-                break;
-            default:
-        }
-        var layout = _this.getLayout();
-        if (!layout) {
-            _this.setLayout(new JSLayeredPaneLayout());
-        }
-        return _this;
-    }
-    JSLayeredPane.prototype.init = function () {
-        this.addClass("JSLayeredPane");
-    };
-    JSLayeredPane.prototype.setLayer = function (component, layer) {
-        component.setZIndex(layer);
-    };
-    return JSLayeredPane;
-}(JSHTMLComponent));
-var JSLayeredPaneLayout = (function (_super) {
-    __extends(JSLayeredPaneLayout, _super);
-    function JSLayeredPaneLayout() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    JSLayeredPaneLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    return JSLayeredPaneLayout;
-}(JSLayout));
-var JSMarker = (function (_super) {
-    __extends(JSMarker, _super);
-    function JSMarker() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]) || this;
-    }
-    JSMarker.prototype.init = function () {
-        this.addClass("JSMarker");
-    };
-    return JSMarker;
-}(JSSVGComponent));
-var JSMatteBorder = (function () {
-    function JSMatteBorder(top, left, bottom, right, color) {
-        this.setTop(top);
-        this.setLeft(left);
-        this.setBottom(bottom);
-        this.setRight(right);
-        this.setColor(color);
-    }
-    JSMatteBorder.prototype.getTop = function () {
-        return this.top;
-    };
-    JSMatteBorder.prototype.setTop = function (top) {
-        this.top = top;
-    };
-    JSMatteBorder.prototype.getLeft = function () {
-        return this.left;
-    };
-    JSMatteBorder.prototype.setLeft = function (left) {
-        this.left = left;
-    };
-    JSMatteBorder.prototype.getBottom = function () {
-        return this.bottom;
-    };
-    JSMatteBorder.prototype.setBottom = function (bottom) {
-        this.bottom = bottom;
-    };
-    JSMatteBorder.prototype.getRight = function () {
-        return this.right;
-    };
-    JSMatteBorder.prototype.setRight = function (right) {
-        this.right = right;
-    };
-    JSMatteBorder.prototype.getColor = function () {
-        return this.color;
-    };
-    JSMatteBorder.prototype.setColor = function (color) {
-        this.color = color;
-    };
-    JSMatteBorder.prototype.paintBorder = function (component) {
-        var top = this.getTop();
-        var left = this.getLeft();
-        var bottom = this.getBottom();
-        var right = this.getRight();
-        var color = this.getColor();
-        if (top) {
-            component.setStyle("border-top", top + "px solid " + color);
-        }
-        if (left) {
-            component.setStyle("border-left", left + "px solid " + color);
-        }
-        if (bottom) {
-            component.setStyle("border-bottom", bottom + "px solid " + color);
-        }
-        if (right) {
-            component.setStyle("border-right", right + "px solid " + color);
-        }
-    };
-    return JSMatteBorder;
-}());
-var JSMenu = (function (_super) {
-    __extends(JSMenu, _super);
-    function JSMenu() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.delay = JSMenu.DELAY;
-        var label = _this.getLabel();
-        _super.prototype.add.call(_this, label);
-        var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics);
-        var popupMenuContainer = _this.getPopupMenuContainer();
-        _super.prototype.add.call(_this, popupMenuContainer);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent, menu) {
-                var parent = menu.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    var parentSelected = parent.isSelected();
-                    if (parentSelected) {
-                        parent.getSelection().setSelected(menu);
-                    }
-                }
-                else {
-                    menu.setData("changed", false);
-                    var popupMenu = menu.getPopupMenu();
-                    if (popupMenu) {
-                        var parentSelected = parent.isSelected();
-                        if (!parentSelected) {
-                            parent.setSelected(true);
-                            parent.getSelection().setSelected(menu);
-                            menu.setData("changed", true);
-                        }
-                    }
-                }
-                mouseEvent.stopPropagation();
-            },
-            mouseReleased: function (mouseEvent, menu) {
-                var parent = menu.getParent();
-                if (!(parent instanceof JSPopupMenu)) {
-                    var changed = menu.getData("changed");
-                    if (!changed) {
-                        var popupMenu = menu.getPopupMenu();
-                        if (popupMenu) {
-                            var parentSelected = parent.isSelected();
-                            if (parentSelected) {
-                                parent.setSelected(false);
-                            }
-                        }
-                    }
-                }
-                mouseEvent.stopPropagation();
-            },
-            mouseEntered: function (mouseEvent, menu) {
-                var parent = menu.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    var timer = menu.getTimer();
-                    timer.cancel();
-                    timer.schedule({
-                        run: function () {
-                            var parentSelected = parent.isSelected();
-                            if (parentSelected) {
-                                parent.getSelection().setSelected(menu);
-                            }
-                        }
-                    }, menu.getDelay());
-                }
-                else {
-                    var parentSelected = parent.isSelected();
-                    if (parentSelected) {
-                        parent.getSelection().setSelected(menu);
-                    }
-                }
-                mouseEvent.stopPropagation();
-            },
-            mouseExited: function (mouseEvent, menu) {
-                var parent = menu.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    var timer = menu.getTimer();
-                    timer.cancel();
-                }
-            }
-        }).withParameters(_this);
-        return _this;
-    }
-    JSMenu.prototype.init = function () {
-        this.addClass("JSMenu");
-    };
-    JSMenu.prototype.getLabel = function () {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            this.setData("label", label);
-        }
-        return label;
-    };
-    JSMenu.prototype.getIcon = function () {
-        var label = this.getLabel();
-        return label.getIcon();
-    };
-    JSMenu.prototype.setIcon = function (icon) {
-        var label = this.getLabel();
-        label.setIcon(icon);
-    };
-    JSMenu.prototype.getText = function () {
-        var label = this.getLabel();
-        return label.getText();
-    };
-    JSMenu.prototype.setText = function (text) {
-        var label = this.getLabel();
-        label.setText(text);
-    };
-    JSMenu.prototype.getDelay = function () {
-        return this.delay;
-    };
-    JSMenu.prototype.setDelay = function (delay) {
-        this.delay = delay;
-    };
-    JSMenu.prototype.getTimer = function () {
-        var timer = this.getData("timer");
-        if (!timer) {
-            timer = new JSTimer();
-            this.setData("timer", timer);
-        }
-        return timer;
-    };
-    JSMenu.prototype.getSubmenuIcon = function () {
-        return this.getData("submenuIcon");
-    };
-    JSMenu.prototype.setSubmenuIcon = function (icon) {
-        this.setData("submenuIcon", icon);
-        var graphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            }
-            else {
-                graphics.removeAll();
-            }
-            graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
-        }
-    };
-    JSMenu.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            graphics.setStyle("position", "absolute");
-            graphics.setStyle("right", "0");
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSMenu.prototype.getPopupMenuContainer = function () {
-        var popupMenuContainer = this.getData("popupMenuContainer");
-        if (!popupMenuContainer) {
-            popupMenuContainer = new JSDiv();
-            popupMenuContainer.setStyle("position", "absolute");
-            this.setData("popupMenuContainer", popupMenuContainer);
-        }
-        return popupMenuContainer;
-    };
-    JSMenu.prototype.getPopupMenu = function () {
-        return this.getData("popupMenu");
-    };
-    JSMenu.prototype.setPopupMenu = function (popupMenu) {
-        if (popupMenu) {
-            var oldPopupMenu = this.getPopupMenu();
-            if (oldPopupMenu !== popupMenu) {
-                var popupMenuContainer = this.getPopupMenuContainer();
-                if (oldPopupMenu) {
-                    popupMenuContainer.remove(oldPopupMenu);
-                }
-                if (popupMenu) {
-                    popupMenuContainer.add(popupMenu, null, 0);
-                    popupMenuContainer.validate();
-                }
-            }
-        }
-        this.setData("popupMenu", popupMenu);
-    };
-    JSMenu.prototype.add = function (component) {
-        if (component instanceof JSMenu || component instanceof JSMenuItem || component instanceof JSCheckBoxMenuItem || component instanceof JSHorizontalSeparator) {
-            var popupMenu = this.getPopupMenu();
-            if (!popupMenu) {
-                popupMenu = new JSPopupMenu();
-                this.setPopupMenu(popupMenu);
-            }
-            popupMenu.add(component);
-            if (component instanceof JSMenu) {
-                component.setStyle("display", "block");
-                component.setSubmenuIcon(JSMenu.SUBMENU_ICON);
-                var label = component.getLabel();
-                label.setStyle("margin-right", JSMenu.SUBMENU_ICON.getIconWidth() + "px");
-            }
-        }
-        else {
-            _super.prototype.add.call(this, component);
-        }
-    };
-    JSMenu.prototype.addSeparator = function () {
-        this.add(new JSHorizontalSeparator());
-    };
-    JSMenu.prototype.setSelected = function (selected) {
-        var popupMenu = this.getPopupMenu();
-        if (popupMenu) {
-            if (selected) {
-                var parent = this.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    popupMenu.show(this, this.getWidth(), 0 - this.getHeight() - popupMenu.getPaddingTop() - popupMenu.getBorderTopWidth());
-                }
-                else {
-                    popupMenu.show(this, 0 - this.getPaddingLeft(), this.getPaddingBottom());
-                }
-            }
-            else {
-                popupMenu.setSelected(false);
-            }
-        }
-        _super.prototype.setSelected.call(this, selected);
-    };
-    JSMenu.DELAY = 200;
-    JSMenu.SUBMENU_ICON = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withFill("gray");
-    return JSMenu;
-}(JSHTMLComponent));
-var JSMenuBar = (function (_super) {
-    __extends(JSMenuBar, _super);
-    function JSMenuBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var menuContainer = _this.getMenuContainer();
-        _super.prototype.add.call(_this, menuContainer);
-        return _this;
-    }
-    JSMenuBar.prototype.init = function () {
-        this.addClass("JSMenuBar");
-    };
-    JSMenuBar.prototype.add = function (menu) {
-        var menuContainer = this.getMenuContainer();
-        menuContainer.add(menu);
-    };
-    JSMenuBar.prototype.getMenuContainer = function () {
-        var menuContainer = this.getData("menuContainer");
-        if (!menuContainer) {
-            menuContainer = new JSMenuContainer();
-            this.setData("menuContainer", menuContainer);
-        }
-        return menuContainer;
-    };
-    return JSMenuBar;
-}(JSPanel));
-var JSMenuContainer = (function (_super) {
-    __extends(JSMenuContainer, _super);
-    function JSMenuContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        JSBody.getInstance().addMouseListener({
-            mousePressed: function (mouseEvent, menuContainer) {
-                menuContainer.setData("pressed", false);
-                var timer = menuContainer.getTimer();
-                timer.schedule({
-                    run: function () {
-                        var pressed = menuContainer.getData("pressed");
-                        if (!pressed) {
-                            menuContainer.setSelected(false);
-                        }
-                    }
-                }, 0);
-            }
-        }, true).withParameters(_this);
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent, menuContainer) {
-                menuContainer.setData("pressed", true);
-            }
-        }, true).withParameters(_this);
-        return _this;
-    }
-    JSMenuContainer.prototype.init = function () {
-        this.addClass("JSMenuContainer");
-    };
-    JSMenuContainer.prototype.add = function (menu) {
-        var selection = this.getSelection();
-        if (!selection) {
-            selection = new JSSelection();
-            this.setSelection(selection);
-        }
-        selection.add(menu);
-        menu.setStyle("display", "inline-block");
-        _super.prototype.add.call(this, menu);
-    };
-    JSMenuContainer.prototype.setSelected = function (selected) {
-        if (!selected) {
-            var selection = this.getSelection();
-            if (selection) {
-                selection.setSelected(null);
-            }
-        }
-        _super.prototype.setSelected.call(this, selected);
-    };
-    JSMenuContainer.prototype.getTimer = function () {
-        var timer = this.getData("timer");
-        if (!timer) {
-            timer = new JSTimer();
-            this.setData("timer", timer);
-        }
-        return timer;
-    };
-    return JSMenuContainer;
-}(JSHTMLComponent));
-var JSMenuItem = (function (_super) {
-    __extends(JSMenuItem, _super);
-    function JSMenuItem() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var label = _this.getLabel();
-        _this.add(label);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
-                    _this.setAction(action);
-                }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        _this.addMouseListener(_this);
-        return _this;
-    }
-    JSMenuItem.prototype.init = function () {
-        this.addClass("JSMenuItem");
-    };
-    JSMenuItem.prototype.getLabel = function () {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            this.setData("label", label);
-        }
-        return label;
-    };
-    JSMenuItem.prototype.getIcon = function () {
-        var label = this.getLabel();
-        return label.getIcon();
-    };
-    JSMenuItem.prototype.setIcon = function (icon) {
-        var label = this.getLabel();
-        label.setIcon(icon);
-    };
-    JSMenuItem.prototype.getText = function () {
-        var label = this.getLabel();
-        return label.getText();
-    };
-    JSMenuItem.prototype.setText = function (text) {
-        var label = this.getLabel();
-        label.setText(text);
-    };
-    JSMenuItem.prototype.mouseEntered = function (mouseEvent) {
-        var parent = this.getParent();
-        var parentSelected = parent.isSelected();
-        if (parentSelected) {
-            parent.getSelection().setSelected(this);
-        }
-        mouseEvent.stopPropagation();
-    };
-    JSMenuItem.prototype.mouseClicked = function (mouseEvent) {
-        var parent = this.getParent();
-        if (parent instanceof JSPopupMenu) {
-            var popuMenu = parent;
-            var invoker = popuMenu.getInvoker();
-            while (invoker) {
-                parent = invoker.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    popuMenu = parent;
-                    invoker = popuMenu.getInvoker();
-                }
-                else {
-                    break;
-                }
-            }
-            if (parent instanceof JSMenuContainer) {
-                parent.setSelected(false);
-            }
-            else if (invoker instanceof JSMenu) {
-                invoker.setSelected(false);
-            }
-            else {
-                popuMenu.setSelected(false);
-            }
-        }
-        mouseEvent.stopPropagation();
-    };
-    return JSMenuItem;
-}(JSHTMLComponent));
-var JSMouseDraggedListener = (function () {
-    function JSMouseDraggedListener(mouseDraggedListener) {
-        this.parameters = [];
-        var jsMouseDraggedListener = this;
-        this.mouseDragged = function (mouseEvent) {
-            var parameters = jsMouseDraggedListener.getParameters().slice();
-            parameters.unshift(mouseEvent);
-            mouseDraggedListener.mouseDragged.apply(mouseDraggedListener, parameters);
-        };
-    }
-    JSMouseDraggedListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSMouseDraggedListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSMouseDraggedListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSMouseDraggedListener;
-}());
-var JSMouseListener = (function () {
-    function JSMouseListener(mouseListener) {
-        this.parameters = [];
-        var jsMouseListener = this;
-        if (mouseListener.mouseClicked) {
-            this.mouseClicked = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseClicked.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mousePressed) {
-            this.mousePressed = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mousePressed.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mouseReleased) {
-            this.mouseReleased = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseReleased.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mouseEntered) {
-            this.mouseEntered = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseEntered.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mouseExited) {
-            this.mouseExited = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseExited.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mouseMoved) {
-            this.mouseMoved = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseMoved.apply(mouseListener, parameters);
-            };
-        }
-        if (mouseListener.mouseDragged) {
-            this.mouseDragged = function (mouseEvent) {
-                var parameters = jsMouseListener.getParameters().slice();
-                parameters.unshift(mouseEvent);
-                mouseListener.mouseDragged.apply(mouseListener, parameters);
-            };
-        }
-    }
-    JSMouseListener.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSMouseListener.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSMouseListener.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSMouseListener;
-}());
-var JSOption = (function (_super) {
-    __extends(JSOption, _super);
-    function JSOption() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                    _this.setValue(text);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSOption.prototype.init = function () {
-        this.addClass("JSOption");
-    };
-    JSOption.prototype.getText = function () {
-        return this.element.text;
-    };
-    JSOption.prototype.setText = function (text) {
-        this.element.text = "" + text;
-    };
-    JSOption.prototype.getValue = function () {
-        return this.element.value;
-    };
-    JSOption.prototype.setValue = function (value) {
-        this.element.value = value;
-    };
-    return JSOption;
-}(JSHTMLComponent));
-var JSP = (function (_super) {
-    __extends(JSP, _super);
-    function JSP() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var text = args[0];
-                    var horizontalAlignment = args[1];
-                    _this.setText(text);
-                    _this.setStyle("text-align", horizontalAlignment);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSP.prototype.init = function () {
-        this.addClass("JSP");
-    };
-    return JSP;
-}(JSHTMLComponent));
-var JSPath = (function (_super) {
-    __extends(JSPath, _super);
-    function JSPath() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var definition = args[0];
-                    _this.setDefinition(definition);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSPath.prototype.init = function () {
-        this.addClass("JSPath");
-    };
-    JSPath.prototype.getDefinition = function () {
-        return this.getAttributeNS("d");
-    };
-    JSPath.prototype.setDefinition = function (definition) {
-        this.setAttributeNS("d", definition);
-    };
-    return JSPath;
-}(JSSVGComponent));
-var JSPathImage = (function (_super) {
-    __extends(JSPathImage, _super);
-    function JSPathImage() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
-        var path = _this.getPath();
-        _this.add(path);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSPathIcon) {
-                    var icon = args[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof args[0] === "string") {
-                    var source = args[0];
-                    _this.setSource(source);
-                }
-                break;
-            case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var width = args[1];
-                    var height = args[2];
-                    _this.setSource(source);
-                    _this.setWidth(width);
-                    _this.setHeight(height);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSPathImage.prototype.init = function () {
-        this.addClass("JSPathImage");
-    };
-    JSPathImage.prototype.getPath = function () {
-        var path = this.getData("path");
-        if (!path) {
-            path = new JSPath();
-            this.setData("path", path);
-        }
-        return path;
-    };
-    JSPathImage.prototype.getSource = function () {
-        var path = this.getPath();
-        return path.getDefinition();
-    };
-    JSPathImage.prototype.setSource = function (source) {
-        var path = this.getPath();
-        path.setDefinition(source);
-    };
-    JSPathImage.prototype.getFill = function () {
-        var path = this.getPath();
-        return path.getFill();
-    };
-    JSPathImage.prototype.setFill = function (fill) {
-        var path = this.getPath();
-        path.setFill(fill);
-    };
-    JSPathImage.prototype.getStroke = function () {
-        var path = this.getPath();
-        return path.getStroke();
-    };
-    JSPathImage.prototype.setStroke = function (stroke) {
-        var path = this.getPath();
-        path.setStroke(stroke);
-    };
-    return JSPathImage;
-}(JSSVG));
-var JSPopupMenu = (function (_super) {
-    __extends(JSPopupMenu, _super);
-    function JSPopupMenu() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setVisible(false);
-        JSBody.getInstance().addMouseListener({
-            mousePressed: function (mouseEvent, popupMenu) {
-                var invoker = popupMenu.getInvoker();
-                if (!(invoker instanceof JSMenu)) {
-                    popupMenu.setData("close", true);
-                    var timer = popupMenu.getTimer();
-                    timer.schedule({
-                        run: function () {
-                            var close = popupMenu.getData("close");
-                            if (close) {
-                                popupMenu.setSelected(false);
-                            }
-                        }
-                    }, 0);
-                }
-            }
-        }, true).withParameters(_this);
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent, popupMenu) {
-                popupMenu.setData("close", false);
-            }
-        }, true).withParameters(_this);
-        _this.setZIndex(JSLayeredPane.POPUP_LAYER);
-        return _this;
-    }
-    JSPopupMenu.prototype.init = function () {
-        this.addClass("JSPopupMenu");
-    };
-    JSPopupMenu.prototype.add = function (component) {
-        var selection = this.getSelection();
-        if (!selection) {
-            selection = new JSSelection();
-            this.setSelection(selection);
-        }
-        selection.add(component);
-        _super.prototype.add.call(this, component);
-    };
-    JSPopupMenu.prototype.addSeparator = function () {
-        this.add(new JSHorizontalSeparator());
-    };
-    JSPopupMenu.prototype.getInvoker = function () {
-        return this.invoker;
-    };
-    JSPopupMenu.prototype.setInvoker = function (invoker) {
-        this.invoker = invoker;
-    };
-    JSPopupMenu.prototype.show = function (invoker, x, y) {
-        if (!(invoker instanceof JSMenu)) {
-            var body = JSBody.getInstance();
-            body.setPopupMenu(this);
-        }
-        this.setInvoker(invoker);
-        this.setX(x);
-        this.setY(y);
-        this.setSelected(true);
-        this.setData("close", false);
-    };
-    JSPopupMenu.prototype.setSelected = function (selected) {
-        this.setVisible(selected);
-        if (!selected) {
-            var selection = this.getSelection();
-            if (selection) {
-                selection.setSelected(null);
-            }
-        }
-        _super.prototype.setSelected.call(this, selected);
-    };
-    JSPopupMenu.prototype.getTimer = function () {
-        var timer = this.getData("timer");
-        if (!timer) {
-            timer = new JSTimer();
-            this.setData("timer", timer);
-        }
-        return timer;
-    };
-    return JSPopupMenu;
-}(JSHTMLComponent));
 var JSProgressBar = (function (_super) {
     __extends(JSProgressBar, _super);
     function JSProgressBar() {
@@ -5263,121 +5579,6 @@ var JSProgressBar = (function (_super) {
     };
     return JSProgressBar;
 }(JSHTMLComponent));
-var JSProperties = (function () {
-    function JSProperties() {
-        this.setProperties({});
-    }
-    JSProperties.prototype.getProperties = function () {
-        return this.properties;
-    };
-    JSProperties.prototype.setProperties = function (properties) {
-        this.properties = properties;
-    };
-    JSProperties.prototype.getProperty = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var value;
-        var properties = this.getProperties();
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var key = args[0];
-                    value = properties[key];
-                }
-            case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var key = args[0];
-                    var defaultValue = args[1];
-                    value = properties[key];
-                    if (value === undefined) {
-                        value = defaultValue;
-                    }
-                }
-                break;
-            default:
-        }
-        return value;
-    };
-    JSProperties.prototype.setProperty = function (key, value) {
-        var properties = this.getProperties();
-        properties[key] = value;
-    };
-    JSProperties.prototype.load = function () {
-    };
-    return JSProperties;
-}());
-var JSPropertyChangeEvent = (function () {
-    function JSPropertyChangeEvent(source, propertyName, oldValue, newValue) {
-        this.setSource(source);
-        this.setPropertyName(propertyName);
-        this.setOldValue(oldValue);
-        this.setNewValue(newValue);
-    }
-    JSPropertyChangeEvent.prototype.getSource = function () {
-        return this.source;
-    };
-    JSPropertyChangeEvent.prototype.setSource = function (source) {
-        this.source = source;
-    };
-    JSPropertyChangeEvent.prototype.getPropertyName = function () {
-        return this.propertyName;
-    };
-    JSPropertyChangeEvent.prototype.setPropertyName = function (propertyName) {
-        this.propertyName = propertyName;
-    };
-    JSPropertyChangeEvent.prototype.getOldValue = function () {
-        return this.oldValue;
-    };
-    JSPropertyChangeEvent.prototype.setOldValue = function (oldValue) {
-        this.oldValue = oldValue;
-    };
-    JSPropertyChangeEvent.prototype.getNewValue = function () {
-        return this.newValue;
-    };
-    JSPropertyChangeEvent.prototype.setNewValue = function (newValue) {
-        this.newValue = newValue;
-    };
-    return JSPropertyChangeEvent;
-}());
-var JSPropertyChangeListener = (function () {
-    function JSPropertyChangeListener(propertyChangeListener) {
-        this.propertyChange = propertyChangeListener.propertyChange;
-    }
-    return JSPropertyChangeListener;
-}());
-var JSPropertyChangeSupport = (function () {
-    function JSPropertyChangeSupport() {
-    }
-    JSPropertyChangeSupport.prototype.getPropertyChangeListeners = function () {
-        var propertyChangeListeners = this.propertyChangeListeners;
-        if (propertyChangeListeners === undefined) {
-            propertyChangeListeners = [];
-            this.propertyChangeListeners = propertyChangeListeners;
-        }
-        return propertyChangeListeners;
-    };
-    JSPropertyChangeSupport.prototype.addPropertyChangeListener = function (propertyChangeListener) {
-        var propertyChangeListeners = this.getPropertyChangeListeners();
-        propertyChangeListeners.push(propertyChangeListener);
-    };
-    JSPropertyChangeSupport.prototype.removePropertyChangeListener = function (propertyChangeListener) {
-        var propertyChangeListeners = this.getPropertyChangeListeners();
-        var index = propertyChangeListeners.indexOf(propertyChangeListener);
-        if (index !== -1) {
-            propertyChangeListeners.splice(index, 1);
-        }
-    };
-    JSPropertyChangeSupport.prototype.firePropertyChange = function (propertyChangeEvent) {
-        var propertyChangeListeners = this.getPropertyChangeListeners();
-        for (var i = 0; i < propertyChangeListeners.length; i++) {
-            var propertyChangeListener = propertyChangeListeners[i];
-            propertyChangeListener.propertyChange(propertyChangeEvent);
-        }
-    };
-    return JSPropertyChangeSupport;
-}());
 var JSRadioButton = (function (_super) {
     __extends(JSRadioButton, _super);
     function JSRadioButton() {
@@ -5403,210 +5604,6 @@ var JSRadioButton = (function (_super) {
     };
     return JSRadioButton;
 }(JSHTMLComponent));
-var JSResourceBundle = (function () {
-    function JSResourceBundle() {
-        this.setContents({});
-    }
-    JSResourceBundle.prototype.getContents = function () {
-        return this.contents;
-    };
-    JSResourceBundle.prototype.setContents = function (contents) {
-        this.contents = contents;
-    };
-    return JSResourceBundle;
-}());
-var JSRunnable = (function () {
-    function JSRunnable(runnable) {
-        this.parameters = [];
-        var jsRunnable = this;
-        this.run = function () {
-            var parameters = jsRunnable.getParameters().slice();
-            runnable.run.apply(runnable, parameters);
-        };
-    }
-    JSRunnable.prototype.getPid = function () {
-        return this.pid;
-    };
-    JSRunnable.prototype.setPid = function (pid) {
-        this.pid = pid;
-    };
-    JSRunnable.prototype.getParameters = function () {
-        return this.parameters;
-    };
-    JSRunnable.prototype.setParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-    };
-    JSRunnable.prototype.withParameters = function () {
-        var parameters = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i] = arguments[_i];
-        }
-        this.parameters = parameters;
-        return this;
-    };
-    return JSRunnable;
-}());
-var JSScrollPane = (function (_super) {
-    __extends(JSScrollPane, _super);
-    function JSScrollPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var viewContainer = _this.getViewContainer();
-        _this.add(viewContainer);
-        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof JSComponent) {
-                    var view = args[0];
-                    _this.setViewportView(view);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var vsbPolicy = args[0];
-                    var hsbPolicy = args[1];
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
-                }
-                break;
-            case 3:
-                if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                    var view = args[0];
-                    var vsbPolicy = args[1];
-                    var hsbPolicy = args[2];
-                    _this.setViewportView(view);
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSScrollPane.prototype.init = function () {
-        this.addClass("JSScrollPane");
-    };
-    JSScrollPane.prototype.getVsbPolicy = function () {
-        return this.getStyle("overflow-y");
-    };
-    JSScrollPane.prototype.setVsbPolicy = function (vsbPolicy) {
-        this.setStyle("overflow-y", vsbPolicy);
-    };
-    JSScrollPane.prototype.getHsbPolicy = function () {
-        return this.getStyle("overflow-x");
-    };
-    JSScrollPane.prototype.setHsbPolicy = function (hsbPolicy) {
-        this.setStyle("overflow-x", hsbPolicy);
-    };
-    JSScrollPane.prototype.getViewContainer = function () {
-        var viewContainer = this.getData("viewContainer");
-        if (!viewContainer) {
-            viewContainer = new JSPanel();
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
-    };
-    JSScrollPane.prototype.getViewportView = function () {
-        return this.getData("viewportView");
-    };
-    JSScrollPane.prototype.setViewportView = function (viewportView) {
-        this.setData("viewportView", viewportView);
-        var viewContainer = this.getViewContainer();
-        if (viewportView) {
-            viewContainer.removeAll();
-            viewContainer.add(viewportView);
-        }
-        if (viewportView instanceof JSTable) {
-        }
-    };
-    JSScrollPane.prototype.getPreferredWidth = function () {
-        var preferredWidth = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
-        }
-        var viewContainer = this.getViewContainer();
-        return viewContainer.getPreferredWidth();
-    };
-    JSScrollPane.prototype.getPreferredHeight = function () {
-        var preferredHeight = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        var viewContainer = this.getViewContainer();
-        return viewContainer.getPreferredHeight();
-    };
-    JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.VERTICAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
-    return JSScrollPane;
-}(JSHTMLComponent));
-var JSSelection = (function () {
-    function JSSelection() {
-        this.components = [];
-        this.selected = null;
-    }
-    JSSelection.prototype.add = function (component) {
-        var components = this.getComponents();
-        components.push(component);
-    };
-    JSSelection.prototype.remove = function (component) {
-        var components = this.getComponents();
-        var index = components.indexOf(component);
-        if (index === -1) {
-            return;
-        }
-        components.splice(index, 1);
-        var selected = this.getSelected();
-        if (selected === component) {
-            this.setSelected(null);
-        }
-    };
-    JSSelection.prototype.getComponents = function () {
-        return this.components;
-    };
-    JSSelection.prototype.getSelected = function () {
-        return this.selected;
-    };
-    JSSelection.prototype.setSelected = function (component) {
-        var selected = this.getSelected();
-        if (selected === component) {
-            return;
-        }
-        if (selected) {
-            selected.setSelected(false);
-        }
-        else {
-            var components = this.getComponents();
-            for (var i = 0; i < components.length; i++) {
-                components[i].setSelected(false);
-            }
-        }
-        if (component) {
-            component.setSelected(true);
-        }
-        this.selected = component;
-    };
-    JSSelection.prototype.setSelectedIndex = function (selectedIndex) {
-        var components = this.getComponents();
-        this.setSelected(components[selectedIndex]);
-    };
-    JSSelection.prototype.getSelectedIndex = function () {
-        var components = this.getComponents();
-        return components.indexOf(this.getSelected());
-    };
-    return JSSelection;
-}());
 var JSSpan = (function (_super) {
     __extends(JSSpan, _super);
     function JSSpan() {
@@ -5621,313 +5618,45 @@ var JSSpan = (function (_super) {
     };
     return JSSpan;
 }(JSHTMLComponent));
-var JSSplitPane = (function (_super) {
-    __extends(JSSplitPane, _super);
-    function JSSplitPane() {
+var JSSVG = (function (_super) {
+    __extends(JSSVG, _super);
+    function JSSVG() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
         switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var orientation = args[0];
-                    _this.setOrientation(orientation);
+            case 2:
+                if (typeof args[0] === "number" && typeof args[1] === "number") {
+                    var width = args[0];
+                    var height = args[1];
+                    _this.setWidth(width);
+                    _this.setHeight(height);
                 }
                 break;
             default:
         }
-        _this.setLayout(new JSSplitPaneLayout());
-        var leftContainer = _this.getLeftContainer();
-        _this.add(leftContainer);
-        var divider = _this.getDivider();
-        _this.add(divider);
-        var rightContainer = _this.getRightContainer();
-        _this.add(rightContainer);
-        _this.setDividerSize(4);
-        _this.setDividerProportionalLocation(.5);
+        _this.setStyle("display", "inline-block");
         return _this;
     }
-    JSSplitPane.prototype.init = function () {
-        this.addClass("JSSplitPane");
+    JSSVG.prototype.init = function () {
+        this.addClass("JSSVG");
     };
-    JSSplitPane.prototype.getOrientation = function () {
-        return this.getAttribute("data-orientation");
+    JSSVG.prototype.setX = function (x) {
+        this.setStyle("left", x + "px");
     };
-    JSSplitPane.prototype.setOrientation = function (orientation) {
-        this.setAttribute("data-orientation", orientation);
+    JSSVG.prototype.setY = function (y) {
+        this.setStyle("top", y + "px");
     };
-    JSSplitPane.prototype.getLeftContainer = function () {
-        var leftContainer = this.getData("leftContainer");
-        if (!leftContainer) {
-            leftContainer = new JSSplitPaneLeftContainer();
-            this.setData("leftContainer", leftContainer);
-        }
-        return leftContainer;
+    JSSVG.prototype.getViewBox = function () {
+        return this.getAttribute("viewBox");
     };
-    JSSplitPane.prototype.getRightContainer = function () {
-        var rightContainer = this.getData("rightContainer");
-        if (!rightContainer) {
-            rightContainer = new JSSplitPaneRightContainer();
-            this.setData("rightContainer", rightContainer);
-        }
-        return rightContainer;
+    JSSVG.prototype.setViewBox = function (viewBox) {
+        this.setAttribute("viewBox", viewBox);
     };
-    JSSplitPane.prototype.getLeftComponent = function () {
-        var leftContainer = this.getLeftContainer();
-        var components = leftContainer.getComponents();
-        if (components.length === 1) {
-            return components[0];
-        }
-        return null;
-    };
-    JSSplitPane.prototype.setLeftComponent = function (leftComponent) {
-        var leftContainer = this.getLeftContainer();
-        leftContainer.removeAll();
-        leftContainer.add(leftComponent);
-    };
-    JSSplitPane.prototype.getRightComponent = function () {
-        var rightContainer = this.getRightContainer();
-        var components = rightContainer.getComponents();
-        if (components.length === 1) {
-            return components[0];
-        }
-        return null;
-    };
-    JSSplitPane.prototype.setRightComponent = function (rightComponent) {
-        var rightContainer = this.getRightContainer();
-        rightContainer.removeAll();
-        rightContainer.add(rightComponent);
-    };
-    JSSplitPane.prototype.getTopComponent = function () {
-        return this.getLeftComponent();
-    };
-    JSSplitPane.prototype.setTopComponent = function (component) {
-        this.setLeftComponent(component);
-    };
-    JSSplitPane.prototype.getBottomComponent = function () {
-        return this.getRightComponent();
-    };
-    JSSplitPane.prototype.setBottomComponent = function (component) {
-        this.setRightComponent(component);
-    };
-    JSSplitPane.prototype.getDivider = function () {
-        var divider = this.getData("divider");
-        if (!divider) {
-            divider = new JSSplitPaneDivider();
-            var orientation = this.getOrientation();
-            divider.setCursor(orientation === JSSplitPane.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
-            this.setData("divider", divider);
-        }
-        return divider;
-    };
-    JSSplitPane.prototype.getDividerSize = function () {
-        return +this.getAttribute("data-divider-size");
-    };
-    JSSplitPane.prototype.setDividerSize = function (dividerSize) {
-        this.setAttribute("data-divider-size", "" + dividerSize);
-    };
-    JSSplitPane.prototype.getDividerLocation = function () {
-        return this.dividerLocation;
-    };
-    JSSplitPane.prototype.setDividerLocation = function (dividerLocation, dividerProportionalLocation) {
-        if (dividerProportionalLocation === void 0) { dividerProportionalLocation = 0; }
-        this.dividerLocation = dividerLocation;
-        this.dividerProportionalLocation = dividerProportionalLocation;
-        this.validate();
-    };
-    JSSplitPane.prototype.getDividerProportionalLocation = function () {
-        return this.dividerProportionalLocation;
-    };
-    JSSplitPane.prototype.setDividerProportionalLocation = function (dividerProportionalLocation) {
-        this.dividerProportionalLocation = dividerProportionalLocation;
-        this.dividerLocation = 0;
-        this.validate();
-    };
-    JSSplitPane.prototype.getMinimumDividerLocation = function () {
-        return 0;
-    };
-    JSSplitPane.prototype.getMaximumDividerLocation = function () {
-        var dividerSize = this.getDividerSize();
-        var orientation = this.getOrientation();
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            return this.getHeight() - dividerSize;
-        }
-        else {
-            return this.getWidth() - dividerSize;
-        }
-    };
-    return JSSplitPane;
-}(JSHTMLComponent));
-var JSSplitPaneDivider = (function (_super) {
-    __extends(JSSplitPaneDivider, _super);
-    function JSSplitPaneDivider() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent, divider) {
-                var splitPane = divider.getParent();
-                var orientation = splitPane.getOrientation();
-                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                    splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
-                }
-                else {
-                    splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
-                }
-                mouseEvent.stopPropagation();
-            },
-            mouseDragged: function (mouseEvent, divider) {
-                var splitPane = divider.getParent();
-                var orientation = splitPane.getOrientation();
-                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                    var y = mouseEvent.y;
-                    if (y) {
-                        splitPane.setDividerLocation(y - splitPane.getData("dy"), splitPane.getDividerProportionalLocation());
-                    }
-                }
-                else {
-                    var x = mouseEvent.x;
-                    if (x) {
-                        splitPane.setDividerLocation(x - splitPane.getData("dx"), splitPane.getDividerProportionalLocation());
-                    }
-                }
-                mouseEvent.stopPropagation();
-            }
-        }).withParameters(_this);
-        return _this;
-    }
-    JSSplitPaneDivider.prototype.init = function () {
-        this.addClass("JSSplitPaneDivider");
-    };
-    return JSSplitPaneDivider;
-}(JSPanel));
-var JSSplitPaneLayout = (function (_super) {
-    __extends(JSSplitPaneLayout, _super);
-    function JSSplitPaneLayout() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    JSSplitPaneLayout.prototype.addLayoutComponent = function (component) {
-        component.setStyle("position", "absolute");
-    };
-    JSSplitPaneLayout.prototype.preferredLayoutWidth = function (splitPane) {
-        var orientation = splitPane.getOrientation();
-        var leftContainer = splitPane.getLeftContainer();
-        var rightContainer = splitPane.getRightContainer();
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            return Math.max(leftContainer.getPreferredOuterWidth(), rightContainer.getPreferredOuterWidth());
-        }
-        else {
-            return leftContainer.getPreferredOuterWidth() + splitPane.getDividerSize() + rightContainer.getPreferredOuterWidth();
-        }
-    };
-    JSSplitPaneLayout.prototype.preferredLayoutHeight = function (splitPane) {
-        var orientation = splitPane.getOrientation();
-        var leftContainer = splitPane.getLeftContainer();
-        var rightContainer = splitPane.getRightContainer();
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            return leftContainer.getPreferredOuterHeight() + splitPane.getDividerSize() + rightContainer.getPreferredOuterHeight();
-        }
-        else {
-            return Math.max(leftContainer.getPreferredOuterHeight(), rightContainer.getPreferredOuterHeight());
-        }
-    };
-    JSSplitPaneLayout.prototype.layoutContainer = function (splitPane) {
-        var width = splitPane.getWidth();
-        var height = splitPane.getHeight();
-        var width100 = width + splitPane.getPaddingLeft() + splitPane.getPaddingRight();
-        var height100 = height + splitPane.getPaddingTop() + splitPane.getPaddingBottom();
-        var x = splitPane.getInsetLeft();
-        var y = splitPane.getInsetTop();
-        var orientation = splitPane.getOrientation();
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            var leftContainer = splitPane.getLeftContainer();
-            leftContainer.setOuterWidth(width);
-            leftContainer.setX(x);
-            leftContainer.setY(y);
-            var divider = splitPane.getDivider();
-            var dividerSize = splitPane.getDividerSize();
-            divider.setOuterHeight(dividerSize);
-            divider.setOuterWidth(width);
-            divider.setX(x);
-            var rightContainer = splitPane.getRightContainer();
-            rightContainer.setOuterWidth(width);
-            rightContainer.setX(x);
-        }
-        else {
-            var leftContainer = splitPane.getLeftContainer();
-            leftContainer.setOuterHeight(height);
-            leftContainer.setX(x);
-            leftContainer.setY(y);
-            var divider = splitPane.getDivider();
-            var dividerSize = splitPane.getDividerSize();
-            divider.setOuterWidth(dividerSize);
-            divider.setOuterHeight(height);
-            divider.setY(y);
-            var rightContainer = splitPane.getRightContainer();
-            rightContainer.setOuterHeight(height);
-            rightContainer.setY(y);
-        }
-        var dividerLocation = splitPane.getDividerLocation() || 0;
-        var dividerProportionalLocation = splitPane.getDividerProportionalLocation() || 0;
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            dividerLocation += dividerProportionalLocation * height100;
-            var leftContainer = splitPane.getLeftContainer();
-            leftContainer.setOuterHeight(dividerLocation - splitPane.getPaddingTop());
-            var divider = splitPane.getDivider();
-            divider.setY(dividerLocation);
-            var rightContainer = splitPane.getRightContainer();
-            var dividerSize = splitPane.getDividerSize();
-            rightContainer.setOuterHeight(height - dividerSize - dividerLocation + splitPane.getPaddingTop());
-            rightContainer.setY(dividerLocation + dividerSize);
-        }
-        else {
-            dividerLocation += dividerProportionalLocation * width100;
-            var leftContainer = splitPane.getLeftContainer();
-            leftContainer.setOuterWidth(dividerLocation - splitPane.getPaddingLeft());
-            var divider = splitPane.getDivider();
-            divider.setX(dividerLocation);
-            var rightContainer = splitPane.getRightContainer();
-            var dividerSize = splitPane.getDividerSize();
-            rightContainer.setOuterWidth(width - dividerSize - dividerLocation + splitPane.getPaddingLeft());
-            rightContainer.setX(dividerLocation + dividerSize);
-        }
-    };
-    return JSSplitPaneLayout;
-}(JSLayout));
-var JSSplitPaneLeftContainer = (function (_super) {
-    __extends(JSSplitPaneLeftContainer, _super);
-    function JSSplitPaneLeftContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-    }
-    JSSplitPaneLeftContainer.prototype.init = function () {
-        this.addClass("JSSplitPaneLeftContainer");
-        this.setLayout(new JSBorderLayout());
-    };
-    return JSSplitPaneLeftContainer;
-}(JSPanel));
-var JSSplitPaneRightContainer = (function (_super) {
-    __extends(JSSplitPaneRightContainer, _super);
-    function JSSplitPaneRightContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-    }
-    JSSplitPaneRightContainer.prototype.init = function () {
-        this.addClass("JSSplitPaneRightContainer");
-        this.setLayout(new JSBorderLayout());
-    };
-    return JSSplitPaneRightContainer;
-}(JSPanel));
+    return JSSVG;
+}(JSSVGComponent));
 var JSSVGImage = (function (_super) {
     __extends(JSSVGImage, _super);
     function JSSVGImage() {
@@ -5972,177 +5701,6 @@ var JSSVGImage = (function (_super) {
     };
     return JSSVGImage;
 }(JSSVGComponent));
-var JSTab = (function (_super) {
-    __extends(JSTab, _super);
-    function JSTab() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var graphics = _this.getGraphics();
-        _this.add(graphics);
-        switch (args.length) {
-            case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string") {
-                    var tabPlacement = args[0];
-                    var closeable = args[1];
-                    var text = args[2];
-                    _this.setTabPlacement(tabPlacement);
-                    _this.setCloseable(closeable);
-                    _this.setText(text);
-                }
-                break;
-            case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string" && args[3] instanceof JSIcon) {
-                    var tabPlacement = args[0];
-                    var closeable = args[1];
-                    var text = args[2];
-                    var icon = args[3];
-                    _this.setTabPlacement(tabPlacement);
-                    _this.setCloseable(closeable);
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTab.prototype.init = function () {
-        this.addClass("JSTab");
-    };
-    JSTab.prototype.getTabPlacement = function () {
-        return this.getAttribute("data-tab-placement");
-    };
-    JSTab.prototype.setTabPlacement = function (tabPlacement) {
-        this.setAttribute("data-tab-placement", tabPlacement);
-        switch (tabPlacement) {
-            case JSTabbedPane.RIGHT:
-                this.setBorder(new JSMatteBorder(0, 0, 1, 1, "DarkGray"));
-                break;
-            case JSTabbedPane.LEFT:
-                this.setBorder(new JSMatteBorder(0, 1, 1, 0, "DarkGray"));
-                break;
-            case JSTabbedPane.BOTTOM:
-                this.setBorder(new JSMatteBorder(0, 0, 1, 1, "DarkGray"));
-                break;
-            case JSTabbedPane.TOP:
-            default:
-                this.setBorder(new JSMatteBorder(1, 0, 0, 1, "DarkGray"));
-        }
-        var graphics = this.getGraphics();
-        if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-            graphics.setStyle("display", "block");
-            graphics.setStyle("margin", "4px auto 0");
-        }
-        else {
-            graphics.setStyle("margin-left", "4px");
-            graphics.setStyle("vertical-align", "middle");
-        }
-    };
-    JSTab.prototype.isCloseable = function () {
-        var button = this.getCloseButton();
-        return !!button;
-    };
-    JSTab.prototype.setCloseable = function (closeable) {
-        if (closeable) {
-            var button = this.getCloseButton();
-            if (!button) {
-                button = new JSButton(JSTab.CLOSE_ICON);
-                var tabPlacement = this.getTabPlacement();
-                if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                    button.setStyle("margin", "0 auto 4px");
-                }
-                else {
-                    button.setStyle("margin-right", "4px");
-                    button.setStyle("vertical-align", "middle");
-                }
-                this.setCloseButton(button);
-            }
-        }
-        else {
-            this.setCloseButton(null);
-        }
-    };
-    JSTab.prototype.getCloseButton = function () {
-        return this.getData("closeButton");
-    };
-    JSTab.prototype.setCloseButton = function (closeButton) {
-        var oldCloseButton = this.getData("closeButton");
-        if (oldCloseButton) {
-            this.remove(oldCloseButton);
-        }
-        if (closeButton) {
-            this.add(closeButton);
-        }
-        this.setData("closeButton", closeButton);
-    };
-    JSTab.prototype.getText = function () {
-        return this.getData("text");
-    };
-    JSTab.prototype.setText = function (text) {
-        var label = this.getLabel();
-        if (text) {
-            var tabPlacement = this.getTabPlacement();
-            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                label.setText("<html>" + text.split("").join("<br>") + "</html>");
-            }
-            else {
-                label.setText(text);
-            }
-        }
-        else {
-            label.setText("");
-        }
-        this.setData("text", text);
-    };
-    JSTab.prototype.getLabel = function () {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            var tabPlacement = this.getTabPlacement();
-            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                label.setStyle("display", "block");
-                label.setStyle("margin", "4px 0");
-                label.setStyle("text-align", "center");
-            }
-            else {
-                label.setStyle("margin", "0 4px");
-                label.setStyle("vertical-align", "middle");
-            }
-            var button = this.getCloseButton();
-            if (button) {
-                var components = this.getComponents();
-                var index = components.indexOf(button);
-                this.add(label, null, index);
-            }
-            else {
-                this.add(label);
-            }
-            this.setData("label", label);
-        }
-        return label;
-    };
-    JSTab.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSTab.prototype.setSelected = function (selected) {
-        this.setBackground(selected ? "white" : "#BFBFBF");
-        var label = this.getLabel();
-        if (label) {
-            label.setForeground(selected ? "black" : "#404040");
-        }
-        _super.prototype.setSelected.call(this, selected);
-    };
-    JSTab.CLOSE_ICON = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withStroke("red");
-    return JSTab;
-}(JSPanel));
 var JSTabbedPane = (function (_super) {
     __extends(JSTabbedPane, _super);
     function JSTabbedPane() {
@@ -6267,7 +5825,7 @@ var JSTabbedPane = (function (_super) {
             actionPerformed: function (mouseEvent, tab, tabbedPane) {
                 tabbedPane.removeTabAt(tabbedPane.indexOfTab(tab));
                 var tabContainer = tabbedPane.getTabContainer();
-                tabContainer.getParent().validate();
+                tabContainer.getParent().revalidate();
                 var selectedIndex = tabbedPane.getSelectedIndex();
                 if (selectedIndex === -1) {
                     tabbedPane.setSelectedIndex(0);
@@ -6348,7 +5906,1764 @@ var JSTabbedPane = (function (_super) {
         return tabContainer.getTabComponentAt(index);
     };
     return JSTabbedPane;
+}(JSPanel));
+var JSTableBody = (function (_super) {
+    __extends(JSTableBody, _super);
+    function JSTableBody() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]) || this;
+        _this.setEditable(true);
+        return _this;
+    }
+    JSTableBody.prototype.init = function () {
+        this.addClass("JSTableBody");
+    };
+    JSTableBody.prototype.getRows = function () {
+        var rows = [];
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var tableRow = components[i];
+            rows.push(tableRow.getValues());
+        }
+        return rows;
+    };
+    JSTableBody.prototype.setRows = function (rows) {
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var tableRow = new JSTableRow(row);
+            this.add(tableRow);
+        }
+    };
+    return JSTableBody;
 }(JSHTMLComponent));
+var JSTableCell = (function (_super) {
+    __extends(JSTableCell, _super);
+    function JSTableCell() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (!(args[0] instanceof HTMLTableCellElement)) {
+                    var value = args[0];
+                    _this.setValue(value);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableCell.prototype.init = function () {
+        this.addClass("JSTableCell");
+    };
+    JSTableCell.prototype.getValue = function () {
+        return this.getData("value") || this.getText();
+    };
+    JSTableCell.prototype.setValue = function (value) {
+        if (typeof value === "string") {
+            this.setText(value);
+        }
+        else {
+            this.setText("" + value);
+            this.setData("value", value);
+        }
+    };
+    return JSTableCell;
+}(JSHTMLComponent));
+var JSTableHeader = (function (_super) {
+    __extends(JSTableHeader, _super);
+    function JSTableHeader() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]) || this;
+        var tableHeaderRow = _this.getTableHeaderRow();
+        _this.add(tableHeaderRow);
+        return _this;
+    }
+    JSTableHeader.prototype.init = function () {
+        this.addClass("JSTableHeader");
+    };
+    JSTableHeader.prototype.getTableHeaderRow = function () {
+        var tableHeaderRow = this.getData("tableHeaderRow");
+        if (!tableHeaderRow) {
+            tableHeaderRow = new JSTableRow();
+            this.setData("tableHeaderRow", tableHeaderRow);
+        }
+        return tableHeaderRow;
+    };
+    JSTableHeader.prototype.getColumns = function () {
+        var columns = [];
+        var tableHeaderRow = this.getTableHeaderRow();
+        var components = tableHeaderRow.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            columns.push(component.getText());
+        }
+        return columns;
+    };
+    JSTableHeader.prototype.setColumns = function (columns) {
+        var tableHeaderRow = this.getTableHeaderRow();
+        for (var i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            tableHeaderRow.add(new JSTableHeaderCell(column));
+        }
+    };
+    return JSTableHeader;
+}(JSHTMLComponent));
+var JSTableHeaderCell = (function (_super) {
+    __extends(JSTableHeaderCell, _super);
+    function JSTableHeaderCell() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]) || this;
+        var container = _this.getContainer();
+        _this.add(container);
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableHeaderCell.prototype.init = function () {
+        this.addClass("JSTableHeaderCell");
+    };
+    JSTableHeaderCell.prototype.getContainer = function () {
+        var container = this.getData("container");
+        if (!container) {
+            container = new JSPanel();
+            this.setData("container", container);
+        }
+        return container;
+    };
+    JSTableHeaderCell.prototype.getText = function () {
+        var container = this.getContainer();
+        return container.getText();
+    };
+    JSTableHeaderCell.prototype.setText = function (text) {
+        var container = this.getContainer();
+        container.setText(text);
+    };
+    return JSTableHeaderCell;
+}(JSHTMLComponent));
+var JSTableRow = (function (_super) {
+    __extends(JSTableRow, _super);
+    function JSTableRow() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof Array) {
+                    var values = args[0];
+                    _this.setValues(values);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableRow.prototype.init = function () {
+        this.addClass("JSTableRow");
+    };
+    JSTableRow.prototype.getValues = function () {
+        var values = [];
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var tableCell = components[i];
+            values.push(tableCell.getValue());
+        }
+        return values;
+    };
+    JSTableRow.prototype.setValues = function (values) {
+        for (var i = 0; i < values.length; i++) {
+            var value = values[i];
+            var tableCell = new JSTableCell(value);
+            this.add(tableCell);
+        }
+    };
+    return JSTableRow;
+}(JSHTMLComponent));
+var JSTextArea = (function (_super) {
+    __extends(JSTextArea, _super);
+    function JSTextArea() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]) || this;
+        switch (args.length) {
+            case 0:
+                break;
+            case 1:
+                if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "number" && typeof args[1] === "number") {
+                    var rows = args[0];
+                    var columns = args[1];
+                    _this.setRows(rows);
+                    _this.setColumns(columns);
+                }
+                break;
+            case 3:
+                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                    var text = args[0];
+                    var rows = args[1];
+                    var columns = args[2];
+                    _this.setText(text);
+                    _this.setRows(rows);
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTextArea.prototype.init = function () {
+        this.addClass("JSTextArea");
+    };
+    JSTextArea.prototype.getRows = function () {
+        return +this.getAttribute("rows");
+    };
+    JSTextArea.prototype.setRows = function (rows) {
+        this.setAttribute("rows", "" + rows);
+    };
+    JSTextArea.prototype.getColumns = function () {
+        return +this.getAttribute("columns");
+    };
+    JSTextArea.prototype.setColumns = function (columns) {
+        this.setAttribute("columns", "" + columns);
+    };
+    return JSTextArea;
+}(JSHTMLComponent));
+var JSTextField = (function (_super) {
+    __extends(JSTextField, _super);
+    function JSTextField() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        _this.setAttribute("type", "text");
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "number") {
+                    var columns = args[0];
+                    _this.setColumns(columns);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && typeof args[1] === "number") {
+                    var text = args[0];
+                    var columns = args[1];
+                    _this.setText(text);
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTextField.prototype.init = function () {
+        this.addClass("JSTextField");
+    };
+    JSTextField.prototype.getColumns = function () {
+        return +this.getAttribute("size");
+    };
+    JSTextField.prototype.setColumns = function (columns) {
+        this.setAttribute("size", "" + columns);
+    };
+    JSTextField.prototype.getText = function () {
+        return this.getAttribute("value");
+    };
+    JSTextField.prototype.setText = function (text) {
+        this.setAttribute("value", text);
+    };
+    return JSTextField;
+}(JSHTMLComponent));
+var JSTreeCell = (function (_super) {
+    __extends(JSTreeCell, _super);
+    function JSTreeCell() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var graphics = _this.getGraphics();
+        _super.prototype.add.call(_this, graphics);
+        var label = _this.getLabel();
+        _this.add(label);
+        switch (args.length) {
+            case 1:
+                if (!(args[0] instanceof HTMLDivElement)) {
+                    var value = args[0];
+                    _this.setValue(value);
+                }
+                break;
+            case 2:
+                if (args[1] instanceof JSIcon) {
+                    var value = args[0];
+                    var icon = args[1];
+                    _this.setValue(value);
+                    _this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTreeCell.prototype.init = function () {
+        this.addClass("JSTreeCell");
+    };
+    JSTreeCell.prototype.getValue = function () {
+        return this.getData("value");
+    };
+    JSTreeCell.prototype.setValue = function (value) {
+        this.setData("value", value);
+        this.setText("" + value);
+        var children = value.children();
+        if (children.length) {
+            var closedIcon = this.getClosedIcon();
+            var openIcon = this.getOpenIcon();
+            if (!closedIcon && !openIcon) {
+                this.addMouseListener({
+                    mouseClicked: function (mouseEvent, treeCell) {
+                        var container = treeCell.getContainer();
+                        if (container.isDisplayable()) {
+                            treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+                            container.setStyle("display", "none");
+                        }
+                        else {
+                            treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
+                            container.setStyle("display", "");
+                        }
+                        mouseEvent.stopPropagation();
+                    }
+                }).withParameters(this);
+            }
+            this.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+        }
+    };
+    JSTreeCell.prototype.getClosedIcon = function () {
+        return this.getData("closedIcon");
+    };
+    JSTreeCell.prototype.setClosedIcon = function (icon) {
+        this.setData("closedIcon", icon);
+        var graphics = this.getGraphics();
+        if (graphics) {
+            if (icon) {
+                icon.paintIcon(this, graphics);
+            }
+            else {
+                graphics.removeAll();
+            }
+            graphics.setStyle("vertical-align", "middle");
+        }
+        if (icon) {
+            var label = this.getLabel();
+            label.setStyle("margin-left", icon.getIconWidth() + "px");
+            label.setX(-icon.getIconWidth());
+        }
+    };
+    JSTreeCell.prototype.getOpenIcon = function () {
+        return this.getData("openIcon");
+    };
+    JSTreeCell.prototype.setOpenIcon = function (icon) {
+        this.setData("openIcon", icon);
+        var graphics = this.getGraphics();
+        if (graphics) {
+            if (icon) {
+                icon.paintIcon(this, graphics);
+            }
+            else {
+                graphics.removeAll();
+            }
+            graphics.setStyle("vertical-align", "middle");
+        }
+        if (icon) {
+            var label = this.getLabel();
+            label.setStyle("margin-left", icon.getIconWidth() + "px");
+            label.setX(-icon.getIconWidth());
+        }
+    };
+    JSTreeCell.prototype.getGraphics = function () {
+        var graphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSGraphics();
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    };
+    JSTreeCell.prototype.getPreferredWidth = function () {
+        var label = this.getLabel();
+        var closedIcon = this.getClosedIcon();
+        var openIcon = this.getOpenIcon();
+        if (closedIcon) {
+            return label.getPreferredOuterWidth() + closedIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
+        }
+        else if (openIcon) {
+            return label.getPreferredOuterWidth() + openIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
+        }
+        else {
+            return label.getPreferredOuterWidth() + this.getPaddingLeft() + this.getPaddingRight();
+        }
+    };
+    JSTreeCell.prototype.getButton = function () {
+        return this.getData("button");
+    };
+    JSTreeCell.prototype.setButton = function (button) {
+        var oldButton = this.getData("button");
+        if (oldButton) {
+            this.remove(oldButton);
+        }
+        if (button) {
+            this.add(button, null, 0);
+        }
+        this.setData("button", button);
+    };
+    JSTreeCell.prototype.getLabel = function () {
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSLabel();
+            label.setStyle("position", "relative");
+            label.setStyle("vertical-align", "middle");
+            this.setData("label", label);
+        }
+        return label;
+    };
+    JSTreeCell.prototype.getIcon = function () {
+        var label = this.getLabel();
+        return label.getIcon();
+    };
+    JSTreeCell.prototype.setIcon = function (icon) {
+        var label = this.getLabel();
+        label.setIcon(icon);
+    };
+    JSTreeCell.prototype.getText = function () {
+        var label = this.getLabel();
+        return label.getText();
+    };
+    JSTreeCell.prototype.setText = function (text) {
+        var label = this.getLabel();
+        label.setText(text);
+    };
+    JSTreeCell.prototype.getContainer = function () {
+        return this.getData("container");
+    };
+    JSTreeCell.prototype.setContainer = function (container) {
+        this.setData("container", container);
+    };
+    JSTreeCell.COLLAPSED_PATH_DEFINITION = "M4.17,2.34L9.83,8L4.17,13.66Z";
+    JSTreeCell.EXPANDED_PATH_DEFINITION = "M10,4L10,12L2,12Z";
+    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16).withFill("gray");
+    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withFill("gray");
+    return JSTreeCell;
+}(JSHTMLComponent));
+var JSBodyDefsContainer = (function (_super) {
+    __extends(JSBodyDefsContainer, _super);
+    function JSBodyDefsContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        _this.setPreferredHeight(0);
+        return _this;
+    }
+    JSBodyDefsContainer.prototype.init = function () {
+        this.addClass("JSBodyDefsContainer");
+    };
+    return JSBodyDefsContainer;
+}(JSSVG));
+var JSBodyDragImageContainer = (function (_super) {
+    __extends(JSBodyDragImageContainer, _super);
+    function JSBodyDragImageContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setPreferredHeight(0);
+        return _this;
+    }
+    JSBodyDragImageContainer.prototype.init = function () {
+        this.addClass("JSBodyDragImageContainer");
+    };
+    return JSBodyDragImageContainer;
+}(JSPanel));
+var JSBodyPopupMenuContainer = (function (_super) {
+    __extends(JSBodyPopupMenuContainer, _super);
+    function JSBodyPopupMenuContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setPreferredHeight(0);
+        return _this;
+    }
+    JSBodyPopupMenuContainer.prototype.init = function () {
+        this.addClass("JSBodyPopupMenuContainer");
+    };
+    return JSBodyPopupMenuContainer;
+}(JSPanel));
+var JSButtonSpan = (function (_super) {
+    __extends(JSButtonSpan, _super);
+    function JSButtonSpan() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSButtonSpan.prototype.init = function () {
+        this.addClass("JSButtonSpan");
+    };
+    return JSButtonSpan;
+}(JSSpan));
+var JSCheckBoxLabel = (function (_super) {
+    __extends(JSCheckBoxLabel, _super);
+    function JSCheckBoxLabel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSCheckBoxLabel.prototype.init = function () {
+        this.addClass("JSCheckBoxLabel");
+    };
+    return JSCheckBoxLabel;
+}(JSLabel));
+var JSDialog = (function (_super) {
+    __extends(JSDialog, _super);
+    function JSDialog() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setVisible(false);
+        switch (args.length) {
+            case 0:
+                break;
+            case 1:
+                if (args[0] instanceof JSComponent) {
+                    var owner = args[0];
+                    _this.setOwner(owner);
+                }
+                break;
+            case 2:
+                if (args[0] instanceof JSComponent && typeof args[1] === "boolean") {
+                    var owner = args[0];
+                    var modal = args[1];
+                    _this.setOwner(owner);
+                    _this.setModal(modal);
+                }
+                else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
+                    var owner = args[0];
+                    var title = args[1];
+                    _this.setOwner(owner);
+                    _this.setTitle(title);
+                }
+                break;
+            case 3:
+                if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "boolean") {
+                    var owner = args[0];
+                    var title = args[1];
+                    var modal = args[2];
+                    _this.setOwner(owner);
+                    _this.setTitle(title);
+                    _this.setModal(modal);
+                }
+                break;
+            default:
+        }
+        _this.setZIndex(JSLayeredPane.MODAL_LAYER);
+        return _this;
+    }
+    JSDialog.prototype.init = function () {
+        this.addClass("JSDialog");
+    };
+    JSDialog.prototype.getOwner = function () {
+        return this.owner;
+    };
+    JSDialog.prototype.setOwner = function (owner) {
+        this.owner = owner;
+    };
+    JSDialog.prototype.isModal = function () {
+        return this.modal;
+    };
+    JSDialog.prototype.setModal = function (modal) {
+        this.modal = modal;
+    };
+    JSDialog.prototype.getTitle = function () {
+        return this.title;
+    };
+    JSDialog.prototype.setTitle = function (title) {
+        this.title = title;
+    };
+    JSDialog.prototype.setVisible = function (visible) {
+        if (visible) {
+            JSBody.getInstance().setPopupMenu(this);
+            this.revalidate();
+            _super.prototype.setVisible.call(this, visible);
+        }
+        else {
+            _super.prototype.setVisible.call(this, visible);
+            JSBody.getInstance().setPopupMenu(null);
+        }
+    };
+    return JSDialog;
+}(JSPanel));
+var JSFrameMenuBarContainer = (function (_super) {
+    __extends(JSFrameMenuBarContainer, _super);
+    function JSFrameMenuBarContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+    }
+    JSFrameMenuBarContainer.prototype.init = function () {
+        this.addClass("JSFrameMenuBarContainer");
+    };
+    return JSFrameMenuBarContainer;
+}(JSPanel));
+var JSFrameTitleLabel = (function (_super) {
+    __extends(JSFrameTitleLabel, _super);
+    function JSFrameTitleLabel() {
+        return _super.call(this) || this;
+    }
+    JSFrameTitleLabel.prototype.init = function () {
+        this.addClass("JSFrameTitleLabel");
+    };
+    return JSFrameTitleLabel;
+}(JSLabel));
+var JSGraphics = (function (_super) {
+    __extends(JSGraphics, _super);
+    function JSGraphics() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("font-size", "0");
+        return _this;
+    }
+    JSGraphics.prototype.init = function () {
+        this.addClass("JSGraphics");
+    };
+    return JSGraphics;
+}(JSPanel));
+var JSLabelSpan = (function (_super) {
+    __extends(JSLabelSpan, _super);
+    function JSLabelSpan() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSLabelSpan.prototype.init = function () {
+        this.addClass("JSLabelSpan");
+    };
+    return JSLabelSpan;
+}(JSSpan));
+var JSLayeredPane = (function (_super) {
+    __extends(JSLayeredPane, _super);
+    function JSLayeredPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSLayout) {
+                    var layout = args[0];
+                    _this.setLayout(layout);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSLayeredPane.prototype.init = function () {
+        this.addClass("JSLayeredPane");
+    };
+    JSLayeredPane.prototype.setLayer = function (component, layer) {
+        component.setZIndex(layer);
+    };
+    return JSLayeredPane;
+}(JSPanel));
+var JSMenuBar = (function (_super) {
+    __extends(JSMenuBar, _super);
+    function JSMenuBar() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var menuContainer = _this.getMenuContainer();
+        _super.prototype.add.call(_this, menuContainer);
+        return _this;
+    }
+    JSMenuBar.prototype.init = function () {
+        this.addClass("JSMenuBar");
+    };
+    JSMenuBar.prototype.add = function (menu) {
+        var menuContainer = this.getMenuContainer();
+        menuContainer.add(menu);
+    };
+    JSMenuBar.prototype.getMenuContainer = function () {
+        var menuContainer = this.getData("menuContainer");
+        if (!menuContainer) {
+            menuContainer = new JSMenuContainer();
+            this.setData("menuContainer", menuContainer);
+        }
+        return menuContainer;
+    };
+    return JSMenuBar;
+}(JSPanel));
+var JSMenuContainer = (function (_super) {
+    __extends(JSMenuContainer, _super);
+    function JSMenuContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        JSBody.getInstance().addMouseListener({
+            mousePressed: function (mouseEvent, menuContainer) {
+                menuContainer.setData("pressed", false);
+                var timer = menuContainer.getTimer();
+                timer.schedule({
+                    run: function () {
+                        var pressed = menuContainer.getData("pressed");
+                        if (!pressed) {
+                            menuContainer.setSelected(false);
+                        }
+                    }
+                }, 0);
+            }
+        }, true).withParameters(_this);
+        _this.addMouseListener({
+            mousePressed: function (mouseEvent, menuContainer) {
+                menuContainer.setData("pressed", true);
+            }
+        }, true).withParameters(_this);
+        return _this;
+    }
+    JSMenuContainer.prototype.init = function () {
+        this.addClass("JSMenuContainer");
+    };
+    JSMenuContainer.prototype.add = function (menu) {
+        var selection = this.getSelection();
+        if (!selection) {
+            selection = new JSSelection();
+            this.setSelection(selection);
+        }
+        selection.add(menu);
+        menu.setStyle("display", "inline-block");
+        _super.prototype.add.call(this, menu);
+    };
+    JSMenuContainer.prototype.setSelected = function (selected) {
+        if (!selected) {
+            var selection = this.getSelection();
+            if (selection) {
+                selection.setSelected(null);
+            }
+        }
+        _super.prototype.setSelected.call(this, selected);
+    };
+    JSMenuContainer.prototype.getTimer = function () {
+        var timer = this.getData("timer");
+        if (!timer) {
+            timer = new JSTimer();
+            this.setData("timer", timer);
+        }
+        return timer;
+    };
+    return JSMenuContainer;
+}(JSPanel));
+var JSMenuItem = (function (_super) {
+    __extends(JSMenuItem, _super);
+    function JSMenuItem() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("display", "block");
+        var label = _this.getLabel();
+        _this.add(label);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSAction) {
+                    var action = args[0];
+                    _this.setAction(action);
+                }
+                else if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var text = args[0];
+                    var icon = args[1];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        _this.addMouseListener(_this);
+        return _this;
+    }
+    JSMenuItem.prototype.init = function () {
+        this.addClass("JSMenuItem");
+    };
+    JSMenuItem.prototype.getLabel = function () {
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSMenuItemLabel();
+            this.setData("label", label);
+        }
+        return label;
+    };
+    JSMenuItem.prototype.getIcon = function () {
+        var label = this.getLabel();
+        return label.getIcon();
+    };
+    JSMenuItem.prototype.setIcon = function (icon) {
+        var label = this.getLabel();
+        label.setIcon(icon);
+    };
+    JSMenuItem.prototype.getText = function () {
+        var label = this.getLabel();
+        return label.getText();
+    };
+    JSMenuItem.prototype.setText = function (text) {
+        var label = this.getLabel();
+        label.setText(text);
+    };
+    JSMenuItem.prototype.mouseEntered = function (mouseEvent) {
+        var parent = this.getParent();
+        var parentSelected = parent.isSelected();
+        if (parentSelected) {
+            parent.getSelection().setSelected(this);
+        }
+        mouseEvent.stopPropagation();
+    };
+    JSMenuItem.prototype.mouseClicked = function (mouseEvent) {
+        var parent = this.getParent();
+        if (parent instanceof JSPopupMenu) {
+            var popuMenu = parent;
+            var invoker = popuMenu.getInvoker();
+            while (invoker) {
+                parent = invoker.getParent();
+                if (parent instanceof JSPopupMenu) {
+                    popuMenu = parent;
+                    invoker = popuMenu.getInvoker();
+                }
+                else {
+                    break;
+                }
+            }
+            if (parent instanceof JSMenuContainer) {
+                parent.setSelected(false);
+            }
+            else if (invoker instanceof JSMenu) {
+                invoker.setSelected(false);
+            }
+            else {
+                popuMenu.setSelected(false);
+            }
+        }
+        mouseEvent.stopPropagation();
+    };
+    return JSMenuItem;
+}(JSPanel));
+var JSMenuItemLabel = (function (_super) {
+    __extends(JSMenuItemLabel, _super);
+    function JSMenuItemLabel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSMenuItemLabel.prototype.init = function () {
+        this.addClass("JSMenuItemLabel");
+    };
+    return JSMenuItemLabel;
+}(JSLabel));
+var JSPathImage = (function (_super) {
+    __extends(JSPathImage, _super);
+    function JSPathImage() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        var path = _this.getPath();
+        _this.add(path);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSPathIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var source = args[0];
+                    _this.setSource(source);
+                }
+                break;
+            case 3:
+                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
+                    var source = args[0];
+                    var width = args[1];
+                    var height = args[2];
+                    _this.setSource(source);
+                    _this.setWidth(width);
+                    _this.setHeight(height);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSPathImage.prototype.init = function () {
+        this.addClass("JSPathImage");
+    };
+    JSPathImage.prototype.getPath = function () {
+        var path = this.getData("path");
+        if (!path) {
+            path = new JSPath();
+            this.setData("path", path);
+        }
+        return path;
+    };
+    JSPathImage.prototype.getSource = function () {
+        var path = this.getPath();
+        return path.getDefinition();
+    };
+    JSPathImage.prototype.setSource = function (source) {
+        var path = this.getPath();
+        path.setDefinition(source);
+    };
+    JSPathImage.prototype.getFill = function () {
+        var path = this.getPath();
+        return path.getFill();
+    };
+    JSPathImage.prototype.setFill = function (fill) {
+        var path = this.getPath();
+        path.setFill(fill);
+    };
+    JSPathImage.prototype.getStroke = function () {
+        var path = this.getPath();
+        return path.getStroke();
+    };
+    JSPathImage.prototype.setStroke = function (stroke) {
+        var path = this.getPath();
+        path.setStroke(stroke);
+    };
+    return JSPathImage;
+}(JSSVG));
+var JSPopupMenu = (function (_super) {
+    __extends(JSPopupMenu, _super);
+    function JSPopupMenu() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("position", "absolute");
+        _this.setVisible(false);
+        JSBody.getInstance().addMouseListener({
+            mousePressed: function (mouseEvent, popupMenu) {
+                var invoker = popupMenu.getInvoker();
+                if (!(invoker instanceof JSMenu)) {
+                    popupMenu.setData("close", true);
+                    var timer = popupMenu.getTimer();
+                    timer.schedule({
+                        run: function () {
+                            var close = popupMenu.getData("close");
+                            if (close) {
+                                popupMenu.setSelected(false);
+                            }
+                        }
+                    }, 0);
+                }
+            }
+        }, true).withParameters(_this);
+        _this.addMouseListener({
+            mousePressed: function (mouseEvent, popupMenu) {
+                popupMenu.setData("close", false);
+            }
+        }, true).withParameters(_this);
+        _this.setZIndex(JSLayeredPane.POPUP_LAYER);
+        return _this;
+    }
+    JSPopupMenu.prototype.init = function () {
+        this.addClass("JSPopupMenu");
+    };
+    JSPopupMenu.prototype.add = function (component) {
+        var selection = this.getSelection();
+        if (!selection) {
+            selection = new JSSelection();
+            this.setSelection(selection);
+        }
+        selection.add(component);
+        _super.prototype.add.call(this, component);
+    };
+    JSPopupMenu.prototype.addSeparator = function () {
+        this.add(new JSSeparator());
+    };
+    JSPopupMenu.prototype.getInvoker = function () {
+        return this.invoker;
+    };
+    JSPopupMenu.prototype.setInvoker = function (invoker) {
+        this.invoker = invoker;
+    };
+    JSPopupMenu.prototype.show = function (invoker, x, y) {
+        if (!(invoker instanceof JSMenu)) {
+            var body = JSBody.getInstance();
+            body.setPopupMenu(this);
+        }
+        this.setInvoker(invoker);
+        this.setX(x);
+        this.setY(y);
+        this.setSelected(true);
+        this.setData("close", false);
+    };
+    JSPopupMenu.prototype.setSelected = function (selected) {
+        this.setVisible(selected);
+        if (!selected) {
+            var selection = this.getSelection();
+            if (selection) {
+                selection.setSelected(null);
+            }
+        }
+        _super.prototype.setSelected.call(this, selected);
+    };
+    JSPopupMenu.prototype.getTimer = function () {
+        var timer = this.getData("timer");
+        if (!timer) {
+            timer = new JSTimer();
+            this.setData("timer", timer);
+        }
+        return timer;
+    };
+    return JSPopupMenu;
+}(JSPanel));
+var JSPopupMenuContainer = (function (_super) {
+    __extends(JSPopupMenuContainer, _super);
+    function JSPopupMenuContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+    }
+    JSPopupMenuContainer.prototype.init = function () {
+        this.addClass("JSPopupMenuContainer");
+    };
+    return JSPopupMenuContainer;
+}(JSPanel));
+var JSScrollPane = (function (_super) {
+    __extends(JSScrollPane, _super);
+    function JSScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var viewContainer = _this.getViewContainer();
+        _this.add(viewContainer);
+        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSComponent) {
+                    var view = args[0];
+                    _this.setViewportView(view);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && typeof args[1] === "string") {
+                    var vsbPolicy = args[0];
+                    var hsbPolicy = args[1];
+                    _this.setVsbPolicy(vsbPolicy);
+                    _this.setHsbPolicy(hsbPolicy);
+                }
+                break;
+            case 3:
+                if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
+                    var view = args[0];
+                    var vsbPolicy = args[1];
+                    var hsbPolicy = args[2];
+                    _this.setViewportView(view);
+                    _this.setVsbPolicy(vsbPolicy);
+                    _this.setHsbPolicy(hsbPolicy);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSScrollPane.prototype.init = function () {
+        this.addClass("JSScrollPane");
+    };
+    JSScrollPane.prototype.getViewContainer = function () {
+        var viewContainer = this.getData("viewContainer");
+        if (!viewContainer) {
+            viewContainer = new JSScrollPaneViewContainer();
+            this.setData("viewContainer", viewContainer);
+        }
+        return viewContainer;
+    };
+    JSScrollPane.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSScrollPane.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSScrollPane.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSScrollPane.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    JSScrollPane.prototype.getViewportView = function () {
+        return this.getData("viewportView");
+    };
+    JSScrollPane.prototype.setViewportView = function (viewportView) {
+        this.setData("viewportView", viewportView);
+        var viewContainer = this.getViewContainer();
+        if (viewportView) {
+            viewContainer.removeAll();
+            viewContainer.add(viewportView);
+        }
+        if (viewportView instanceof JSTable) {
+        }
+    };
+    JSScrollPane.prototype.getPreferredWidth = function () {
+        var preferredWidth = this.getAttribute("data-preferred-width");
+        if (preferredWidth) {
+            return +preferredWidth;
+        }
+        var viewContainer = this.getViewContainer();
+        return viewContainer.getPreferredWidth();
+    };
+    JSScrollPane.prototype.getPreferredHeight = function () {
+        var preferredHeight = this.getAttribute("data-preferred-height");
+        if (preferredHeight) {
+            return +preferredHeight;
+        }
+        var viewContainer = this.getViewContainer();
+        return viewContainer.getPreferredHeight();
+    };
+    JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSScrollPane.VERTICAL_SCROLLBAR_NEVER = "hidden";
+    JSScrollPane.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
+    JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
+    JSScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
+    return JSScrollPane;
+}(JSPanel));
+var JSScrollPaneViewContainer = (function (_super) {
+    __extends(JSScrollPaneViewContainer, _super);
+    function JSScrollPaneViewContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+    }
+    JSScrollPaneViewContainer.prototype.init = function () {
+        this.addClass("JSScrollPaneViewContainer");
+    };
+    return JSScrollPaneViewContainer;
+}(JSPanel));
+var JSSeparator = (function (_super) {
+    __extends(JSSeparator, _super);
+    function JSSeparator() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        switch (args.length) {
+            case 0:
+                _this.setOrientation(JSComponent.HORIZONTAL);
+                break;
+            case 1:
+                if (typeof args[0] === "string") {
+                    var orientation = args[0];
+                    _this.setOrientation(orientation);
+                }
+                break;
+            default:
+        }
+        _this.addMouseListener({
+            mousePressed: function (mouseEvent) {
+                mouseEvent.stopPropagation();
+            },
+            mouseReleased: function (mouseEvent) {
+                mouseEvent.stopPropagation();
+            }
+        });
+        return _this;
+    }
+    JSSeparator.prototype.init = function () {
+        this.addClass("JSSeparator");
+    };
+    JSSeparator.prototype.getOrientation = function () {
+        return this.getAttribute("data-orientation");
+    };
+    JSSeparator.prototype.setOrientation = function (orientation) {
+        this.setAttribute("data-orientation", orientation);
+        if (orientation === JSComponent.VERTICAL) {
+        }
+        else {
+            var horizontalLine = this.getHorizontalLine();
+            this.add(horizontalLine);
+        }
+    };
+    JSSeparator.prototype.getHorizontalLine = function () {
+        var horizontalLine = this.getData("horizontalLine");
+        if (!horizontalLine) {
+            horizontalLine = new JSSeparatorHorizontalLine();
+            this.setData("horizontalLine", horizontalLine);
+        }
+        return horizontalLine;
+    };
+    JSSeparator.prototype.getVerticalLine = function () {
+        var verticalLine = this.getData("verticalLine");
+        if (!verticalLine) {
+            verticalLine = new JSSeparatorVerticalLine();
+            this.setData("verticalLine", verticalLine);
+        }
+        return verticalLine;
+    };
+    return JSSeparator;
+}(JSPanel));
+var JSSeparatorHorizontalLine = (function (_super) {
+    __extends(JSSeparatorHorizontalLine, _super);
+    function JSSeparatorHorizontalLine() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("display", "block");
+        return _this;
+    }
+    JSSeparatorHorizontalLine.prototype.init = function () {
+        this.addClass("JSSeparatorHorizontalLine");
+    };
+    return JSSeparatorHorizontalLine;
+}(JSPanel));
+var JSSeparatorVerticalLine = (function (_super) {
+    __extends(JSSeparatorVerticalLine, _super);
+    function JSSeparatorVerticalLine() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("height", "100%");
+        return _this;
+    }
+    JSSeparatorVerticalLine.prototype.init = function () {
+        this.addClass("JSSeparatorVerticalLine");
+    };
+    return JSSeparatorVerticalLine;
+}(JSPanel));
+var JSSplitPane = (function (_super) {
+    __extends(JSSplitPane, _super);
+    function JSSplitPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    var orientation = args[0];
+                    _this.setOrientation(orientation);
+                }
+                break;
+            default:
+        }
+        _this.setLayout(new JSSplitPaneLayout());
+        var leftContainer = _this.getLeftContainer();
+        _this.add(leftContainer);
+        var rightContainer = _this.getRightContainer();
+        _this.add(rightContainer);
+        var divider = _this.getDivider();
+        _this.add(divider);
+        _this.setDividerProportionalLocation(.5);
+        return _this;
+    }
+    JSSplitPane.prototype.init = function () {
+        this.addClass("JSSplitPane");
+    };
+    JSSplitPane.prototype.getOrientation = function () {
+        return this.getAttribute("data-orientation");
+    };
+    JSSplitPane.prototype.setOrientation = function (orientation) {
+        this.setAttribute("data-orientation", orientation);
+    };
+    JSSplitPane.prototype.getLeftContainer = function () {
+        var leftContainer = this.getData("leftContainer");
+        if (!leftContainer) {
+            leftContainer = new JSSplitPaneLeftContainer();
+            this.setData("leftContainer", leftContainer);
+        }
+        return leftContainer;
+    };
+    JSSplitPane.prototype.getRightContainer = function () {
+        var rightContainer = this.getData("rightContainer");
+        if (!rightContainer) {
+            rightContainer = new JSSplitPaneRightContainer();
+            this.setData("rightContainer", rightContainer);
+        }
+        return rightContainer;
+    };
+    JSSplitPane.prototype.getLeftComponent = function () {
+        var leftContainer = this.getLeftContainer();
+        var components = leftContainer.getComponents();
+        if (components.length === 1) {
+            return components[0];
+        }
+        return null;
+    };
+    JSSplitPane.prototype.setLeftComponent = function (leftComponent) {
+        var leftContainer = this.getLeftContainer();
+        leftContainer.removeAll();
+        leftContainer.add(leftComponent);
+    };
+    JSSplitPane.prototype.getRightComponent = function () {
+        var rightContainer = this.getRightContainer();
+        var components = rightContainer.getComponents();
+        if (components.length === 1) {
+            return components[0];
+        }
+        return null;
+    };
+    JSSplitPane.prototype.setRightComponent = function (rightComponent) {
+        var rightContainer = this.getRightContainer();
+        rightContainer.removeAll();
+        rightContainer.add(rightComponent);
+    };
+    JSSplitPane.prototype.getTopComponent = function () {
+        return this.getLeftComponent();
+    };
+    JSSplitPane.prototype.setTopComponent = function (component) {
+        this.setLeftComponent(component);
+    };
+    JSSplitPane.prototype.getBottomComponent = function () {
+        return this.getRightComponent();
+    };
+    JSSplitPane.prototype.setBottomComponent = function (component) {
+        this.setRightComponent(component);
+    };
+    JSSplitPane.prototype.getDivider = function () {
+        var divider = this.getData("divider");
+        if (!divider) {
+            divider = new JSSplitPaneDivider();
+            var orientation = this.getOrientation();
+            if (orientation === JSComponent.VERTICAL_SPLIT) {
+                divider.removeClass("horizontal");
+                divider.addClass("vertical");
+            }
+            else {
+                divider.removeClass("vertical");
+                divider.addClass("horizontal");
+            }
+            divider.setCursor(orientation === JSComponent.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
+            this.setData("divider", divider);
+        }
+        return divider;
+    };
+    JSSplitPane.prototype.getDividerSize = function () {
+        var divider = this.getData("divider");
+        var orientation = this.getOrientation();
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
+            return divider.getOuterHeight();
+        }
+        else {
+            return divider.getOuterWidth();
+        }
+    };
+    JSSplitPane.prototype.setDividerSize = function (dividerSize) {
+        var divider = this.getData("divider");
+        var orientation = this.getOrientation();
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
+            divider.setOuterHeight(dividerSize);
+        }
+        else {
+            divider.setOuterWidth(dividerSize);
+        }
+    };
+    JSSplitPane.prototype.getDividerLocation = function () {
+        return this.dividerLocation;
+    };
+    JSSplitPane.prototype.setDividerLocation = function (dividerLocation, dividerProportionalLocation) {
+        if (dividerProportionalLocation === void 0) { dividerProportionalLocation = 0; }
+        this.dividerLocation = dividerLocation;
+        this.dividerProportionalLocation = dividerProportionalLocation;
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    };
+    JSSplitPane.prototype.getDividerProportionalLocation = function () {
+        return this.dividerProportionalLocation;
+    };
+    JSSplitPane.prototype.setDividerProportionalLocation = function (dividerProportionalLocation) {
+        this.dividerProportionalLocation = dividerProportionalLocation;
+        this.dividerLocation = 0;
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    };
+    JSSplitPane.prototype.getMinimumDividerLocation = function () {
+        return 0;
+    };
+    JSSplitPane.prototype.getMaximumDividerLocation = function () {
+        var dividerSize = this.getDividerSize();
+        var orientation = this.getOrientation();
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
+            return this.getHeight() - dividerSize;
+        }
+        else {
+            return this.getWidth() - dividerSize;
+        }
+    };
+    return JSSplitPane;
+}(JSPanel));
+var JSSplitPaneDivider = (function (_super) {
+    __extends(JSSplitPaneDivider, _super);
+    function JSSplitPaneDivider() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var panel = _this.getPanel();
+        _this.add(panel);
+        _this.addMouseListener({
+            mousePressed: function (mouseEvent, divider) {
+                var splitPane = divider.getParent();
+                var orientation = splitPane.getOrientation();
+                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+                    splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
+                }
+                else {
+                    splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
+                }
+                mouseEvent.stopPropagation();
+            },
+            mouseDragged: function (mouseEvent, divider) {
+                var splitPane = divider.getParent();
+                var orientation = splitPane.getOrientation();
+                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+                    var y = mouseEvent.y;
+                    if (y) {
+                        splitPane.setDividerLocation(y - splitPane.getData("dy"), splitPane.getDividerProportionalLocation());
+                    }
+                }
+                else {
+                    var x = mouseEvent.x;
+                    if (x) {
+                        splitPane.setDividerLocation(x - splitPane.getData("dx"), splitPane.getDividerProportionalLocation());
+                    }
+                }
+                mouseEvent.stopPropagation();
+            }
+        }).withParameters(_this);
+        return _this;
+    }
+    JSSplitPaneDivider.prototype.init = function () {
+        this.addClass("JSSplitPaneDivider");
+    };
+    JSSplitPaneDivider.prototype.getPanel = function () {
+        var panel = this.getData("splitPaneDividerPanel");
+        if (!panel) {
+            panel = new JSSplitPaneDividerPanel();
+            this.setData("splitPaneDividerPanel", panel);
+        }
+        return panel;
+    };
+    return JSSplitPaneDivider;
+}(JSPanel));
+var JSSplitPaneDividerPanel = (function (_super) {
+    __extends(JSSplitPaneDividerPanel, _super);
+    function JSSplitPaneDividerPanel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("display", "block");
+        return _this;
+    }
+    JSSplitPaneDividerPanel.prototype.init = function () {
+        this.addClass("JSSplitPaneDividerPanel");
+    };
+    return JSSplitPaneDividerPanel;
+}(JSPanel));
+var JSSplitPaneLeftContainer = (function (_super) {
+    __extends(JSSplitPaneLeftContainer, _super);
+    function JSSplitPaneLeftContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setLayout(new JSBorderLayout());
+        return _this;
+    }
+    JSSplitPaneLeftContainer.prototype.init = function () {
+        this.addClass("JSSplitPaneLeftContainer");
+    };
+    return JSSplitPaneLeftContainer;
+}(JSPanel));
+var JSSplitPaneRightContainer = (function (_super) {
+    __extends(JSSplitPaneRightContainer, _super);
+    function JSSplitPaneRightContainer() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setLayout(new JSBorderLayout());
+        return _this;
+    }
+    JSSplitPaneRightContainer.prototype.init = function () {
+        this.addClass("JSSplitPaneRightContainer");
+    };
+    return JSSplitPaneRightContainer;
+}(JSPanel));
+var JSTab = (function (_super) {
+    __extends(JSTab, _super);
+    function JSTab() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("white-space", "nowrap");
+        var graphics = _this.getGraphics();
+        _this.add(graphics);
+        var label = _this.getLabel();
+        _this.add(label);
+        var tabCloseButton = _this.getCloseButton();
+        _this.add(tabCloseButton);
+        switch (args.length) {
+            case 3:
+                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string") {
+                    var tabPlacement = args[0];
+                    var closeable = args[1];
+                    var text = args[2];
+                    _this.setTabPlacement(tabPlacement);
+                    _this.setCloseable(closeable);
+                    _this.setText(text);
+                }
+                break;
+            case 4:
+                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string" && args[3] instanceof JSIcon) {
+                    var tabPlacement = args[0];
+                    var closeable = args[1];
+                    var text = args[2];
+                    var icon = args[3];
+                    _this.setTabPlacement(tabPlacement);
+                    _this.setCloseable(closeable);
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTab.prototype.init = function () {
+        this.addClass("JSTab");
+    };
+    JSTab.prototype.getGraphics = function () {
+        var graphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSTabGraphics();
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    };
+    JSTab.prototype.getLabel = function () {
+        var label = this.getData("label");
+        if (!label) {
+            label = new JSTabLabel();
+            this.setData("label", label);
+        }
+        return label;
+    };
+    JSTab.prototype.getCloseButton = function () {
+        var tabCloseButton = this.getData("tabCloseButton");
+        if (!tabCloseButton) {
+            tabCloseButton = new JSTabCloseButton();
+            tabCloseButton.setStyle("display", "none");
+            this.setData("tabCloseButton", tabCloseButton);
+        }
+        return tabCloseButton;
+    };
+    JSTab.prototype.getTabPlacement = function () {
+        return this.getAttribute("data-tab-placement");
+    };
+    JSTab.prototype.setTabPlacement = function (tabPlacement) {
+        this.setAttribute("data-tab-placement", tabPlacement);
+        switch (tabPlacement) {
+            case JSTabbedPane.RIGHT:
+                this.setBorder(new JSMatteBorder(0, 0, 1, 1, "DarkGray"));
+                break;
+            case JSTabbedPane.LEFT:
+                this.setBorder(new JSMatteBorder(0, 1, 1, 0, "DarkGray"));
+                break;
+            case JSTabbedPane.BOTTOM:
+                this.setBorder(new JSMatteBorder(0, 0, 1, 1, "DarkGray"));
+                break;
+            case JSTabbedPane.TOP:
+            default:
+                this.setBorder(new JSMatteBorder(1, 0, 0, 1, "DarkGray"));
+        }
+        var graphics = this.getGraphics();
+        var label = this.getLabel();
+        var tabCloseButton = this.getCloseButton();
+        if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
+            graphics.setStyle("display", "block");
+            graphics.setStyle("margin", "4px auto 0");
+            label.setStyle("display", "block");
+            label.setStyle("margin", "4px 0");
+            label.setStyle("text-align", "center");
+            tabCloseButton.setStyle("margin", "0 auto 4px");
+        }
+        else {
+            graphics.setStyle("margin-left", "4px");
+            graphics.setStyle("vertical-align", "middle");
+            label.setStyle("margin", "0 4px");
+            label.setStyle("vertical-align", "middle");
+            tabCloseButton.setStyle("margin-right", "4px");
+            tabCloseButton.setStyle("vertical-align", "middle");
+        }
+    };
+    JSTab.prototype.isCloseable = function () {
+        var tabCloseButton = this.getCloseButton();
+        return tabCloseButton.isDisplayable();
+    };
+    JSTab.prototype.setCloseable = function (closeable) {
+        var tabCloseButton = this.getCloseButton();
+        tabCloseButton.setStyle("display", closeable ? "" : "none");
+    };
+    JSTab.prototype.getText = function () {
+        return this.getData("text");
+    };
+    JSTab.prototype.setText = function (text) {
+        var label = this.getLabel();
+        if (text) {
+            var tabPlacement = this.getTabPlacement();
+            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
+                label.setText("<html>" + text.split("").join("<br>") + "</html>");
+            }
+            else {
+                label.setText(text);
+            }
+        }
+        else {
+            label.setText("");
+        }
+        this.setData("text", text);
+    };
+    JSTab.prototype.setSelected = function (selected) {
+        this.setBackground(selected ? "White" : "Silver");
+        var label = this.getLabel();
+        if (label) {
+            label.setForeground(selected ? "black" : "#404040");
+        }
+        _super.prototype.setSelected.call(this, selected);
+    };
+    return JSTab;
+}(JSPanel));
+var JSTabCloseButton = (function (_super) {
+    __extends(JSTabCloseButton, _super);
+    function JSTabCloseButton() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        _this.setIcon(JSTabCloseButton.CLOSE_ICON);
+        return _this;
+    }
+    JSTabCloseButton.prototype.init = function () {
+        this.addClass("JSTabCloseButton");
+    };
+    JSTabCloseButton.CLOSE_ICON = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withStroke("red");
+    return JSTabCloseButton;
+}(JSButton));
+var JSTabLabel = (function (_super) {
+    __extends(JSTabLabel, _super);
+    function JSTabLabel() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSTabLabel.prototype.init = function () {
+        this.addClass("JSTabLabel");
+    };
+    return JSTabLabel;
+}(JSLabel));
 var JSTabbedPaneButtonContainer = (function (_super) {
     __extends(JSTabbedPaneButtonContainer, _super);
     function JSTabbedPaneButtonContainer() {
@@ -6713,332 +8028,7 @@ var JSTable = (function (_super) {
         tableBody.setRows(rows);
     };
     return JSTable;
-}(JSHTMLComponent));
-var JSTableBody = (function (_super) {
-    __extends(JSTableBody, _super);
-    function JSTableBody() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]) || this;
-        _this.setEditable(true);
-        return _this;
-    }
-    JSTableBody.prototype.init = function () {
-        this.addClass("JSTableBody");
-    };
-    JSTableBody.prototype.getRows = function () {
-        var rows = [];
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var tableRow = components[i];
-            rows.push(tableRow.getValues());
-        }
-        return rows;
-    };
-    JSTableBody.prototype.setRows = function (rows) {
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            var tableRow = new JSTableRow(row);
-            this.add(tableRow);
-        }
-    };
-    return JSTableBody;
-}(JSHTMLComponent));
-var JSTableCell = (function (_super) {
-    __extends(JSTableCell, _super);
-    function JSTableCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (!(args[0] instanceof HTMLTableCellElement)) {
-                    var value = args[0];
-                    _this.setValue(value);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTableCell.prototype.init = function () {
-        this.addClass("JSTableCell");
-    };
-    JSTableCell.prototype.getValue = function () {
-        return this.getData("value") || this.getText();
-    };
-    JSTableCell.prototype.setValue = function (value) {
-        if (typeof value === "string") {
-            this.setText(value);
-        }
-        else {
-            this.setText("" + value);
-            this.setData("value", value);
-        }
-    };
-    return JSTableCell;
-}(JSHTMLComponent));
-var JSTableHeader = (function (_super) {
-    __extends(JSTableHeader, _super);
-    function JSTableHeader() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]) || this;
-        var tableHeaderRow = _this.getTableHeaderRow();
-        _this.add(tableHeaderRow);
-        return _this;
-    }
-    JSTableHeader.prototype.init = function () {
-        this.addClass("JSTableHeader");
-    };
-    JSTableHeader.prototype.getTableHeaderRow = function () {
-        var tableHeaderRow = this.getData("tableHeaderRow");
-        if (!tableHeaderRow) {
-            tableHeaderRow = new JSTableRow();
-            this.setData("tableHeaderRow", tableHeaderRow);
-        }
-        return tableHeaderRow;
-    };
-    JSTableHeader.prototype.getColumns = function () {
-        var columns = [];
-        var tableHeaderRow = this.getTableHeaderRow();
-        var components = tableHeaderRow.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            columns.push(component.getText());
-        }
-        return columns;
-    };
-    JSTableHeader.prototype.setColumns = function (columns) {
-        var tableHeaderRow = this.getTableHeaderRow();
-        for (var i = 0; i < columns.length; i++) {
-            var column = columns[i];
-            tableHeaderRow.add(new JSTableHeaderCell(column));
-        }
-    };
-    return JSTableHeader;
-}(JSHTMLComponent));
-var JSTableHeaderCell = (function (_super) {
-    __extends(JSTableHeaderCell, _super);
-    function JSTableHeaderCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]) || this;
-        var container = _this.getContainer();
-        _this.add(container);
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTableHeaderCell.prototype.init = function () {
-        this.addClass("JSTableHeaderCell");
-    };
-    JSTableHeaderCell.prototype.getContainer = function () {
-        var container = this.getData("container");
-        if (!container) {
-            container = new JSDiv();
-            this.setData("container", container);
-        }
-        return container;
-    };
-    JSTableHeaderCell.prototype.getText = function () {
-        var container = this.getContainer();
-        return container.getText();
-    };
-    JSTableHeaderCell.prototype.setText = function (text) {
-        var container = this.getContainer();
-        container.setText(text);
-    };
-    return JSTableHeaderCell;
-}(JSHTMLComponent));
-var JSTableRow = (function (_super) {
-    __extends(JSTableRow, _super);
-    function JSTableRow() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
-        switch (args.length) {
-            case 1:
-                if (args[0] instanceof Array) {
-                    var values = args[0];
-                    _this.setValues(values);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTableRow.prototype.init = function () {
-        this.addClass("JSTableRow");
-    };
-    JSTableRow.prototype.getValues = function () {
-        var values = [];
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var tableCell = components[i];
-            values.push(tableCell.getValue());
-        }
-        return values;
-    };
-    JSTableRow.prototype.setValues = function (values) {
-        for (var i = 0; i < values.length; i++) {
-            var value = values[i];
-            var tableCell = new JSTableCell(value);
-            this.add(tableCell);
-        }
-    };
-    return JSTableRow;
-}(JSHTMLComponent));
-var JSTextArea = (function (_super) {
-    __extends(JSTextArea, _super);
-    function JSTextArea() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]) || this;
-        switch (args.length) {
-            case 0:
-                break;
-            case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var rows = args[0];
-                    var columns = args[1];
-                    _this.setRows(rows);
-                    _this.setColumns(columns);
-                }
-                break;
-            case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var text = args[0];
-                    var rows = args[1];
-                    var columns = args[2];
-                    _this.setText(text);
-                    _this.setRows(rows);
-                    _this.setColumns(columns);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTextArea.prototype.init = function () {
-        this.addClass("JSTextArea");
-    };
-    JSTextArea.prototype.getRows = function () {
-        return +this.getAttribute("rows");
-    };
-    JSTextArea.prototype.setRows = function (rows) {
-        this.setAttribute("rows", "" + rows);
-    };
-    JSTextArea.prototype.getColumns = function () {
-        return +this.getAttribute("columns");
-    };
-    JSTextArea.prototype.setColumns = function (columns) {
-        this.setAttribute("columns", "" + columns);
-    };
-    return JSTextArea;
-}(JSHTMLComponent));
-var JSTextField = (function (_super) {
-    __extends(JSTextField, _super);
-    function JSTextField() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
-        _this.setAttribute("type", "text");
-        switch (args.length) {
-            case 1:
-                if (typeof args[0] === "number") {
-                    var columns = args[0];
-                    _this.setColumns(columns);
-                }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "number") {
-                    var text = args[0];
-                    var columns = args[1];
-                    _this.setText(text);
-                    _this.setColumns(columns);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTextField.prototype.init = function () {
-        this.addClass("JSTextField");
-    };
-    JSTextField.prototype.getColumns = function () {
-        return +this.getAttribute("size");
-    };
-    JSTextField.prototype.setColumns = function (columns) {
-        this.setAttribute("size", "" + columns);
-    };
-    JSTextField.prototype.getText = function () {
-        return this.getAttribute("value");
-    };
-    JSTextField.prototype.setText = function (text) {
-        this.setAttribute("value", text);
-    };
-    return JSTextField;
-}(JSHTMLComponent));
-var JSTimer = (function () {
-    function JSTimer() {
-        this.pids = {};
-    }
-    JSTimer.prototype.getPids = function () {
-        return this.pids;
-    };
-    JSTimer.prototype.schedule = function (runnable, delay) {
-        var jsRunnable = new JSRunnable(runnable);
-        var pids = this.getPids();
-        var pid = setTimeout(function () {
-            jsRunnable.run();
-            var pid = jsRunnable.getPid();
-            delete pids["" + pid];
-        }, delay);
-        pids["" + pid] = null;
-        jsRunnable.setPid(pid);
-        return jsRunnable;
-    };
-    JSTimer.prototype.cancel = function () {
-        var pids = this.getPids();
-        for (var pid in pids) {
-            clearTimeout(+pid);
-            delete pids[pid];
-        }
-    };
-    return JSTimer;
-}());
+}(JSPanel));
 var JSToolBar = (function (_super) {
     __extends(JSToolBar, _super);
     function JSToolBar() {
@@ -7057,7 +8047,7 @@ var JSToolBar = (function (_super) {
         this.add(separator);
     };
     return JSToolBar;
-}(JSHTMLComponent));
+}(JSPanel));
 var JSTree = (function (_super) {
     __extends(JSTree, _super);
     function JSTree() {
@@ -7136,7 +8126,7 @@ var JSTree = (function (_super) {
             var parentTreeCell = this.getTreeCell(parentNode.getTreePath());
             container = parentTreeCell.getContainer();
             if (!container) {
-                container = new JSDiv();
+                container = new JSPanel();
                 container.setStyle("display", "none");
                 var grandParentContainer = this;
                 var grandParentNode = parentNode.getParent();
@@ -7170,7 +8160,7 @@ var JSTree = (function (_super) {
         var treePath = treeNode.getTreePath();
         var treeCell = this.getTreeCell(treePath);
         if (!treeCell) {
-            this.validate();
+            this.load();
         }
         treeCell = this.getTreeCell(treePath);
         var container = treeCell.getContainer();
@@ -7183,7 +8173,7 @@ var JSTree = (function (_super) {
         var treePath = treeNode.getTreePath();
         var treeCell = this.getTreeCell(treePath);
         if (!treeCell) {
-            this.validate();
+            this.load();
         }
         treeCell = this.getTreeCell(treePath);
         var container = treeCell.getContainer();
@@ -7212,217 +8202,7 @@ var JSTree = (function (_super) {
         }
     };
     return JSTree;
-}(JSHTMLComponent));
-var JSTreeLayout = (function (_super) {
-    __extends(JSTreeLayout, _super);
-    function JSTreeLayout() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    JSTreeLayout.prototype.preferredLayoutWidth = function (tree) {
-        var preferredLayoutWidth = 0;
-        var components = tree.getComponents();
-        if (!components.length) {
-            tree.load();
-        }
-        var treeCells = tree.getTreeCells();
-        for (var treePath in treeCells) {
-            var treeCell = treeCells[treePath];
-            var treeCellPreferredWidth = treeCell.getPreferredWidth();
-            preferredLayoutWidth = Math.max(preferredLayoutWidth, treeCellPreferredWidth);
-        }
-        return preferredLayoutWidth;
-    };
-    JSTreeLayout.prototype.preferredLayoutHeight = function (tree) {
-        var components = tree.getComponents();
-        if (!components.length) {
-            tree.load();
-        }
-        return _super.prototype.preferredLayoutHeight.call(this, tree);
-    };
-    JSTreeLayout.prototype.layoutContainer = function (tree) {
-        var components = tree.getComponents();
-        if (!components.length) {
-            tree.load();
-        }
-    };
-    return JSTreeLayout;
-}(JSLayout));
-var JSTreeCell = (function (_super) {
-    __extends(JSTreeCell, _super);
-    function JSTreeCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics);
-        var label = _this.getLabel();
-        _this.add(label);
-        switch (args.length) {
-            case 1:
-                if (!(args[0] instanceof HTMLDivElement)) {
-                    var value = args[0];
-                    _this.setValue(value);
-                }
-                break;
-            case 2:
-                if (args[1] instanceof JSIcon) {
-                    var value = args[0];
-                    var icon = args[1];
-                    _this.setValue(value);
-                    _this.setIcon(icon);
-                }
-                break;
-            default:
-        }
-        return _this;
-    }
-    JSTreeCell.prototype.init = function () {
-        this.addClass("JSTreeCell");
-    };
-    JSTreeCell.prototype.getValue = function () {
-        return this.getData("value");
-    };
-    JSTreeCell.prototype.setValue = function (value) {
-        this.setData("value", value);
-        this.setText("" + value);
-        var children = value.children();
-        if (children.length) {
-            var closedIcon = this.getClosedIcon();
-            var openIcon = this.getOpenIcon();
-            if (!closedIcon && !openIcon) {
-                this.addMouseListener({
-                    mouseClicked: function (mouseEvent, treeCell) {
-                        var container = treeCell.getContainer();
-                        if (container.isDisplayable()) {
-                            treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-                            container.setStyle("display", "none");
-                        }
-                        else {
-                            treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
-                            container.setStyle("display", "");
-                        }
-                        mouseEvent.stopPropagation();
-                    }
-                }).withParameters(this);
-            }
-            this.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-        }
-    };
-    JSTreeCell.prototype.getClosedIcon = function () {
-        return this.getData("closedIcon");
-    };
-    JSTreeCell.prototype.setClosedIcon = function (icon) {
-        this.setData("closedIcon", icon);
-        var graphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            }
-            else {
-                graphics.removeAll();
-            }
-            graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
-        }
-        if (icon) {
-            var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
-        }
-    };
-    JSTreeCell.prototype.getOpenIcon = function () {
-        return this.getData("openIcon");
-    };
-    JSTreeCell.prototype.setOpenIcon = function (icon) {
-        this.setData("openIcon", icon);
-        var graphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            }
-            else {
-                graphics.removeAll();
-            }
-            graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
-        }
-        if (icon) {
-            var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
-        }
-    };
-    JSTreeCell.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            graphics.setStyle("position", "absolute");
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSTreeCell.prototype.getPreferredWidth = function () {
-        var label = this.getLabel();
-        var closedIcon = this.getClosedIcon();
-        var openIcon = this.getOpenIcon();
-        if (closedIcon) {
-            return label.getPreferredOuterWidth() + closedIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else if (openIcon) {
-            return label.getPreferredOuterWidth() + openIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else {
-            return label.getPreferredOuterWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-    };
-    JSTreeCell.prototype.getButton = function () {
-        return this.getData("button");
-    };
-    JSTreeCell.prototype.setButton = function (button) {
-        var oldButton = this.getData("button");
-        if (oldButton) {
-            this.remove(oldButton);
-        }
-        if (button) {
-            this.add(button, null, 0);
-        }
-        this.setData("button", button);
-    };
-    JSTreeCell.prototype.getLabel = function () {
-        var label = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            label.setStyle("vertical-align", "middle");
-            this.setData("label", label);
-        }
-        return label;
-    };
-    JSTreeCell.prototype.getIcon = function () {
-        var label = this.getLabel();
-        return label.getIcon();
-    };
-    JSTreeCell.prototype.setIcon = function (icon) {
-        var label = this.getLabel();
-        label.setIcon(icon);
-    };
-    JSTreeCell.prototype.getText = function () {
-        var label = this.getLabel();
-        return label.getText();
-    };
-    JSTreeCell.prototype.setText = function (text) {
-        var label = this.getLabel();
-        label.setText(text);
-    };
-    JSTreeCell.prototype.getContainer = function () {
-        return this.getData("container");
-    };
-    JSTreeCell.prototype.setContainer = function (container) {
-        this.setData("container", container);
-    };
-    JSTreeCell.COLLAPSED_PATH_DEFINITION = "M4.17,2.34L9.83,8L4.17,13.66Z";
-    JSTreeCell.EXPANDED_PATH_DEFINITION = "M10,4L10,12L2,12Z";
-    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16).withFill("gray");
-    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withFill("gray");
-    return JSTreeCell;
-}(JSHTMLComponent));
+}(JSPanel));
 var JSTreeCellButton = (function (_super) {
     __extends(JSTreeCellButton, _super);
     function JSTreeCellButton(icon) {
@@ -7432,161 +8212,22 @@ var JSTreeCellButton = (function (_super) {
     }
     return JSTreeCellButton;
 }(JSButton));
-var JSTreeCellRenderer = (function () {
-    function JSTreeCellRenderer() {
-        this.icons = {};
-        this.leafMargin = 32;
-        this.openMargin = 0;
-        this.closedMargin = 0;
-    }
-    JSTreeCellRenderer.prototype.getTreeCellRendererComponent = function (tree, value) {
-        var treeNode = value;
-        var treeCell = new JSTreeCell(value);
-        var icon = this.getIcon(treeNode);
-        if (icon) {
-            treeCell.setIcon(icon);
-        }
-        else if (treeNode.isLeaf()) {
-            var leafIcon = this.getLeafIcon();
-            if (leafIcon) {
-                treeCell.setIcon(leafIcon);
-            }
-        }
-        else if (treeNode.isExpanded()) {
-            var openIcon = this.getOpenIcon();
-            if (openIcon) {
-                treeCell.setIcon(openIcon);
-            }
-        }
-        else {
-            var closedIcon = this.getClosedIcon();
-            if (closedIcon) {
-                treeCell.setIcon(closedIcon);
-            }
-        }
-        var margin = 0;
-        var root = tree.getRoot();
-        var rootVisible = tree.isRootVisible();
-        var parentNode = treeNode.getParent();
-        while (treeNode !== root && (rootVisible || parentNode !== root)) {
-            margin += treeNode.isLeaf() ? this.getLeafMargin() : treeNode.isExpanded() ? this.getOpenMargin() : this.getClosedMargin();
-            treeNode = parentNode;
-            parentNode = treeNode.getParent();
-        }
-        treeCell.getLabel().setStyle("margin-left", margin + "px");
-        return treeCell;
-    };
-    JSTreeCellRenderer.prototype.getIcon = function (treeNode) {
-        var treePath = treeNode.getTreePath();
-        return this.icons[treePath];
-    };
-    JSTreeCellRenderer.prototype.setIcon = function (treeNode, icon) {
-        var treePath = treeNode.getTreePath();
-        this.icons[treePath] = icon;
-    };
-    JSTreeCellRenderer.prototype.getLeafIcon = function () {
-        return this.leafIcon;
-    };
-    JSTreeCellRenderer.prototype.setLeafIcon = function (leafIcon) {
-        this.leafIcon = leafIcon;
-    };
-    JSTreeCellRenderer.prototype.getOpenIcon = function () {
-        return this.openIcon;
-    };
-    JSTreeCellRenderer.prototype.setOpenIcon = function (openIcon) {
-        this.openIcon = openIcon;
-    };
-    JSTreeCellRenderer.prototype.getClosedIcon = function () {
-        return this.closedIcon;
-    };
-    JSTreeCellRenderer.prototype.setClosedIcon = function (closedIcon) {
-        this.closedIcon = closedIcon;
-    };
-    JSTreeCellRenderer.prototype.getLeafMargin = function () {
-        return this.leafMargin;
-    };
-    JSTreeCellRenderer.prototype.setLeafMargin = function (leafMargin) {
-        this.leafMargin = leafMargin;
-    };
-    JSTreeCellRenderer.prototype.getOpenMargin = function () {
-        return this.openMargin;
-    };
-    JSTreeCellRenderer.prototype.setOpenMargin = function (openMargin) {
-        this.openMargin = openMargin;
-    };
-    JSTreeCellRenderer.prototype.getClosedMargin = function () {
-        return this.closedMargin;
-    };
-    JSTreeCellRenderer.prototype.setClosedMargin = function (closedMargin) {
-        this.closedMargin = closedMargin;
-    };
-    return JSTreeCellRenderer;
-}());
-var JSTreeNode = (function () {
-    function JSTreeNode() {
+var JSButtonGraphics = (function (_super) {
+    __extends(JSButtonGraphics, _super);
+    function JSButtonGraphics() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        this.userObject = null;
-        this.nodes = [];
-        this.parent = null;
-        this.expanded = false;
-        switch (args.length) {
-            case 1:
-                var userObject = args[0];
-                this.setUserObject(userObject);
-                break;
-            default:
-        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
     }
-    JSTreeNode.prototype.add = function (node) {
-        this.nodes.push(node);
-        node.parent = this;
+    JSButtonGraphics.prototype.init = function () {
+        this.addClass("JSButtonGraphics");
     };
-    JSTreeNode.prototype.remove = function (node) {
-        var index = this.nodes.indexOf(node);
-        if (index === -1) {
-            return;
-        }
-        this.nodes.splice(index, 1);
-        node.parent = null;
-    };
-    JSTreeNode.prototype.children = function () {
-        return this.nodes;
-    };
-    JSTreeNode.prototype.getParent = function () {
-        return this.parent;
-    };
-    JSTreeNode.prototype.getUserObject = function () {
-        return this.userObject;
-    };
-    JSTreeNode.prototype.setUserObject = function (userObject) {
-        this.userObject = userObject;
-    };
-    JSTreeNode.prototype.getTreePath = function () {
-        var treePath = this.toString();
-        var parent = this.getParent();
-        while (parent) {
-            treePath = parent.toString() + "/" + treePath;
-            parent = parent.getParent();
-        }
-        return treePath;
-    };
-    JSTreeNode.prototype.isLeaf = function () {
-        return this.children().length === 0;
-    };
-    JSTreeNode.prototype.isExpanded = function () {
-        return this.expanded;
-    };
-    JSTreeNode.prototype.setExpanded = function (expanded) {
-        this.expanded = expanded;
-    };
-    JSTreeNode.prototype.toString = function () {
-        return "" + (this.userObject || "");
-    };
-    return JSTreeNode;
-}());
+    return JSButtonGraphics;
+}(JSGraphics));
 var JSCheckBoxMenuItem = (function (_super) {
     __extends(JSCheckBoxMenuItem, _super);
     function JSCheckBoxMenuItem() {
@@ -7595,8 +8236,8 @@ var JSCheckBoxMenuItem = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var checkBoxInput = _this.getCheckBoxInput();
-        _this.add(checkBoxInput);
+        var input = _this.getInput();
+        _this.add(input);
         var label = _this.getLabel();
         _this.add(label);
         switch (args.length) {
@@ -7652,21 +8293,300 @@ var JSCheckBoxMenuItem = (function (_super) {
     JSCheckBoxMenuItem.prototype.init = function () {
         this.addClass("JSCheckBoxMenuItem");
     };
-    JSCheckBoxMenuItem.prototype.getCheckBoxInput = function () {
-        var checkBoxInput = this.getData("checkBoxInput");
-        if (!checkBoxInput) {
-            checkBoxInput = new JSCheckBoxInput();
-            this.setData("checkBoxInput", checkBoxInput);
+    JSCheckBoxMenuItem.prototype.getInput = function () {
+        var input = this.getData("input");
+        if (!input) {
+            input = new JSCheckBoxInput();
+            this.setData("input", input);
         }
-        return checkBoxInput;
+        return input;
     };
     JSCheckBoxMenuItem.prototype.isSelected = function () {
-        var checkBoxInput = this.getCheckBoxInput();
-        return checkBoxInput.isSelected();
+        var input = this.getInput();
+        return input.isSelected();
     };
     JSCheckBoxMenuItem.prototype.setSelected = function (selected) {
-        var checkBoxInput = this.getCheckBoxInput();
-        checkBoxInput.setSelected(selected);
+        var input = this.getInput();
+        input.setSelected(selected);
     };
     return JSCheckBoxMenuItem;
 }(JSMenuItem));
+var JSLabelGraphics = (function (_super) {
+    __extends(JSLabelGraphics, _super);
+    function JSLabelGraphics() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSLabelGraphics.prototype.init = function () {
+        this.addClass("JSLabelGraphics");
+    };
+    return JSLabelGraphics;
+}(JSGraphics));
+var JSMenu = (function (_super) {
+    __extends(JSMenu, _super);
+    function JSMenu() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.delay = JSMenu.DELAY;
+        _this.setStyle("position", "relative");
+        var graphics = _this.getGraphics();
+        _super.prototype.add.call(_this, graphics);
+        var popupMenuContainer = _this.getPopupMenuContainer();
+        _super.prototype.add.call(_this, popupMenuContainer);
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof JSIcon) {
+                    var icon = args[0];
+                    _this.setIcon(icon);
+                }
+                else if (typeof args[0] === "string") {
+                    var text = args[0];
+                    _this.setText(text);
+                }
+                break;
+            case 2:
+                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
+                    var text = args[0];
+                    var icon = args[1];
+                    _this.setText(text);
+                    _this.setIcon(icon);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSMenu.prototype.init = function () {
+        this.addClass("JSMenu");
+    };
+    JSMenu.prototype.getGraphics = function () {
+        var graphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSMenuGraphics();
+            graphics.setStyle("position", "absolute");
+            graphics.setStyle("right", "0");
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    };
+    JSMenu.prototype.getPopupMenuContainer = function () {
+        var popupMenuContainer = this.getData("popupMenuContainer");
+        if (!popupMenuContainer) {
+            popupMenuContainer = new JSPopupMenuContainer();
+            popupMenuContainer.setStyle("position", "absolute");
+            popupMenuContainer.setStyle("display", "block");
+            this.setData("popupMenuContainer", popupMenuContainer);
+        }
+        return popupMenuContainer;
+    };
+    JSMenu.prototype.getPopupMenu = function () {
+        return this.getData("popupMenu");
+    };
+    JSMenu.prototype.setPopupMenu = function (popupMenu) {
+        if (popupMenu) {
+            var oldPopupMenu = this.getPopupMenu();
+            if (oldPopupMenu !== popupMenu) {
+                var popupMenuContainer = this.getPopupMenuContainer();
+                if (oldPopupMenu) {
+                    popupMenuContainer.remove(oldPopupMenu);
+                }
+                if (popupMenu) {
+                    popupMenuContainer.add(popupMenu, null, 0);
+                    var popupMenuLayout = popupMenu.getLayout();
+                    if (popupMenuLayout) {
+                        popupMenu.setWidth(popupMenu.getPreferredWidth());
+                        popupMenu.setHeight(popupMenu.getPreferredHeight());
+                        popupMenu.revalidate();
+                    }
+                }
+            }
+        }
+        this.setData("popupMenu", popupMenu);
+    };
+    JSMenu.prototype.getSubmenuIcon = function () {
+        return this.getData("submenuIcon");
+    };
+    JSMenu.prototype.setSubmenuIcon = function (icon) {
+        this.setData("submenuIcon", icon);
+        var graphics = this.getGraphics();
+        if (graphics) {
+            if (icon) {
+                icon.paintIcon(this, graphics);
+            }
+            else {
+                graphics.removeAll();
+            }
+            graphics.setStyle("top", "50%");
+            graphics.setStyle("margin-top", -(icon.getIconHeight() / 2) + "px");
+        }
+    };
+    JSMenu.prototype.getDelay = function () {
+        return this.delay;
+    };
+    JSMenu.prototype.setDelay = function (delay) {
+        this.delay = delay;
+    };
+    JSMenu.prototype.getTimer = function () {
+        var timer = this.getData("timer");
+        if (!timer) {
+            timer = new JSTimer();
+            this.setData("timer", timer);
+        }
+        return timer;
+    };
+    JSMenu.prototype.add = function (component) {
+        if (component instanceof JSMenu || component instanceof JSMenuItem || component instanceof JSCheckBoxMenuItem || component instanceof JSSeparator) {
+            var popupMenu = this.getPopupMenu();
+            if (!popupMenu) {
+                popupMenu = new JSPopupMenu();
+                this.setPopupMenu(popupMenu);
+            }
+            popupMenu.add(component);
+            if (component instanceof JSMenu) {
+                component.setStyle("display", "block");
+                component.setSubmenuIcon(JSMenu.SUBMENU_ICON);
+                var label = component.getLabel();
+                label.setStyle("margin-right", JSMenu.SUBMENU_ICON.getIconWidth() + "px");
+            }
+        }
+        else {
+            _super.prototype.add.call(this, component);
+        }
+    };
+    JSMenu.prototype.addSeparator = function () {
+        var separator = new JSSeparator();
+        separator.setStyle("display", "block");
+        this.add(separator);
+    };
+    JSMenu.prototype.setSelected = function (selected) {
+        var popupMenu = this.getPopupMenu();
+        if (popupMenu) {
+            if (selected) {
+                var parent = this.getParent();
+                if (parent instanceof JSPopupMenu) {
+                    popupMenu.show(this, this.getWidth(), 0 - this.getHeight() - popupMenu.getPaddingTop() - popupMenu.getBorderTopWidth());
+                }
+                else {
+                    popupMenu.show(this, 0 - this.getPaddingLeft(), this.getPaddingBottom());
+                }
+            }
+            else {
+                popupMenu.setSelected(false);
+            }
+        }
+        _super.prototype.setSelected.call(this, selected);
+    };
+    JSMenu.prototype.mousePressed = function (mouseEvent) {
+        var parent = this.getParent();
+        if (parent instanceof JSPopupMenu) {
+            var parentSelected = parent.isSelected();
+            if (parentSelected) {
+                parent.getSelection().setSelected(this);
+            }
+        }
+        else {
+            this.setData("changed", false);
+            var popupMenu = this.getPopupMenu();
+            if (popupMenu) {
+                var parentSelected = parent.isSelected();
+                if (!parentSelected) {
+                    parent.setSelected(true);
+                    parent.getSelection().setSelected(this);
+                    this.setData("changed", true);
+                }
+            }
+        }
+        mouseEvent.stopPropagation();
+    };
+    JSMenu.prototype.mouseReleased = function (mouseEvent) {
+        var parent = this.getParent();
+        if (!(parent instanceof JSPopupMenu)) {
+            var changed = this.getData("changed");
+            if (!changed) {
+                var popupMenu = this.getPopupMenu();
+                if (popupMenu) {
+                    var parentSelected = parent.isSelected();
+                    if (parentSelected) {
+                        parent.setSelected(false);
+                    }
+                }
+            }
+        }
+        mouseEvent.stopPropagation();
+    };
+    JSMenu.prototype.mouseClicked = function (mouseEvent) {
+        mouseEvent.stopPropagation();
+    };
+    JSMenu.prototype.mouseEntered = function (mouseEvent) {
+        var parent = this.getParent();
+        if (parent instanceof JSPopupMenu) {
+            var timer = this.getTimer();
+            timer.cancel();
+            timer.schedule(this, this.getDelay());
+        }
+        else {
+            var parentSelected = parent.isSelected();
+            if (parentSelected) {
+                parent.getSelection().setSelected(this);
+            }
+        }
+        mouseEvent.stopPropagation();
+    };
+    JSMenu.prototype.mouseExited = function (mouseEvent) {
+        var parent = this.getParent();
+        if (parent instanceof JSPopupMenu) {
+            var timer = this.getTimer();
+            timer.cancel();
+        }
+    };
+    JSMenu.prototype.run = function () {
+        var parent = this.getParent();
+        var parentSelected = parent.isSelected();
+        if (parentSelected) {
+            parent.getSelection().setSelected(this);
+        }
+    };
+    JSMenu.DELAY = 200;
+    JSMenu.SUBMENU_ICON = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withFill("gray");
+    return JSMenu;
+}(JSMenuItem));
+var JSMenuGraphics = (function (_super) {
+    __extends(JSMenuGraphics, _super);
+    function JSMenuGraphics() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSMenuGraphics.prototype.init = function () {
+        this.addClass("JSMenuGraphics");
+    };
+    return JSMenuGraphics;
+}(JSGraphics));
+var JSTabGraphics = (function (_super) {
+    __extends(JSTabGraphics, _super);
+    function JSTabGraphics() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setStyle("vertical-align", "middle");
+        return _this;
+    }
+    JSTabGraphics.prototype.init = function () {
+        this.addClass("JSTabGraphics");
+    };
+    return JSTabGraphics;
+}(JSGraphics));

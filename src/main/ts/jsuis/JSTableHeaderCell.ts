@@ -7,14 +7,14 @@
 class JSTableHeaderCell extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLTableCellElement);
+    constructor(element: HTMLElement);
     constructor(text: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLTableCellElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]);
-        var container: JSDiv = this.getContainer();
+        var container: JSPanel = this.getContainer();
         this.add(container);
         switch (args.length) {
         case 1:
@@ -30,20 +30,20 @@ class JSTableHeaderCell extends JSHTMLComponent {
     init(): void {
         this.addClass("JSTableHeaderCell");
     }
-    getContainer(): JSDiv {
+    getContainer(): JSPanel {
         var container = this.getData("container");
         if (!container) {
-            container = new JSDiv();
+            container = new JSPanel();
             this.setData("container", container);
         }
         return container;
     }
     getText(): string {
-        var container: JSDiv = this.getContainer();
+        var container: JSPanel = this.getContainer();
         return container.getText();
     }
     setText(text: string) {
-        var container: JSDiv = this.getContainer();
+        var container: JSPanel = this.getContainer();
         container.setText(text);
     }
 }

@@ -47,16 +47,16 @@ class JSSVGComponent extends JSComponent {
     }
     
     setWidth(width: number): void {
-        super.setWidth(width);
         this.setAttribute("width", width + "px");
+        super.setWidth(width);
     }
     setOuterWidth(outerWidth: number): void {
         this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
                 this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     }
     setHeight(height: number): void {
-        super.setHeight(height);
         this.setAttribute("height", height + "px");
+        super.setHeight(height);
     }
     setOuterHeight(outerHeight: number): void {
         this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
@@ -102,12 +102,6 @@ class JSSVGComponent extends JSComponent {
         return height;
     }
     
-    getPreferredOuterWidth(): number {
-        return this.getPreferredWidth();
-    }
-    getPreferredOuterHeight(): number {
-        return this.getPreferredHeight();
-    }
     getFill(): string {
         return this.getAttribute("fill");
     }

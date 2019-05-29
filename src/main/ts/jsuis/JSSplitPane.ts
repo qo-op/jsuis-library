@@ -4,15 +4,15 @@
  * 
  * @author Yassuo Toda
  */
-class JSSplitPane extends JSHTMLComponent {
+class JSSplitPane extends JSPanel {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(orientation: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         
         switch (args.length) {
@@ -31,13 +31,13 @@ class JSSplitPane extends JSHTMLComponent {
         var leftContainer: JSSplitPaneLeftContainer = this.getLeftContainer();
         this.add(leftContainer);
         
-        var divider: JSSplitPaneDivider = this.getDivider();
-        this.add(divider);
-        
         var rightContainer: JSSplitPaneRightContainer = this.getRightContainer();
         this.add(rightContainer);
         
-        this.setDividerSize(4);
+        var divider: JSSplitPaneDivider = this.getDivider();
+        this.add(divider);
+        
+        // this.setDividerSize(4);
         
         this.setDividerProportionalLocation(.5);
     }
@@ -47,7 +47,7 @@ class JSSplitPane extends JSHTMLComponent {
     getOrientation(): string {
         return this.getAttribute("data-orientation");
     }
-    private setOrientation(orientation: string) {
+    setOrientation(orientation: string) {
         this.setAttribute("data-orientation", orientation);
     }
     getLeftContainer(): JSSplitPaneLeftContainer {
@@ -109,16 +109,35 @@ class JSSplitPane extends JSHTMLComponent {
         if (!divider) {
             divider = new JSSplitPaneDivider();
             var orientation: string = this.getOrientation();
-            divider.setCursor(orientation === JSSplitPane.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
+            if (orientation === JSComponent.VERTICAL_SPLIT) {
+                divider.removeClass("horizontal");
+                divider.addClass("vertical");
+            } else {
+                divider.removeClass("vertical");
+                divider.addClass("horizontal");
+            }
+            divider.setCursor(orientation === JSComponent.VERTICAL_SPLIT ? "ns-resize" : "ew-resize");
             this.setData("divider", divider);
         }
         return divider;
     }
     getDividerSize() {
-        return +this.getAttribute("data-divider-size");
+        var divider: JSSplitPaneDivider = this.getData("divider");
+        var orientation: string = this.getOrientation();
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
+            return divider.getOuterHeight();
+        } else {
+            return divider.getOuterWidth();
+        }
     }
     setDividerSize(dividerSize: number) {
-        this.setAttribute("data-divider-size", "" + dividerSize);
+        var divider: JSSplitPaneDivider = this.getData("divider");
+        var orientation: string = this.getOrientation();
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
+            divider.setOuterHeight(dividerSize);
+        } else {
+            divider.setOuterWidth(dividerSize);
+        }
     }
     dividerLocation: number;
     getDividerLocation(): number {
@@ -127,7 +146,9 @@ class JSSplitPane extends JSHTMLComponent {
     setDividerLocation(dividerLocation: number, dividerProportionalLocation: number = 0): void {
         this.dividerLocation = dividerLocation;
         this.dividerProportionalLocation = dividerProportionalLocation;
-        this.validate();
+        if (this.isValid()) {
+            this.revalidate();
+        }
     }
     dividerProportionalLocation: number
     getDividerProportionalLocation(): number {
@@ -136,7 +157,9 @@ class JSSplitPane extends JSHTMLComponent {
     setDividerProportionalLocation(dividerProportionalLocation: number) {
         this.dividerProportionalLocation = dividerProportionalLocation;
         this.dividerLocation = 0;
-        this.validate();
+        if (this.isValid()) {
+            this.revalidate();
+        }
     }
     getMinimumDividerLocation(): number {
         return 0;
@@ -144,7 +167,7 @@ class JSSplitPane extends JSHTMLComponent {
     getMaximumDividerLocation(): number {
         var dividerSize = this.getDividerSize();
         var orientation: string = this.getOrientation();
-        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+        if (orientation === JSComponent.VERTICAL_SPLIT) {
             return this.getHeight() - dividerSize;
         } else {
             return this.getWidth() - dividerSize;

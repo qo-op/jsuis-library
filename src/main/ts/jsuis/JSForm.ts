@@ -18,9 +18,11 @@ class JSForm extends JSHTMLComponent {
     }
     
     constructor();
-    constructor(element: HTMLFormElement);
+    constructor(element: HTMLElement);
     // overload
     constructor(...args: any[]) {
+        // constructor();
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]);
     }
     init(): void {

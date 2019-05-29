@@ -7,7 +7,7 @@
 class JSCheckBox extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(action: JSAction);
     constructor(icon: JSIcon);
     constructor(text: string);
@@ -18,13 +18,14 @@ class JSCheckBox extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setStyle("white-space", "nowrap");
         
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput();
-        this.add(checkBoxInput);
+        var input: JSCheckBoxInput = this.getInput();
+        this.add(input);
         
-        var label: JSLabel = this.getLabel();
+        var label: JSCheckBoxLabel = this.getLabel();
         this.add(label);
         
         switch (args.length) {
@@ -81,44 +82,44 @@ class JSCheckBox extends JSHTMLComponent {
     init(): void {
         this.addClass("JSCheckBox");
     }
-    getCheckBoxInput(): JSCheckBoxInput {
-        var checkBoxInput: JSCheckBoxInput = this.getData("checkBoxInput");
-        if (!checkBoxInput) {
-            checkBoxInput = new JSCheckBoxInput();
-            this.setData("checkBoxInput", checkBoxInput);
+    getInput(): JSCheckBoxInput {
+        var input: JSCheckBoxInput = this.getData("input");
+        if (!input) {
+            input = new JSCheckBoxInput();
+            this.setData("input", input);
         }
-        return checkBoxInput;
+        return input;
     }
-    getLabel(): JSLabel {
-        var label = this.getData("label");
+    getLabel(): JSCheckBoxLabel {
+        var label: JSCheckBoxLabel = this.getData("label");
         if (!label) {
-            label = new JSLabel();
+            label = new JSCheckBoxLabel();
             this.setData("label", label);
         }
         return label; 
     }
     getIcon(): JSIcon {
-        var label: JSComponent = this.getLabel();
+        var label: JSCheckBoxLabel = this.getLabel();
         return label.getIcon();
     }
     setIcon(icon: JSIcon) {
-        var label: JSComponent = this.getLabel();
+        var label: JSCheckBoxLabel = this.getLabel();
         label.setIcon(icon);
     }
     getText(): string {
-        var label: JSComponent = this.getLabel();
+        var label: JSCheckBoxLabel = this.getLabel();
         return label.getText(); 
     }
     setText(text: string) {
-        var label: JSLabel = this.getLabel();
+        var label: JSCheckBoxLabel = this.getLabel();
         label.setText(text);
     }
     isSelected() {
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput()
-        return checkBoxInput.isSelected();
+        var input: JSCheckBoxInput = this.getInput()
+        return input.isSelected();
     }
     setSelected(selected: boolean) {
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput()
-        checkBoxInput.setSelected(selected);
+        var input: JSCheckBoxInput = this.getInput()
+        input.setSelected(selected);
     }
 }

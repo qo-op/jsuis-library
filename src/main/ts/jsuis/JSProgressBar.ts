@@ -9,14 +9,14 @@ class JSProgressBar extends JSHTMLComponent {
     value: number;
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(orientation: string);
     constructor(min: number, max: number);
     constructor(orientation: string, min: number, max: number);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         switch (args.length) {
         case 1:

@@ -7,15 +7,17 @@
 class JSImage extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLImageElement);
+    constructor(element: HTMLElement);
     // constructor(icon: JSIcon);
     constructor(source: string);
     constructor(source: string, width: number, height: number);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLImageElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]);
+        this.setStyle("draggable", "false");
+        this.setStyle("-webkit-user-drag", "none");
         switch (args.length) {
         case 0:
             break;

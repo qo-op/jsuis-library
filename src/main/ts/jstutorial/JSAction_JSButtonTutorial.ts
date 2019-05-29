@@ -16,7 +16,7 @@ namespace jstutorial {
             super("How to use JS Button", JSIcon_Leaf.getInstance());
         }
         actionPerformed(mouseEvent: MouseEvent): void {
-            JSForm.post("/tutorials/jsbutton.html");
+            JSForm.post("/tutorials/jsbutton");
         }
     }
 }

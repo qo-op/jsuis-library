@@ -7,12 +7,12 @@
 class JSTableRow extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLTableRowElement);
+    constructor(element: HTMLElement);
     constructor(values: any[]);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLTableRowElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]);
         switch (args.length) {
         case 1:

@@ -11,7 +11,7 @@ class JSDialog extends JSPanel {
     title: string;
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(owner: JSComponent);
     constructor(owner: JSComponent, modal: boolean);
     constructor(owner: JSComponent, title: string);
@@ -19,7 +19,7 @@ class JSDialog extends JSPanel {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setVisible(false);
         switch (args.length) {
@@ -85,9 +85,8 @@ class JSDialog extends JSPanel {
     }
     setVisible(visible: boolean) {
         if (visible) {
-            this.setStyle("min-width", this.getPreferredWidth() + "px");
-            this.setStyle("min-height", this.getPreferredHeight() + "px");
             JSBody.getInstance().setPopupMenu(this);
+            this.revalidate();
             super.setVisible(visible);
         } else {
             super.setVisible(visible);

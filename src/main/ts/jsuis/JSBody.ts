@@ -15,16 +15,26 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     }
     
     popupMenu: JSComponent;
-    dragImage: Element;
+    dragImage: JSComponent;
     dragSource: JSComponent;
     fileChooser: JSFileChooser;
     
     constructor() {
         super(document.body);
+        document.documentElement.style.height = "100%";
+        this.setStyle("border", "0");
+        this.setStyle("height", "100%");
+        this.setStyle("margin", "0");
+        this.setStyle("overflow", "hidden");
+        this.setStyle("padding", "0");
+        this.setStyle("user-select", "none");
+        this.setStyle("-ms-user-select", "none");
+        this.setStyle("-moz-user-select", "none");
+        this.setStyle("-webkit-user-select", "none");
         
         this.setLayout(new JSBorderLayout());
         
-        var svg: JSSVG = this.getSVG();
+        var svg: JSSVG = this.getDefsContainer();
         this.add(svg, JSBorderLayout.NORTH);
         
         var defs: JSDefs = this.getDefs();
@@ -39,7 +49,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         this.addMouseListener(this, true);
         
         window.addEventListener("resize", function() {
-            JSBody.getInstance().validate();
+            JSBody.getInstance().revalidate();
         });
     }
     init(): void {
@@ -55,15 +65,13 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         }
         this.setData("contentPane", contentPane);
     }
-    getSVG(): JSSVG {
-        var svg: JSSVG = this.getData("svg");
-        if (!svg) {
-            svg = new JSSVG();
-            svg.setWidth(0);
-            svg.setHeight(0);
-            this.setData("svg", svg);
+    getDefsContainer(): JSBodyDefsContainer {
+        var defsContainer: JSBodyDefsContainer = this.getData("defsContainer");
+        if (!defsContainer) {
+            defsContainer = new JSBodyDefsContainer();
+            this.setData("defsContainer", defsContainer);
         }
-        return svg;
+        return defsContainer;
     }
     getDefs(): JSDefs {
         var defs: JSDefs = this.getData("defs");
@@ -73,10 +81,10 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         }
         return defs;
     }
-    getPopupMenuContainer(): JSPanel {
-        var popupMenuContainer: JSPanel = this.getData("popupMenuContainer");
+    getPopupMenuContainer(): JSBodyPopupMenuContainer {
+        var popupMenuContainer: JSBodyPopupMenuContainer = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
-            popupMenuContainer = new JSPanel();
+            popupMenuContainer = new JSBodyPopupMenuContainer();
             this.setData("popupMenuContainer", popupMenuContainer);
         }
         return popupMenuContainer;
@@ -93,33 +101,43 @@ class JSBody extends JSHTMLComponent implements MouseListener {
             }
             if (popupMenu) {
                 popupMenuContainer.add(popupMenu);
-                popupMenu.validate();
+                var popupMenuLayout: JSLayout = popupMenu.getLayout();
+                if (popupMenuLayout) {
+                    popupMenu.setWidth(popupMenu.getPreferredWidth());
+                    popupMenu.setHeight(popupMenu.getPreferredHeight());
+                    popupMenu.revalidate();
+                }
             }
         }
         this.popupMenu = popupMenu;
     }
     getDragImageContainer(): JSPanel {
-        var dragImageContainer: JSPanel = this.getData("dragImageContainer");
+        var dragImageContainer: JSBodyDragImageContainer = this.getData("dragImageContainer");
         if (!dragImageContainer) {
-            dragImageContainer = new JSPanel();
+            dragImageContainer = new JSBodyDragImageContainer();
             dragImageContainer.setVisible(false);
             this.setData("dragImageContainer", dragImageContainer);
         }
         return dragImageContainer;
     }
-    getDragImage(): Element {
+    getDragImage(): JSComponent {
         return this.dragImage; 
     }
-    setDragImage(dragImage: Element) {
-        var oldDragImage: Element = this.getDragImage();
+    setDragImage(dragImage: JSComponent) {
+        var oldDragImage: JSComponent = this.getDragImage();
         if (oldDragImage !== dragImage) {
             var dragImageContainer: JSComponent = this.getDragImageContainer();
             if (oldDragImage) {
-                dragImageContainer.remove(new JSComponent(oldDragImage));
+                dragImageContainer.remove(oldDragImage);
             }
             if (dragImage) {
-                dragImageContainer.add(new JSComponent(dragImage));
-                dragImageContainer.validate();
+                dragImageContainer.add(dragImage);
+                var dragImageLayout: JSLayout = dragImage.getLayout();
+                if (dragImageLayout) {
+                    dragImage.setWidth(dragImage.getPreferredWidth());
+                    dragImage.setHeight(dragImage.getPreferredHeight());
+                    dragImage.revalidate();
+                }
             }
         }
         this.dragImage = dragImage;

@@ -19,7 +19,7 @@ namespace jstutorial {
             var jsSplitPane_Main: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
             jsSplitPane_Main.setDividerLocation(jsSplitPane_Main.getLeftComponent().getPreferredOuterWidth() + 1);
             var jsPanel_ToggleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
-            jsPanel_ToggleButtonPanel.first();
+            jsPanel_ToggleButtonPanel.last();
         }
     }
 }

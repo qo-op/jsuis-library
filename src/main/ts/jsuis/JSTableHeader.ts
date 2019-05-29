@@ -7,9 +7,11 @@
 class JSTableHeader extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLTableSectionElement);
+    constructor(element: HTMLElement);
     // overload
     constructor(...args: any[]) {
+        // constructor();
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]);
         var tableHeaderRow: JSTableRow = this.getTableHeaderRow();
         this.add(tableHeaderRow);

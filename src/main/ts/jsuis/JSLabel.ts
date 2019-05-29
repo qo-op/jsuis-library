@@ -7,7 +7,7 @@
 class JSLabel extends JSHTMLComponent {
 
     constructor();
-    constructor(element: HTMLLabelElement);
+    constructor(element: HTMLElement);
     constructor(icon: JSIcon);
     constructor(text: string);
     constructor(icon: JSIcon, horizontalAlignment: string);
@@ -17,10 +17,12 @@ class JSLabel extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLLabelElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]);
-        var graphics: JSComponent = this.getGraphics();
+        var graphics: JSLabelGraphics = this.getGraphics();
         this.add(graphics);
+        var span: JSLabelSpan = this.getSpan();
+        this.add(span);
         switch (args.length) {
         case 1:
             // constructor(icon: JSIcon);
@@ -67,48 +69,48 @@ class JSLabel extends JSHTMLComponent {
             break;
         default:
         }
+        this.setStyle("white-space", "nowrap");
     }
     init(): void {
         this.addClass("JSLabel");
     }
-    setIcon(icon: JSIcon) {
-        super.setIcon(icon);
-        if (icon) {
-            var span: JSSpan = this.getData("span");
-            if (span) {
-                var text: string = span.getText();
-                span.setStyle("margin-left", text ? "4px" : "0");
-            }
-        }
-    }
-    getGraphics(): JSGraphics {
-        var graphics: JSGraphics = this.getData("graphics");
+    getGraphics(): JSLabelGraphics {
+        var graphics: JSLabelGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSGraphics();
+            graphics = new JSLabelGraphics();
             this.setData("graphics", graphics);
         }
         return graphics;
     }
-    getText(): string {
-        var span: JSSpan = this.getSpan();
-        return span.getText();
-    }
-    setText(text: string) {
-        var span: JSSpan = this.getSpan();
-        span.setText(text);
-        var icon = this.getIcon();
-        if (icon) {
-            span.setStyle("margin-left", text ? "4px" : "0");
-        }
-    }
-    getSpan(): JSSpan {
-        var span: JSSpan = this.getData("span");
+    getSpan(): JSLabelSpan {
+        var span: JSLabelSpan = this.getData("span");
         if (!span) {
-            span = new JSSpan();
-            this.add(span);
+            span = new JSLabelSpan();
             this.setData("span", span);
         }
         return span;
+    }
+    setIcon(icon: JSIcon) {
+        super.setIcon(icon);
+        var span: JSLabelSpan = this.getSpan();
+        var text: string = span.getText();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    }
+    getText(): string {
+        var span: JSLabelSpan = this.getSpan();
+        return span.getText();
+    }
+    setText(text: string) {
+        var span: JSLabelSpan = this.getSpan();
+        span.setText(text);
+        var icon = this.getIcon();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    }
+    getFor(): string {
+        return this.getAttribute("for");
+    }
+    setFor(id: string) {
+        this.setAttribute("for", id);
     }
     isUndecorated(): boolean {
         return this.hasClass("undecorated");
@@ -119,11 +121,5 @@ class JSLabel extends JSHTMLComponent {
         } else {
             this.removeClass("undecorated");
         }
-    }
-    getFor(): string {
-        return this.getAttribute("for");
-    }
-    setFor(id: string) {
-        this.setAttribute("for", id);
     }
 }

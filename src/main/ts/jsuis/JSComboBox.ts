@@ -7,12 +7,12 @@
 class JSComboBox extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLSelectElement);
+    constructor(element: HTMLElement);
     constructor(items: Array<string>);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLSelectElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]);
         switch (args.length) {
         case 1:

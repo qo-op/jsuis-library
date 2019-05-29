@@ -7,7 +7,7 @@
 class JSCheckBoxMenuItem extends JSMenuItem {
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(action: JSAction);
     constructor(icon: JSIcon);
     constructor(text: string);
@@ -18,13 +18,13 @@ class JSCheckBoxMenuItem extends JSMenuItem {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput();
-        this.add(checkBoxInput);
+        var input: JSCheckBoxInput = this.getInput();
+        this.add(input);
         
-        var label: JSLabel = this.getLabel();
+        var label: JSMenuItemLabel = this.getLabel();
         this.add(label);
         
         switch (args.length) {
@@ -83,20 +83,20 @@ class JSCheckBoxMenuItem extends JSMenuItem {
     init(): void {
         this.addClass("JSCheckBoxMenuItem");
     }
-    getCheckBoxInput(): JSCheckBoxInput {
-        var checkBoxInput: JSCheckBoxInput = this.getData("checkBoxInput");
-        if (!checkBoxInput) {
-            checkBoxInput = new JSCheckBoxInput();
-            this.setData("checkBoxInput", checkBoxInput);
+    getInput(): JSCheckBoxInput {
+        var input: JSCheckBoxInput = this.getData("input");
+        if (!input) {
+            input = new JSCheckBoxInput();
+            this.setData("input", input);
         }
-        return checkBoxInput;
+        return input;
     }
     isSelected() {
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput()
-        return checkBoxInput.isSelected();
+        var input: JSCheckBoxInput = this.getInput()
+        return input.isSelected();
     }
     setSelected(selected: boolean) {
-        var checkBoxInput: JSCheckBoxInput = this.getCheckBoxInput()
-        checkBoxInput.setSelected(selected);
+        var input: JSCheckBoxInput = this.getInput()
+        input.setSelected(selected);
     }
 }

@@ -59,13 +59,6 @@ class JSComponent {
         return this.element.getAttribute(attribute);
     }
     setAttribute(attribute: string, value: string): void {
-        if (attribute === "width" && +value < 0) {
-            try {
-                throw "";
-            } catch (e) {
-                console.log(this.getName());
-            }
-        }
         this.element.setAttribute(attribute, value);
     }
     removeAttribute(attribute: string): void {
@@ -146,7 +139,7 @@ class JSComponent {
         if (clazzes.indexOf(" " + clazz + " ") !== -1) {
             return;
         }
-        this.setClass(clazzes.trim() + " " + clazz);
+        this.setClass((clazzes.trim() + " " + clazz).trim());
     }
     removeClass(clazz: string): void {
         var clazzes: string = " " + (this.getAttribute("class") || "").trim() + " ";
@@ -173,25 +166,27 @@ class JSComponent {
     getWidth(): number {
         return this.width;
     }
-    getOuterWidth(): number {
-        return this.getWidth();
+    setWidth(width: number): void {
+        this.width = width;
+        this.revalidateHorizontally();
     }
     height: number;
     getHeight(): number {
         return this.height;
     }
-    getOuterHeight(): number {
-        return this.getHeight();
+    setHeight(height: number): void {
+        this.height = height;
+        this.revalidateVertically();
     }
     
-    setWidth(width: number): void {
-        this.width = width;
+    getOuterWidth(): number {
+        return this.getWidth();
     }
     setOuterWidth(outerWidth: number): void {
         this.setWidth(outerWidth);
     }
-    setHeight(height: number): void {
-        this.height = height;
+    getOuterHeight(): number {
+        return this.getHeight();
     }
     setOuterHeight(outerHeight: number): void {
         this.setHeight(outerHeight);
@@ -318,28 +313,128 @@ class JSComponent {
             this.remove(component);
         }
     }
-    validate(): void {
-        var layout: JSLayout = this.getLayout();
-        if (layout) {
-            var parent: JSComponent = this.getParent();
-            if (parent) {
-                var parentLayout: JSLayout = parent.getLayout();
-                if (!parentLayout) {
-                    this.setStyle("min-width", this.getPreferredWidth() + "px");
-                    this.setStyle("min-height", this.getPreferredHeight() + "px");
-                    this.setStyle("position", "relative");
-                }
-            }
-            layout.layoutContainer(this);
-        }
-        this.validateChildren();
+    isValid(): boolean {
+        return this.isValidHorizontally() && this.isValidVertically();
     }
-    validateChildren(): void {
+    setValid(valid: boolean) {
+        this.setValidHorizontally(valid);
+        this.setValidVertically(valid);
+    }
+    validHorizontally: boolean = false;
+    isValidHorizontally(): boolean {
+        return this.validHorizontally;
+    }
+    setValidHorizontally(validHorizontally: boolean) {
+        this.validHorizontally = validHorizontally;
+    }
+    validVertically: boolean = false;
+    isValidVertically(): boolean {
+        return this.validVertically;
+    }
+    setValidVertically(validVertically: boolean) {
+        this.validVertically = validVertically;
+    }
+    invalidate(): void {
+        var valid: boolean = this.isValid();
+        this.setValid(false);
+        this.invalidateChildren();
+    }
+    invalidateHorizontally(): void {
+        var validHorizontally: boolean = this.isValidHorizontally();
+        this.setValidHorizontally(false);
+        this.invalidateChildrenHorizontally();
+    }
+    invalidateVertically(): void {
+        var validVertically: boolean = this.isValidVertically();
+        this.setValidVertically(false);
+        this.invalidateChildrenVertically();
+    }
+    invalidateChildren(): void {
         var components: JSComponent[] = this.getComponents();
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
-            component.validate();
+            component.invalidate();
         }
+    }
+    invalidateChildrenHorizontally(): void {
+        var components: JSComponent[] = this.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            component.invalidateHorizontally();
+        }
+    }
+    invalidateChildrenVertically(): void {
+        var components: JSComponent[] = this.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            component.invalidateVertically();
+        }
+    }
+    validate(): void {
+        JSLayout.validateLater(this);
+        JSLayout.validateContainers();
+    }
+    validateHorizontally(): void {
+        var validHorizontally: boolean = this.isValidHorizontally();
+        if (!validHorizontally) {
+            var layout: JSLayout = this.getLayout();
+            if (layout) {
+                layout.layoutContainerHorizontally(this);
+                validHorizontally = this.isValidHorizontally();
+            } else {
+                this.setValidHorizontally(true);
+                validHorizontally = true;
+            }
+            if (validHorizontally) {
+                this.validateChildrenHorizontally();
+            } else {
+                JSLayout.validateLater(this);
+            }
+        }
+    }
+    validateVertically(): void {
+        var validVertically: boolean = this.isValidVertically();
+        if (!validVertically) {
+            var layout: JSLayout = this.getLayout();
+            if (layout) {
+                layout.layoutContainerVertically(this);
+                validVertically = this.isValidVertically();
+            } else {
+                this.setValidVertically(true);
+                validVertically = true;
+            }
+            if (validVertically) {
+                this.validateChildrenVertically();
+            } else {
+                JSLayout.validateLater(this);
+            }
+        }
+    }
+    validateChildrenHorizontally(): void {
+        var components: JSComponent[] = this.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            component.validateHorizontally();
+        }
+    }
+    validateChildrenVertically(): void {
+        var components: JSComponent[] = this.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            component.validateVertically();
+        }
+    }
+    revalidate(): void {
+        this.invalidate();
+        this.validate();
+    }
+    revalidateHorizontally(): void {
+        this.invalidateHorizontally();
+        this.validateHorizontally();
+    }
+    revalidateVertically(): void {
+        this.invalidateVertically();
+        this.validateVertically();
     }
     isVisible(): boolean {
         return this.getStyle("visibility") !== "hidden";
@@ -374,10 +469,10 @@ class JSComponent {
         }
     }
     getPreferredOuterWidth(): number {
-        return 0;
+        return this.getPreferredWidth();
     }
     getPreferredOuterHeight(): number {
-        return 0;
+        return this.getPreferredHeight();
     }
     getMarginTop(): number {
         return 0;
@@ -529,21 +624,6 @@ class JSComponent {
     setEditable(contenteditable: boolean) {
         this.setAttribute("contenteditable", "" + contenteditable);
     }
-    /*
-    setTimeout(thisValue: JSComponent, timeout: () => void): void;
-    setTimeout(thisValue: JSComponent, timeout: () => void, delay: number): void;
-    // overload
-    setTimeout(thisValue: JSComponent, timeout: () => void, delay?: number): void {
-        this.setData("timeout", setTimeout(function() { timeout.call(thisValue); }, delay || 0));
-    }
-    clearTimeout(): void {
-        var timeout = this.getData("timeout");
-        if (timeout) {
-            this.setData("timeout", undefined);
-            clearTimeout(timeout);
-        }
-    }
-    */
     addEventListener(event: string, listener: (event: Event) => void, useCapture?: boolean): void {
         this.element.addEventListener(event, listener, !!useCapture);
     }
@@ -568,9 +648,13 @@ class JSComponent {
     }
     addMouseListener(mouseListener: MouseListener, useCapture?: boolean): JSMouseListener {
         var mouseListeners: MouseListener[] = this.getMouseListeners();
+        var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
+        var index: number = mouseListeners.indexOf(mouseListener);
+        if (index !== -1) {
+            return jsMouseListeners[index];;
+        }
         mouseListeners.push(mouseListener);
         var jsMouseListener: JSMouseListener = new JSMouseListener(mouseListener);
-        var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
         jsMouseListeners.push(jsMouseListener);
         if (jsMouseListener.mouseClicked) {
             this.element.addEventListener("click", jsMouseListener.mouseClicked, !!useCapture);
@@ -650,9 +734,13 @@ class JSComponent {
     }
     addActionListener(actionListener: ActionListener, useCapture?: boolean): JSActionListener {
         var actionListeners: ActionListener[] = this.getActionListeners();
+        var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
+        var index = actionListeners.indexOf(actionListener);
+        if (index !== -1) {
+            return jsActionListeners[index];;
+        }
         actionListeners.push(actionListener);
         var jsActionListener: JSActionListener = new JSActionListener(actionListener);
-        var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
         jsActionListeners.push(jsActionListener);
         var mouseListener = this.getData("actionListener" + !!useCapture);
         if (!mouseListener) {
@@ -701,9 +789,13 @@ class JSComponent {
     }
     addMouseDraggedListener(mouseDraggedListener: MouseDraggedListener, useCapture?: boolean): JSMouseDraggedListener {
         var mouseDraggedListeners: MouseDraggedListener[] = this.getMouseDraggedListeners();
+        var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getJSMouseDraggedListeners();
+        var index = mouseDraggedListeners.indexOf(mouseDraggedListener);
+        if (index !== -1) {
+            return jsMouseDraggedListeners[index];
+        }
         mouseDraggedListeners.push(mouseDraggedListener);
         var jsMouseDraggedListener: JSMouseDraggedListener = new JSMouseDraggedListener(mouseDraggedListener);
-        var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getJSMouseDraggedListeners();
         jsMouseDraggedListeners.push(jsMouseDraggedListener);
         var mouseListener = this.getData("mouseDraggedListener" + !!useCapture);
         if (!mouseListener) {
@@ -759,9 +851,13 @@ class JSComponent {
     addDragSourceListener(dragSourceListener: DragSourceListener, useCapture?: boolean): JSDragSourceListener {
         this.setDragEnabled(true);
         var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
+        var index = dragSourceListeners.indexOf(dragSourceListener);
+        if (index !== -1) {
+            return jsDragSourceListeners[index];
+        }
         dragSourceListeners.push(dragSourceListener);
         var jsDragSourceListener: JSDragSourceListener = new JSDragSourceListener(dragSourceListener);
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
         jsDragSourceListeners.push(jsDragSourceListener);
         var mouseListener = this.getData("dragSourceListener" + !!useCapture);
         if (!mouseListener) {
@@ -833,9 +929,13 @@ class JSComponent {
     }
     addDropTargetListener(dropTargetListener: DropTargetListener, useCapture?: boolean): JSDropTargetListener {
         var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
+        var index = dropTargetListeners.indexOf(dropTargetListener);
+        if (index !== -1) {
+            return jsDropTargetListeners[index];
+        }
         dropTargetListeners.push(dropTargetListener);
         var jsDropTargetListener: JSDropTargetListener = new JSDropTargetListener(dropTargetListener);
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
         jsDropTargetListeners.push(jsDropTargetListener);
         var mouseListener = this.getData("dropTargetListener" + !!useCapture);
         if (!mouseListener) {
@@ -949,9 +1049,13 @@ class JSComponent {
     }
     addAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture?: boolean): JSAdjustmentListener {
         var adjustmentListeners: AdjustmentListener[] = this.getAdjustmentListeners();
+        var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
+        var index: number = adjustmentListeners.indexOf(adjustmentListener);
+        if (index !== -1) {
+            return jsAdjustmentListeners[index];
+        }
         adjustmentListeners.push(adjustmentListener);
         var jsAdjustmentListener: JSAdjustmentListener = new JSAdjustmentListener(adjustmentListener);
-        var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
         jsAdjustmentListeners.push(jsAdjustmentListener);
         this.element.addEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, !!useCapture);
         return jsAdjustmentListener.withParameters(this);
@@ -985,9 +1089,13 @@ class JSComponent {
     }
     addChangeListener(changeListener: ChangeListener, useCapture?: boolean): JSChangeListener {
         var changeListeners: ChangeListener[] = this.getChangeListeners();
+        var jsChangeListeners: JSChangeListener[] = this.getJSChangeListeners();
+        var index: number = changeListeners.indexOf(changeListener);
+        if (index !== -1) {
+            return jsChangeListeners[index];
+        }
         changeListeners.push(changeListener);
         var jsChangeListener: JSChangeListener = new JSChangeListener(changeListener);
-        var jsChangeListeners: JSChangeListener[] = this.getJSChangeListeners();
         jsChangeListeners.push(jsChangeListener);
         this.element.addEventListener("change", jsChangeListener.stateChanged, !!useCapture);
         return jsChangeListener.withParameters(this);

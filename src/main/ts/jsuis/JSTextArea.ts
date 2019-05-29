@@ -7,14 +7,14 @@
 class JSTextArea extends JSHTMLComponent {
 
     constructor();
-    constructor(element: HTMLTextAreaElement);
+    constructor(element: HTMLElement);
     constructor(text: string);
     constructor(rows: number, columns: number);
     constructor(text: string, rows: number, columns: number);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLTextAreaElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]);
         switch (args.length) {
         case 0:

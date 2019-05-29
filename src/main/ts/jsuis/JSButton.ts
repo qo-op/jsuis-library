@@ -7,7 +7,7 @@
 class JSButton extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLButtonElement);
+    constructor(element: HTMLElement);
     constructor(action: JSAction);
     constructor(icon: JSIcon);
     constructor(text: string);
@@ -15,10 +15,13 @@ class JSButton extends JSHTMLComponent {
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLButtonElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
-        var graphics: JSGraphics = this.getGraphics();
+        this.setStyle("white-space", "nowrap");
+        var graphics: JSButtonGraphics = this.getGraphics();
         this.add(graphics);
+        var span: JSButtonSpan = this.getSpan();
+        this.add(span);
         switch (args.length) {
         case 1:
             // constructor(action: JSAction);
@@ -50,44 +53,37 @@ class JSButton extends JSHTMLComponent {
     init(): void {
         this.addClass("JSButton");
     }
-    setIcon(icon: JSIcon) {
-        super.setIcon(icon);
-        if (icon) {
-            var span: JSSpan = this.getData("span");
-            if (span) {
-                var text: string = span.getText();
-                span.setStyle("margin-left", text ? "4px" : "0");
-            }
-        }
-    }
-    getGraphics(): JSGraphics {
-        var graphics: JSGraphics = this.getData("graphics");
+    getGraphics(): JSButtonGraphics {
+        var graphics: JSButtonGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSGraphics();
+            graphics = new JSButtonGraphics();
             this.setData("graphics", graphics);
         }
         return graphics;
     }
-    getText(): string {
-        var span: JSSpan = this.getSpan();
-        return span.getText();
-    }
-    setText(text: string) {
-        var span: JSSpan = this.getSpan();
-        span.setText(text);
-        var icon = this.getIcon();
-        if (icon) {
-            span.setStyle("margin-left", text ? "4px" : "0");
-        }
-    }
-    getSpan(): JSSpan {
-        var span = this.getData("span");
+    getSpan(): JSButtonSpan {
+        var span: JSButtonSpan = this.getData("span");
         if (!span) {
-            span = new JSSpan();
-            this.add(span);
+            span = new JSButtonSpan();
             this.setData("span", span);
         }
         return span;
+    }
+    setIcon(icon: JSIcon) {
+        super.setIcon(icon);
+        var span: JSButtonSpan = this.getSpan();
+        var text: string = span.getText();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
+    }
+    getText(): string {
+        var span: JSButtonSpan = this.getSpan();
+        return span.getText();
+    }
+    setText(text: string) {
+        var span: JSButtonSpan = this.getSpan();
+        span.setText(text);
+        var icon = this.getIcon();
+        span.setStyle("margin-left", (icon && text) ? "4px" : "0");
     }
     isUndecorated(): boolean {
         return this.hasClass("undecorated");

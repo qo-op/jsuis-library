@@ -6,19 +6,22 @@
  */
 class JSTab extends JSPanel {
     
-    static CLOSE_ICON: JSPathIcon = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withStroke("red");
-    
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     constructor(tabPlacement: string, closeable: boolean, text: string);
     constructor(tabPlacement: string, closeable: boolean, text: string, icon: JSIcon);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLDivElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var graphics: JSGraphics = this.getGraphics();
+        this.setStyle("white-space", "nowrap");
+        var graphics: JSTabGraphics = this.getGraphics();
         this.add(graphics);
+        var label: JSLabel = this.getLabel();
+        this.add(label);
+        var tabCloseButton: JSButton = this.getCloseButton();
+        this.add(tabCloseButton);
         switch (args.length) {
         case 3:
             // constructor(tabPlacement: string, closeable: boolean, text: string);
@@ -46,9 +49,6 @@ class JSTab extends JSPanel {
             break;
         default:
         }
-        
-        
-        
         /*
         this.addDragSourceListener(new JSDragListener({
             dragStart(mouseEvent: MouseEvent, tab: JSTab) {
@@ -85,6 +85,31 @@ class JSTab extends JSPanel {
     init(): void {
         this.addClass("JSTab");
     }
+    getGraphics(): JSTabGraphics {
+        var graphics: JSTabGraphics = this.getData("graphics");
+        if (!graphics) {
+            graphics = new JSTabGraphics();
+            this.setData("graphics", graphics);
+        }
+        return graphics;
+    }
+    getLabel(): JSTabLabel {
+        var label: JSTabLabel = this.getData("label");
+        if (!label) {
+            label = new JSTabLabel();
+            this.setData("label", label);
+        }
+        return label;
+    }
+    getCloseButton(): JSTabCloseButton {
+        var tabCloseButton: JSTabCloseButton = this.getData("tabCloseButton");
+        if (!tabCloseButton) {
+            tabCloseButton = new JSTabCloseButton();
+            tabCloseButton.setStyle("display", "none");
+            this.setData("tabCloseButton", tabCloseButton);
+        }
+        return tabCloseButton;
+    }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");
     }
@@ -105,48 +130,31 @@ class JSTab extends JSPanel {
             this.setBorder(new JSMatteBorder(1, 0, 0, 1, "DarkGray"));
         }
         var graphics: JSGraphics = this.getGraphics();
+        var label: JSLabel = this.getLabel();
+        var tabCloseButton: JSButton = this.getCloseButton();
         if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
             graphics.setStyle("display", "block");
             graphics.setStyle("margin", "4px auto 0");
+            label.setStyle("display", "block");
+            label.setStyle("margin", "4px 0");
+            label.setStyle("text-align", "center");
+            tabCloseButton.setStyle("margin", "0 auto 4px");
         } else {
             graphics.setStyle("margin-left", "4px");
             graphics.setStyle("vertical-align", "middle");
+            label.setStyle("margin", "0 4px");
+            label.setStyle("vertical-align", "middle");
+            tabCloseButton.setStyle("margin-right", "4px");
+            tabCloseButton.setStyle("vertical-align", "middle");
         }
     }
     isCloseable() {
-        var button: JSButton = this.getCloseButton();
-        return !!button;
+        var tabCloseButton: JSButton = this.getCloseButton();
+        return tabCloseButton.isDisplayable();
     }
     setCloseable(closeable: boolean) {
-        if (closeable) {
-            var button: JSButton = this.getCloseButton();
-            if (!button) {
-                button = new JSButton(JSTab.CLOSE_ICON);
-                var tabPlacement = this.getTabPlacement();
-                if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                    button.setStyle("margin", "0 auto 4px");
-                } else {
-                    button.setStyle("margin-right", "4px");
-                    button.setStyle("vertical-align", "middle");
-                }
-                this.setCloseButton(button);
-            }
-        } else {
-            this.setCloseButton(null);
-        }
-    }
-    getCloseButton(): JSButton {
-        return this.getData("closeButton");
-    }
-    setCloseButton(closeButton: JSButton) {
-        var oldCloseButton: JSComponent = this.getData("closeButton");
-        if (oldCloseButton) {
-            this.remove(oldCloseButton);
-        }
-        if (closeButton) {
-            this.add(closeButton);
-        }
-        this.setData("closeButton", closeButton);
+        var tabCloseButton: JSButton = this.getCloseButton();
+        tabCloseButton.setStyle("display", closeable ? "" : "none");
     }
     getText(): string {
         return this.getData("text");
@@ -165,61 +173,8 @@ class JSTab extends JSPanel {
         }
         this.setData("text", text);
     }
-    getLabel(): JSLabel {
-        var label: JSLabel = this.getData("label");
-        if (!label) {
-            label = new JSLabel();
-            var tabPlacement = this.getTabPlacement();
-            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                label.setStyle("display", "block");
-                label.setStyle("margin", "4px 0");
-                label.setStyle("text-align", "center");
-            } else {
-                label.setStyle("margin", "0 4px");
-                label.setStyle("vertical-align", "middle");
-            }
-            var button = this.getCloseButton();
-            if (button) {
-                var components: JSComponent[] = this.getComponents();
-                var index: number = components.indexOf(button);
-                this.add(label, null, index);
-            } else {
-                this.add(label);
-            }
-            this.setData("label", label);
-        }
-        return label;
-    }
-    /*
-    setImage(image: JSComponent) {
-        var oldImage: JSComponent = this.getImage();
-        if (oldImage) {
-            this.remove(oldImage);
-        }
-        if (image) {
-            this.add(image, null, 0);
-            var tabPlacement = this.getTabPlacement();
-            if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-                image.setStyle("display", "block");
-                image.setStyle("margin", "4px auto 0");
-            } else {
-                image.setStyle("margin-left", "4px");
-                image.setStyle("vertical-align", "middle");
-            }
-        }
-        super.setImage(image);
-    }
-    */
-    getGraphics(): JSGraphics {
-        var graphics: JSGraphics = this.getData("graphics");
-        if (!graphics) {
-            graphics = new JSGraphics();
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    }
     setSelected(selected: boolean) {
-        this.setBackground(selected ? "white" : "#BFBFBF");
+        this.setBackground(selected ? "White" : "Silver");
         var label: JSLabel = this.getLabel();
         if (label) {
             label.setForeground(selected ? "black" : "#404040");

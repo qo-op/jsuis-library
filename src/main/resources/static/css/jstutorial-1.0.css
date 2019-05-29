@@ -1,11 +1,4 @@
-.JSDiv.JSDiv_JSButtonTutorial,
-.JSDiv.JSDiv_JSTutorial {
-    padding: 4px 8px;
-}
-.JSDiv.JSDiv_JSButtonTutorial > .JSP,
-.JSDiv.JSDiv_JSTutorial > .JSP {
-    margin-block-start: 0;
-}
+/*
 .JSFrame.JSFrame_JSButtonTutorial > .JSTabbedPaneTabContainer,
 .JSFrame.JSFrame_JSTutorial > .JSTabbedPaneTabContainer {
 	border-top: 1px solid gray;
@@ -35,3 +28,4 @@
 .JSSplitPane.JSSplitPane_JSTutorial > .JSSplitPaneRightContainer {
 	border: 1px solid gray;
 }
+*/

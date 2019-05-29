@@ -9,14 +9,6 @@ class JSGridBagLayout extends JSLayout {
     hgap: number = 0;
     vgap: number = 0;
     
-    preferredWidthPixels: number[];
-    preferredWidthPercent: number[];
-    preferredHeightPixels: number[];
-    preferredHeightPercent: number[];
-    
-    weightxs: number[];
-    weightys: number[];
-    
     constructor();
     constructor(hgap: number, vgap: number);
     // overload
@@ -48,9 +40,11 @@ class JSGridBagLayout extends JSLayout {
     setVgap(vgap: number) {
         this.vgap = vgap;
     }
+    
     addLayoutComponent(component: JSComponent): void {
         component.setStyle("position", "absolute");
     }
+    
     preferredLayoutWidth(container: JSComponent): number {
         var preferredLayoutWidth: number = 0;
         var width: number = container.getWidth();
@@ -74,6 +68,9 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return null;
+            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridx: number = constraints.gridx || 0;
             var gridwidth: number = constraints.gridwidth || 1;
@@ -110,159 +107,11 @@ class JSGridBagLayout extends JSLayout {
         }
         return preferredLayoutWidth;
     }
+    
     preferredLayoutHeight(container: JSComponent): number {
-        var preferredLayoutWidth: number = 0;
-        var width: number = container.getWidth();
-        var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
+        var preferredLayoutHeight: number = 0;
         var height: number = container.getHeight();
         var components: JSComponent[] = container.getComponents().slice();
-        components.sort(function (a, b) {
-            var c: number = ((<{ gridx?: number }> a.getConstraints() || {}).gridx || 0) + ((<{ gridwidth?: number }> a.getConstraints() || {}).gridwidth || 1);
-            var d: number = ((<{ gridx?: number }> b.getConstraints() || {}).gridx || 0) + ((<{ gridwidth?: number }> b.getConstraints() || {}).gridwidth || 1);
-            if (c < d) {
-                return -1;
-            }
-            if (c > d) {
-                return 1; 
-            }
-            return 0;
-        });
-        var widthsPx: number[] = [];
-        var widthsPc: number[] = [];
-        var weightxs: number[] = [];
-        for (var i: number = 0; i < components.length; i++) {
-            var component: JSComponent = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-            var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
-            var gridx: number = constraints.gridx || 0;
-            var gridwidth: number = constraints.gridwidth || 1;
-            if (gridwidth === 1) {
-                widthsPx[gridx] = Math.max(widthsPx[gridx] || 0, componentPreferredOuterWidth);
-            } else {
-                widthsPx[gridx + gridwidth - 1] = Math.max(
-                    widthsPx[gridx + gridwidth - 1] || 0,
-                    componentPreferredOuterWidth - (widthsPx[gridx + gridwidth - 2] || 0));
-            }
-            var weightx: number = (constraints.weightx || 0) / gridwidth;
-            for (var j: number = 0; j < gridwidth; j++) {
-                weightxs[gridx + j] = Math.max(weightxs[gridx + j] || 0, weightx);
-            }
-        }
-        var hgap: number = this.getHgap();
-        for (var i: number = 0; i < widthsPx.length; i++) {
-            preferredLayoutWidth += (widthsPx[i] || 0) + hgap;
-        }
-        if (preferredLayoutWidth != 0) {
-            preferredLayoutWidth -= hgap;
-        }
-        if (width) {
-            var extraHorizontalSpace: number = width - preferredLayoutWidth;
-            if (extraHorizontalSpace) {
-                var sum: number = 0;
-                for (var i: number = 0; i < weightxs.length; i++) {
-                    sum += weightxs[i] || 0;
-                }
-                if (sum) {
-                    for (var i: number = 0; i < widthsPx.length; i++) {
-                        widthsPx[i] = (widthsPx[i] || 0) + extraHorizontalSpace * (weightxs[i] || 0) / sum - width100 * (weightxs[i] || 0) / sum;
-                        widthsPc[i] = 100 * (weightxs[i] || 0) / sum;
-                    }
-                    preferredLayoutWidth = Math.max(preferredLayoutWidth, width);
-                }
-            }
-        }
-        var xsPx: number[] = [];
-        var xsPc: number[] = [];
-        var extraHorizontalSpace: number = width - preferredLayoutWidth;
-        if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        } else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
-        }
-        for (var i: number = 0; i < widthsPx.length; i++) {
-            xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
-            xsPc[i + 1] = xsPc[i] + (widthsPc[i] || 0);
-        }
-        components = container.getComponents();
-        for (var i: number = 0; i < components.length; i++) {
-            var component: JSComponent = components[i];
-            if (!component.isDisplayable()) {
-                continue;
-            }
-            var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
-            var gridx: number = constraints.gridx || 0;
-            var gridwidth: number = constraints.gridwidth || 1;
-            var fill: string = constraints.fill;
-            var anchor: string = constraints.anchor;
-            switch (fill) {
-            case JSGridBagLayout.BOTH:
-                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                    // , xsPc[gridx + gridwidth] - xsPc[gridx], (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    // , xsPc[gridx], xsPc[gridx] * width100 / 100);
-                break;
-            case JSGridBagLayout.HORIZONTAL:
-                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                    // , xsPc[gridx + gridwidth] - xsPc[gridx], (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
-                component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    // , xsPc[gridx], xsPc[gridx] * width100 / 100);
-                break;
-            case JSGridBagLayout.VERTICAL:
-                var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                switch (anchor) {
-                case JSGridBagLayout.WEST:
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                        // , xsPc[gridx], xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.EAST:
-                    var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                    component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                        // , xsPc[gridx + gridwidth], xsPc[gridx + gridwidth] * width100 / 100);
-                    break;
-                case JSGridBagLayout.CENTER:
-                default:
-                    var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                    var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                    component.setX(xPx + xPc * width100 / 100);
-                        // , xPc, xPc * width100 / 100);
-                }
-                break;
-            case JSGridBagLayout.NONE:
-            default:
-                var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                switch (anchor) {
-                case JSGridBagLayout.WEST:
-                case JSGridBagLayout.NORTHWEST:
-                case JSGridBagLayout.SOUTHWEST:
-                    component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                        // , xsPc[gridx], xsPc[gridx] * width100 / 100);
-                    break;
-                case JSGridBagLayout.EAST:
-                case JSGridBagLayout.NORTHEAST:
-                case JSGridBagLayout.SOUTHEAST:
-                    var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
-                    component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                        // , xsPc[gridx + gridwidth], xsPc[gridx + gridwidth] * width100 / 100);
-                    break;
-                case JSGridBagLayout.CENTER:
-                default:
-                    var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
-                    var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
-                    component.setX(xPx + xPc * width100 / 100);
-                        // , xPc, xPc * width100 / 100);
-                }
-            }
-        }
-        
-        var preferredLayoutHeight: number = 0;
-        components = container.getComponents().slice();
         components.sort(function (a, b) {
             var c: number = ((<{ gridy?: number }> a.getConstraints() || {}).gridy || 0) + ((<{ gridheight?: number }> a.getConstraints() || {}).gridheight || 1);
             var d: number = ((<{ gridy?: number }> b.getConstraints() || {}).gridy || 0) + ((<{ gridheight?: number }> b.getConstraints() || {}).gridheight || 1);
@@ -282,6 +131,9 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return null;
+            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridy: number = constraints.gridy || 0;
             var gridheight: number = constraints.gridheight || 1;
@@ -318,12 +170,14 @@ class JSGridBagLayout extends JSLayout {
         }
         return preferredLayoutHeight;
     }
-    layoutContainer(container: JSComponent): void {
+    
+    layoutContainerHorizontally(container: JSComponent): void {
+        if (container.isValidHorizontally()) {
+            return;
+        }
         var preferredLayoutWidth: number = 0;
         var width: number = container.getWidth();
         var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
-        var height: number = container.getHeight();
-        var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
         var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {
             var c: number = ((<{ gridx?: number }> a.getConstraints() || {}).gridx || 0) + ((<{ gridwidth?: number }> a.getConstraints() || {}).gridwidth || 1);
@@ -345,6 +199,9 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+            if (componentPreferredOuterWidth === null) {
+                return;
+            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridx: number = constraints.gridx || 0;
             var gridwidth: number = constraints.gridwidth || 1;
@@ -411,68 +268,75 @@ class JSGridBagLayout extends JSLayout {
             var anchor: string = constraints.anchor;
             switch (fill) {
             case JSGridBagLayout.BOTH:
-                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
-                    // , xsPc[gridx + gridwidth] - xsPc[gridx], (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
+                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
                 component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    // , xsPc[gridx], xsPc[gridx] * width100 / 100);
                 break;
             case JSGridBagLayout.HORIZONTAL:
-                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
-                    // , xsPc[gridx + gridwidth] - xsPc[gridx], (xsPc[gridx + gridwidth] - xsPc[gridx]) * 100);
+                component.setOuterWidth(xsPx[gridx + gridwidth] - xsPx[gridx] - hgap + (xsPc[gridx + gridwidth] - xsPc[gridx]) * width100 / 100);
                 component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                    // , xsPc[gridx], xsPc[gridx] * width100 / 100);
                 break;
             case JSGridBagLayout.VERTICAL:
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
                 component.setOuterWidth(componentPreferredOuterWidth);
                 switch (anchor) {
                 case JSGridBagLayout.WEST:
                     component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                        // , xsPc[gridx], xsPc[gridx] * width100 / 100);
                     break;
                 case JSGridBagLayout.EAST:
                     var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
                     component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                        // , xsPc[gridx + gridwidth], xsPc[gridx + gridwidth] * width100 / 100);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
                     var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
                     var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
                     component.setX(xPx + xPc * width100 / 100);
-                        // , xPc, xPc * width100 / 100);
                 }
                 break;
             case JSGridBagLayout.NONE:
             default:
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                if (componentPreferredOuterWidth === null) {
+                    return;
+                }
                 component.setOuterWidth(componentPreferredOuterWidth);
                 switch (anchor) {
                 case JSGridBagLayout.WEST:
                 case JSGridBagLayout.NORTHWEST:
                 case JSGridBagLayout.SOUTHWEST:
                     component.setX(xsPx[gridx] + xsPc[gridx] * width100 / 100);
-                        // , xsPc[gridx], xsPc[gridx] * width100 / 100);
                     break;
                 case JSGridBagLayout.EAST:
                 case JSGridBagLayout.NORTHEAST:
                 case JSGridBagLayout.SOUTHEAST:
                     var xPx = xsPx[gridx + gridwidth] - hgap - componentPreferredOuterWidth;
                     component.setX(xPx + xsPc[gridx + gridwidth] * width100 / 100);
-                        // , xsPc[gridx + gridwidth], xsPc[gridx + gridwidth] * width100 / 100);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
                     var xPc = xsPc[gridx] + (xsPc[gridx + gridwidth] - xsPc[gridx]) / 2;
                     var xPx = xsPx[gridx] + (xsPx[gridx + gridwidth] - xsPx[gridx] - hgap - componentPreferredOuterWidth) / 2;
                     component.setX(xPx + xPc * width100 / 100);
-                        // , xPc, xPc * width100 / 100);
                 }
             }
         }
-        
+        container.setValidHorizontally(true);
+    }
+    
+    layoutContainerVertically(container: JSComponent): void {
+        if (container.isValidVertically()) {
+            return;
+        }
+        if (!container.isValidHorizontally()) {
+            return;
+        }
         var preferredLayoutHeight: number = 0;
-        components = container.getComponents().slice();
+        var height: number = container.getHeight();
+        var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
+        var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {
             var c: number = ((<{ gridy?: number }> a.getConstraints() || {}).gridy || 0) + ((<{ gridheight?: number }> a.getConstraints() || {}).gridheight || 1);
             var d: number = ((<{ gridy?: number }> b.getConstraints() || {}).gridy || 0) + ((<{ gridheight?: number }> b.getConstraints() || {}).gridheight || 1);
@@ -493,6 +357,9 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+            if (componentPreferredOuterHeight === null) {
+                return;
+            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridy: number = constraints.gridy || 0;
             var gridheight: number = constraints.gridheight || 1;
@@ -561,63 +428,60 @@ class JSGridBagLayout extends JSLayout {
             switch (fill) {
             case JSGridBagLayout.BOTH:
                 component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
-                    // , ysPc[gridy + gridheight] - ysPc[gridy], (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
                 component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                    // , ysPc[gridy], ysPc[gridy] * height100 / 100);
                 break;
             case JSGridBagLayout.HORIZONTAL:
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
                 component.setOuterHeight(componentPreferredOuterHeight);
                 switch (anchor) {
                 case JSGridBagLayout.NORTH:
                     component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                        // , ysPc[gridy], ysPc[gridy] * height100 / 100);
                     break;
                 case JSGridBagLayout.SOUTH:
                     var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
                     component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
-                        // , ysPc[gridy + gridheight], ysPc[gridy + gridheight] * height100 / 100);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
                     var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
                     var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
                     component.setY(yPx + yPc * height100 / 100);
-                        // , yPc, yPc * height100 / 100);
                 }
                 break;
             case JSGridBagLayout.VERTICAL:
                 component.setOuterHeight(ysPx[gridy + gridheight] - ysPx[gridy] - vgap + (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
-                    // , ysPc[gridy + gridheight] - ysPc[gridy], (ysPc[gridy + gridheight] - ysPc[gridy]) * height100 / 100);
                 component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                    // , ysPc[gridy], ysPc[gridy] * height100 / 100);
                 break;
             case JSGridBagLayout.NONE:
             default:
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                if (componentPreferredOuterHeight === null) {
+                    return;
+                }
                 component.setOuterHeight(componentPreferredOuterHeight);
                 switch (anchor) {
                 case JSGridBagLayout.NORTH:
                 case JSGridBagLayout.NORTHWEST:
                 case JSGridBagLayout.NORTHEAST:
                     component.setY(ysPx[gridy] + ysPc[gridy] * height100 / 100);
-                        // , ysPc[gridy], ysPc[gridy] * height100 / 100);
                     break;
                 case JSGridBagLayout.SOUTH:
                 case JSGridBagLayout.SOUTHWEST:
                 case JSGridBagLayout.SOUTHEAST:
                     var yPx = ysPx[gridy + gridheight] - vgap - componentPreferredOuterHeight;
                     component.setY(yPx + ysPc[gridy + gridheight] * height100 / 100);
-                        // , ysPc[gridy + gridheight], ysPc[gridy + gridheight] * height100 / 100);
                     break;
                 case JSGridBagLayout.CENTER:
                 default:
                     var yPc = ysPc[gridy] + (ysPc[gridy + gridheight] - ysPc[gridy]) / 2;
                     var yPx = ysPx[gridy] + (ysPx[gridy + gridheight] - ysPx[gridy] - vgap - componentPreferredOuterHeight) / 2;
                     component.setY(yPx + yPc * height100 / 100);
-                        // , yPc, yPc * height100 / 100);
                 }
             }
         }
+        container.setValidVertically(true);
     }
 }

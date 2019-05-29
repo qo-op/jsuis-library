@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 
@@ -28,6 +29,6 @@ public class Test {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
-		System.out.println(new JMenu().getDelay());
+		frame.validate();
 	}
 }

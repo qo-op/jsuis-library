@@ -7,12 +7,12 @@
 class JSOption extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLOptionElement);
+    constructor(element: HTMLElement);
     constructor(text: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLOptionElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]);
         switch (args.length) {
         case 1:

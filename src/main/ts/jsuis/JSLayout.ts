@@ -46,52 +46,80 @@ class JSLayout {
     static SOUTHWEST: string = "southwest";
     static SOUTHEAST: string = "southeast";
     
+    static containers: JSComponent[] = [];
+    static getContainers(): JSComponent[] {
+        return JSLayout.containers;
+    }
+    static validateLater(container: JSComponent): void {
+        var containers: JSComponent[] = JSLayout.getContainers();
+        if (containers.indexOf(container) === -1) {
+            containers.push(container);
+        }
+    }
+    static validateContainers(): void {
+        var containers: JSComponent[] = JSLayout.getContainers();
+        var container: JSComponent = containers.shift();
+        var valid: boolean = container.isValid();
+        if (!valid) {
+            var layout: JSLayout = container.getLayout();
+            if (layout) {
+                layout.layoutContainer(container);
+            }
+        }
+        while (container = containers.shift()) {
+            var validHorizontally: boolean = container.isValidHorizontally();
+            var validVertically: boolean = container.isValidVertically();
+            if (!validHorizontally && !validVertically) {
+                console.log("WARNING: Incompatible layout types!");
+                continue;
+            }
+            if (!validHorizontally || !validVertically) {
+                var layout: JSLayout = container.getLayout();
+                if (layout) {
+                    layout.layoutContainer(container);
+                }
+            }
+        }
+    }
+    
     addLayoutComponent(component: JSComponent): void {
     }
+    
     removeLayoutComponent(component: JSComponent): void {
     }
+    
     preferredLayoutWidth(container: JSComponent): number {
-        /*
-        var cssWidth: string = container.getStyle("width");
-        if (cssWidth) {
-            container.removeStyle("width");
-        }
-        var widthAttribute: string = container.getAttribute("width");
-        if (widthAttribute) {
-            container.removeAttribute("width");
-        }
-        var width = container.getWidth();
-        if (widthAttribute) {
-            container.setAttribute("width", widthAttribute);
-        }
-        if (cssWidth) {
-            container.setStyle("width", cssWidth);
-        }
-        return width;
-        */
-        return 0;
+        var layout: JSLayout = container.getLayout();
+        container.setLayout(null);
+        var preferredLayoutWidth = container.getPreferredWidth();
+        container.setLayout(layout);
+        return preferredLayoutWidth;
     }
+    
     preferredLayoutHeight(container: JSComponent): number {
-        /*
-        var cssHeight: string = container.getStyle("height");
-        if (cssHeight) {
-            container.removeStyle("height");
-        }
-        var heightAttribute: string = container.getAttribute("height");
-        if (heightAttribute) {
-            container.removeAttribute("height");
-        }
-        var height = container.getHeight();
-        if (heightAttribute) {
-            container.setAttribute("height", heightAttribute);
-        }
-        if (cssHeight) {
-            container.setStyle("height", cssHeight);
-        }
-        return height;
-        */
-        return 0;
+        var layout: JSLayout = container.getLayout();
+        container.setLayout(null);
+        var preferredLayoutHeight = container.getPreferredHeight();
+        container.setLayout(layout);
+        return preferredLayoutHeight;
     }
+    
     layoutContainer(container: JSComponent): void {
+        this.layoutContainerHorizontally(container);
+        this.layoutContainerVertically(container);
+    }
+    
+    layoutContainerHorizontally(container: JSComponent): void {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        container.setValidHorizontally(true);
+    }
+    
+    layoutContainerVertically(container: JSComponent): void {
+        if (container.isValidVertically()) {
+            return;
+        }
+        container.setValidVertically(true);
     }
 }

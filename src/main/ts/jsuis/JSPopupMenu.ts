@@ -4,15 +4,18 @@
  * 
  * @author Yassuo Toda
  */
-class JSPopupMenu extends JSHTMLComponent {
+class JSPopupMenu extends JSPanel {
     
     invoker: JSComponent;
     
     constructor();
-    constructor(element: HTMLDivElement);
+    constructor(element: HTMLElement);
     // overload
     constructor(...args: any[]) {
+        // constructor();
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setStyle("position", "absolute");
         this.setVisible(false);
         JSBody.getInstance().addMouseListener({
             mousePressed(mouseEvent: MouseEvent, popupMenu: JSPopupMenu) {
@@ -51,7 +54,7 @@ class JSPopupMenu extends JSHTMLComponent {
         super.add(component);
     }
     addSeparator(): void {
-        this.add(new JSHorizontalSeparator());
+        this.add(new JSSeparator());
     }
     getInvoker(): JSComponent {
         return this.invoker;

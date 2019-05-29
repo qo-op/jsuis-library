@@ -11,8 +11,8 @@ namespace jstutorial {
             
             var jsSplitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
             
-            var jsDiv_JSButtonTutorial: JSDiv_JSButtonTutorial = JSDiv_JSButtonTutorial.getInstance();
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsDiv_JSButtonTutorial));
+            var jsPanel: JSPanel = new JSPanel(document.getElementById("content"));
+            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
         }
     }
 }

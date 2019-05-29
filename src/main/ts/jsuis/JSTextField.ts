@@ -7,14 +7,14 @@
 class JSTextField extends JSHTMLComponent {
     
     constructor();
-    constructor(element: HTMLInputElement);
+    constructor(element: HTMLElement);
     constructor(columns: number);
     constructor(text: string);
     constructor(text: string, columns: number);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: HTMLInputElement);
+        // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "text");
         switch (args.length) {

@@ -10,18 +10,17 @@ namespace jstutorial {
             super();
             
             this.setLayout(new JSBorderLayout());
-    
+            
             /*
              * JSUIS - JavaScript User Interface
              */
-            var jsPanel_Title: JSPanel_Title = JSPanel_Title.getInstance();
-            this.add(jsPanel_Title, JSBorderLayout.NORTH);
+            this.setTitle("JSUIS - JavaScript User Interface");
             
             /*
              * Tutorials | Examples | Help
              */
             var jsMenuBar_Main: JSMenuBar_JSTutorial = JSMenuBar_JSTutorial.getInstance();
-            this.add(jsMenuBar_Main, JSBorderLayout.NORTH);
+            this.setMenuBar(jsMenuBar_Main);
             
             /*
              * Tutorials
@@ -136,15 +135,11 @@ namespace jstutorial {
             var jsPanel_ToogleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
             jsTabbedPaneButtonContainer_JSTutorial.add(jsPanel_ToogleButtonPanel);
             
-            var jsButton_CollapseButton: JSButton_CollapseButton = JSButton_CollapseButton.getInstance();
-            jsPanel_ToogleButtonPanel.add(jsButton_CollapseButton);
-            
             var jsButton_ExpandButton: JSButton_ExpandButton = JSButton_ExpandButton.getInstance();
             jsPanel_ToogleButtonPanel.add(jsButton_ExpandButton);
             
-            var jsIcon_Leaf: JSIcon_Open = JSIcon_Leaf.getInstance();
-            var jsIcon_Open: JSIcon_Open = JSIcon_Open.getInstance();
-            var jsIcon_Closed: JSIcon_Closed = JSIcon_Closed.getInstance();
+            var jsButton_CollapseButton: JSButton_CollapseButton = JSButton_CollapseButton.getInstance();
+            jsPanel_ToogleButtonPanel.add(jsButton_CollapseButton);
             
             /*
              * Tutorials
@@ -166,6 +161,10 @@ namespace jstutorial {
             jsTreeNode_TutorialsRoot.add(jsTreeNode_ComponentTutorials);
             var jsTreeNode_JSButtonTutorial = new JSTreeNode("How to use JS Button");
             jsTreeNode_ComponentTutorials.add(jsTreeNode_JSButtonTutorial);
+            
+            var jsIcon_Leaf: JSIcon_Open = JSIcon_Leaf.getInstance();
+            var jsIcon_Open: JSIcon_Open = JSIcon_Open.getInstance();
+            var jsIcon_Closed: JSIcon_Closed = JSIcon_Closed.getInstance();
             
             var treeCellRenderer_Tutorials = jsTree_Tutorials.getTreeCellRenderer();
             treeCellRenderer_Tutorials.setLeafIcon(jsIcon_Leaf);
@@ -217,8 +216,8 @@ namespace jstutorial {
             
             var jsSplitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
             
-            var jsDiv_JSTutorial: JSDiv_JSTutorial = JSDiv_JSTutorial.getInstance();
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsDiv_JSTutorial));
+            var jsPanel: JSPanel = new JSPanel(document.getElementById("content"));
+            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
         }
     }
 }
