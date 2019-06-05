@@ -15,6 +15,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     }
     
     popupMenu: JSComponent;
+    dialog: JSDialog;
     dragImage: JSComponent;
     dragSource: JSComponent;
     fileChooser: JSFileChooser;
@@ -34,17 +35,25 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         
         this.setLayout(new JSBorderLayout());
         
-        var svg: JSSVG = this.getDefsContainer();
-        this.add(svg, JSBorderLayout.NORTH);
+        var index: number = 0;
+        
+        var defsContainer: JSBodyDefsContainer = this.getDefsContainer();
+        this.add(defsContainer, JSBorderLayout.NORTH, index++);
         
         var defs: JSDefs = this.getDefs();
-        svg.add(defs);
+        defsContainer.add(defs);
         
-        var popupMenuContainer: JSPanel = this.getPopupMenuContainer();
-        this.add(popupMenuContainer, JSBorderLayout.NORTH);
+        var popupMenuContainer: JSBodyPopupMenuContainer = this.getPopupMenuContainer();
+        this.add(popupMenuContainer, JSBorderLayout.NORTH, index++);
         
-        var dragImageContainer: JSPanel = this.getDragImageContainer();
-        this.add(dragImageContainer, JSBorderLayout.NORTH);
+        var dialogContainer: JSBodyDialogContainer = this.getDialogContainer();
+        this.add(dialogContainer, JSBorderLayout.NORTH, index++);
+        
+        var modal: JSBodyModal = this.getModal();
+        dialogContainer.add(modal);
+        
+        var dragImageContainer: JSBodyDragImageContainer = this.getDragImageContainer();
+        this.add(dragImageContainer, JSBorderLayout.NORTH, index++);
         
         this.addMouseListener(this, true);
         
@@ -55,20 +64,39 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     init(): void {
         this.addClass("JSBody");
     }
-    setContentPane(contentPane: JSComponent) {
-        var oldContentPane: JSComponent = this.getData("contentPane");
-        if (oldContentPane) {
-            this.remove(oldContentPane);
+    getFrame(): JSFrame {
+        var frame: JSFrame = this.getData("frame");
+        if (!frame) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSFrame");
+            if (element) {
+                frame = new JSFrame(element);
+                this.setData("frame", frame);
+            }
         }
-        if (contentPane) {
-            this.add(contentPane);
+        return frame;
+    }
+    setFrame(frame: JSFrame) {
+        var oldFrame: JSFrame = this.getData("frame");
+        if (oldFrame === frame) {
+            return;
         }
-        this.setData("contentPane", contentPane);
+        if (oldFrame) {
+            this.remove(oldFrame);
+        }
+        if (frame) {
+            this.add(frame);
+        }
+        this.setData("frame", frame);
     }
     getDefsContainer(): JSBodyDefsContainer {
         var defsContainer: JSBodyDefsContainer = this.getData("defsContainer");
         if (!defsContainer) {
-            defsContainer = new JSBodyDefsContainer();
+            var element: SVGElement = <SVGElement> this.getChild("JSBodyDefsContainer");
+            if (element) {
+                defsContainer = new JSBodyDefsContainer(element);
+            } else {
+                defsContainer = new JSBodyDefsContainer();
+            }
             this.setData("defsContainer", defsContainer);
         }
         return defsContainer;
@@ -84,7 +112,12 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     getPopupMenuContainer(): JSBodyPopupMenuContainer {
         var popupMenuContainer: JSBodyPopupMenuContainer = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
-            popupMenuContainer = new JSBodyPopupMenuContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyPopupMenuContainer");
+            if (element) {
+                popupMenuContainer = new JSBodyPopupMenuContainer(element);
+            } else {
+                popupMenuContainer = new JSBodyPopupMenuContainer();
+            }
             this.setData("popupMenuContainer", popupMenuContainer);
         }
         return popupMenuContainer;
@@ -95,7 +128,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     setPopupMenu(popupMenu: JSComponent) {
         var oldPopupMenu: JSComponent = this.getPopupMenu();
         if (oldPopupMenu !== popupMenu) {
-            var popupMenuContainer: JSComponent = this.getPopupMenuContainer();
+            var popupMenuContainer: JSBodyPopupMenuContainer = this.getPopupMenuContainer();
             if (oldPopupMenu) {
                 popupMenuContainer.remove(oldPopupMenu);
             }
@@ -103,18 +136,86 @@ class JSBody extends JSHTMLComponent implements MouseListener {
                 popupMenuContainer.add(popupMenu);
                 var popupMenuLayout: JSLayout = popupMenu.getLayout();
                 if (popupMenuLayout) {
-                    popupMenu.setWidth(popupMenu.getPreferredWidth());
-                    popupMenu.setHeight(popupMenu.getPreferredHeight());
+                    popupMenu.setWidth(this.getWidth());
+                    popupMenu.setHeight(this.getHeight());
                     popupMenu.revalidate();
                 }
+                popupMenu.setWidth(popupMenu.getPreferredWidth());
+                popupMenu.setHeight(popupMenu.getPreferredHeight());
+                popupMenu.revalidate();
             }
         }
         this.popupMenu = popupMenu;
     }
-    getDragImageContainer(): JSPanel {
+    getDialogContainer(): JSBodyDialogContainer {
+        var dialogContainer: JSBodyDialogContainer = this.getData("dialogContainer");
+        if (!dialogContainer) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDialogContainer");
+            if (element) {
+                dialogContainer = new JSBodyDialogContainer(element);
+            } else {
+                dialogContainer = new JSBodyDialogContainer();
+            }
+            this.setData("dialogContainer", dialogContainer);
+        }
+        return dialogContainer;
+    }
+    getModal(): JSBodyModal {
+        var modal: JSBodyModal = this.getData("modal");
+        if (!modal) {
+            var dialogContainer: JSBodyDialogContainer = this.getData("dialogContainer");
+            var element: HTMLElement = <HTMLElement> dialogContainer.getChild("JSBodyModal");
+            if (element) {
+                modal = new JSBodyModal(element);
+            } else {
+                modal = new JSBodyModal();
+            }
+            this.setData("modal", modal);
+        }
+        return modal;
+    }
+    getDialog(): JSDialog {
+        return this.dialog;
+    }
+    setDialog(dialog: JSDialog) {
+        var oldDialog: JSDialog = this.getDialog();
+        if (oldDialog !== dialog) {
+            var dialogContainer: JSBodyDialogContainer = this.getDialogContainer();
+            if (oldDialog) {
+                dialogContainer.remove(oldDialog);
+            }
+            if (dialog) {
+                var modal = dialog.isModal();
+                if (modal) {
+                    this.getModal().setStyle("display", "");
+                }
+                dialogContainer.add(dialog);
+                var dialogLayout: JSLayout = dialog.getLayout();
+                if (dialogLayout) {
+                    dialog.setWidth(this.getWidth());
+                    dialog.setHeight(this.getHeight());
+                    dialog.revalidate();
+                }
+                var preferredWidth: number = dialog.getPreferredWidth();
+                var preferredHeight: number = dialog.getPreferredHeight();
+                dialog.setWidth(preferredWidth);
+                dialog.setHeight(preferredHeight);
+                dialog.setX(dialog.getX() || (this.getWidth() - preferredWidth) / 2);
+                dialog.setY(dialog.getY() || (this.getHeight() - preferredHeight) / 2);
+                dialog.revalidate();
+            }
+        }
+        this.dialog = dialog;
+    }
+    getDragImageContainer(): JSBodyDragImageContainer {
         var dragImageContainer: JSBodyDragImageContainer = this.getData("dragImageContainer");
         if (!dragImageContainer) {
-            dragImageContainer = new JSBodyDragImageContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDragImageContainer");
+            if (element) {
+                dragImageContainer = new JSBodyDragImageContainer(element);
+            } else {
+                dragImageContainer = new JSBodyDragImageContainer();
+            }
             dragImageContainer.setVisible(false);
             this.setData("dragImageContainer", dragImageContainer);
         }

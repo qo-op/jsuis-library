@@ -4,7 +4,7 @@ frame.setLayout(new JSGridBagLayout());
 var button = new JSButton("Click me!");
 frame.add(button);
 
-var dialog = new JSDialog(frame);
+var dialog = new JSDialog("Dialog");
 dialog.setPreferredWidth(100);
 dialog.setPreferredHeight(100);
 

@@ -28,7 +28,4 @@ class JSLayeredPane extends JSPanel {
     init(): void {
         this.addClass("JSLayeredPane");
     }
-    setLayer(component: JSComponent, layer: number) {
-        component.setZIndex(layer);
-    }
 }

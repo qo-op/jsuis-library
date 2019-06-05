@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JsuisLibraryApplication {
+public class JSTutorialApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JsuisLibraryApplication.class, args);
+		SpringApplication.run(JSTutorialApplication.class, args);
 	}
 }

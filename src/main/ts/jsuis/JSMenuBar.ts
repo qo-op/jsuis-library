@@ -13,8 +13,11 @@ class JSMenuBar extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        
+        var index: number = 0;
+        
         var menuContainer: JSMenuContainer = this.getMenuContainer();
-        super.add(menuContainer);
+        super.add(menuContainer, null, index++);
     }
     init(): void {
         this.addClass("JSMenuBar");
@@ -26,7 +29,12 @@ class JSMenuBar extends JSPanel {
     getMenuContainer(): JSMenuContainer {
         var menuContainer: JSMenuContainer = this.getData("menuContainer");
         if (!menuContainer) {
-            menuContainer = new JSMenuContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuContainer");
+            if (element) {
+                menuContainer = new JSMenuContainer(element);
+            } else {
+                menuContainer = new JSMenuContainer();
+            }
             this.setData("menuContainer", menuContainer);
         }
         return menuContainer;

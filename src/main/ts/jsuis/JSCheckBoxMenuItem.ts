@@ -21,11 +21,13 @@ class JSCheckBoxMenuItem extends JSMenuItem {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         
-        var input: JSCheckBoxInput = this.getInput();
-        this.add(input);
+        var index: number = 0;
         
-        var label: JSMenuItemLabel = this.getLabel();
-        this.add(label);
+        var input: JSCheckBoxInput = this.getInput();
+        this.add(input, null, index++);
+        
+        // var label: JSMenuItemLabel = this.getLabel();
+        // this.add(label, null, index++);
         
         switch (args.length) {
         case 1:
@@ -86,7 +88,12 @@ class JSCheckBoxMenuItem extends JSMenuItem {
     getInput(): JSCheckBoxInput {
         var input: JSCheckBoxInput = this.getData("input");
         if (!input) {
-            input = new JSCheckBoxInput();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxInput");
+            if (element) {
+                input = new JSCheckBoxInput(element);
+            } else {
+                input = new JSCheckBoxInput();
+            }
             this.setData("input", input);
         }
         return input;

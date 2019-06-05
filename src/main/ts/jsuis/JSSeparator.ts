@@ -21,7 +21,9 @@ class JSSeparator extends JSPanel {
             break;
         case 1:
             // constructor(selected: boolean);
-            if (typeof args[0] === "string") {
+            if (args[0] instanceof HTMLElement) {
+                this.setOrientation(JSComponent.HORIZONTAL);
+            } else if (typeof args[0] === "string") {
                 var orientation: string = args[0];
                 this.setOrientation(orientation);
             }
@@ -47,16 +49,24 @@ class JSSeparator extends JSPanel {
     setOrientation(orientation: string) {
         this.setAttribute("data-orientation", orientation);
         if (orientation === JSComponent.VERTICAL) {
-            
+            var verticalLine: JSSeparatorVerticalLine = this.getVerticalLine();
+            this.removeAll();
+            this.add(verticalLine);
         } else {
             var horizontalLine: JSSeparatorHorizontalLine = this.getHorizontalLine();
+            this.removeAll();
             this.add(horizontalLine);
         }
     }
     getHorizontalLine(): JSSeparatorHorizontalLine {
         var horizontalLine: JSSeparatorHorizontalLine = this.getData("horizontalLine");
         if (!horizontalLine) {
-            horizontalLine = new JSSeparatorHorizontalLine();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSSeparatorHorizontalLine");
+            if (element) {
+                horizontalLine = new JSSeparatorHorizontalLine(element);
+            } else {
+                horizontalLine = new JSSeparatorHorizontalLine();
+            }
             this.setData("horizontalLine", horizontalLine);
         }
         return horizontalLine;
@@ -64,7 +74,12 @@ class JSSeparator extends JSPanel {
     getVerticalLine(): JSSeparatorVerticalLine {
         var verticalLine: JSSeparatorVerticalLine = this.getData("verticalLine");
         if (!verticalLine) {
-            verticalLine = new JSSeparatorVerticalLine();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSSeparatorVerticalLine");
+            if (element) {
+                verticalLine = new JSSeparatorVerticalLine(element);
+            } else {
+                verticalLine = new JSSeparatorVerticalLine();
+            }
             this.setData("verticalLine", verticalLine);
         }
         return verticalLine;

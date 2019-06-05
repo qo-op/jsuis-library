@@ -19,8 +19,10 @@ class JSMenuItem extends JSPanel implements MouseListener {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setStyle("display", "block");
         
+        var index: number = 0;
+        
         var label: JSMenuItemLabel = this.getLabel();
-        this.add(label);
+        this.add(label, null, index++);
         
         switch (args.length) {
         case 1:
@@ -58,7 +60,12 @@ class JSMenuItem extends JSPanel implements MouseListener {
     getLabel(): JSMenuItemLabel {
         var label: JSMenuItemLabel = this.getData("label");
         if (!label) {
-            label = new JSMenuItemLabel();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuItemLabel");
+            if (element) {
+                label = new JSMenuItemLabel(element);
+            } else {
+                label = new JSMenuItemLabel();
+            }
             this.setData("label", label);
         }
         return label; 

@@ -6,9 +6,6 @@
  */
 class JSFrameTitleLabel extends JSLabel {
     
-    constructor() {
-        super();
-    }
     init(): void {
         this.addClass("JSFrameTitleLabel");
     }

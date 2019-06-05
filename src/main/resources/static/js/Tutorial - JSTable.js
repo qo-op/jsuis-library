@@ -26,8 +26,8 @@ var table = new JSTable(data, columnNames);
 
 var scrollPane = new JSScrollPane(table);
 scrollPane.setAlign(JSLayout.CENTER);
-// scrollPane.setPreferredWidth(200);
-// scrollPane.setPreferredHeight(150);
+scrollPane.setPreferredWidth(200);
+scrollPane.setPreferredHeight(150);
 frame.add(scrollPane);
 // frame.add(table);
 

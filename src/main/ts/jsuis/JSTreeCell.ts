@@ -23,12 +23,15 @@ class JSTreeCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setStyle("white-space", "nowrap");
+        
+        var index: number = 0;
         
         var graphics: JSGraphics = this.getGraphics();
-        super.add(graphics);
+        super.add(graphics, null, index++);
         
         var label: JSLabel = this.getLabel();
-        this.add(label);
+        this.add(label, null, index++);
         
         switch (args.length) {
         case 1:
@@ -69,10 +72,14 @@ class JSTreeCell extends JSHTMLComponent {
                         var container: JSPanel = treeCell.getContainer();
                         if (container.isDisplayable()) {
                             // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+                            var treeNode: JSTreeNode = treeCell.getValue();
+                            treeNode.setExpanded(false);
                             treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                             container.setStyle("display", "none");
                         } else {
                             // treeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
+                            var treeNode: JSTreeNode = treeCell.getValue();
+                            treeNode.setExpanded(true);
                             treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
                             container.setStyle("display", "");
                         }
@@ -148,8 +155,12 @@ class JSTreeCell extends JSHTMLComponent {
     getGraphics(): JSGraphics {
         var graphics: JSGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSGraphics();
-            // graphics.setStyle("position", "absolute");
+            var element: HTMLElement = <HTMLElement> this.getChild("JSGraphics");
+            if (element) {
+                graphics = new JSGraphics(element);
+            } else {
+                graphics = new JSGraphics();
+            }
             this.setData("graphics", graphics);
         }
         return graphics;
@@ -182,7 +193,12 @@ class JSTreeCell extends JSHTMLComponent {
     getLabel(): JSLabel {
         var label: JSLabel = this.getData("label");
         if (!label) {
-            label = new JSLabel();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSLabel");
+            if (element) {
+                label = new JSLabel(element);
+            } else {
+                label = new JSLabel();
+            }
             label.setStyle("position", "relative");
             label.setStyle("vertical-align", "middle");
             this.setData("label", label);

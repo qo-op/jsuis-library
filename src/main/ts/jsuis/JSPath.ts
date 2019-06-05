@@ -7,12 +7,12 @@
 class JSPath extends JSSVGComponent {
     
     constructor();
-    constructor(element: SVGPathElement);
+    constructor(element: SVGElement);
     constructor(definition: string);
     // overload
     constructor(...args: any[]) {
         // constructor();
-        // constructor(element: SVGPathElement);
+        // constructor(element: SVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]);
         switch (args.length) {
         case 1:

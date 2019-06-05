@@ -25,11 +25,17 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setStyle("position", "relative");
         
-        var graphics: JSMenuGraphics = this.getGraphics();
-        super.add(graphics);
+        var index: number = 0;
         
-        var popupMenuContainer: JSDiv = this.getPopupMenuContainer();
-        super.add(popupMenuContainer);
+        // var label: JSMenuItemLabel = this.getLabel();
+        // this.add(label, null, index++);
+        index++;
+        
+        var graphics: JSMenuGraphics = this.getGraphics();
+        super.add(graphics, null, index++);
+        
+        var popupMenuContainer: JSPopupMenuContainer = this.getPopupMenuContainer();
+        super.add(popupMenuContainer, null, index++);
         
         switch (args.length) {
         case 1:
@@ -61,7 +67,12 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
     getGraphics(): JSMenuGraphics {
         var graphics: JSMenuGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSMenuGraphics();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuGraphics");
+            if (element) {
+                graphics = new JSMenuGraphics(element);
+            } else {
+                graphics = new JSMenuGraphics();
+            }
             graphics.setStyle("position", "absolute");
             graphics.setStyle("right", "0");
             this.setData("graphics", graphics);
@@ -71,7 +82,12 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
     getPopupMenuContainer(): JSPopupMenuContainer {
         var popupMenuContainer: JSPopupMenuContainer = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
-            popupMenuContainer = new JSPopupMenuContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSPopupMenuContainer");
+            if (element) {
+                popupMenuContainer = new JSPopupMenuContainer(element);
+            } else {
+                popupMenuContainer = new JSPopupMenuContainer();
+            }
             popupMenuContainer.setStyle("position", "absolute");
             popupMenuContainer.setStyle("display", "block");
             this.setData("popupMenuContainer", popupMenuContainer);
@@ -142,13 +158,6 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
             popupMenu.add(component);
             if (component instanceof JSMenu) {
                 component.setStyle("display", "block");
-                /*
-                var expandIcon: JSIcon = component.getSubmenuIcon();
-                if (!expandIcon) {
-                    expandIcon = JSMenu.EXPAND_ICON;
-                    component.setSubmenuIcon(expandIcon);
-                }
-                */
                 component.setSubmenuIcon(JSMenu.SUBMENU_ICON);
                 var label: JSLabel = component.getLabel();
                 label.setStyle("margin-right", JSMenu.SUBMENU_ICON.getIconWidth() + "px");

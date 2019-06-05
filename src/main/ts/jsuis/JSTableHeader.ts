@@ -13,8 +13,11 @@ class JSTableHeader extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]);
+        
+        var index: number = 0;
+        
         var tableHeaderRow: JSTableRow = this.getTableHeaderRow();
-        this.add(tableHeaderRow);
+        this.add(tableHeaderRow, null, index++);
     }
     init(): void {
         this.addClass("JSTableHeader");
@@ -22,7 +25,12 @@ class JSTableHeader extends JSHTMLComponent {
     getTableHeaderRow(): JSTableRow {
         var tableHeaderRow: JSTableRow = this.getData("tableHeaderRow");
         if (!tableHeaderRow) {
-            tableHeaderRow = new JSTableRow();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTableRow");
+            if (element) {
+                tableHeaderRow = new JSTableRow(element);
+            } else {
+                tableHeaderRow = new JSTableRow();
+            }
             this.setData("tableHeaderRow", tableHeaderRow);
         }
         return tableHeaderRow;

@@ -3,7 +3,7 @@
  * JSTree_Tutorials
  */
 namespace jstutorial {
-    export class JSTree_Tutorials extends JSTree {
+    export class JSTree_Tutorials extends JSTree implements MouseListener {
         
         static instance: JSTree_Tutorials;
         static getInstance(): JSTree_Tutorials {
@@ -15,8 +15,16 @@ namespace jstutorial {
         constructor() {
             super();
             this.setRootVisible(false);
-            this.setStyle("margin", "4px 0");
             this.addClass("JSTree_Tutorials");
+            this.addMouseListener(this);
+        }
+        mouseClicked(mouseEvent: MouseEvent): void {
+            var treeNode: JSTreeNode = this.getSelectionTreeNode();
+            var userObject: any = treeNode.getUserObject();
+            if (userObject instanceof JSAction) {
+                var action: JSAction = <JSAction> userObject;
+                action.actionPerformed(null);
+            }
         }
     }
 }

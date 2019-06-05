@@ -13,7 +13,7 @@ namespace jstutorial {
             return JSMenuItem_JSButtonExample.instance;
         }
         constructor() {
-            super("JS Button example");
+            super(JSAction_JSButtonExample.getInstance());
             this.addClass("JSMenuItem_JSButtonExample");
         }
     }

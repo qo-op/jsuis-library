@@ -83,4 +83,7 @@ class JSAction implements ActionListener {
     firePropertyChange(propertyChangeEvent: JSPropertyChangeEvent): void {
         this.getPropertyChangeSupport().firePropertyChange(propertyChangeEvent);
     }
+    toString(): string {
+        return this.getName();
+    }        
 }

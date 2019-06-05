@@ -6,13 +6,8 @@ namespace jstutorial {
     export class JSFrame_JSButtonTutorial extends JSFrame_JSTutorial {
         
         init(): void {
-            this.addClass("JSFrame");
+            super.init();
             this.addClass("JSFrame_JSButtonTutorial");
-            
-            var jsSplitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-            
-            var jsPanel: JSPanel = new JSPanel(document.getElementById("content"));
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
         }
     }
 }

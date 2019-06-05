@@ -48,6 +48,10 @@ class JSImageIcon extends JSIcon {
         var iconWidth: number = this.getIconWidth();
         var iconHeight: number = this.getIconHeight();
         var image: JSImage = new JSImage(source, iconWidth, iconHeight);
+        var name: string = this.getName();
+        if (name) {
+            image.setName(name);
+        }
         graphics.removeAll();
         graphics.add(image);
     }

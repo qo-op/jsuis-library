@@ -16,12 +16,18 @@ class JSTab extends JSPanel {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setStyle("white-space", "nowrap");
+        
+        var index: number = 0;
+        
         var graphics: JSTabGraphics = this.getGraphics();
-        this.add(graphics);
+        this.add(graphics, null, index++);
+        
         var label: JSLabel = this.getLabel();
-        this.add(label);
+        this.add(label, null, index++);
+        
         var tabCloseButton: JSButton = this.getCloseButton();
-        this.add(tabCloseButton);
+        this.add(tabCloseButton, null, index++);
+        
         switch (args.length) {
         case 3:
             // constructor(tabPlacement: string, closeable: boolean, text: string);
@@ -88,7 +94,12 @@ class JSTab extends JSPanel {
     getGraphics(): JSTabGraphics {
         var graphics: JSTabGraphics = this.getData("graphics");
         if (!graphics) {
-            graphics = new JSTabGraphics();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabGraphics");
+            if (element) {
+                graphics = new JSTabGraphics(element);
+            } else {
+                graphics = new JSTabGraphics();
+            }
             this.setData("graphics", graphics);
         }
         return graphics;
@@ -96,7 +107,12 @@ class JSTab extends JSPanel {
     getLabel(): JSTabLabel {
         var label: JSTabLabel = this.getData("label");
         if (!label) {
-            label = new JSTabLabel();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabLabel");
+            if (element) {
+                label = new JSTabLabel(element);
+            } else {
+                label = new JSTabLabel();
+            }
             this.setData("label", label);
         }
         return label;
@@ -104,7 +120,12 @@ class JSTab extends JSPanel {
     getCloseButton(): JSTabCloseButton {
         var tabCloseButton: JSTabCloseButton = this.getData("tabCloseButton");
         if (!tabCloseButton) {
-            tabCloseButton = new JSTabCloseButton();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabCloseButton");
+            if (element) {
+                tabCloseButton = new JSTabCloseButton(element);
+            } else {
+                tabCloseButton = new JSTabCloseButton();
+            }
             tabCloseButton.setStyle("display", "none");
             this.setData("tabCloseButton", tabCloseButton);
         }

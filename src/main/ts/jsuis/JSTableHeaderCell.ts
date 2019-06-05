@@ -14,8 +14,12 @@ class JSTableHeaderCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]);
+        
+        var index: number = 0;
+        
         var container: JSPanel = this.getContainer();
-        this.add(container);
+        this.add(container, null, index++);
+        
         switch (args.length) {
         case 1:
             // constructor(text: string);
@@ -33,7 +37,12 @@ class JSTableHeaderCell extends JSHTMLComponent {
     getContainer(): JSPanel {
         var container = this.getData("container");
         if (!container) {
-            container = new JSPanel();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSPanel");
+            if (element) {
+                container = new JSPanel(element);
+            } else {
+                container = new JSPanel();
+            }
             this.setData("container", container);
         }
         return container;

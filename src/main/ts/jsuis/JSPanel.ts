@@ -14,6 +14,7 @@ class JSPanel extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setStyle("display", "inline-block");
         switch (args.length) {
         case 1:
             // constructor(layout: JSLayout);
@@ -24,7 +25,6 @@ class JSPanel extends JSHTMLComponent {
             break;
         default:
         }
-        this.setStyle("display", "inline-block");
     }
     init(): void {
         this.addClass("JSPanel");

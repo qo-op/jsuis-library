@@ -10,11 +10,12 @@ class JSForm extends JSHTMLComponent {
     static GET = "get";
     
     static post(url: string, params?: { [ key: string ]: string }) {
-        if (params) {
-            new JSForm().post(url, params);
-        } else {
-            new JSForm().post(url);
-        }
+        var form: JSForm = new JSForm();
+        form.post.apply(form, arguments);
+    }
+    static get(url: string, params?: { [ key: string ]: string }) {
+        var form: JSForm = new JSForm();
+        form.get.apply(form, arguments);
     }
     
     constructor();
@@ -47,6 +48,23 @@ class JSForm extends JSHTMLComponent {
     post(url: string, params?: { [ key: string ]: string }) {
         this.setMethod(JSForm.POST);
         this.setUrl(url);
+        if (params) {
+            for (var key in params) {
+                var hiddenInput: JSHiddenInput = new JSHiddenInput(key, params[key]);
+                this.add(hiddenInput);
+            }
+        }
+        this.submit();
+    }
+    get(url: string, params?: { [ key: string ]: string }) {
+        this.setMethod(JSForm.GET);
+        this.setUrl(url);
+        if (params) {
+            for (var key in params) {
+                var hiddenInput: JSHiddenInput = new JSHiddenInput(key, params[key]);
+                this.add(hiddenInput);
+            }
+        }
         this.submit();
     }
 }

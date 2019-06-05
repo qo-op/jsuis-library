@@ -77,6 +77,10 @@ class JSComponent {
             this.removeStyle(style);
         }
     }
+    withStyle(style:string, value: string): JSComponent {
+        this.setStyle(style, value);
+        return this;
+    }
     removeStyle(style: string) {
         (<{ style?: CSSStyleDeclaration }> this.element).style.removeProperty(style);
     }
@@ -103,6 +107,20 @@ class JSComponent {
             (<any> this.element).clientProperties = clientProperties;
         }
         clientProperties[key] = value;
+    }
+    getChild(clazz: string): Element {
+        var childNodes: NodeList = this.element.childNodes;
+        for (var i: number = 0; i < childNodes.length; i++) {
+            var childNode: Node = childNodes.item(i);
+            if (childNode instanceof Element) {
+                var child = <Element> childNode;
+                var clazzes: string = " " + (child.getAttribute("class") || "") + " ";
+                if (clazzes.indexOf(" " + clazz + " ") !== -1) {
+                    return child;
+                }
+            }
+        }
+        return null;
     }
     getId(): string {
         return this.getAttribute("id");
@@ -131,18 +149,18 @@ class JSComponent {
         this.setAttribute("class", clazzes);
     }
     hasClass(clazz: string): boolean {
-        var clazzes: string = " " + (this.getAttribute("class") || "").trim() + " ";
+        var clazzes: string = " " + (this.getAttribute("class") || "") + " ";
         return clazzes.indexOf(" " + clazz + " ") !== -1;
     }
     addClass(clazz: string): void {
-        var clazzes: string = " " + (this.getAttribute("class") || "").trim() + " ";
+        var clazzes: string = " " + (this.getAttribute("class") || "") + " ";
         if (clazzes.indexOf(" " + clazz + " ") !== -1) {
             return;
         }
         this.setClass((clazzes.trim() + " " + clazz).trim());
     }
     removeClass(clazz: string): void {
-        var clazzes: string = " " + (this.getAttribute("class") || "").trim() + " ";
+        var clazzes: string = " " + (this.getAttribute("class") || "") + " ";
         while (clazzes.indexOf(" " + clazz + " ") !== -1) {
             clazzes = clazzes.replace(" " + clazz + " ", " ");
         }
@@ -219,19 +237,19 @@ class JSComponent {
     setConstraints(constraints: string | { [ key: string]: number | string }) {
         this.setData("constraints", constraints);
     }
-    getZIndex(): number {
-        var zIndex: number = +this.getStyle("z-index");
-        if (isNaN(zIndex)) {
+    getLayer(): number {
+        var layer: number = +this.getStyle("z-index");
+        if (isNaN(layer)) {
             return 0;
         }
-        return zIndex;
+        return layer;
     }
-    setZIndex(zIndex: number) {
-        if (zIndex === null) {
+    setLayer(layer: number) {
+        if (layer === null) {
             this.setStyle("z-index", "auto");
             return;
         }
-        this.setStyle("z-index", "" + zIndex);
+        this.setStyle("z-index", "" + layer);
     }
     getComponents(): JSComponent[] {
         var components: JSComponent[] = this.getData("components");
@@ -257,7 +275,7 @@ class JSComponent {
     add(component: JSComponent, constraints?: number | string | { [ key: string ]: number | string }, index?: number): void {
         if (constraints !== undefined) {
             if (typeof constraints === "number") {
-                component.setZIndex(constraints);
+                component.setLayer(constraints);
             } else {
                 component.setConstraints(constraints);
             }

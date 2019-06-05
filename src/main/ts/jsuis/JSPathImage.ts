@@ -17,8 +17,10 @@ class JSPathImage extends JSSVG {
         // constructor(element: SVGSVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
         
+        var index: number = 0;
+        
         var path: JSPath = this.getPath();
-        this.add(path);
+        this.add(path, null, index++);
         
         switch (args.length) {
         case 1:
@@ -52,7 +54,12 @@ class JSPathImage extends JSSVG {
     getPath(): JSPath {
         var path = this.getData("path");
         if (!path) {
-            path = new JSPath();
+            var element: SVGElement = <SVGElement> this.getChild("JSPath");
+            if (element) {
+                path = new JSPath(element);
+            } else {
+                path = new JSPath();
+            }
             this.setData("path", path);
         }
         return path;
@@ -64,6 +71,14 @@ class JSPathImage extends JSSVG {
     setSource(source: string) {
         var path: JSPath = this.getPath();
         path.setDefinition(source);
+    }
+    getName(): string {
+        var path: JSPath = this.getPath();
+        return path.getName();
+    }
+    setName(name: string) {
+        var path: JSPath = this.getPath();
+        path.setName(name);
     }
     getFill(): string {
         var path: JSPath = this.getPath();

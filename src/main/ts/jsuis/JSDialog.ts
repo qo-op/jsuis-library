@@ -4,72 +4,125 @@
  * 
  * @author Yassuo Toda
  */
-class JSDialog extends JSPanel {
+class JSDialog extends JSPanel implements MouseListener, ActionListener {
     
-    owner: JSComponent;
     modal: boolean;
     title: string;
     
     constructor();
     constructor(element: HTMLElement);
-    constructor(owner: JSComponent);
-    constructor(owner: JSComponent, modal: boolean);
-    constructor(owner: JSComponent, title: string);
-    constructor(owner: JSComponent, title: string, modal: boolean);
+    constructor(modal: boolean);
+    constructor(title: string);
+    constructor(title: string, modal: boolean);
     // overload
     constructor(...args: any[]) {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setVisible(false);
+        this.setStyle("position", "absolute");
+        this.setLayer(JSComponent.MODAL_LAYER);
+        
+        super.setLayout(new JSBorderLayout());
+        
+        var index: number = 0;
+        
+        var titlePanel: JSDialogTitlePanel = this.getTitlePanel();
+        super.add(titlePanel, JSLayout.NORTH, index++);
+        
+        var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
+        titlePanel.add(titleLabel);
+        titleLabel.setAlign(JSLayout.LEFT_RIGHT);
+        
+        var closeButton: JSDialogCloseButton = this.getCloseButton();
+        titlePanel.add(closeButton, JSLayout.EAST);
+        
+        var contentPane: JSDialogContentPane = this.getContentPane();
+        super.add(contentPane, JSLayout.CENTER, index++);
+        
         switch (args.length) {
-        case 0:
-            break;
         case 1:
-            // constructor(owner: JSComponent);
-            if (args[0] instanceof JSComponent) {
-                var owner: JSComponent = args[0];
-                this.setOwner(owner);
-            }
-            break;
-        case 2:
-            // constructor(owner: JSComponent, modal: boolean);
-            // constructor(owner: JSComponent, title: string);
-            if (args[0] instanceof JSComponent && typeof args[1] === "boolean") {
-                var owner: JSComponent = args[0];
-                var modal: boolean = args[1];
-                this.setOwner(owner);
+            // constructor(modal: boolean);
+            // constructor(title: string);
+            if (typeof args[0] === "boolean") {
+                var modal: boolean = args[0];
                 this.setModal(modal);
-            } else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
-                var owner: JSComponent = args[0];
-                var title: string = args[1];
-                this.setOwner(owner);
+            } else if (typeof args[0] === "string") {
+                var title: string = args[0];
                 this.setTitle(title);
             }
             break;
-        case 3:
-            // constructor(owner: JSComponent, title: string, modal: boolean);
-            if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "boolean") {
-                var owner: JSComponent = args[0];
-                var title: string = args[1];
-                var modal: boolean = args[2];
-                this.setOwner(owner);
+        case 2:
+            // constructor(title: string, modal: boolean);
+            if (typeof args[0] === "string" && typeof args[1] === "boolean") {
+                var title: string = args[0];
+                var modal: boolean = args[1];
                 this.setTitle(title);
                 this.setModal(modal);
             }
             break;
         default:
         }
-        this.setZIndex(JSLayeredPane.MODAL_LAYER);
+        
+        titleLabel.addMouseListener(this);
+        
+        closeButton.addActionListener(this);
     }
     init(): void {
         this.addClass("JSDialog");
     }
-    getOwner(): JSComponent {
-        return this.owner;
+    getTitlePanel(): JSDialogTitlePanel {
+        var titlePanel: JSDialogTitlePanel = this.getData("dialogTitlePanel");
+        if (!titlePanel) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogTitlePanel");
+            if (element) {
+                titlePanel = new JSDialogTitlePanel(element);
+            } else {
+                titlePanel = new JSDialogTitlePanel();
+            }
+            this.setData("dialogTitlePanel", titlePanel);
+        }
+        return titlePanel;
     }
-    setOwner(owner: JSComponent) {
-        this.owner = owner;
+    getTitleLabel(): JSDialogTitleLabel {
+        var titleLabel: JSDialogTitleLabel = this.getData("dialogTitleLabel");
+        if (!titleLabel) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogTitleLabel");
+            if (element) {
+                titleLabel = new JSDialogTitleLabel(element);
+            } else {
+                titleLabel = new JSDialogTitleLabel();
+            }
+            titleLabel.setPreferredHeight(0);
+            this.setData("dialogTitleLabel", titleLabel);
+        }
+        return titleLabel;
+    }
+    getCloseButton(): JSDialogCloseButton {
+        var dialogCloseButton: JSDialogCloseButton = this.getData("dialogCloseButton");
+        if (!dialogCloseButton) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogCloseButton");
+            if (element) {
+                dialogCloseButton = new JSDialogCloseButton(element);
+            } else {
+                dialogCloseButton = new JSDialogCloseButton();
+            }
+            this.setData("dialogCloseButton", dialogCloseButton);
+        }
+        return dialogCloseButton;
+    }
+    getContentPane(): JSDialogContentPane {
+        var contentPane: JSDialogContentPane = this.getData("contentPane");
+        if (!contentPane) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogContentPane");
+            if (element) {
+                contentPane = new JSDialogContentPane(element);
+            } else {
+                contentPane = new JSDialogContentPane();
+            }
+            this.setData("contentPane", contentPane);
+        }
+        return contentPane;
     }
     isModal(): boolean {
         return this.modal;
@@ -78,19 +131,55 @@ class JSDialog extends JSPanel {
         this.modal = modal;
     }
     getTitle(): string {
-        return this.title;
+        var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
+        return titleLabel.getText();
     }
     setTitle(title: string) {
-        this.title = title;
+        var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
+        titleLabel.setText(title);
+        if (title) {
+            titleLabel.setPreferredHeight(null);
+        }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    setLayout(layout: JSLayout) {
+        var contentPane: JSDialogContentPane = this.getContentPane();
+        contentPane.setLayout(layout);
+    }
+    add(component: JSComponent): void;
+    add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }): void;
+    add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }, index: number): void;
+    // overload
+    add(): void {
+        var contentPane: JSDialogContentPane = this.getContentPane();
+        contentPane.add.apply(contentPane, arguments);
     }
     setVisible(visible: boolean) {
         if (visible) {
-            JSBody.getInstance().setPopupMenu(this);
+            JSBody.getInstance().setDialog(this);
             this.revalidate();
             super.setVisible(visible);
         } else {
             super.setVisible(visible);
-            JSBody.getInstance().setPopupMenu(null);
+            JSBody.getInstance().setDialog(null);
         }
+    }
+    mousePressed(mouseEvent: MouseEvent): void {
+        this.setData("dx", mouseEvent.x - this.getX());
+        this.setData("dy", mouseEvent.y - this.getY());
+        mouseEvent.stopPropagation();
+    }
+    mouseDragged(mouseEvent: MouseEvent): void {
+        this.setX(mouseEvent.x - this.getData("dx"));
+        this.setY(mouseEvent.y - this.getData("dy"));
+        mouseEvent.stopPropagation();
+    }
+    actionPerformed(mouseEvent: MouseEvent): void {
+        this.setVisible(false);
+        var body: JSBody = JSBody.getInstance();
+        body.getModal().setStyle("display", "none");
+        mouseEvent.stopPropagation();
     }
 }

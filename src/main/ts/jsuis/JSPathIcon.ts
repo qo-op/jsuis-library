@@ -89,6 +89,10 @@ class JSPathIcon extends JSImageIcon {
         var iconWidth: number = this.getIconWidth();
         var iconHeight: number = this.getIconHeight();
         var image: JSPathImage = new JSPathImage(source, iconWidth, iconHeight);
+        var name: string = this.getName();
+        if (name) {
+            image.setName(name);
+        }
         var fill: string = this.getFill();
         if (fill !== undefined) {
             image.setFill(fill);

@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSTable extends JSPanel {
+class JSTable extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLElement);
@@ -14,10 +14,16 @@ class JSTable extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
+        this.setStyle("display", "inline-block");
+        
+        var index: number = 0;
+        
         var tableHeader = this.getTableHeader();
-        this.add(tableHeader);
+        this.add(tableHeader, null, index++);
+        
         var tableBody = this.getTableBody();
-        this.add(tableBody);
+        this.add(tableBody, null, index++);
+        
         switch (args.length) {
         case 2:
             // constructor(rows: any[][], columns: string[]);
@@ -37,7 +43,12 @@ class JSTable extends JSPanel {
     getTableHeader(): JSTableHeader {
         var tableHeader: JSTableHeader = this.getData("tableHeader");
         if (!tableHeader) {
-            tableHeader = new JSTableHeader();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTableHeader");
+            if (element) {
+                tableHeader = new JSTableHeader(element);
+            } else {
+                tableHeader = new JSTableHeader();
+            }
             this.setData("tableHeader", tableHeader);
         }
         return tableHeader;
@@ -45,7 +56,12 @@ class JSTable extends JSPanel {
     getTableBody(): JSTableBody {
         var tableBody: JSTableBody = this.getData("tableBody");
         if (!tableBody) {
-            tableBody = new JSTableBody();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTableBody");
+            if (element) {
+                tableBody = new JSTableBody(element);
+            } else {
+                tableBody = new JSTableBody();
+            }
             this.setData("tableBody", tableBody);
         }
         return tableBody;

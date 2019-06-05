@@ -39,7 +39,7 @@ class JSPopupMenu extends JSPanel {
                 popupMenu.setData("close", false);
             }
         }, true).withParameters(this);
-        this.setZIndex(JSLayeredPane.POPUP_LAYER);
+        this.setLayer(JSComponent.POPUP_LAYER);
     }
     init(): void {
         this.addClass("JSPopupMenu");

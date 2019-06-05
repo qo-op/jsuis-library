@@ -22,11 +22,13 @@ class JSCheckBox extends JSHTMLComponent {
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
         this.setStyle("white-space", "nowrap");
         
+        var index: number = 0;
+        
         var input: JSCheckBoxInput = this.getInput();
-        this.add(input);
+        this.add(input, null, index++);
         
         var label: JSCheckBoxLabel = this.getLabel();
-        this.add(label);
+        this.add(label, null, index++);
         
         switch (args.length) {
         case 1:
@@ -85,7 +87,12 @@ class JSCheckBox extends JSHTMLComponent {
     getInput(): JSCheckBoxInput {
         var input: JSCheckBoxInput = this.getData("input");
         if (!input) {
-            input = new JSCheckBoxInput();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxInput");
+            if (element) {
+                input = new JSCheckBoxInput(element);
+            } else {
+                input = new JSCheckBoxInput();
+            }
             this.setData("input", input);
         }
         return input;
@@ -93,7 +100,12 @@ class JSCheckBox extends JSHTMLComponent {
     getLabel(): JSCheckBoxLabel {
         var label: JSCheckBoxLabel = this.getData("label");
         if (!label) {
-            label = new JSCheckBoxLabel();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxLabel");
+            if (element) {
+                label = new JSCheckBoxLabel(element);
+            } else {
+                label = new JSCheckBoxLabel();
+            }
             this.setData("label", label);
         }
         return label; 

@@ -13,7 +13,7 @@ namespace jstutorial {
             return JSMenuItem_JSFrameTutorial.instance;
         }
         constructor() {
-            super("How to use JS Frame");
+            super(JSAction_JSFrameTutorial.getInstance());
             this.addClass("JSMenuItem_JSFrameTutorial");
         }
     }

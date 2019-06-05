@@ -14,6 +14,8 @@ public class Test {
 		
 		JFrame frame = new JFrame();
 		
+		System.out.println(frame.getContentPane().getLayout());
+		
 		JPanel cards = new JPanel(new CardLayout());
 		frame.add(cards);
 		

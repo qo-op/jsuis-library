@@ -25,26 +25,29 @@ class JSTabbedPane extends JSPanel {
         default:
         }
         this.setLayout(new JSBorderLayout());
+        
+        var index: number = 0;
+        
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
         var tabPlacement: string = this.getTabPlacement();
         switch (tabPlacement) {
         case JSTabbedPane.LEFT:
-            this.add(tabContainer, JSBorderLayout.WEST);
+            this.add(tabContainer, JSBorderLayout.WEST, index++);
             break;
         case JSTabbedPane.RIGHT:
-            this.add(tabContainer, JSBorderLayout.EAST);
+            this.add(tabContainer, JSBorderLayout.EAST, index++);
             break;
         case JSTabbedPane.BOTTOM:
-            this.add(tabContainer, JSBorderLayout.SOUTH);
+            this.add(tabContainer, JSBorderLayout.SOUTH, index++);
             break;
         case JSTabbedPane.TOP:
         default:
-            this.add(tabContainer, JSBorderLayout.NORTH);
+            this.add(tabContainer, JSBorderLayout.NORTH, index++);
         }
         var cardContainer: JSTabbedPaneCardContainer = this.getCardContainer();
-        this.add(cardContainer);
+        this.add(cardContainer, null, index++);
         var buttonContainer: JSTabbedPaneButtonContainer = this.getButtonContainer();
-        tabContainer.add(buttonContainer);
+        tabContainer.add(buttonContainer, null, index++);
     }
     init(): void {
         this.addClass("JSTabbedPane");
@@ -144,8 +147,13 @@ class JSTabbedPane extends JSPanel {
     getTabContainer(): JSTabbedPaneTabContainer {
         var tabContainer: JSTabbedPaneTabContainer = this.getData("tabContainer");
         if (!tabContainer) {
-            var tabPlacement: string = this.getTabPlacement();
-            tabContainer = new JSTabbedPaneTabContainer(tabPlacement);
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneTabContainer");
+            if (element) {
+                tabContainer = new JSTabbedPaneTabContainer(element);
+            } else {
+                var tabPlacement: string = this.getTabPlacement();
+                tabContainer = new JSTabbedPaneTabContainer(tabPlacement);
+            }
             this.setData("tabContainer", tabContainer);
         }
         return tabContainer;
@@ -153,7 +161,12 @@ class JSTabbedPane extends JSPanel {
     getCardContainer(): JSTabbedPaneCardContainer {
         var cardContainer: JSTabbedPaneCardContainer = this.getData("cardContainer");
         if (!cardContainer) {
-            cardContainer = new JSTabbedPaneCardContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneCardContainer");
+            if (element) {
+                cardContainer = new JSTabbedPaneCardContainer(element);
+            } else {
+                cardContainer = new JSTabbedPaneCardContainer();
+            }
             this.setData("cardContainer", cardContainer);
         }
         return cardContainer;
@@ -161,8 +174,13 @@ class JSTabbedPane extends JSPanel {
     getButtonContainer(): JSTabbedPaneButtonContainer {
         var buttonContainer: JSTabbedPaneButtonContainer = this.getData("buttonContainer");
         if (!buttonContainer) {
-            var tabPlacement: string = this.getTabPlacement();
-            buttonContainer = new JSTabbedPaneButtonContainer(tabPlacement);
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneButtonContainer");
+            if (element) {
+                buttonContainer = new JSTabbedPaneButtonContainer(element);
+            } else {
+                var tabPlacement: string = this.getTabPlacement();
+                buttonContainer = new JSTabbedPaneButtonContainer(tabPlacement);
+            }
             this.setData("buttonContainer", buttonContainer);
         }
         return buttonContainer;

@@ -5,7 +5,7 @@
 namespace jstutorial {
     export class JSFrame_JSTutorial extends JSFrame {
         
-        constructor() {
+        constructor(args: any) {
             
             super();
             
@@ -19,26 +19,26 @@ namespace jstutorial {
             /*
              * Tutorials | Examples | Help
              */
-            var jsMenuBar_Main: JSMenuBar_JSTutorial = JSMenuBar_JSTutorial.getInstance();
-            this.setMenuBar(jsMenuBar_Main);
+            var menuBar_JSTutorial: JSMenuBar_JSTutorial = JSMenuBar_JSTutorial.getInstance();
+            this.setMenuBar(menuBar_JSTutorial);
             
             /*
              * Tutorials
              */
-            var jsMenu_Tutorials: JSMenu_Tutorials = JSMenu_Tutorials.getInstance();
-            jsMenuBar_Main.add(jsMenu_Tutorials);
+            var menu_Tutorials: JSMenu_Tutorials = JSMenu_Tutorials.getInstance();
+            menuBar_JSTutorial.add(menu_Tutorials);
             
             /*
              * Examples
              */
-            var jsMenu_Examples: JSMenu_Examples = JSMenu_Examples.getInstance();
-            jsMenuBar_Main.add(jsMenu_Examples);
+            var menu_Examples: JSMenu_Examples = JSMenu_Examples.getInstance();
+            menuBar_JSTutorial.add(menu_Examples);
             
             /*
              * Help
              */
-            var jsMenu_Help: JSMenu_Help = JSMenu_Help.getInstance();
-            jsMenuBar_Main.add(jsMenu_Help);
+            var menu_Help: JSMenu_Help = JSMenu_Help.getInstance();
+            menuBar_JSTutorial.add(menu_Help);
             
             /*
              * Tutorials
@@ -48,16 +48,16 @@ namespace jstutorial {
              * Container tutorials
              * Component tutorials
              */
-            var jsMenuItem_JSUISTutorial: JSMenuItem_JSUISTutorial = JSMenuItem_JSUISTutorial.getInstance();
-            jsMenu_Tutorials.add(jsMenuItem_JSUISTutorial);
+            var menuItem_JSUISTutorial: JSMenuItem_JSUISTutorial = JSMenuItem_JSUISTutorial.getInstance();
+            menu_Tutorials.add(menuItem_JSUISTutorial);
             
-            jsMenu_Tutorials.addSeparator();
+            menu_Tutorials.addSeparator();
             
-            var jsMenu_ContainerTutorials: JSMenu_ContainerTutorials = JSMenu_ContainerTutorials.getInstance();
-            jsMenu_Tutorials.add(jsMenu_ContainerTutorials);
+            var menu_ContainerTutorials: JSMenu_ContainerTutorials = JSMenu_ContainerTutorials.getInstance();
+            menu_Tutorials.add(menu_ContainerTutorials);
             
-            var jsMenu_ComponentTutorials: JSMenu_ComponentTutorials = JSMenu_ComponentTutorials.getInstance();
-            jsMenu_Tutorials.add(jsMenu_ComponentTutorials);
+            var menu_ComponentTutorials: JSMenu_ComponentTutorials = JSMenu_ComponentTutorials.getInstance();
+            menu_Tutorials.add(menu_ComponentTutorials);
             
             /*
              * Examples
@@ -65,111 +65,119 @@ namespace jstutorial {
              * Container examples
              * Component examples
              */
-            var jsMenu_ContainerExamples: JSMenu_ContainerExamples = JSMenu_ContainerExamples.getInstance();
-            jsMenu_Examples.add(jsMenu_ContainerExamples);
+            var menu_ContainerExamples: JSMenu_ContainerExamples = JSMenu_ContainerExamples.getInstance();
+            menu_Examples.add(menu_ContainerExamples);
             
-            var jsMenu_ComponentExamples: JSMenu_ComponentExamples = JSMenu_ComponentExamples.getInstance();
-            jsMenu_Examples.add(jsMenu_ComponentExamples);
+            var menu_ComponentExamples: JSMenu_ComponentExamples = JSMenu_ComponentExamples.getInstance();
+            menu_Examples.add(menu_ComponentExamples);
             
             /*
              * Help
              * 
              * About
              */
-            var jsMenuItem_About: JSMenuItem_About = JSMenuItem_About.getInstance();
-            jsMenu_Help.add(jsMenuItem_About);
+            var menuItem_About: JSMenuItem_About = JSMenuItem_About.getInstance();
+            menu_Help.add(menuItem_About);
             
             /*
              * Tutorials > Container tutorials
              * 
              * How to use JS Frame
              */
-            var jsMenuItem_JSFrameTutorial: JSMenuItem_JSFrameTutorial = JSMenuItem_JSFrameTutorial.getInstance();
-            jsMenu_ContainerTutorials.add(jsMenuItem_JSFrameTutorial);
+            var menuItem_JSFrameTutorial: JSMenuItem_JSFrameTutorial = JSMenuItem_JSFrameTutorial.getInstance();
+            menu_ContainerTutorials.add(menuItem_JSFrameTutorial);
             
             /*
              * Tutorials > Component tutorials
              * 
              * How to use JS Button
              */
-            var jsMenuItem_JSButtonTutorial: JSMenuItem_JSButtonTutorial = JSMenuItem_JSButtonTutorial.getInstance();
-            jsMenu_ComponentTutorials.add(jsMenuItem_JSButtonTutorial);
+            var menuItem_JSButtonTutorial: JSMenuItem_JSButtonTutorial = JSMenuItem_JSButtonTutorial.getInstance();
+            menu_ComponentTutorials.add(menuItem_JSButtonTutorial);
             
             /*
              * Examples > Container examples
              * 
              * JS Frame example
              */
-            var jsMenuItem_JSFrameExample: JSMenuItem_JSFrameExample = JSMenuItem_JSFrameExample.getInstance();
-            jsMenu_ContainerExamples.add(jsMenuItem_JSFrameExample);
+            var menuItem_JSFrameExample: JSMenuItem_JSFrameExample = JSMenuItem_JSFrameExample.getInstance();
+            menu_ContainerExamples.add(menuItem_JSFrameExample);
             
             /*
              * Examples > Component examples
              * 
-             * JS Button example
+             * JS Button example(s)
+             * JS Table example(s)
              */
-            var jsMenuItem_JSButtonExample: JSMenuItem_JSButtonExample = JSMenuItem_JSButtonExample.getInstance();
-            jsMenu_ComponentExamples.add(jsMenuItem_JSButtonExample); 
+            var menuItem_JSButtonExample: JSMenuItem_JSButtonExample = JSMenuItem_JSButtonExample.getInstance();
+            menu_ComponentExamples.add(menuItem_JSButtonExample);
+            
+            var menuItem_JSTableExample: JSMenuItem_JSTableExample = JSMenuItem_JSTableExample.getInstance();
+            // menu_ComponentExamples.add(menuItem_JSTableExample);
             
             /*
              * <
              * Tutorials
              * Examples
              */
-            var jsTabbedPane_JSTutorial: JSTabbedPane_JSTutorial = JSTabbedPane_JSTutorial.getInstance();
+            var tabbedPane_JSTutorial: JSTabbedPane_JSTutorial = JSTabbedPane_JSTutorial.getInstance();
             
-            var jsTabbedPaneTabContainer_JSTutorial: JSTabbedPaneTabContainer = jsTabbedPane_JSTutorial.getTabContainer();
-            this.add(jsTabbedPaneTabContainer_JSTutorial, JSBorderLayout.WEST);
+            var tabbedPaneTabContainer_JSTutorial: JSTabbedPaneTabContainer = tabbedPane_JSTutorial.getTabContainer();
+            tabbedPaneTabContainer_JSTutorial.setId("tabbedPaneTabContainer_JSTutorial");
+            this.add(tabbedPaneTabContainer_JSTutorial, JSBorderLayout.WEST);
             
-            var jsSplitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-            this.add(jsSplitPane_JSTutorial);
+            var splitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
+            this.add(splitPane_JSTutorial);
             
-            var jsTabbedPaneCardContainer_JSTutorial: JSTabbedPaneCardContainer = jsTabbedPane_JSTutorial.getCardContainer();
-            jsSplitPane_JSTutorial.setLeftComponent(jsTabbedPaneCardContainer_JSTutorial);
+            var tabbedPaneCardContainer_JSTutorial: JSTabbedPaneCardContainer = tabbedPane_JSTutorial.getCardContainer();
+            splitPane_JSTutorial.setLeftComponent(tabbedPaneCardContainer_JSTutorial);
             
             /*
              * [<|>]
              */
-            var jsTabbedPaneButtonContainer_JSTutorial: JSTabbedPaneButtonContainer = jsTabbedPane_JSTutorial.getButtonContainer();
+            var tabbedPaneButtonContainer_JSTutorial: JSTabbedPaneButtonContainer = tabbedPane_JSTutorial.getButtonContainer();
             
-            var jsPanel_ToogleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
-            jsTabbedPaneButtonContainer_JSTutorial.add(jsPanel_ToogleButtonPanel);
+            var panel_ToogleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
+            tabbedPaneButtonContainer_JSTutorial.add(panel_ToogleButtonPanel);
             
-            var jsButton_ExpandButton: JSButton_ExpandButton = JSButton_ExpandButton.getInstance();
-            jsPanel_ToogleButtonPanel.add(jsButton_ExpandButton);
+            var button_ExpandButton: JSButton_ExpandButton = JSButton_ExpandButton.getInstance();
+            panel_ToogleButtonPanel.add(button_ExpandButton);
             
-            var jsButton_CollapseButton: JSButton_CollapseButton = JSButton_CollapseButton.getInstance();
-            jsPanel_ToogleButtonPanel.add(jsButton_CollapseButton);
+            var button_CollapseButton: JSButton_CollapseButton = JSButton_CollapseButton.getInstance();
+            panel_ToogleButtonPanel.add(button_CollapseButton);
             
             /*
              * Tutorials
+             * How to use JSUIS
              * > Container tutorials
              *     How to use JS Frame
              * > Component tutorials
              *     How to use JS Button
              */
-            var jsTree_Tutorials: JSTree = JSTree_Tutorials.getInstance();
-            jsTabbedPane_JSTutorial.addTab("Tutorials", new JSImageIcon("/img/baseline-local_library-24px.svg", 24, 24), new JSScrollPane(jsTree_Tutorials));
+            var tree_Tutorials: JSTree = JSTree_Tutorials.getInstance();
+            tabbedPane_JSTutorial.addTab("Tutorials", new JSImageIcon("/img/baseline-local_library-24px-GoldenRod.svg", 24, 24), new JSScrollPane(tree_Tutorials));
             
-            var jsTreeNode_TutorialsRoot: JSTreeNode = new JSTreeNode();
-            jsTree_Tutorials.setRoot(jsTreeNode_TutorialsRoot);
-            var jsTreeNode_ContainerTutorials: JSTreeNode = new JSTreeNode("Container tutorials");
-            jsTreeNode_TutorialsRoot.add(jsTreeNode_ContainerTutorials);
-            var jsTreeNode_JSFrameTutorial = new JSTreeNode("How to use JS Frame");
-            jsTreeNode_ContainerTutorials.add(jsTreeNode_JSFrameTutorial);
-            var jsTreeNode_ComponentTutorials: JSTreeNode = new JSTreeNode("Component tutorials");
-            jsTreeNode_TutorialsRoot.add(jsTreeNode_ComponentTutorials);
-            var jsTreeNode_JSButtonTutorial = new JSTreeNode("How to use JS Button");
-            jsTreeNode_ComponentTutorials.add(jsTreeNode_JSButtonTutorial);
+            var treeNode_TutorialsRoot: JSTreeNode = new JSTreeNode();
+            tree_Tutorials.setRoot(treeNode_TutorialsRoot);
+            var treeNode_JSUISTutorials: JSTreeNode = new JSTreeNode(JSAction_JSUISTutorial.getInstance());
+            treeNode_TutorialsRoot.add(treeNode_JSUISTutorials);
+            var treeNode_ContainerTutorials: JSTreeNode_ContainerTutorials = JSTreeNode_ContainerTutorials.getInstance();
+            treeNode_TutorialsRoot.add(treeNode_ContainerTutorials);
+            var treeNode_JSFrameTutorial = new JSTreeNode(JSAction_JSFrameTutorial.getInstance());
+            treeNode_ContainerTutorials.add(treeNode_JSFrameTutorial);
+            var treeNode_ComponentTutorials: JSTreeNode_ComponentTutorials = JSTreeNode_ComponentTutorials.getInstance();
+            treeNode_TutorialsRoot.add(treeNode_ComponentTutorials);
+            var treeNode_JSButtonTutorial = new JSTreeNode(JSAction_JSButtonTutorial.getInstance());
+            treeNode_ComponentTutorials.add(treeNode_JSButtonTutorial);
             
-            var jsIcon_Leaf: JSIcon_Open = JSIcon_Leaf.getInstance();
-            var jsIcon_Open: JSIcon_Open = JSIcon_Open.getInstance();
-            var jsIcon_Closed: JSIcon_Closed = JSIcon_Closed.getInstance();
+            var icon_Leaf: JSIcon_Open = JSIcon_Leaf.getInstance();
+            var icon_Open: JSIcon_Open = JSIcon_Open.getInstance();
+            var icon_Closed: JSIcon_Closed = JSIcon_Closed.getInstance();
             
-            var treeCellRenderer_Tutorials = jsTree_Tutorials.getTreeCellRenderer();
-            treeCellRenderer_Tutorials.setLeafIcon(jsIcon_Leaf);
-            treeCellRenderer_Tutorials.setOpenIcon(jsIcon_Open);
-            treeCellRenderer_Tutorials.setClosedIcon(jsIcon_Closed);
+            var treeCellRenderer_Tutorials = tree_Tutorials.getTreeCellRenderer();
+            treeCellRenderer_Tutorials.setLeafIcon(icon_Leaf);
+            treeCellRenderer_Tutorials.setOpenIcon(icon_Open);
+            treeCellRenderer_Tutorials.setClosedIcon(icon_Closed);
             
             /*
              * Examples
@@ -178,46 +186,110 @@ namespace jstutorial {
              * > Component examples
              *     JS Button example(s)
              */
-            var jsTree_Examples: JSTree = JSTree_Examples.getInstance();
-            jsTabbedPane_JSTutorial.addTab("Examples", new JSImageIcon("/img/baseline-playlist_play-24px.svg", 24, 24), new JSScrollPane(jsTree_Examples));
+            var tree_Examples: JSTree = JSTree_Examples.getInstance();
+            tabbedPane_JSTutorial.addTab("Examples", new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24), new JSScrollPane(tree_Examples));
             
-            var jsTreeNode_ExamplesRoot: JSTreeNode = new JSTreeNode();
-            jsTree_Examples.setRoot(jsTreeNode_ExamplesRoot);
-            var jsTreeNode_ContainerExamples: JSTreeNode = new JSTreeNode("Container examples");
-            jsTreeNode_ExamplesRoot.add(jsTreeNode_ContainerExamples);
-            var jsTreeNode_JSFrameExample = new JSTreeNode("JS Frame example(s)");
-            jsTreeNode_ContainerExamples.add(jsTreeNode_JSFrameExample);
-            var jsTreeNode_ComponentExamples: JSTreeNode = new JSTreeNode("Component examples");
-            jsTreeNode_ExamplesRoot.add(jsTreeNode_ComponentExamples);
-            var jsTreeNode_JSButtonExample = new JSTreeNode("JS Button example(s)");
-            jsTreeNode_ComponentExamples.add(jsTreeNode_JSButtonExample);
-    
-            var treeCellRenderer_Tutorials = jsTree_Examples.getTreeCellRenderer();
-            treeCellRenderer_Tutorials.setLeafIcon(jsIcon_Leaf);
-            treeCellRenderer_Tutorials.setOpenIcon(jsIcon_Open);
-            treeCellRenderer_Tutorials.setClosedIcon(jsIcon_Closed);
+            var treeNode_ExamplesRoot: JSTreeNode = new JSTreeNode();
+            tree_Examples.setRoot(treeNode_ExamplesRoot);
+            var treeNode_ContainerExamples: JSTreeNode_ContainerExamples = JSTreeNode_ContainerExamples.getInstance();
+            treeNode_ExamplesRoot.add(treeNode_ContainerExamples);
+            var treeNode_JSFrameExample = new JSTreeNode(JSAction_JSFrameExample.getInstance());
+            treeNode_ContainerExamples.add(treeNode_JSFrameExample);
+            var treeNode_ComponentExamples: JSTreeNode_ComponentExamples = JSTreeNode_ComponentExamples.getInstance();
+            treeNode_ExamplesRoot.add(treeNode_ComponentExamples);
+            var treeNode_JSButtonExample = new JSTreeNode(JSAction_JSButtonExample.getInstance());
+            treeNode_ComponentExamples.add(treeNode_JSButtonExample);
             
-            jsTabbedPane_JSTutorial.setSelectedIndex(0);
-            jsTree_Tutorials.expand(jsTreeNode_ContainerTutorials);
-            jsTree_Tutorials.expand(jsTreeNode_ComponentTutorials);
-            jsTree_Examples.expand(jsTreeNode_ContainerExamples);
-            jsTree_Examples.expand(jsTreeNode_ComponentExamples);
+            var treeCellRenderer_Tutorials = tree_Examples.getTreeCellRenderer();
+            treeCellRenderer_Tutorials.setLeafIcon(icon_Leaf);
+            treeCellRenderer_Tutorials.setOpenIcon(icon_Open);
+            treeCellRenderer_Tutorials.setClosedIcon(icon_Closed);
             
-            jsSplitPane_JSTutorial.setDividerLocation(jsSplitPane_JSTutorial.getLeftComponent().getPreferredOuterWidth() + 1);
+            tabbedPane_JSTutorial.setSelectedIndex(0);
             
-            var jsAction_ExpandButton: JSAction_Expand = JSAction_Expand.getInstance();
-            jsTabbedPane_JSTutorial.getTabComponentAt(0).addActionListener(jsAction_ExpandButton);
-            jsTabbedPane_JSTutorial.getTabComponentAt(1).addActionListener(jsAction_ExpandButton);
+            var action_ExpandButton: JSAction_Expand = JSAction_Expand.getInstance();
+            tabbedPane_JSTutorial.getTabComponentAt(0).addActionListener(action_ExpandButton);
+            tabbedPane_JSTutorial.getTabComponentAt(1).addActionListener(action_ExpandButton);
+            
+            tree_Tutorials.expand(treeNode_ContainerTutorials);
+            tree_Tutorials.expand(treeNode_ComponentTutorials);
+            tree_Examples.expand(treeNode_ContainerExamples);
+            tree_Examples.expand(treeNode_ComponentExamples);
+
+            splitPane_JSTutorial.setDividerLocation(splitPane_JSTutorial.getLeftComponent().getPreferredOuterWidth() + 1);
+            
+            var content: JSDiv = new JSDiv(document.getElementById("content"));
+            splitPane_JSTutorial.setRightComponent(new JSScrollPane(content));
+            
+            if (args) {
+                this.setArgs(args);
+            }
         }
         
         init(): void {
-            this.addClass("JSFrame");
+            super.init();
             this.addClass("JSFrame_JSTutorial");
-            
-            var jsSplitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-            
-            var jsPanel: JSPanel = new JSPanel(document.getElementById("content"));
-            jsSplitPane_JSTutorial.setRightComponent(new JSScrollPane(jsPanel));
+        }
+        
+        setArgs(args: { [ key: string ]: any }) {
+            // console.log(args);
+            if (args["panel_ToggleButtonPanel_first"] !== undefined && args["panel_ToggleButtonPanel_first"]) {
+                var action_Collapse: JSAction_Collapse = JSAction_Collapse.getInstance();
+                action_Collapse.actionPerformed(null);
+            } else if (args["splitPane_JSTutorial_dividerLocation"] !== undefined) {
+                var splitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
+                splitPane_JSTutorial.setDividerLocation(args["splitPane_JSTutorial_dividerLocation"]);
+            }
+            if (args["tabbedPane_JSTutorial_selectedIndex"] !== undefined && args["tabbedPane_JSTutorial_selectedIndex"] !== -1) {
+                var tabbedPane_JSTutorial = JSTabbedPane_JSTutorial.getInstance();
+                tabbedPane_JSTutorial.setSelectedIndex(args["tabbedPane_JSTutorial_selectedIndex"]);
+            }
+            var tree_Tutorials: JSTree = JSTree_Tutorials.getInstance();
+            if (args["treeNode_ContainerTutorials_expanded"] !== undefined) {
+                var treeNode_ContainerTutorials: JSTreeNode_ContainerTutorials = JSTreeNode_ContainerTutorials.getInstance();
+                if (args["treeNode_ContainerTutorials_expanded"]) {
+                    tree_Tutorials.expand(treeNode_ContainerTutorials);
+                } else {
+                    tree_Tutorials.collapse(treeNode_ContainerTutorials);
+                }
+            }
+            if (args["treeNode_ComponentTutorials_expanded"] !== undefined) {
+                var treeNode_ComponentTutorials: JSTreeNode_ComponentTutorials = JSTreeNode_ComponentTutorials.getInstance();
+                if (args["treeNode_ComponentTutorials_expanded"]) {
+                    tree_Tutorials.expand(treeNode_ComponentTutorials);
+                } else {
+                    tree_Tutorials.collapse(treeNode_ComponentTutorials);
+                }
+            }
+            var tree_Examples: JSTree = JSTree_Examples.getInstance();
+            if (args["treeNode_ContainerExamples_expanded"] !== undefined) {
+                var treeNode_ContainerExamples: JSTreeNode_ContainerExamples = JSTreeNode_ContainerExamples.getInstance();
+                if (args["treeNode_ContainerExamples_expanded"]) {
+                    tree_Examples.expand(treeNode_ContainerExamples);
+                } else {
+                    tree_Examples.collapse(treeNode_ContainerExamples);
+                }
+            }
+            if (args["treeNode_ComponentExamples_expanded"] !== undefined) {
+                var treeNode_ComponentExamples: JSTreeNode_ComponentExamples = JSTreeNode_ComponentExamples.getInstance();
+                if (args["treeNode_ComponentExamples_expanded"]) {
+                    tree_Examples.expand(treeNode_ComponentExamples);
+                } else {
+                    tree_Examples.collapse(treeNode_ComponentExamples);
+                }
+            }
+        }
+        
+        static getParams(): { [ key: string ]: string } {
+            var params: { [ key: string ]: string } = {};
+            params["panel_ToggleButtonPanel_first"] = "" + JSPanel_ToggleButtonPanel.getInstance().isFirst();
+            params["splitPane_JSTutorial_dividerLocation"] = "" + JSSplitPane_JSTutorial.getInstance().getDividerLocation();
+            params["tabbedPane_JSTutorial_selectedIndex"] = "" + JSTabbedPane_JSTutorial.getInstance().getSelectedIndex();
+            params["treeNode_ContainerTutorials_expanded"] = "" + JSTreeNode_ContainerTutorials.getInstance().isExpanded();
+            params["treeNode_ComponentTutorials_expanded"] = "" + JSTreeNode_ComponentTutorials.getInstance().isExpanded();
+            params["treeNode_ContainerExamples_expanded"] = "" + JSTreeNode_ContainerExamples.getInstance().isExpanded();
+            params["treeNode_ComponentExamples_expanded"] = "" + JSTreeNode_ComponentExamples.getInstance().isExpanded();
+            return params;
         }
     }
 }

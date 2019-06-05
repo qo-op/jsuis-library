@@ -24,8 +24,12 @@ class JSScrollPane extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        var viewContainer: JSPanel = this.getViewContainer();
-        this.add(viewContainer);
+        
+        var index: number = 0;
+        
+        var viewContainer: JSScrollPaneViewContainer = this.getViewContainer();
+        this.add(viewContainer, null, index++);
+        
         this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         switch (args.length) {
@@ -65,7 +69,12 @@ class JSScrollPane extends JSPanel {
     getViewContainer(): JSScrollPaneViewContainer {
         var viewContainer: JSScrollPaneViewContainer = this.getData("viewContainer");
         if (!viewContainer) {
-            viewContainer = new JSScrollPaneViewContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSScrollPaneViewContainer");
+            if (element) {
+                viewContainer = new JSScrollPaneViewContainer(element);
+            } else {
+                viewContainer = new JSScrollPaneViewContainer();
+            }
             this.setData("viewContainer", viewContainer);
         }
         return viewContainer;
@@ -108,15 +117,23 @@ class JSScrollPane extends JSPanel {
         if (preferredWidth) {
             return +preferredWidth;
         }
-        var viewContainer: JSPanel = this.getViewContainer();
-        return viewContainer.getPreferredWidth();
+        var viewportView: JSComponent = this.getViewportView();
+        if (viewportView) {
+            return viewportView.getPreferredWidth();
+        } else {
+            return 0;
+        }
     }
     getPreferredHeight(): number {
         var preferredHeight: string = this.getAttribute("data-preferred-height");
         if (preferredHeight) {
             return +preferredHeight;
         }
-        var viewContainer: JSPanel = this.getViewContainer();
-        return viewContainer.getPreferredHeight();
+        var viewportView: JSComponent = this.getViewportView();
+        if (viewportView) {
+            return viewportView.getPreferredHeight();
+        } else {
+            return 0;
+        }
     }
 }

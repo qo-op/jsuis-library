@@ -13,10 +13,11 @@ namespace jstutorial {
             return JSAction_JSUISTutorial.instance;
         }
         constructor() {
-            super("How to use JSUIS");
+            super("How to use JSUIS", JSIcon_Leaf.getInstance());
         }
         actionPerformed(mouseEvent: MouseEvent): void {
-            JSForm.post("/tutorials/jsuis.html");
+            // JSForm.post("/tutorials/jsuis", JSFrame_JSTutorial.getArgs());
+            JSForm.post("/", JSFrame_JSTutorial.getParams());
         }
     }
 }

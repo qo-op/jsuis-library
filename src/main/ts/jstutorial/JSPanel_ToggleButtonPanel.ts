@@ -31,5 +31,16 @@ namespace jstutorial {
             var cardLayout: JSCardLayout = <JSCardLayout> this.getLayout();
             cardLayout.last(this);
         }
+        isFirst(): boolean {
+            var cardLayout: JSCardLayout = <JSCardLayout> this.getLayout();
+            var selectedIndex: number = cardLayout.getSelectedIndex(this);
+            return (selectedIndex === 0);
+        }
+        isLast(): boolean {
+            var cardLayout: JSCardLayout = <JSCardLayout> this.getLayout();
+            var selectedIndex: number = cardLayout.getSelectedIndex(this);
+            var componentCount: number = this.getComponentCount();
+            return (selectedIndex === (componentCount - 1));
+        }
     }
 }

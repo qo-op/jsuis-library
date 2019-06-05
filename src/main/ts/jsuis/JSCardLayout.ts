@@ -117,15 +117,15 @@ class JSCardLayout extends JSLayout {
         this.setSelectedIndex(container, 0);
     }
     next(container: JSComponent): void {
-        var componentCount = container.getComponentCount();
+        var componentCount: number = container.getComponentCount();
         this.setSelectedIndex(container, (this.getSelectedIndex(container) + 1) % componentCount);
     }
     previous(container: JSComponent): void {
-        var componentCount = container.getComponentCount();
+        var componentCount: number = container.getComponentCount();
         this.setSelectedIndex(container, (this.getSelectedIndex(container) - 1 + componentCount) % componentCount);
     }
     last(container: JSComponent): void {
-        var componentCount = container.getComponentCount();
+        var componentCount: number = container.getComponentCount();
         this.setSelectedIndex(container, componentCount - 1);
     }
     show(container: JSComponent, index: number): void;

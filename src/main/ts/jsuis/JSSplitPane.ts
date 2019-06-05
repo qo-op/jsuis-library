@@ -28,14 +28,16 @@ class JSSplitPane extends JSPanel {
         
         this.setLayout(new JSSplitPaneLayout());
         
+        var index: number = 0;
+        
         var leftContainer: JSSplitPaneLeftContainer = this.getLeftContainer();
-        this.add(leftContainer);
+        this.add(leftContainer, null, index++);
         
         var rightContainer: JSSplitPaneRightContainer = this.getRightContainer();
-        this.add(rightContainer);
+        this.add(rightContainer, null, index++);
         
         var divider: JSSplitPaneDivider = this.getDivider();
-        this.add(divider);
+        this.add(divider, null, index++);
         
         // this.setDividerSize(4);
         
@@ -53,7 +55,12 @@ class JSSplitPane extends JSPanel {
     getLeftContainer(): JSSplitPaneLeftContainer {
         var leftContainer: JSSplitPaneLeftContainer = this.getData("leftContainer");
         if (!leftContainer) {
-            leftContainer = new JSSplitPaneLeftContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneLeftContainer");
+            if (element) {
+                leftContainer = new JSSplitPaneLeftContainer(element);
+            } else {
+                leftContainer = new JSSplitPaneLeftContainer();
+            }
             this.setData("leftContainer", leftContainer);
         }
         return leftContainer;
@@ -61,7 +68,12 @@ class JSSplitPane extends JSPanel {
     getRightContainer(): JSSplitPaneRightContainer {
         var rightContainer: JSSplitPaneRightContainer = this.getData("rightContainer");
         if (!rightContainer) {
-            rightContainer = new JSSplitPaneRightContainer();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneRightContainer");
+            if (element) {
+                rightContainer = new JSSplitPaneRightContainer(element);
+            } else {
+                rightContainer = new JSSplitPaneRightContainer();
+            }
             this.setData("rightContainer", rightContainer);
         }
         return rightContainer;
@@ -107,7 +119,12 @@ class JSSplitPane extends JSPanel {
     getDivider(): JSSplitPaneDivider {
         var divider: JSSplitPaneDivider = this.getData("divider");
         if (!divider) {
-            divider = new JSSplitPaneDivider();
+            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneDivider");
+            if (element) {
+                divider = new JSSplitPaneDivider(element);
+            } else {
+                divider = new JSSplitPaneDivider();
+            }
             var orientation: string = this.getOrientation();
             if (orientation === JSComponent.VERTICAL_SPLIT) {
                 divider.removeClass("horizontal");

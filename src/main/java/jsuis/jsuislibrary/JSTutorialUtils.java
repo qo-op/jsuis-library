@@ -1,4 +1,4 @@
-package jsuis.jsuislibrary.tutorial;
+package jsuis.jsuislibrary;
 
 import java.io.IOException;
 
@@ -16,11 +16,7 @@ public class JSTutorialUtils {
 		return instance;
 	}
 	
-	public static String getResourceAsString(String resource) {
-		return getInstance()._getResourceAsString(resource);
-	}
-	
-	private String _getResourceAsString(String resource) {
+	public String getResourceAsString(String resource) {
 		try {
 			return IOUtils.toString(new ClassPathResource(resource).getInputStream(), "ISO-8859-1");
 		} catch (IOException e) {

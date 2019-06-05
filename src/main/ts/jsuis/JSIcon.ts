@@ -8,6 +8,7 @@ class JSIcon {
     
     iconWidth: number;
     iconHeight: number;
+    name: string;
     
     constructor();
     constructor(iconWidth: number, iconHeight: number);
@@ -40,5 +41,15 @@ class JSIcon {
         this.iconHeight = iconHeight;
     }
     paintIcon(component: JSComponent, graphics: JSGraphics) {
+    }
+    getName(): string {
+        return this.name;
+    }
+    setName(name: string) {
+        this.name = name;
+    }
+    withName(name: string) {
+        this.setName(name);
+        return this;
     }
 }

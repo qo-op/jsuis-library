@@ -5,6 +5,6 @@
  * @author Yassuo Toda
  */
 interface PropertyChangeListener {
-    propertyChange(propertyChangeEvent: JSPropertyChangeEvent): void;
+    propertyChange(propertyChangeEvent: JSPropertyChangeEvent, ...parameters: any[]): void;
     getSource?(): JSComponent;
 }

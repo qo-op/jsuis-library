@@ -12,6 +12,7 @@
 /// <reference path = "jsuis/MouseListener.ts"/>
 /// <reference path = "jsuis/PropertyChangeListener.ts"/>
 /// <reference path = "jsuis/Runnable.ts"/>
+/// <reference path = "jsuis/TreeSelectionListener.ts"/>
 
 /// <reference path = "jsuis/JSAction.ts"/>
 /// <reference path = "jsuis/JSActionListener.ts"/>
@@ -24,6 +25,7 @@
 /// <reference path = "jsuis/JSFileUtils.ts"/>
 /// <reference path = "jsuis/JSIcon.ts"/>
 /// <reference path = "jsuis/JSLayout.ts"/>
+/// <reference path = "jsuis/JSLineBorder.ts"/>
 /// <reference path = "jsuis/JSMatteBorder.ts"/>
 /// <reference path = "jsuis/JSMouseDraggedListener.ts"/>
 /// <reference path = "jsuis/JSMouseListener.ts"/>
@@ -37,6 +39,8 @@
 /// <reference path = "jsuis/JSTimer.ts"/>
 /// <reference path = "jsuis/JSTreeCellRenderer.ts"/>
 /// <reference path = "jsuis/JSTreeNode.ts"/>
+/// <reference path = "jsuis/JSTreeSelectionEvent.ts"/>
+/// <reference path = "jsuis/JSTreeSelectionListener.ts"/>
     /// <reference path = "jsuis/JSBorderLayout.ts"/>
     /// <reference path = "jsuis/JSCardLayout.ts"/>
     /// <reference path = "jsuis/JSFlowLayout.ts"/>
@@ -55,8 +59,10 @@
         /// <reference path = "jsuis/JSForm.ts"/>
         /// <reference path = "jsuis/JSFrame.ts"/>
         /// <reference path = "jsuis/JSGridBagLayout.ts"/>
+        /// <reference path = "jsuis/JSHiddenInput.ts"/>
         /// <reference path = "jsuis/JSImage.ts"/>
         /// <reference path = "jsuis/JSImageIcon.ts"/>
+        /// <reference path = "jsuis/JSLabelSpan.ts"/>
         /// <reference path = "jsuis/JSLabel.ts"/>
         /// <reference path = "jsuis/JSLI.ts"/>
         /// <reference path = "jsuis/JSMarker.ts"/>
@@ -72,6 +78,7 @@
         /// <reference path = "jsuis/JSSVG.ts"/>
         /// <reference path = "jsuis/JSSVGImage.ts"/>
         /// <reference path = "jsuis/JSTabbedPane.ts"/>
+        /// <reference path = "jsuis/JSTable.ts"/>
         /// <reference path = "jsuis/JSTableBody.ts"/>
         /// <reference path = "jsuis/JSTableCell.ts"/>
         /// <reference path = "jsuis/JSTableHeader.ts"/>
@@ -81,15 +88,21 @@
         /// <reference path = "jsuis/JSTextField.ts"/>
         /// <reference path = "jsuis/JSTreeCell.ts"/>
             /// <reference path = "jsuis/JSBodyDefsContainer.ts"/>
+            /// <reference path = "jsuis/JSBodyDialogContainer.ts"/>
             /// <reference path = "jsuis/JSBodyDragImageContainer.ts"/>
+            /// <reference path = "jsuis/JSBodyModal.ts"/>
             /// <reference path = "jsuis/JSBodyPopupMenuContainer.ts"/>
             /// <reference path = "jsuis/JSButtonSpan.ts"/>
             /// <reference path = "jsuis/JSCheckBoxLabel.ts"/>
             /// <reference path = "jsuis/JSDialog.ts"/>
+            /// <reference path = "jsuis/JSDialogContentPane.ts"/>
+            /// <reference path = "jsuis/JSDialogCloseButton.ts"/>
+            /// <reference path = "jsuis/JSDialogTitleLabel.ts"/>
+            /// <reference path = "jsuis/JSDialogTitlePanel.ts"/>
+            /// <reference path = "jsuis/JSFrameContentPane.ts"/>
             /// <reference path = "jsuis/JSFrameMenuBarContainer.ts"/>
             /// <reference path = "jsuis/JSFrameTitleLabel.ts"/>
             /// <reference path = "jsuis/JSGraphics.ts"/>
-            /// <reference path = "jsuis/JSLabelSpan.ts"/>
             /// <reference path = "jsuis/JSLayeredPane.ts"/>
             /// <reference path = "jsuis/JSMenuBar.ts"/>
             /// <reference path = "jsuis/JSMenuContainer.ts"/>
@@ -114,7 +127,6 @@
             /// <reference path = "jsuis/JSTabbedPaneButtonContainer.ts"/>
             /// <reference path = "jsuis/JSTabbedPaneCardContainer.ts"/>
             /// <reference path = "jsuis/JSTabbedPaneTabContainer.ts"/>
-            /// <reference path = "jsuis/JSTable.ts"/>
             /// <reference path = "jsuis/JSToolBar.ts"/>
             /// <reference path = "jsuis/JSTree.ts"/>
             /// <reference path = "jsuis/JSTreeCellButton.ts"/>
