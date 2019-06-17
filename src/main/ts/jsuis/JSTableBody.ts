@@ -13,10 +13,8 @@ class JSTableBody extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]);
+        this.setUI("JSTableBody");
         this.setEditable(true);
-    }
-    init(): void {
-        this.addClass("JSTableBody");
     }
     getRows(): any[][] {
         var rows: any[][] = [];

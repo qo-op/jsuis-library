@@ -19,9 +19,8 @@ class JSDialog extends JSPanel implements MouseListener, ActionListener {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSDialog");
         this.setVisible(false);
-        this.setStyle("position", "absolute");
-        this.setLayer(JSComponent.MODAL_LAYER);
         
         super.setLayout(new JSBorderLayout());
         
@@ -67,9 +66,6 @@ class JSDialog extends JSPanel implements MouseListener, ActionListener {
         titleLabel.addMouseListener(this);
         
         closeButton.addActionListener(this);
-    }
-    init(): void {
-        this.addClass("JSDialog");
     }
     getTitlePanel(): JSDialogTitlePanel {
         var titlePanel: JSDialogTitlePanel = this.getData("dialogTitlePanel");

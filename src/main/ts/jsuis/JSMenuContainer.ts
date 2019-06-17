@@ -13,6 +13,8 @@ class JSMenuContainer extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSMenuContainer");
+        
         JSBody.getInstance().addMouseListener({
             mousePressed(mouseEvent: MouseEvent, menuContainer: JSMenuContainer) {
                 menuContainer.setData("pressed", false);
@@ -32,9 +34,6 @@ class JSMenuContainer extends JSPanel {
                 menuContainer.setData("pressed", true);
             }
         }, true).withParameters(this);
-    }
-    init(): void {
-        this.addClass("JSMenuContainer");
     }
     add(menu: JSMenu): void {
         var selection: JSSelection = this.getSelection();

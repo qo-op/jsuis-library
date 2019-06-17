@@ -14,6 +14,7 @@ class JSLI extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLLIElement) ? document.createElement("li") : args[0]);
+        this.setUI("JSLI");
         switch (args.length) {
         case 1:
             // constructor(text: string);
@@ -24,8 +25,5 @@ class JSLI extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSLI");
     }
 }

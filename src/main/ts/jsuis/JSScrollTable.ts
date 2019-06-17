@@ -14,6 +14,7 @@ class JSScrollTable extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSTable");
         
         var index: number = 0;
         
@@ -35,9 +36,6 @@ class JSScrollTable extends JSPanel {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSTable");
     }
     getTableHeader(): JSTableHeader {
         var tableHeader: JSTableHeader = this.getData("tableHeader");

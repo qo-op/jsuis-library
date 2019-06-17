@@ -14,6 +14,7 @@ class JSTableCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]);
+        this.setUI("JSTableCell");
         switch (args.length) {
         case 1:
             // constructor(value: any);
@@ -24,9 +25,6 @@ class JSTableCell extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSTableCell");
     }
     getValue(): any {
         return this.getData("value") || this.getText();

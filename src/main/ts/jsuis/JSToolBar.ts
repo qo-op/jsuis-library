@@ -13,9 +13,7 @@ class JSToolBar extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-    }
-    init(): void {
-        this.addClass("JSToolBar");
+        this.setUI("JSToolBar");
     }
     addSeparator(): void {
         var separator = new JSPanel();

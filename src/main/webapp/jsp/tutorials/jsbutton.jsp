@@ -11,10 +11,10 @@
 </head>
 <body>
 	<div style="display: none">
-		<div id="content">
+		<div id="tutorial">
 		
 <h3>How to use JS Button</h3>
-<p>The following application displays three buttons with icons (based on <a target="_blank" href="https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ButtonDemoProject/src/components/ButtonDemo.java">ButtonDemo</a>).</p>
+<p>The following application displays three buttons (based on <a target="_blank" href="https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ButtonDemoProject/src/components/ButtonDemo.java">ButtonDemo.java</a>).</p>
 
 <div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver; height: 100px"></div>
 
@@ -24,19 +24,16 @@ Click the right button to enable the middle button.<br>
 Click the middle button and nothing happens.</p>
 <pre>
 &lt;head&gt;
-	&lt;link rel="stylesheet" href="jsuis-${previous_version}.css"&gt;
-	&lt;script src="jsuis-${previous_version}.js"&gt;&lt;/script&gt;
+	&lt;link rel="stylesheet" href="/css/jsuis-${version}.css"&gt;
+	&lt;script src="/js/jsuis-${version}.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body&gt;
 &lt;script&gt;
 	var frame = new JSFrame();
 	var buttonDemo = new JSPanel();
-	var leftButtonIcon = new JSImageIcon("/img/right.gif", 20, 22);
-	var middleButtonIcon = new JSImageIcon("/img/middle.gif", 20, 22);
-	var rightButtonIcon = new JSImageIcon("/img/left.gif", 20, 22);
-	var b1 = new JSButton("Disable middle button", leftButtonIcon);
-	var b2 = new JSButton("Middle button", middleButtonIcon);
-	var b3 = new JSButton("Enable middle button", rightButtonIcon);
+	var b1 = new JSButton("Disable middle button");
+	var b2 = new JSButton("Middle button");
+	var b3 = new JSButton("Enable middle button");
 	b3.setEnabled(false);
 	b1.addActionListener({
 		actionPerformed: function(mouseEvent) {
@@ -64,23 +61,15 @@ Click the middle button and nothing happens.</p>
 		</div>
 	</div>
 	<script>
-		// addEventListener("load", function() {
-		new ${clazz}(${args}).setVisible(true);
-		// });
-	</script>
-	<script>
-    	var content = new JSDiv(document.getElementById("content"));
+    	var tutorial = new JSDiv(document.getElementById("tutorial"));
 		var frame = new JSDiv(document.getElementById("example1"));
 		frame.setLayout(new JSBorderLayout());
-		content.getComponents().push(frame);
+		tutorial.getComponents().push(frame);
 		
 		var buttonDemo = new JSPanel();
-		var leftButtonIcon = new JSImageIcon("/img/right.gif", 20, 22);
-		var middleButtonIcon = new JSImageIcon("/img/middle.gif", 20, 22);
-		var rightButtonIcon = new JSImageIcon("/img/left.gif", 20, 22);
-		var b1 = new JSButton("Disable middle button", leftButtonIcon);
-		var b2 = new JSButton("Middle button", middleButtonIcon);
-		var b3 = new JSButton("Enable middle button", rightButtonIcon);
+		var b1 = new JSButton("Disable middle button");
+		var b2 = new JSButton("Middle button");
+		var b3 = new JSButton("Enable middle button");
 		b3.setEnabled(false);
 		b1.addActionListener({
 			actionPerformed: function(mouseEvent) {
@@ -101,7 +90,9 @@ Click the middle button and nothing happens.</p>
 		buttonDemo.add(b3);
 		
 		frame.add(buttonDemo);
-		frame.revalidate();
+	</script>
+	<script>
+		new jstutorial.JSFrame_JSTutorial(${args}).setVisible(true);
 	</script>
 </body>
 </html>

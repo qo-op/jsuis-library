@@ -14,7 +14,7 @@ class JSTable extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
-        this.setStyle("display", "inline-block");
+        this.setUI("JSTable");
         
         var index: number = 0;
         
@@ -36,9 +36,6 @@ class JSTable extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSTable");
     }
     getTableHeader(): JSTableHeader {
         var tableHeader: JSTableHeader = this.getData("tableHeader");

@@ -50,10 +50,10 @@ class JSComponent {
         if ((<any> this.element).data === undefined) {
             (<any> this.element).data = {};
         }
+        this.setUI("JSComponent");
         this.init();
     }
     init(): void {
-        this.addClass("JSComponent");
     }
     getAttribute(attribute: string): string {
         return this.element.getAttribute(attribute);
@@ -165,6 +165,12 @@ class JSComponent {
             clazzes = clazzes.replace(" " + clazz + " ", " ");
         }
         this.setClass(clazzes.trim());
+    }
+    getUI(): string {
+        return this.getClass();
+    }
+    setUI(ui: string) {
+        this.setClass(ui);
     }
     x: number;
     getX(): number {

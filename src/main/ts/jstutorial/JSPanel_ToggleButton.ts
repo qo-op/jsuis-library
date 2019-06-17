@@ -1,20 +1,20 @@
 /// <reference path = "../jstutorial.ts"/>
 /**
- * JSPanel_ToggleButtonPanel
+ * JSPanel_ToggleButton
  */
 namespace jstutorial {
-    export class JSPanel_ToggleButtonPanel extends JSPanel {
+    export class JSPanel_ToggleButton extends JSPanel {
         
-        static instance: JSPanel_ToggleButtonPanel;
-        static getInstance(): JSPanel_ToggleButtonPanel {
-            if (JSPanel_ToggleButtonPanel.instance === undefined) {
-                JSPanel_ToggleButtonPanel.instance = new JSPanel_ToggleButtonPanel();
+        static instance: JSPanel_ToggleButton;
+        static getInstance(): JSPanel_ToggleButton {
+            if (JSPanel_ToggleButton.instance === undefined) {
+                JSPanel_ToggleButton.instance = new JSPanel_ToggleButton();
             }
-            return JSPanel_ToggleButtonPanel.instance;
+            return JSPanel_ToggleButton.instance;
         }
         constructor() {
             super(new JSCardLayout());
-            this.addClass("JSPanel_ToggleButtonPanel");
+            this.addClass("JSPanel_ToggleButton");
         }
         toggle(): void {
             var cardLayout: JSCardLayout = <JSCardLayout> this.getLayout();

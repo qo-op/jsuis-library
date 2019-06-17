@@ -23,7 +23,7 @@ class JSTreeCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("white-space", "nowrap");
+        this.setUI("JSTreeCell");
         
         var index: number = 0;
         
@@ -53,9 +53,6 @@ class JSTreeCell extends JSHTMLComponent {
         default:
         }
     }
-    init(): void {
-        this.addClass("JSTreeCell");
-    }
     getValue(): any {
         return this.getData("value");
     }
@@ -69,7 +66,7 @@ class JSTreeCell extends JSHTMLComponent {
             if (!closedIcon && !openIcon) {
                 this.addMouseListener({
                     mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
-                        var container: JSPanel = treeCell.getContainer();
+                        var container: JSComponent = treeCell.getContainer();
                         if (container.isDisplayable()) {
                             // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
                             var treeNode: JSTreeNode = treeCell.getValue();
@@ -221,10 +218,10 @@ class JSTreeCell extends JSHTMLComponent {
         var label: JSLabel = this.getLabel();
         label.setText(text);
     }
-    getContainer(): JSPanel {
+    getContainer(): JSComponent {
         return this.getData("container");
     }
-    setContainer(container: JSPanel) {
+    setContainer(container: JSComponent) {
         this.setData("container", container);
     }
 }

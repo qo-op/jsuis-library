@@ -15,9 +15,7 @@ class JSTabCloseButton extends JSButton {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
+        this.setUI("JSTabCloseButton");
         this.setIcon(JSTabCloseButton.CLOSE_ICON);
-    }
-    init(): void {
-        this.addClass("JSTabCloseButton");
     }
 }

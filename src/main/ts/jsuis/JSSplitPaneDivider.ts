@@ -13,11 +13,7 @@ class JSSplitPaneDivider extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        
-        var index: number = 0;
-        
-        var panel: JSSplitPaneDividerPanel = this.getPanel();
-        this.add(panel, null, index++);
+        this.setUI("JSSplitPaneDivider");
         
         this.addMouseListener({
             mousePressed(mouseEvent: MouseEvent, divider: JSSplitPaneDivider) {
@@ -47,21 +43,5 @@ class JSSplitPaneDivider extends JSPanel {
                 mouseEvent.stopPropagation();
             }
         }).withParameters(this);
-    }
-    init(): void {
-        this.addClass("JSSplitPaneDivider");
-    }
-    getPanel(): JSSplitPaneDividerPanel {
-        var panel: JSSplitPaneDividerPanel = this.getData("splitPaneDividerPanel");
-        if (!panel) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneDividerPanel");
-            if (element) {
-                panel = new JSSplitPaneDividerPanel(element);
-            } else {
-                panel = new JSSplitPaneDividerPanel();
-            }
-            this.setData("splitPaneDividerPanel", panel);
-        }
-        return panel;
     }
 }

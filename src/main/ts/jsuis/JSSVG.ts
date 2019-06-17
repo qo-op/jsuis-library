@@ -14,6 +14,7 @@ class JSSVG extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        this.setUI("JSSVG");
         switch (args.length) {
         case 2:
             // constructor(width: number, height: number);
@@ -27,9 +28,6 @@ class JSSVG extends JSSVGComponent {
         default:
         }
         this.setStyle("display", "inline-block");
-    }
-    init(): void {
-        this.addClass("JSSVG");
     }
     setX(x: number) {
         this.setStyle("left", x + "px");

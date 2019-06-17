@@ -16,7 +16,7 @@ class JSTree extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("display", "block");
+        this.setUI("JSTree");
         switch (args.length) {
         case 1:
             // constructor(root: JSTreeNode);
@@ -29,9 +29,6 @@ class JSTree extends JSPanel {
         }
         this.setLayout(new JSTreeLayout());
         this.setRootVisible(true);
-    }
-    init(): void {
-        this.addClass("JSTree");
     }
     getRoot(): JSTreeNode {
         var root: JSTreeNode = this.getData("root");
@@ -81,15 +78,15 @@ class JSTree extends JSPanel {
         this.setData("treeCellRenderer", treeCellRenderer);
     }
     addTreeNode(treeNode: JSTreeNode): void {
-        var container: JSHTMLComponent = this;
+        var container: JSComponent = this;
         var parentNode: JSTreeNode = treeNode.getParent();
         if (parentNode) {
             var parentTreeCell: JSTreeCell = this.getTreeCell(parentNode.getTreePath());
             container = parentTreeCell.getContainer();
             if (!container) {
-                container = new JSPanel();
+                container = new JSDiv();
                 container.setStyle("display", "none");
-                var grandParentContainer: JSHTMLComponent = this; 
+                var grandParentContainer: JSComponent = this; 
                 var grandParentNode: JSTreeNode = parentNode.getParent();
                 if (grandParentNode) {
                     var grandParentTreeCell: JSTreeCell = this.getTreeCell(grandParentNode.getTreePath());
@@ -129,7 +126,7 @@ class JSTree extends JSPanel {
             this.load();
         }
         treeCell = this.getTreeCell(treePath);
-        var container = treeCell.getContainer();
+        var container: JSComponent = treeCell.getContainer();
         container.setStyle("display", "");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         // treeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
@@ -143,7 +140,7 @@ class JSTree extends JSPanel {
             this.load();
         }
         treeCell = this.getTreeCell(treePath);
-        var container = treeCell.getContainer();
+        var container: JSComponent = treeCell.getContainer();
         container.setStyle("display", "none");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
@@ -158,7 +155,7 @@ class JSTree extends JSPanel {
         var rootTreeCell: JSTreeCell = this.getTreeCell(root.getTreePath());
         // rootTreeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
         rootTreeCell.setStyle("display", rootVisible ? "" : "none");
-        var rootContainer: JSPanel = rootTreeCell.getContainer();
+        var rootContainer: JSComponent = rootTreeCell.getContainer();
         rootContainer.setStyle("display", "");
     }
     loadTreeNode(treeNode: JSTreeNode): void {

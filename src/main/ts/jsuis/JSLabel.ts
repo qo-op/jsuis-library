@@ -19,8 +19,7 @@ class JSLabel extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("display", "inline-block");
-        this.setStyle("white-space", "nowrap");
+        this.setUI("JSLabel");
         
         var index: number = 0;
         
@@ -77,9 +76,6 @@ class JSLabel extends JSHTMLComponent {
         default:
         }
     }
-    init(): void {
-        this.addClass("JSLabel");
-    }
     getGraphics(): JSLabelGraphics {
         var graphics: JSLabelGraphics = this.getData("graphics");
         if (!graphics) {
@@ -134,16 +130,6 @@ class JSLabel extends JSHTMLComponent {
             if (text) {
                 span.setStyle("margin-left", this.getIconTextGap() + "px");
             }
-        }
-    }
-    isUndecorated(): boolean {
-        return this.hasClass("undecorated");
-    }
-    setUndecorated(undecorated: boolean) {
-        if (undecorated) {
-            this.addClass("undecorated");
-        } else {
-            this.removeClass("undecorated");
         }
     }
 }

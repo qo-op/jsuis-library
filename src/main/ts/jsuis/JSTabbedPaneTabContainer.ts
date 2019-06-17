@@ -16,6 +16,7 @@ class JSTabbedPaneTabContainer extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSTabbedPaneTabContainer");
         switch (args.length) {
         case 1:
             // constructor(tabPlacement: string);
@@ -46,9 +47,6 @@ class JSTabbedPaneTabContainer extends JSPanel {
             tabSelection = new JSSelection();
             this.setTabSelection(tabSelection);
         }
-    }
-    init(): void {
-        this.addClass("JSTabbedPaneTabContainer");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");

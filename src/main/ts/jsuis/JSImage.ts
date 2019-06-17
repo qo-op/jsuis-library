@@ -16,8 +16,7 @@ class JSImage extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]);
-        this.setStyle("draggable", "false");
-        this.setStyle("-webkit-user-drag", "none");
+        this.setUI("JSImage");
         switch (args.length) {
         case 0:
             break;
@@ -45,9 +44,6 @@ class JSImage extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSImage");
     }
     getSource(): string {
         return this.getAttribute("src");

@@ -15,6 +15,7 @@ class JSHiddenInput extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "hidden");
+        this.setUI("JSHiddenInput");
         switch (args.length) {
         case 2:
             // constructor(name: string, value: string);
@@ -27,9 +28,6 @@ class JSHiddenInput extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSHiddenInput");
     }
     getValue(): string {
         return this.getAttribute("value");

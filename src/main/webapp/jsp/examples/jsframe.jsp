@@ -11,16 +11,41 @@
 </head>
 <body>
 	<div style="display: none">
-		<div id="content">
+		<div id="example">
 
-<h3>JS Frame example(s)</h3>
+			<textarea id="example1" style="padding: 4px;">
+<head>
+	<link rel="stylesheet" href="/css/jsuis-${version}.css">
+	<script src="/js/jsuis-${version}.js"></script>
+</head>
+<body>
+<script>
+	var frame = new JSFrame(); // Create the frame.
+	var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
+	frame.add(label, JSBorderLayout.CENTER); // Add the label.
+	frame.setVisible(true); // Show the frame.
+</script>
+</body>
+			</textarea>
 
 		</div>
 	</div>
 	<script>
-		// addEventListener("load", function() {
-		new ${clazz}(${args}).setVisible(true);
-		// });
+	    var tabbedPane_Example = jstutorial.JSTabbedPane_Example.getInstance();
+        var icon_Example = new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24);
+        var panel_Example = new jstutorial.JSPanel_Example();
+        tabbedPane_Example.addTab("FrameDemo.html", icon_Example, panel_Example).addClass("example");
+        
+        var element = document.getElementById("example1");
+        var example1 = new JSTextArea(element);
+        panel_Example.getSplitPane().setLeftComponent(example1);
+        
+		addEventListener("load", function() {
+	        panel_Example.getRunButton().getAction().actionPerformed(null);
+		});
+	</script>
+	<script>
+		new jstutorial.JSFrame_JSTutorial(${args}).setVisible(true);
 	</script>
 </body>
 </html>

@@ -22,16 +22,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
     
     constructor() {
         super(document.body);
-        document.documentElement.style.height = "100%";
-        this.setStyle("border", "0");
-        this.setStyle("height", "100%");
-        this.setStyle("margin", "0");
-        this.setStyle("overflow", "hidden");
-        this.setStyle("padding", "0");
-        this.setStyle("user-select", "none");
-        this.setStyle("-ms-user-select", "none");
-        this.setStyle("-moz-user-select", "none");
-        this.setStyle("-webkit-user-select", "none");
+        this.setUI("JSBody");
         
         this.setLayout(new JSBorderLayout());
         
@@ -60,9 +51,6 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         window.addEventListener("resize", function() {
             JSBody.getInstance().revalidate();
         });
-    }
-    init(): void {
-        this.addClass("JSBody");
     }
     getFrame(): JSFrame {
         var frame: JSFrame = this.getData("frame");

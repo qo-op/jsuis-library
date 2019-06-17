@@ -20,6 +20,7 @@ class JSCheckBoxMenuItem extends JSMenuItem {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSCheckBoxMenuItem");
         
         var index: number = 0;
         
@@ -81,9 +82,6 @@ class JSCheckBoxMenuItem extends JSMenuItem {
         }
         
         this.addMouseListener(this);
-    }
-    init(): void {
-        this.addClass("JSCheckBoxMenuItem");
     }
     getInput(): JSCheckBoxInput {
         var input: JSCheckBoxInput = this.getData("input");

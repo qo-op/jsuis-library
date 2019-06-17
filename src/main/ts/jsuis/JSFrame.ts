@@ -13,6 +13,7 @@ class JSFrame extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSFrame");
         
         this.setVisible(false);
         
@@ -31,9 +32,6 @@ class JSFrame extends JSHTMLComponent {
         
         var contentPane: JSComponent = this.getContentPane();
         super.add(contentPane, JSLayout.CENTER, index++);
-    }
-    init(): void {
-        this.addClass("JSFrame");
     }
     getTitleLabel(): JSFrameTitleLabel {
         var titleLabel: JSFrameTitleLabel = this.getData("frameTitleLabel");

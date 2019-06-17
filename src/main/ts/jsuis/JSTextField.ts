@@ -17,6 +17,7 @@ class JSTextField extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "text");
+        this.setUI("JSTextField");
         switch (args.length) {
         case 1:
             // constructor(columns: number);
@@ -40,9 +41,6 @@ class JSTextField extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSTextField");
     }
     getColumns(): number {
         return +this.getAttribute("size");

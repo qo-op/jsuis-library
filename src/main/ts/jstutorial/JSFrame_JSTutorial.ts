@@ -8,6 +8,7 @@ namespace jstutorial {
         constructor(args: any) {
             
             super();
+            this.addClass("JSFrame_JSTutorial");
             
             this.setLayout(new JSBorderLayout());
             
@@ -120,31 +121,31 @@ namespace jstutorial {
              * Tutorials
              * Examples
              */
-            var tabbedPane_JSTutorial: JSTabbedPane_JSTutorial = JSTabbedPane_JSTutorial.getInstance();
+            var tabbedPane_Left: JSTabbedPane_Left = JSTabbedPane_Left.getInstance();
             
-            var tabbedPaneTabContainer_JSTutorial: JSTabbedPaneTabContainer = tabbedPane_JSTutorial.getTabContainer();
-            tabbedPaneTabContainer_JSTutorial.setId("tabbedPaneTabContainer_JSTutorial");
-            this.add(tabbedPaneTabContainer_JSTutorial, JSBorderLayout.WEST);
+            var tabbedPaneTabContainer_Left: JSTabbedPaneTabContainer = tabbedPane_Left.getTabContainer();
+            tabbedPaneTabContainer_Left.addClass("JSTabbedPaneTabContainer_Left");
+            this.add(tabbedPaneTabContainer_Left, JSBorderLayout.WEST);
             
-            var splitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-            this.add(splitPane_JSTutorial);
+            var splitPane_Left: JSSplitPane_Left = JSSplitPane_Left.getInstance();
+            this.add(splitPane_Left);
             
-            var tabbedPaneCardContainer_JSTutorial: JSTabbedPaneCardContainer = tabbedPane_JSTutorial.getCardContainer();
-            splitPane_JSTutorial.setLeftComponent(tabbedPaneCardContainer_JSTutorial);
+            var tabbedPaneCardContainer_Left: JSTabbedPaneCardContainer = tabbedPane_Left.getCardContainer();
+            splitPane_Left.setLeftComponent(tabbedPaneCardContainer_Left);
             
             /*
              * [<|>]
              */
-            var tabbedPaneButtonContainer_JSTutorial: JSTabbedPaneButtonContainer = tabbedPane_JSTutorial.getButtonContainer();
+            var tabbedPaneButtonContainer_Left: JSTabbedPaneButtonContainer = tabbedPane_Left.getButtonContainer();
             
-            var panel_ToogleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
-            tabbedPaneButtonContainer_JSTutorial.add(panel_ToogleButtonPanel);
+            var panel_ToogleButton: JSPanel_ToggleButton = JSPanel_ToggleButton.getInstance();
+            tabbedPaneButtonContainer_Left.add(panel_ToogleButton);
             
-            var button_ExpandButton: JSButton_ExpandButton = JSButton_ExpandButton.getInstance();
-            panel_ToogleButtonPanel.add(button_ExpandButton);
+            var button_Expand: JSButton_Expand = JSButton_Expand.getInstance();
+            panel_ToogleButton.add(button_Expand);
             
-            var button_CollapseButton: JSButton_CollapseButton = JSButton_CollapseButton.getInstance();
-            panel_ToogleButtonPanel.add(button_CollapseButton);
+            var button_Collapse: JSButton_Collapse = JSButton_Collapse.getInstance();
+            panel_ToogleButton.add(button_Collapse);
             
             /*
              * Tutorials
@@ -155,7 +156,7 @@ namespace jstutorial {
              *     How to use JS Button
              */
             var tree_Tutorials: JSTree = JSTree_Tutorials.getInstance();
-            tabbedPane_JSTutorial.addTab("Tutorials", new JSImageIcon("/img/baseline-local_library-24px-GoldenRod.svg", 24, 24), new JSScrollPane(tree_Tutorials));
+            tabbedPane_Left.addTab("Tutorials", new JSImageIcon("/img/baseline-local_library-24px-GoldenRod.svg", 24, 24), new JSScrollPane(tree_Tutorials));
             
             var treeNode_TutorialsRoot: JSTreeNode = new JSTreeNode();
             tree_Tutorials.setRoot(treeNode_TutorialsRoot);
@@ -187,7 +188,7 @@ namespace jstutorial {
              *     JS Button example(s)
              */
             var tree_Examples: JSTree = JSTree_Examples.getInstance();
-            tabbedPane_JSTutorial.addTab("Examples", new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24), new JSScrollPane(tree_Examples));
+            tabbedPane_Left.addTab("Examples", new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24), new JSScrollPane(tree_Examples));
             
             var treeNode_ExamplesRoot: JSTreeNode = new JSTreeNode();
             tree_Examples.setRoot(treeNode_ExamplesRoot);
@@ -205,44 +206,48 @@ namespace jstutorial {
             treeCellRenderer_Tutorials.setOpenIcon(icon_Open);
             treeCellRenderer_Tutorials.setClosedIcon(icon_Closed);
             
-            tabbedPane_JSTutorial.setSelectedIndex(0);
+            tabbedPane_Left.setSelectedIndex(0);
             
             var action_ExpandButton: JSAction_Expand = JSAction_Expand.getInstance();
-            tabbedPane_JSTutorial.getTabComponentAt(0).addActionListener(action_ExpandButton);
-            tabbedPane_JSTutorial.getTabComponentAt(1).addActionListener(action_ExpandButton);
+            tabbedPane_Left.getTabComponentAt(0).addActionListener(action_ExpandButton);
+            tabbedPane_Left.getTabComponentAt(1).addActionListener(action_ExpandButton);
             
             tree_Tutorials.expand(treeNode_ContainerTutorials);
             tree_Tutorials.expand(treeNode_ComponentTutorials);
             tree_Examples.expand(treeNode_ContainerExamples);
             tree_Examples.expand(treeNode_ComponentExamples);
 
-            splitPane_JSTutorial.setDividerLocation(splitPane_JSTutorial.getLeftComponent().getPreferredOuterWidth() + 1);
+            splitPane_Left.setDividerLocation(splitPane_Left.getLeftComponent().getPreferredOuterWidth() + 1);
             
-            var content: JSDiv = new JSDiv(document.getElementById("content"));
-            splitPane_JSTutorial.setRightComponent(new JSScrollPane(content));
+            var element = document.getElementById("tutorial");
+            if (element) {
+                var tutorial: JSDiv = new JSDiv(element);
+                splitPane_Left.setRightComponent(new JSScrollPane(tutorial));
+            } else {
+                element = document.getElementById("example");
+                if (element) {
+                    var tabbedPane_Example: JSTabbedPane_Example = JSTabbedPane_Example.getInstance();
+                    splitPane_Left.setRightComponent(tabbedPane_Example);
+                }
+            }
             
             if (args) {
                 this.setArgs(args);
             }
         }
         
-        init(): void {
-            super.init();
-            this.addClass("JSFrame_JSTutorial");
-        }
-        
         setArgs(args: { [ key: string ]: any }) {
             // console.log(args);
-            if (args["panel_ToggleButtonPanel_first"] !== undefined && args["panel_ToggleButtonPanel_first"]) {
+            if (args["panel_ToggleButton_first"] !== undefined && args["panel_ToggleButton_first"]) {
                 var action_Collapse: JSAction_Collapse = JSAction_Collapse.getInstance();
                 action_Collapse.actionPerformed(null);
-            } else if (args["splitPane_JSTutorial_dividerLocation"] !== undefined) {
-                var splitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-                splitPane_JSTutorial.setDividerLocation(args["splitPane_JSTutorial_dividerLocation"]);
+            } else if (args["splitPane_Left_dividerLocation"] !== undefined) {
+                var splitPane_Left: JSSplitPane_Left = JSSplitPane_Left.getInstance();
+                splitPane_Left.setDividerLocation(args["splitPane_Left_dividerLocation"]);
             }
-            if (args["tabbedPane_JSTutorial_selectedIndex"] !== undefined && args["tabbedPane_JSTutorial_selectedIndex"] !== -1) {
-                var tabbedPane_JSTutorial = JSTabbedPane_JSTutorial.getInstance();
-                tabbedPane_JSTutorial.setSelectedIndex(args["tabbedPane_JSTutorial_selectedIndex"]);
+            if (args["tabbedPane_Left_selectedIndex"] !== undefined && args["tabbedPane_Left_selectedIndex"] !== -1) {
+                var tabbedPane_Left = JSTabbedPane_Left.getInstance();
+                tabbedPane_Left.setSelectedIndex(args["tabbedPane_Left_selectedIndex"]);
             }
             var tree_Tutorials: JSTree = JSTree_Tutorials.getInstance();
             if (args["treeNode_ContainerTutorials_expanded"] !== undefined) {
@@ -282,9 +287,9 @@ namespace jstutorial {
         
         static getParams(): { [ key: string ]: string } {
             var params: { [ key: string ]: string } = {};
-            params["panel_ToggleButtonPanel_first"] = "" + JSPanel_ToggleButtonPanel.getInstance().isFirst();
-            params["splitPane_JSTutorial_dividerLocation"] = "" + JSSplitPane_JSTutorial.getInstance().getDividerLocation();
-            params["tabbedPane_JSTutorial_selectedIndex"] = "" + JSTabbedPane_JSTutorial.getInstance().getSelectedIndex();
+            params["panel_ToggleButton_first"] = "" + JSPanel_ToggleButton.getInstance().isFirst();
+            params["splitPane_Left_dividerLocation"] = "" + JSSplitPane_Left.getInstance().getDividerLocation();
+            params["tabbedPane_Left_selectedIndex"] = "" + JSTabbedPane_Left.getInstance().getSelectedIndex();
             params["treeNode_ContainerTutorials_expanded"] = "" + JSTreeNode_ContainerTutorials.getInstance().isExpanded();
             params["treeNode_ComponentTutorials_expanded"] = "" + JSTreeNode_ComponentTutorials.getInstance().isExpanded();
             params["treeNode_ContainerExamples_expanded"] = "" + JSTreeNode_ContainerExamples.getInstance().isExpanded();

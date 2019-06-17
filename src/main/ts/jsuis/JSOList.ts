@@ -14,6 +14,7 @@ class JSOList extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLOListElement) ? document.createElement("ol") : args[0]);
+        this.setUI("JSOList");
         switch (args.length) {
         case 1:
             // constructor(items: Array<string>);
@@ -24,9 +25,6 @@ class JSOList extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSOList");
     }
     getItems(): Array<any> {
         return this.getData("item");

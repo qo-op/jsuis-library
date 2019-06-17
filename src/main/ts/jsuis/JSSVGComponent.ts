@@ -8,9 +8,7 @@ class JSSVGComponent extends JSComponent {
     
     constructor(element: SVGElement) {
         super(element);
-    }
-    init(): void {
-        this.addClass("JSSVGComponent");
+        this.setUI("JSSVGComponent");
     }
     getAttributeNS(attribute: string): string {
         return this.element.getAttributeNS(null, attribute);

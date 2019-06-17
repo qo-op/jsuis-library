@@ -20,7 +20,7 @@ class JSCheckBox extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("white-space", "nowrap");
+        this.setUI("JSCheckBox");
         
         var index: number = 0;
         
@@ -80,9 +80,6 @@ class JSCheckBox extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSCheckBox");
     }
     getInput(): JSCheckBoxInput {
         var input: JSCheckBoxInput = this.getData("input");

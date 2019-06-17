@@ -17,7 +17,7 @@ class JSButton extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]);
-        this.setStyle("white-space", "nowrap");
+        this.setUI("JSButton");
         
         var index: number = 0;
         
@@ -54,9 +54,6 @@ class JSButton extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSButton");
     }
     getGraphics(): JSButtonGraphics {
         var graphics: JSButtonGraphics = this.getData("graphics");

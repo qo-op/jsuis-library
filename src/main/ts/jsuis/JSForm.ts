@@ -25,9 +25,7 @@ class JSForm extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]);
-    }
-    init(): void {
-        this.addClass("JSForm");
+        this.setUI("JSForm");
     }
     getMethod(): string {
         return (<HTMLFormElement> this.element).method;

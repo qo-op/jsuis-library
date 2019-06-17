@@ -15,7 +15,7 @@ class JSPopupMenu extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("position", "absolute");
+        this.setUI("JSPopupMenu");
         this.setVisible(false);
         JSBody.getInstance().addMouseListener({
             mousePressed(mouseEvent: MouseEvent, popupMenu: JSPopupMenu) {
@@ -40,9 +40,6 @@ class JSPopupMenu extends JSPanel {
             }
         }, true).withParameters(this);
         this.setLayer(JSComponent.POPUP_LAYER);
-    }
-    init(): void {
-        this.addClass("JSPopupMenu");
     }
     add(component: JSComponent): void {
         var selection: JSSelection = this.getSelection();

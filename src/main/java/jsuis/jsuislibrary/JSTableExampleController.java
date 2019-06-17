@@ -1,8 +1,6 @@
 package jsuis.jsuislibrary;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;
@@ -11,8 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jsuis.jsuislibrary.JSTutorialUtils;
 
 @Controller
 public class JSTableExampleController {
@@ -33,13 +29,9 @@ public class JSTableExampleController {
 	    	args = "{" + args.substring(0, args.length() - 1) + "}";
 	    }
 	    
-	    String date = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
-		
 		request.setAttribute("version", VERSION);
 		request.setAttribute("previous_version", PREVIOUS_VERSION);
-		request.setAttribute("build", "?" + date);
-		request.setAttribute("title", "JS Table example");
-		request.setAttribute("clazz", "jstutorial.JSFrame_JSTableExample");
+		request.setAttribute("build", JSTutorialUtils.getInstance().getBuild());
 		request.setAttribute("args", args);
 		
 		request.getRequestDispatcher("/jsp/examples/jstable.jsp").forward(request, response);

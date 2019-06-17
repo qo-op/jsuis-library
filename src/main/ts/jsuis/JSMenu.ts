@@ -23,7 +23,7 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("position", "relative");
+        this.setUI("JSMenu");
         
         var index: number = 0;
         
@@ -60,9 +60,6 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSMenu");
     }
     getGraphics(): JSMenuGraphics {
         var graphics: JSMenuGraphics = this.getData("graphics");

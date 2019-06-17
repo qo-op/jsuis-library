@@ -15,7 +15,7 @@ class JSTab extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("white-space", "nowrap");
+        this.setUI("JSTab");
         
         var index: number = 0;
         
@@ -87,9 +87,6 @@ class JSTab extends JSPanel {
             }
         }));
         */
-    }
-    init(): void {
-        this.addClass("JSTab");
     }
     getGraphics(): JSTabGraphics {
         var graphics: JSTabGraphics = this.getData("graphics");
@@ -195,10 +192,10 @@ class JSTab extends JSPanel {
         this.setData("text", text);
     }
     setSelected(selected: boolean) {
-        this.setBackground(selected ? "White" : "Silver");
-        var label: JSLabel = this.getLabel();
-        if (label) {
-            label.setForeground(selected ? "black" : "#404040");
+        if (selected) {
+            this.addClass("selected");
+        } else {
+            this.removeClass("selected");
         }
         super.setSelected(selected);
     }

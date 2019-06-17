@@ -16,6 +16,7 @@ class JSTabbedPaneButtonContainer extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSTabbedPaneButtonContainer");
         switch (args.length) {
         case 1:
             // constructor(tabPlacement: string);
@@ -49,9 +50,6 @@ class JSTabbedPaneButtonContainer extends JSPanel {
             this.setAlign(JSFlowLayout.RIGHT);
             this.setStyle("border-left", "1px solid darkGray");
         }
-    }
-    init(): void {
-        this.addClass("JSTabbedPaneButtonContainer");
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");

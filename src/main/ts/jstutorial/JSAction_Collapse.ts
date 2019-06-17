@@ -16,11 +16,11 @@ namespace jstutorial {
             super(new JSImageIcon("/img/baseline-keyboard_arrow_left-24px.svg", 24, 24));
         }
         actionPerformed(mouseEvent: MouseEvent): void {
-            var splitPane_JSTutorial: JSSplitPane_JSTutorial = JSSplitPane_JSTutorial.getInstance();
-            var splitPane_JSTutorial_JSSplitPaneLeftContainer: JSSplitPaneLeftContainer = splitPane_JSTutorial.getLeftContainer();
-            splitPane_JSTutorial.setDividerLocation(splitPane_JSTutorial_JSSplitPaneLeftContainer.getBorderRightWidth());
-            var panel_ToggleButtonPanel: JSPanel_ToggleButtonPanel = JSPanel_ToggleButtonPanel.getInstance();
-            panel_ToggleButtonPanel.first();
+            var splitPane_Left: JSSplitPane_Left = JSSplitPane_Left.getInstance();
+            var splitPaneLeftContainer_Left: JSSplitPaneLeftContainer = splitPane_Left.getLeftContainer();
+            splitPane_Left.setDividerLocation(splitPaneLeftContainer_Left.getBorderRightWidth());
+            var panel_ToggleButton: JSPanel_ToggleButton = JSPanel_ToggleButton.getInstance();
+            panel_ToggleButton.first();
         }
     }
 }

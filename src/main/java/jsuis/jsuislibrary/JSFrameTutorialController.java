@@ -1,8 +1,6 @@
 package jsuis.jsuislibrary;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;
@@ -11,8 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jsuis.jsuislibrary.JSTutorialUtils;
 
 @Controller
 public class JSFrameTutorialController {
@@ -33,13 +29,9 @@ public class JSFrameTutorialController {
 	    	args = "{" + args.substring(0, args.length() - 1) + "}";
 	    }
 	    
-	    String date = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
-		
 		request.setAttribute("version", VERSION);
 		request.setAttribute("previous_version", PREVIOUS_VERSION);
-		request.setAttribute("build", "?" + date);
-		request.setAttribute("title", "How to use JS Frame");
-		request.setAttribute("clazz", "jstutorial.JSFrame_JSFrameTutorial");
+		request.setAttribute("build", JSTutorialUtils.getInstance().getBuild());
 		request.setAttribute("args", args);
 		
 		request.getRequestDispatcher("/jsp/tutorials/jsframe.jsp").forward(request, response);

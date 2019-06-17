@@ -22,6 +22,7 @@
 /// <reference path = "jsuis/JSDataTransfer.ts"/>
 /// <reference path = "jsuis/JSDragSourceListener.ts"/>
 /// <reference path = "jsuis/JSDropTargetListener.ts"/>
+/// <reference path = "jsuis/JSEmptyBorder.ts"/>
 /// <reference path = "jsuis/JSFileUtils.ts"/>
 /// <reference path = "jsuis/JSIcon.ts"/>
 /// <reference path = "jsuis/JSLayout.ts"/>
@@ -60,6 +61,7 @@
         /// <reference path = "jsuis/JSFrame.ts"/>
         /// <reference path = "jsuis/JSGridBagLayout.ts"/>
         /// <reference path = "jsuis/JSHiddenInput.ts"/>
+        /// <reference path = "jsuis/JSIFrame.ts"/>
         /// <reference path = "jsuis/JSImage.ts"/>
         /// <reference path = "jsuis/JSImageIcon.ts"/>
         /// <reference path = "jsuis/JSLabelSpan.ts"/>

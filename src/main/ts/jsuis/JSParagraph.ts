@@ -15,6 +15,7 @@ class JSParagraph extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]);
+        this.setUI("JSParagraph");
         switch (args.length) {
         case 1:
             // constructor(text: string);
@@ -34,8 +35,5 @@ class JSParagraph extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSParagraph");
     }
 }

@@ -16,6 +16,7 @@ class JSPathImage extends JSSVG {
         // constructor();
         // constructor(element: SVGSVGElement);
         super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        this.setUI("JSPathImage");
         
         var index: number = 0;
         
@@ -47,9 +48,6 @@ class JSPathImage extends JSSVG {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSPathImage");
     }
     getPath(): JSPath {
         var path = this.getData("path");

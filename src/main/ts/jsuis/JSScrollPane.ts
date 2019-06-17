@@ -24,6 +24,7 @@ class JSScrollPane extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSScrollPane");
         
         var index: number = 0;
         
@@ -62,9 +63,6 @@ class JSScrollPane extends JSPanel {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSScrollPane");
     }
     getViewContainer(): JSScrollPaneViewContainer {
         var viewContainer: JSScrollPaneViewContainer = this.getData("viewContainer");

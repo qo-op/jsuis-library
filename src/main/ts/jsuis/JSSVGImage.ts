@@ -16,6 +16,7 @@ class JSSVGImage extends JSSVGComponent {
         // constructor();
         // constructor(element: SVGImageElement);
         super(args.length === 0 || !(args[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : args[0]);
+        this.setUI("JSSVGImage");
         switch (args.length) {
         case 1:
             // constructor(source: string);
@@ -40,9 +41,6 @@ class JSSVGImage extends JSSVGComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSSVGImage");
     }
     /*
     setIcon(icon: JSIcon) {

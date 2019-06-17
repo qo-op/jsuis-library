@@ -14,6 +14,7 @@ class JSSplitPane extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        this.setUI("JSSplitPane");
         
         switch (args.length) {
         case 1:
@@ -42,9 +43,6 @@ class JSSplitPane extends JSPanel {
         // this.setDividerSize(4);
         
         this.setDividerProportionalLocation(.5);
-    }
-    init(): void {
-        this.addClass("JSSplitPane");
     }
     getOrientation(): string {
         return this.getAttribute("data-orientation");

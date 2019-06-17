@@ -13,8 +13,6 @@ class JSFrameMenuBarContainer extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-    }
-    init(): void {
-        this.addClass("JSFrameMenuBarContainer");
+        this.setUI("JSFrameMenuBarContainer");
     }
 }

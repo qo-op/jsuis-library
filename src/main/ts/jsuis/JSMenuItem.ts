@@ -17,7 +17,7 @@ class JSMenuItem extends JSPanel implements MouseListener {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setStyle("display", "block");
+        this.setUI("JSMenuItem");
         
         var index: number = 0;
         
@@ -53,9 +53,6 @@ class JSMenuItem extends JSPanel implements MouseListener {
         }
         
         this.addMouseListener(this);
-    }
-    init(): void {
-        this.addClass("JSMenuItem");
     }
     getLabel(): JSMenuItemLabel {
         var label: JSMenuItemLabel = this.getData("label");

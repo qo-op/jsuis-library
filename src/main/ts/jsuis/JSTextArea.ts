@@ -16,6 +16,7 @@ class JSTextArea extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]);
+        this.setUI("JSTextArea");
         switch (args.length) {
         case 0:
             break;
@@ -49,9 +50,6 @@ class JSTextArea extends JSHTMLComponent {
         default:
         }
     }
-    init(): void {
-        this.addClass("JSTextArea");
-    }
     getRows(): number {
         return +this.getAttribute("rows");
     }
@@ -63,5 +61,11 @@ class JSTextArea extends JSHTMLComponent {
     }
     setColumns(columns: number) {
         this.setAttribute("columns", "" + columns);
+    }
+    getText(): string {
+        return (<HTMLTextAreaElement> this.element).value; 
+    }
+    setText(text: string) {
+        (<HTMLTextAreaElement> this.element).value = text;
     }
 }

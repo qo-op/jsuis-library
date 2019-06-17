@@ -8,9 +8,7 @@ class JSHTMLComponent extends JSComponent {
     
     constructor(element: HTMLElement) {
         super(element);
-    }
-    init(): void {
-        this.addClass("JSHTMLComponent");
+        this.setUI("JSHTMLComponent");
     }
     getWidth(): number {
         var width = super.getWidth();
@@ -242,11 +240,18 @@ class JSHTMLComponent extends JSComponent {
         if (text) {
             var s: string = text.trim().toLowerCase();
             if (s.indexOf("<html>") === 0 && s.indexOf("</html>", s.length - "</html>".length) !== -1) {
-                this.element.innerHTML = text;
+                // this.element.innerHTML = text;
+                this.setHTML(text);
                 return;
             }
         }
         this.element.textContent = text;
+    }
+    getHTML(): string {
+        return this.element.innerHTML;
+    }
+    setHTML(html: string) {
+        this.element.innerHTML = html;
     }
     getCursor(): string {
         return this.getStyle("cursor");

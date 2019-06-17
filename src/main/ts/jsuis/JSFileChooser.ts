@@ -16,6 +16,7 @@ class JSFileChooser extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "file");
+        this.setUI("JSFileChooser");
         this.setStyle("display", "none");
         JSBody.getInstance().setFileChooser(this);
         
@@ -25,9 +26,6 @@ class JSFileChooser extends JSHTMLComponent {
                 fileChooser.setSelectedFiles((<HTMLInputElement> fileChooser.element).files);
             }
         });
-    }
-    init(): void {
-        this.addClass("JSFileChooser");
     }
     getFileFilter(): string {
         return this.getAttribute("accept");

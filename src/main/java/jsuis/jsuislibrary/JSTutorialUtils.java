@@ -1,6 +1,8 @@
 package jsuis.jsuislibrary;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
@@ -22,5 +24,11 @@ public class JSTutorialUtils {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+	
+	public String getBuild() {
+	    String date = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
+	    return "";
+		// return "?" + date;
 	}
 }

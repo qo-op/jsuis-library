@@ -15,7 +15,7 @@ class JSCheckBoxInput extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
         this.setAttribute("type", "checkbox");
-        this.setStyle("vertical-align", "middle");
+        this.setUI("JSCheckBoxInput");
         switch (args.length) {
         case 1:
             // constructor(selected: boolean);
@@ -26,9 +26,6 @@ class JSCheckBoxInput extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSCheckBoxInput");
     }
     setSelected(selected: boolean) {
         (<HTMLInputElement> this.element).checked = selected;

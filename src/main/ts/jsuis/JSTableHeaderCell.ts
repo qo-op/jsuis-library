@@ -14,6 +14,7 @@ class JSTableHeaderCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]);
+        this.setUI("JSTableHeaderCell");
         
         var index: number = 0;
         
@@ -30,9 +31,6 @@ class JSTableHeaderCell extends JSHTMLComponent {
             break;
         default:
         }
-    }
-    init(): void {
-        this.addClass("JSTableHeaderCell");
     }
     getContainer(): JSPanel {
         var container = this.getData("container");
