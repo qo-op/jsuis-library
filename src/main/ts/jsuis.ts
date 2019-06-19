@@ -47,6 +47,7 @@
     /// <reference path = "jsuis/JSFlowLayout.ts"/>
     /// <reference path = "jsuis/JSHTMLComponent.ts"/>
     /// <reference path = "jsuis/JSSVGComponent.ts"/>
+    /// <reference path = "jsuis/JSScrollPaneLayout.ts"/>
     /// <reference path = "jsuis/JSSplitPaneLayout.ts"/>
     /// <reference path = "jsuis/JSTreeLayout.ts"/>
         /// <reference path = "jsuis/JSBody.ts"/>
@@ -81,10 +82,12 @@
         /// <reference path = "jsuis/JSSVGImage.ts"/>
         /// <reference path = "jsuis/JSTabbedPane.ts"/>
         /// <reference path = "jsuis/JSTable.ts"/>
+        /// <reference path = "jsuis/JSTableContent.ts"/>
         /// <reference path = "jsuis/JSTableBody.ts"/>
         /// <reference path = "jsuis/JSTableCell.ts"/>
-        /// <reference path = "jsuis/JSTableHeader.ts"/>
-        /// <reference path = "jsuis/JSTableHeaderCell.ts"/>
+        /// <reference path = "jsuis/JSTableHead.ts"/>
+        /// <reference path = "jsuis/JSTableHeadCell.ts"/>
+        /// <reference path = "jsuis/JSTableHeadRow.ts"/>
         /// <reference path = "jsuis/JSTableRow.ts"/>
         /// <reference path = "jsuis/JSTextArea.ts"/>
         /// <reference path = "jsuis/JSTextField.ts"/>
@@ -113,8 +116,10 @@
             /// <reference path = "jsuis/JSPathImage.ts"/>
             /// <reference path = "jsuis/JSPopupMenu.ts"/>
             /// <reference path = "jsuis/JSPopupMenuContainer.ts"/>
+            /// <reference path = "jsuis/JSScrollBar.ts"/>
             /// <reference path = "jsuis/JSScrollPane.ts"/>
-            /// <reference path = "jsuis/JSScrollPaneViewContainer.ts"/>
+            /// <reference path = "jsuis/JSScrollTable.ts"/>
+            /// <reference path = "jsuis/JSTableHeader.ts"/>
             /// <reference path = "jsuis/JSSeparator.ts"/>
             /// <reference path = "jsuis/JSSeparatorHorizontalLine.ts"/>
             /// <reference path = "jsuis/JSSeparatorVerticalLine.ts"/>

@@ -105,6 +105,27 @@ class JSLayout {
     }
     
     layoutContainer(container: JSComponent): void {
+        /*
+        if (!(container instanceof JSBody)) {
+            var parent: JSComponent = container.getParent();
+            if (!parent || !parent.getLayout()) {
+                var preferredWidth: number = container.getPreferredWidth();
+                if (preferredWidth !== null) {
+                    container.setWidth(preferredWidth);
+                }
+                var preferredHeight: number = container.getPreferredHeight();
+                if (preferredHeight !== null) {
+                    container.setHeight(preferredHeight);
+                }
+                if (preferredWidth === null && preferredHeight !== null) {
+                    preferredWidth = container.getPreferredWidth();
+                    if (preferredWidth !== null) {
+                        container.setWidth(preferredWidth);
+                    }
+                }
+            }
+        }
+        */
         this.layoutContainerHorizontally(container);
         this.layoutContainerVertically(container);
     }

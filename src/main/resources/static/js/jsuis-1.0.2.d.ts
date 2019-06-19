@@ -106,6 +106,12 @@ declare class JSComponent {
     static VERTICAL: string;
     static HORIZONTAL_SPLIT: string;
     static VERTICAL_SPLIT: string;
+    static VERTICAL_SCROLLBAR_AS_NEEDED: string;
+    static VERTICAL_SCROLLBAR_NEVER: string;
+    static VERTICAL_SCROLLBAR_ALWAYS: string;
+    static HORIZONTAL_SCROLLBAR_AS_NEEDED: string;
+    static HORIZONTAL_SCROLLBAR_NEVER: string;
+    static HORIZONTAL_SCROLLBAR_ALWAYS: string;
     element: Element;
     constructor(element: Element);
     init(): void;
@@ -725,6 +731,13 @@ declare class JSSVGComponent extends JSComponent {
     getOpacity(): number;
     setOpacity(opacity: number): void;
 }
+declare class JSScrollPaneLayout extends JSLayout {
+    addLayoutComponent(component: JSComponent): void;
+    preferredLayoutWidth(container: JSComponent): number;
+    preferredLayoutHeight(container: JSComponent): number;
+    layoutContainerHorizontally(container: JSComponent): void;
+    layoutContainerVertically(container: JSComponent): void;
+}
 declare class JSSplitPaneLayout extends JSLayout {
     addLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(splitPane: JSSplitPane): number;
@@ -1096,7 +1109,18 @@ declare class JSTable extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
-    getTableHeader(): JSTableHeader;
+    getTableHead(): JSTableHead;
+    getTableBody(): JSTableBody;
+    getColumns(): string[];
+    setColumns(columns: string[]): void;
+    getRows(): any[][];
+    setRows(rows: any[][]): void;
+}
+declare class JSTableContent extends JSHTMLComponent {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(rows: any[][], columns: string[]);
+    getTableHead(): JSTableHead;
     getTableBody(): JSTableBody;
     getColumns(): string[];
     setColumns(columns: string[]): void;
@@ -1116,20 +1140,27 @@ declare class JSTableCell extends JSHTMLComponent {
     getValue(): any;
     setValue(value: any): void;
 }
-declare class JSTableHeader extends JSHTMLComponent {
+declare class JSTableHead extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    getTableHeaderRow(): JSTableRow;
+    getTableHeadRow(): JSTableHeadRow;
     getColumns(): string[];
     setColumns(columns: string[]): void;
 }
-declare class JSTableHeaderCell extends JSHTMLComponent {
+declare class JSTableHeadCell extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(text: string);
     getContainer(): JSPanel;
     getText(): string;
     setText(text: string): void;
+}
+declare class JSTableHeadRow extends JSHTMLComponent {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(columns: any[]);
+    getColumns(): string[];
+    setColumns(columns: string[]): void;
 }
 declare class JSTableRow extends JSHTMLComponent {
     constructor();
@@ -1347,29 +1378,55 @@ declare class JSPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
 }
+declare class JSScrollBar extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(orientation: string);
+    getOrientation(): string;
+    setOrientation(orientation: string): void;
+    getVsbPolicy(): string;
+    setVsbPolicy(vsbPolicy: string): void;
+    getHsbPolicy(): string;
+    setHsbPolicy(hsbPolicy: string): void;
+    getView(): JSPanel;
+    getViewportView(): JSComponent;
+    setViewportView(viewportView: JSComponent): void;
+    getMaximum(): number;
+    setMaximum(maximum: number): void;
+    getPreferredWidth(): number;
+    getPreferredHeight(): number;
+}
 declare class JSScrollPane extends JSPanel {
-    static VERTICAL_SCROLLBAR_AS_NEEDED: string;
-    static VERTICAL_SCROLLBAR_NEVER: string;
-    static VERTICAL_SCROLLBAR_ALWAYS: string;
-    static HORIZONTAL_SCROLLBAR_AS_NEEDED: string;
-    static HORIZONTAL_SCROLLBAR_NEVER: string;
-    static HORIZONTAL_SCROLLBAR_ALWAYS: string;
     constructor();
     constructor(element: HTMLElement);
     constructor(view: JSComponent);
     constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
-    getViewContainer(): JSScrollPaneViewContainer;
     getVsbPolicy(): string;
     setVsbPolicy(vsbPolicy: string): void;
     getHsbPolicy(): string;
     setHsbPolicy(hsbPolicy: string): void;
     getViewportView(): JSComponent;
     setViewportView(viewportView: JSComponent): void;
-    getPreferredWidth(): number;
-    getPreferredHeight(): number;
 }
-declare class JSScrollPaneViewContainer extends JSPanel {
+declare class JSScrollTable extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(rows: any[][], columns: string[]);
+    getVerticalScrollBar(): JSScrollBar;
+    getHorizontalScrollBar(): JSScrollBar;
+    getHorizontalScrollPane(): JSScrollPane;
+    getVerticalScrollPane(): JSScrollPane;
+    getTableHeader(): JSTableHeader;
+    getTableContent(): JSTableContent;
+    getColumns(): string[];
+    setColumns(columns: string[]): void;
+    getRows(): any[][];
+    setRows(rows: any[][]): void;
+    validateHorizontally(): void;
+    validateVertically(): void;
+}
+declare class JSTableHeader extends JSTableContent {
     constructor();
     constructor(element: HTMLElement);
 }

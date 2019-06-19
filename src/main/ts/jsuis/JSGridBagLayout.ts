@@ -241,15 +241,18 @@ class JSGridBagLayout extends JSLayout {
             }
         }
         
-        var xsPx: number[] = [];
-        var xsPc: number[] = [];
+        var xsPx: number[] = [ container.getInsetLeft() ];
+        var xsPc: number[] = [ 0 ];
         var extraHorizontalSpace: number = width - preferredLayoutWidth;
         if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        } else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
+            var sum: number = 0;
+            for (var i: number = 0; i < weightxs.length; i++) {
+                sum += weightxs[i] || 0;
+            }
+            if (!sum) {
+                xsPx[0] = container.getInsetLeft() + extraHorizontalSpace / 2 - width100 / 2;
+                xsPc[0] = 50;
+            }
         }
         for (var i: number = 0; i < widthsPx.length; i++) {
             xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
@@ -399,15 +402,18 @@ class JSGridBagLayout extends JSLayout {
             }
         }
         
-        var ysPx: number[] = [];
-        var ysPc: number[] = [];
+        var ysPx: number[] = [ container.getInsetTop() ];
+        var ysPc: number[] = [ 0 ];
         var extraVerticalSpace: number = height - preferredLayoutHeight;
         if (extraVerticalSpace) {
-            ysPx[0] = container.getInsetTop() + (height - preferredLayoutHeight) / 2 - height100 / 2;
-            ysPc[0] = 50;
-        } else {
-            ysPx[0] = container.getInsetTop()
-            ysPc[0] = 0;
+            var sum: number = 0;
+            for (var i: number = 0; i < weightys.length; i++) {
+                sum += weightys[i] || 0;
+            }
+            if (!sum) {
+                ysPx[0] = container.getInsetTop() + extraVerticalSpace / 2 - height100 / 2;
+                ysPc[0] = 50;
+            }
         }
         for (var i: number = 0; i < heightsPx.length; i++) {
             ysPx[i + 1] = ysPx[i] + (heightsPx[i] || 0) + vgap;

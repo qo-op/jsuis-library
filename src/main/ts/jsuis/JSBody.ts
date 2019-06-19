@@ -184,13 +184,11 @@ class JSBody extends JSHTMLComponent implements MouseListener {
                     dialog.setHeight(this.getHeight());
                     dialog.revalidate();
                 }
-                var preferredWidth: number = dialog.getPreferredWidth();
-                var preferredHeight: number = dialog.getPreferredHeight();
-                dialog.setWidth(preferredWidth);
-                dialog.setHeight(preferredHeight);
-                dialog.setX(dialog.getX() || (this.getWidth() - preferredWidth) / 2);
-                dialog.setY(dialog.getY() || (this.getHeight() - preferredHeight) / 2);
+                dialog.setWidth(dialog.getPreferredWidth());
+                dialog.setHeight(dialog.getPreferredHeight());
                 dialog.revalidate();
+                dialog.setX(dialog.getX() || (this.getWidth() - dialog.getWidth()) / 2);
+                dialog.setY(dialog.getY() || (this.getHeight() - dialog.getHeight()) / 2);
             }
         }
         this.dialog = dialog;

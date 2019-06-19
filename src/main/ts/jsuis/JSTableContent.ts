@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSTable
+ * JSTableContent
  * 
  * @author Yassuo Toda
  */
-class JSTable extends JSHTMLComponent {
+class JSTableContent extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLElement);
@@ -14,7 +14,7 @@ class JSTable extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
-        this.setUI("JSTable");
+        this.setUI("JSTableContent");
         
         var index: number = 0;
         

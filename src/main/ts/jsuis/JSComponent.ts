@@ -32,7 +32,7 @@ class JSComponent {
     // static RIGHT: string = "right";
     
     /*
-     * orientation (JSProgressBar, JSSplitPane)
+     * orientation (JSProgressBar, JSScrollBar, JSSplitPane)
      */
     static HORIZONTAL: string = "horizontal";
     static VERTICAL: string = "vertical";
@@ -42,6 +42,17 @@ class JSComponent {
      */
     static HORIZONTAL_SPLIT: string = "horizontal";
     static VERTICAL_SPLIT: string = "vertical";
+    
+    /*
+     * policies
+     */
+    static VERTICAL_SCROLLBAR_AS_NEEDED: string = "auto";
+    static VERTICAL_SCROLLBAR_NEVER: string = "hidden";
+    static VERTICAL_SCROLLBAR_ALWAYS: string = "scroll";
+    
+    static HORIZONTAL_SCROLLBAR_AS_NEEDED: string = "auto";
+    static HORIZONTAL_SCROLLBAR_NEVER: string = "hidden";
+    static HORIZONTAL_SCROLLBAR_ALWAYS: string = "scroll";
     
     element: Element;
     

@@ -1,0 +1,53 @@
+.JSFrameMenuBarContainer {
+	background-image: linear-gradient(#dddddd, #eeeeee);
+	display: inline-block;
+}
+.JSFrameTitleLabel {
+	background-image: linear-gradient(#cccccc, #dddddd);
+	display: inline-block;
+	padding: 0 4px;
+	text-align: center;
+	white-space: nowrap;
+}
+.JSSplitPane.JSSplitPane_Left {
+	background-color: #eeeeee;
+	display: inline-block;
+}
+.JSSplitPane.JSSplitPane_Left > .JSSplitPaneLeftContainer {
+	border-top: 1px solid Gray; border-right: 1px solid Gray; border-bottom: 1px solid Gray; border-left: none;
+	border-top-right-radius: 8px; border-bottom-right-radius: 8px;
+}
+.JSSplitPane.JSSplitPane_Left > .JSSplitPaneRightContainer {
+	border: 1px solid Gray;
+	border-radius: 8px;
+}
+.JSSplitPane.JSSplitPane_Example {
+	background-color: #f7f7f7;
+	display: inline-block;
+}
+.JSSplitPane.JSSplitPane_Example > .JSSplitPaneLeftContainer {
+	border-top: 1px solid Gray; border-right: 1px solid Gray; border-bottom: none; border-left: none;
+}
+.JSSplitPane.JSSplitPane_Example > .JSSplitPaneRightContainer {
+	border-top: 1px solid Gray; border-right: none; border-bottom: none; border-left: 1px solid Gray;
+}
+.JSTab.example.selected {
+	background-color: #f7f7f7;
+}
+.JSTabbedPaneTabContainer.JSTabbedPaneTabContainer_Left {
+	border-bottom: 1px solid gray;
+	border-top: 1px solid gray;
+}
+.JSToolBar.JSToolBar_Example {
+	background-color: #f7f7f7;
+	padding: 2px 4px;
+}
+h1, h2, h3, h4, h5, h6, p, pre {
+	margin-top: 0;
+}
+.monospaced {
+	font-family: monospaced;
+}
+#tutorial {
+	padding: 4px;
+}

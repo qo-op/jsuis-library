@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSTableHeaderCell
+ * JSTableHeadCell
  * 
  * @author Yassuo Toda
  */
-class JSTableHeaderCell extends JSHTMLComponent {
+class JSTableHeadCell extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLElement);
@@ -14,7 +14,7 @@ class JSTableHeaderCell extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]);
-        this.setUI("JSTableHeaderCell");
+        this.setUI("JSTableHeadCell");
         
         var index: number = 0;
         

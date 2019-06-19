@@ -1266,6 +1266,12 @@ var JSComponent = (function () {
     JSComponent.VERTICAL = "vertical";
     JSComponent.HORIZONTAL_SPLIT = "horizontal";
     JSComponent.VERTICAL_SPLIT = "vertical";
+    JSComponent.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSComponent.VERTICAL_SCROLLBAR_NEVER = "hidden";
+    JSComponent.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
+    JSComponent.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSComponent.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
+    JSComponent.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
     return JSComponent;
 }());
 var JSDataTransfer = (function () {
@@ -3913,6 +3919,39 @@ var JSSVGComponent = (function (_super) {
     };
     return JSSVGComponent;
 }(JSComponent));
+var JSScrollPaneLayout = (function (_super) {
+    __extends(JSScrollPaneLayout, _super);
+    function JSScrollPaneLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSScrollPaneLayout.prototype.addLayoutComponent = function (component) {
+    };
+    JSScrollPaneLayout.prototype.preferredLayoutWidth = function (container) {
+        var view = container.getViewportView();
+        return view.getPreferredWidth();
+    };
+    JSScrollPaneLayout.prototype.preferredLayoutHeight = function (container) {
+        var view = container.getViewportView();
+        return view.getPreferredHeight();
+    };
+    JSScrollPaneLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var view = container.getViewportView();
+        view.setWidth(view.getPreferredWidth());
+        container.setValidHorizontally(true);
+    };
+    JSScrollPaneLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var view = container.getViewportView();
+        view.setHeight(view.getPreferredHeight());
+        container.setValidVertically(true);
+    };
+    return JSScrollPaneLayout;
+}(JSLayout));
 var JSSplitPaneLayout = (function (_super) {
     __extends(JSSplitPaneLayout, _super);
     function JSSplitPaneLayout() {
@@ -4225,13 +4264,11 @@ var JSBody = (function (_super) {
                     dialog.setHeight(this.getHeight());
                     dialog.revalidate();
                 }
-                var preferredWidth = dialog.getPreferredWidth();
-                var preferredHeight = dialog.getPreferredHeight();
-                dialog.setWidth(preferredWidth);
-                dialog.setHeight(preferredHeight);
-                dialog.setX(dialog.getX() || (this.getWidth() - preferredWidth) / 2);
-                dialog.setY(dialog.getY() || (this.getHeight() - preferredHeight) / 2);
+                dialog.setWidth(dialog.getPreferredWidth());
+                dialog.setHeight(dialog.getPreferredHeight());
                 dialog.revalidate();
+                dialog.setX(dialog.getX() || (this.getWidth() - dialog.getWidth()) / 2);
+                dialog.setY(dialog.getY() || (this.getHeight() - dialog.getHeight()) / 2);
             }
         }
         this.dialog = dialog;
@@ -5154,16 +5191,18 @@ var JSGridBagLayout = (function (_super) {
                 }
             }
         }
-        var xsPx = [];
-        var xsPc = [];
+        var xsPx = [container.getInsetLeft()];
+        var xsPc = [0];
         var extraHorizontalSpace = width - preferredLayoutWidth;
         if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        }
-        else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
+            var sum = 0;
+            for (var i = 0; i < weightxs.length; i++) {
+                sum += weightxs[i] || 0;
+            }
+            if (!sum) {
+                xsPx[0] = container.getInsetLeft() + extraHorizontalSpace / 2 - width100 / 2;
+                xsPc[0] = 50;
+            }
         }
         for (var i = 0; i < widthsPx.length; i++) {
             xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
@@ -5310,16 +5349,18 @@ var JSGridBagLayout = (function (_super) {
                 }
             }
         }
-        var ysPx = [];
-        var ysPc = [];
+        var ysPx = [container.getInsetTop()];
+        var ysPc = [0];
         var extraVerticalSpace = height - preferredLayoutHeight;
         if (extraVerticalSpace) {
-            ysPx[0] = container.getInsetTop() + (height - preferredLayoutHeight) / 2 - height100 / 2;
-            ysPc[0] = 50;
-        }
-        else {
-            ysPx[0] = container.getInsetTop();
-            ysPc[0] = 0;
+            var sum = 0;
+            for (var i = 0; i < weightys.length; i++) {
+                sum += weightys[i] || 0;
+            }
+            if (!sum) {
+                ysPx[0] = container.getInsetTop() + extraVerticalSpace / 2 - height100 / 2;
+                ysPc[0] = 50;
+            }
         }
         for (var i = 0; i < heightsPx.length; i++) {
             ysPx[i + 1] = ysPx[i] + (heightsPx[i] || 0) + vgap;
@@ -6412,7 +6453,7 @@ var JSTable = (function (_super) {
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
         _this.setUI("JSTable");
         var index = 0;
-        var tableHeader = _this.getTableHeader();
+        var tableHeader = _this.getTableHead();
         _this.add(tableHeader, null, index++);
         var tableBody = _this.getTableBody();
         _this.add(tableBody, null, index++);
@@ -6429,19 +6470,19 @@ var JSTable = (function (_super) {
         }
         return _this;
     }
-    JSTable.prototype.getTableHeader = function () {
-        var tableHeader = this.getData("tableHeader");
-        if (!tableHeader) {
-            var element = this.getChild("JSTableHeader");
+    JSTable.prototype.getTableHead = function () {
+        var tableHead = this.getData("tableHead");
+        if (!tableHead) {
+            var element = this.getChild("JSTableHead");
             if (element) {
-                tableHeader = new JSTableHeader(element);
+                tableHead = new JSTableHead(element);
             }
             else {
-                tableHeader = new JSTableHeader();
+                tableHead = new JSTableHead();
             }
-            this.setData("tableHeader", tableHeader);
+            this.setData("tableHead", tableHead);
         }
-        return tableHeader;
+        return tableHead;
     };
     JSTable.prototype.getTableBody = function () {
         var tableBody = this.getData("tableBody");
@@ -6458,11 +6499,11 @@ var JSTable = (function (_super) {
         return tableBody;
     };
     JSTable.prototype.getColumns = function () {
-        var tableHeader = this.getTableHeader();
+        var tableHeader = this.getTableHead();
         return tableHeader.getColumns();
     };
     JSTable.prototype.setColumns = function (columns) {
-        var tableHeader = this.getTableHeader();
+        var tableHeader = this.getTableHead();
         tableHeader.setColumns(columns);
     };
     JSTable.prototype.getRows = function () {
@@ -6474,6 +6515,79 @@ var JSTable = (function (_super) {
         tableBody.setRows(rows);
     };
     return JSTable;
+}(JSHTMLComponent));
+var JSTableContent = (function (_super) {
+    __extends(JSTableContent, _super);
+    function JSTableContent() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        _this.setUI("JSTableContent");
+        var index = 0;
+        var tableHeader = _this.getTableHead();
+        _this.add(tableHeader, null, index++);
+        var tableBody = _this.getTableBody();
+        _this.add(tableBody, null, index++);
+        switch (args.length) {
+            case 2:
+                if (args[0] instanceof Array && args[1] instanceof Array) {
+                    var rows = args[0];
+                    var columns = args[1];
+                    _this.setRows(rows);
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableContent.prototype.getTableHead = function () {
+        var tableHead = this.getData("tableHead");
+        if (!tableHead) {
+            var element = this.getChild("JSTableHead");
+            if (element) {
+                tableHead = new JSTableHead(element);
+            }
+            else {
+                tableHead = new JSTableHead();
+            }
+            this.setData("tableHead", tableHead);
+        }
+        return tableHead;
+    };
+    JSTableContent.prototype.getTableBody = function () {
+        var tableBody = this.getData("tableBody");
+        if (!tableBody) {
+            var element = this.getChild("JSTableBody");
+            if (element) {
+                tableBody = new JSTableBody(element);
+            }
+            else {
+                tableBody = new JSTableBody();
+            }
+            this.setData("tableBody", tableBody);
+        }
+        return tableBody;
+    };
+    JSTableContent.prototype.getColumns = function () {
+        var tableHeader = this.getTableHead();
+        return tableHeader.getColumns();
+    };
+    JSTableContent.prototype.setColumns = function (columns) {
+        var tableHeader = this.getTableHead();
+        tableHeader.setColumns(columns);
+    };
+    JSTableContent.prototype.getRows = function () {
+        var tableBody = this.getTableBody();
+        return tableBody.getRows();
+    };
+    JSTableContent.prototype.setRows = function (rows) {
+        var tableBody = this.getTableBody();
+        tableBody.setRows(rows);
+    };
+    return JSTableContent;
 }(JSHTMLComponent));
 var JSTableBody = (function (_super) {
     __extends(JSTableBody, _super);
@@ -6539,62 +6653,53 @@ var JSTableCell = (function (_super) {
     };
     return JSTableCell;
 }(JSHTMLComponent));
-var JSTableHeader = (function (_super) {
-    __extends(JSTableHeader, _super);
-    function JSTableHeader() {
+var JSTableHead = (function (_super) {
+    __extends(JSTableHead, _super);
+    function JSTableHead() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]) || this;
-        _this.setUI("JSTableHeader");
+        _this.setUI("JSTableHead");
         var index = 0;
-        var tableHeaderRow = _this.getTableHeaderRow();
-        _this.add(tableHeaderRow, null, index++);
+        var tableHeadRow = _this.getTableHeadRow();
+        _this.add(tableHeadRow, null, index++);
         return _this;
     }
-    JSTableHeader.prototype.getTableHeaderRow = function () {
-        var tableHeaderRow = this.getData("tableHeaderRow");
-        if (!tableHeaderRow) {
+    JSTableHead.prototype.getTableHeadRow = function () {
+        var tableHeadRow = this.getData("tableHeadRow");
+        if (!tableHeadRow) {
             var element = this.getChild("JSTableRow");
             if (element) {
-                tableHeaderRow = new JSTableRow(element);
+                tableHeadRow = new JSTableHeadRow(element);
             }
             else {
-                tableHeaderRow = new JSTableRow();
+                tableHeadRow = new JSTableHeadRow();
             }
-            this.setData("tableHeaderRow", tableHeaderRow);
+            this.setData("tableHeadRow", tableHeadRow);
         }
-        return tableHeaderRow;
+        return tableHeadRow;
     };
-    JSTableHeader.prototype.getColumns = function () {
-        var columns = [];
-        var tableHeaderRow = this.getTableHeaderRow();
-        var components = tableHeaderRow.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            columns.push(component.getText());
-        }
-        return columns;
+    JSTableHead.prototype.getColumns = function () {
+        var tableHeadRow = this.getTableHeadRow();
+        return tableHeadRow.getColumns();
     };
-    JSTableHeader.prototype.setColumns = function (columns) {
-        var tableHeaderRow = this.getTableHeaderRow();
-        for (var i = 0; i < columns.length; i++) {
-            var column = columns[i];
-            tableHeaderRow.add(new JSTableHeaderCell(column));
-        }
+    JSTableHead.prototype.setColumns = function (columns) {
+        var tableHeadRow = this.getTableHeadRow();
+        tableHeadRow.setColumns(columns);
     };
-    return JSTableHeader;
+    return JSTableHead;
 }(JSHTMLComponent));
-var JSTableHeaderCell = (function (_super) {
-    __extends(JSTableHeaderCell, _super);
-    function JSTableHeaderCell() {
+var JSTableHeadCell = (function (_super) {
+    __extends(JSTableHeadCell, _super);
+    function JSTableHeadCell() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]) || this;
-        _this.setUI("JSTableHeaderCell");
+        _this.setUI("JSTableHeadCell");
         var index = 0;
         var container = _this.getContainer();
         _this.add(container, null, index++);
@@ -6609,7 +6714,7 @@ var JSTableHeaderCell = (function (_super) {
         }
         return _this;
     }
-    JSTableHeaderCell.prototype.getContainer = function () {
+    JSTableHeadCell.prototype.getContainer = function () {
         var container = this.getData("container");
         if (!container) {
             var element = this.getChild("JSPanel");
@@ -6623,15 +6728,53 @@ var JSTableHeaderCell = (function (_super) {
         }
         return container;
     };
-    JSTableHeaderCell.prototype.getText = function () {
+    JSTableHeadCell.prototype.getText = function () {
         var container = this.getContainer();
         return container.getText();
     };
-    JSTableHeaderCell.prototype.setText = function (text) {
+    JSTableHeadCell.prototype.setText = function (text) {
         var container = this.getContainer();
         container.setText(text);
     };
-    return JSTableHeaderCell;
+    return JSTableHeadCell;
+}(JSHTMLComponent));
+var JSTableHeadRow = (function (_super) {
+    __extends(JSTableHeadRow, _super);
+    function JSTableHeadRow() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        _this.setUI("JSTableHeadRow");
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof Array) {
+                    var columns = args[0];
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableHeadRow.prototype.getColumns = function () {
+        var columns = [];
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var tableHeadCell = components[i];
+            columns.push(tableHeadCell.getText());
+        }
+        return columns;
+    };
+    JSTableHeadRow.prototype.setColumns = function (columns) {
+        for (var i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            var tableHeadCell = new JSTableHeadCell(column);
+            this.add(tableHeadCell);
+        }
+    };
+    return JSTableHeadRow;
 }(JSHTMLComponent));
 var JSTableRow = (function (_super) {
     __extends(JSTableRow, _super);
@@ -7748,6 +7891,125 @@ var JSPopupMenuContainer = (function (_super) {
     }
     return JSPopupMenuContainer;
 }(JSPanel));
+var JSScrollBar = (function (_super) {
+    __extends(JSScrollBar, _super);
+    function JSScrollBar() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSScrollBar");
+        var index = 0;
+        var view = _this.getView();
+        _this.setViewportView(view);
+        var orientation;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    orientation = args[0];
+                    _this.setOrientation(orientation);
+                }
+                break;
+            default:
+        }
+        if (!orientation) {
+            _this.setOrientation(JSScrollBar.VERTICAL);
+        }
+        return _this;
+    }
+    JSScrollBar.prototype.getOrientation = function () {
+        return this.getAttribute("data-orientation");
+    };
+    JSScrollBar.prototype.setOrientation = function (orientation) {
+        this.setAttribute("data-orientation", orientation);
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            this.setUI("JSHorizontalScrollBar");
+            this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
+            this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_NEVER);
+        }
+        else {
+            this.setUI("JSVerticalScrollBar");
+            this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
+            this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
+        }
+    };
+    JSScrollBar.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSScrollBar.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSScrollBar.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSScrollBar.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    JSScrollBar.prototype.getView = function () {
+        var view = this.getData("view");
+        if (!view) {
+            var element = this.getChild("JSPanel");
+            if (element) {
+                view = new JSPanel(element);
+            }
+            else {
+                view = new JSPanel();
+            }
+            this.setData("view", view);
+        }
+        return view;
+    };
+    JSScrollBar.prototype.getViewportView = function () {
+        return this.getData("viewportView");
+    };
+    JSScrollBar.prototype.setViewportView = function (viewportView) {
+        this.setData("viewportView", viewportView);
+        this.removeAll();
+        this.add(viewportView);
+    };
+    JSScrollBar.prototype.getMaximum = function () {
+        var view = this.getView();
+        var orientation = this.getOrientation();
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            return view.getWidth();
+        }
+        else {
+            return view.getHeight();
+        }
+    };
+    JSScrollBar.prototype.setMaximum = function (maximum) {
+        var view = this.getView();
+        var orientation = this.getOrientation();
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            view.setWidth(maximum);
+            view.setHeight(1);
+            view.setStyle("margin-top", "-1px");
+        }
+        else {
+            view.setHeight(maximum);
+            view.setWidth(1);
+            view.setStyle("margin-left", "-1px");
+        }
+    };
+    JSScrollBar.prototype.getPreferredWidth = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
+        view.setStyle("display", display);
+        return preferredWidth;
+    };
+    JSScrollBar.prototype.getPreferredHeight = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredHeight = _super.prototype.getPreferredHeight.call(this);
+        view.setStyle("display", display);
+        return preferredHeight;
+    };
+    return JSScrollBar;
+}(JSPanel));
 var JSScrollPane = (function (_super) {
     __extends(JSScrollPane, _super);
     function JSScrollPane() {
@@ -7757,11 +8019,9 @@ var JSScrollPane = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSScrollPane");
-        var index = 0;
-        var viewContainer = _this.getViewContainer();
-        _this.add(viewContainer, null, index++);
-        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        _this.setLayout(new JSScrollPaneLayout());
+        var vsbPolicy = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
+        var hsbPolicy = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSComponent) {
@@ -7771,40 +8031,24 @@ var JSScrollPane = (function (_super) {
                 break;
             case 2:
                 if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var vsbPolicy = args[0];
-                    var hsbPolicy = args[1];
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
+                    vsbPolicy = args[0];
+                    hsbPolicy = args[1];
                 }
                 break;
             case 3:
                 if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
                     var view = args[0];
-                    var vsbPolicy = args[1];
-                    var hsbPolicy = args[2];
+                    vsbPolicy = args[1];
+                    hsbPolicy = args[2];
                     _this.setViewportView(view);
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
                 }
                 break;
             default:
         }
+        _this.setVsbPolicy(vsbPolicy);
+        _this.setHsbPolicy(hsbPolicy);
         return _this;
     }
-    JSScrollPane.prototype.getViewContainer = function () {
-        var viewContainer = this.getData("viewContainer");
-        if (!viewContainer) {
-            var element = this.getChild("JSScrollPaneViewContainer");
-            if (element) {
-                viewContainer = new JSScrollPaneViewContainer(element);
-            }
-            else {
-                viewContainer = new JSScrollPaneViewContainer();
-            }
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
-    };
     JSScrollPane.prototype.getVsbPolicy = function () {
         return this.getStyle("overflow-y");
     };
@@ -7822,61 +8066,218 @@ var JSScrollPane = (function (_super) {
     };
     JSScrollPane.prototype.setViewportView = function (viewportView) {
         this.setData("viewportView", viewportView);
-        var viewContainer = this.getViewContainer();
         if (viewportView) {
-            viewContainer.removeAll();
-            viewContainer.add(viewportView);
+            this.removeAll();
+            this.add(viewportView);
         }
         if (viewportView instanceof JSTable) {
         }
     };
-    JSScrollPane.prototype.getPreferredWidth = function () {
-        var preferredWidth = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
-        }
-        var viewportView = this.getViewportView();
-        if (viewportView) {
-            return viewportView.getPreferredWidth();
-        }
-        else {
-            return 0;
-        }
-    };
-    JSScrollPane.prototype.getPreferredHeight = function () {
-        var preferredHeight = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        var viewportView = this.getViewportView();
-        if (viewportView) {
-            return viewportView.getPreferredHeight();
-        }
-        else {
-            return 0;
-        }
-    };
-    JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.VERTICAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
     return JSScrollPane;
 }(JSPanel));
-var JSScrollPaneViewContainer = (function (_super) {
-    __extends(JSScrollPaneViewContainer, _super);
-    function JSScrollPaneViewContainer() {
+var JSScrollTable = (function (_super) {
+    __extends(JSScrollTable, _super);
+    function JSScrollTable() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setUI("JSScrollPaneViewContainer");
+        _this.setUI("JSScrollTable");
+        var index = 0;
+        _this.setLayout(new JSBorderLayout());
+        var panel = new JSPanel(new JSGridBagLayout());
+        _this.add(panel);
+        var verticalScrollBar = _this.getVerticalScrollBar();
+        verticalScrollBar.setLayer(1);
+        panel.add(verticalScrollBar, { gridx: 1, gridy: 0, weighty: 1, fill: JSGridBagLayout.VERTICAL }, index++);
+        var horizontalScrollBar = _this.getHorizontalScrollBar();
+        horizontalScrollBar.setLayer(1);
+        panel.add(horizontalScrollBar, { gridx: 0, gridy: 1, weightx: 1, fill: JSGridBagLayout.HORIZONTAL }, index++);
+        var horizontalScrollPane = _this.getHorizontalScrollPane();
+        _this.add(horizontalScrollPane);
+        var view = new JSPanel(new JSBorderLayout());
+        horizontalScrollPane.setViewportView(view.withId("view1"));
+        var verticalScrollPane = _this.getVerticalScrollPane();
+        view.add(verticalScrollPane);
+        var tableContent = _this.getTableContent();
+        verticalScrollPane.setViewportView(tableContent.withId("view2"));
+        var tableHeader = _this.getTableHeader();
+        tableHeader.setAlign(JSBorderLayout.TOP);
+        view.add(tableHeader);
+        switch (args.length) {
+            case 2:
+                if (args[0] instanceof Array && args[1] instanceof Array) {
+                    var rows = args[0];
+                    var columns = args[1];
+                    _this.setRows(rows);
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        horizontalScrollBar.addAdjustmentListener({
+            adjustmentValueChanged: function (event) {
+                horizontalScrollPane.element.scrollLeft = horizontalScrollBar.element.scrollLeft;
+            }
+        });
+        verticalScrollBar.addAdjustmentListener({
+            adjustmentValueChanged: function (event) {
+                verticalScrollPane.element.scrollTop = verticalScrollBar.element.scrollTop;
+            }
+        });
         return _this;
     }
-    return JSScrollPaneViewContainer;
+    JSScrollTable.prototype.getVerticalScrollBar = function () {
+        var verticalScrollBar = this.getData("verticalScrollBar");
+        if (!verticalScrollBar) {
+            var element = this.getChild("JSVerticalScrollBar");
+            if (element) {
+                verticalScrollBar = new JSScrollBar(element);
+            }
+            else {
+                verticalScrollBar = new JSScrollBar(JSScrollBar.VERTICAL);
+            }
+            this.setData("verticalScrollBar", verticalScrollBar);
+        }
+        return verticalScrollBar;
+    };
+    JSScrollTable.prototype.getHorizontalScrollBar = function () {
+        var horizontalScrollBar = this.getData("horizontalScrollBar");
+        if (!horizontalScrollBar) {
+            var element = this.getChild("JSHorizontalScrollBar");
+            if (element) {
+                horizontalScrollBar = new JSScrollBar(element);
+            }
+            else {
+                horizontalScrollBar = new JSScrollBar(JSScrollBar.HORIZONTAL);
+            }
+            this.setData("horizontalScrollBar", horizontalScrollBar);
+        }
+        return horizontalScrollBar;
+    };
+    JSScrollTable.prototype.getHorizontalScrollPane = function () {
+        var horizontalScrollPane = this.getData("horizontalScrollPane");
+        if (!horizontalScrollPane) {
+            var element = this.getChild("JSScrollPane");
+            if (element) {
+                horizontalScrollPane = new JSScrollPane(element);
+            }
+            else {
+                horizontalScrollPane = new JSScrollPane(JSScrollPane.VERTICAL_SCROLLBAR_NEVER, JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            }
+            this.setData("horizontalScrollPane", horizontalScrollPane);
+        }
+        return horizontalScrollPane;
+    };
+    JSScrollTable.prototype.getVerticalScrollPane = function () {
+        var verticalScrollPane = this.getData("verticalScrollPane");
+        if (!verticalScrollPane) {
+            verticalScrollPane = new JSScrollPane(JSScrollPane.VERTICAL_SCROLLBAR_NEVER, JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            this.setData("verticalScrollPane", verticalScrollPane);
+        }
+        return verticalScrollPane;
+    };
+    JSScrollTable.prototype.getTableHeader = function () {
+        var tableHeader = this.getData("tableHeader");
+        if (!tableHeader) {
+            tableHeader = new JSTableHeader();
+            this.setData("tableHeader", tableHeader);
+        }
+        return tableHeader;
+    };
+    JSScrollTable.prototype.getTableContent = function () {
+        var tableContent = this.getData("tableContent");
+        if (!tableContent) {
+            tableContent = new JSTableContent();
+            this.setData("tableContent", tableContent);
+        }
+        return tableContent;
+    };
+    JSScrollTable.prototype.getColumns = function () {
+        var tableHeader = this.getTableHeader();
+        return tableHeader.getColumns();
+    };
+    JSScrollTable.prototype.setColumns = function (columns) {
+        var tableHeader = this.getTableHeader();
+        tableHeader.setColumns(columns);
+        var tableContent = this.getTableContent();
+        tableContent.setColumns(columns);
+    };
+    JSScrollTable.prototype.getRows = function () {
+        var tableContent = this.getTableContent();
+        return tableContent.getRows();
+    };
+    JSScrollTable.prototype.setRows = function (rows) {
+        var tableContent = this.getTableContent();
+        tableContent.setRows(rows);
+    };
+    JSScrollTable.prototype.validateHorizontally = function () {
+        var tableHeader = this.getTableHeader();
+        var tableHeaderHead = tableHeader.getTableHead();
+        var tableHeaderHeadRow = tableHeaderHead.getTableHeadRow();
+        var tableHeaderHeadCells = tableHeaderHeadRow.getComponents();
+        var tableContent = this.getTableContent();
+        var tableContentHead = tableContent.getTableHead();
+        var tableContentHeadRow = tableContentHead.getTableHeadRow();
+        var tableContentHeadCells = tableContentHeadRow.getComponents();
+        for (var i = 0; i < tableContentHeadCells.length; i++) {
+            var tableContentHeadCell = tableContentHeadCells[i];
+            var tableHeaderHeadCell = tableHeaderHeadCells[i];
+            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
+        }
+        _super.prototype.validateHorizontally.call(this);
+        var horizontalScrollPane = this.getHorizontalScrollPane();
+        var horizontalScrollBar = this.getHorizontalScrollBar();
+        horizontalScrollBar.setStyle("display", tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth() ? "" : "none");
+        var verticalScrollBar = this.getVerticalScrollBar();
+        verticalScrollBar.setMaximum(tableContent.getPreferredHeight());
+        var verticalScrollPane = this.getVerticalScrollPane();
+        if (tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth()) {
+            verticalScrollPane.setHeight(horizontalScrollPane.getHeight() - horizontalScrollBar.getHeight());
+        }
+        else {
+            verticalScrollPane.setHeight(horizontalScrollPane.getHeight());
+        }
+    };
+    JSScrollTable.prototype.validateVertically = function () {
+        _super.prototype.validateVertically.call(this);
+        var tableHeader = this.getTableHeader();
+        var tableContent = this.getTableContent();
+        var horizontalScrollBar = this.getHorizontalScrollBar();
+        var verticalScrollBar = this.getVerticalScrollBar();
+        var verticalScrollPane = this.getVerticalScrollPane();
+        var horizontalScrollPane = this.getHorizontalScrollPane();
+        if (tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth()) {
+            verticalScrollPane.setHeight(horizontalScrollPane.getHeight() - horizontalScrollBar.getHeight());
+        }
+        else {
+            verticalScrollPane.setHeight(horizontalScrollPane.getHeight());
+        }
+        verticalScrollBar.setStyle("display", tableContent.getPreferredHeight() > verticalScrollPane.getHeight() ? "" : "none");
+        horizontalScrollBar.setMaximum(tableHeader.getPreferredWidth());
+        if (tableContent.getPreferredHeight() > verticalScrollPane.getHeight()) {
+            horizontalScrollPane.setWidth(this.getWidth() - verticalScrollBar.getWidth());
+        }
+        else {
+            horizontalScrollPane.setWidth(this.getWidth());
+        }
+    };
+    return JSScrollTable;
 }(JSPanel));
+var JSTableHeader = (function (_super) {
+    __extends(JSTableHeader, _super);
+    function JSTableHeader() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        _this.setUI("JSTableHeader");
+        return _this;
+    }
+    return JSTableHeader;
+}(JSTableContent));
 var JSSeparator = (function (_super) {
     __extends(JSSeparator, _super);
     function JSSeparator() {

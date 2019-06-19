@@ -3,11 +3,13 @@ var frame = new JSFrame();
 var panel = new JSPanel();
 panel.setStyle("padding", "4px");
 panel.setStyle("white-space", "nowrap");
+/*
 panel.setStyle("overflow-x", "auto");
+*/
 
-// var scrollPane = new JSScrollPane(panel);
-// frame.add(scrollPane);
-frame.add(panel);
+var scrollPane = new JSScrollPane(panel);
+frame.add(scrollPane);
+// frame.add(panel);
 
 var button1 = new JSButton("Button 1");
 panel.add(button1);

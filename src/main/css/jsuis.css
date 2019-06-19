@@ -233,12 +233,17 @@ html {
 }
 .JSRadioButton {
 }
+.JSScrollBar {
+	display: inline-block;
+}
 .JSScrollPane {
 	display: inline-block;
 }
+/*
 .JSScrollPaneViewContainer {
 	display: block;
 }
+*/
 .JSScrollTable {
 	display: inline-block;
 }
@@ -341,10 +346,22 @@ html {
 	vertical-align: middle;
 	white-space: nowrap;
 }
+.JSTableHeader {
+	border-left: 1px solid gray;
+	border-spacing: 0;
+	/* display: inline-block; */
+	/* position: absolute; */
+	/* top: 0; left: 0; */
+}
+.JSTableContent {
+	border-left: 1px solid gray;
+	border-spacing: 0;
+	/* display: inline-block; */
+}
 .JSTable {
 	border-left: 1px solid gray;
 	border-spacing: 0;
-	display: inline-block;
+	/* display: inline-block; */
 }
 .JSTableBody {
 }
@@ -353,9 +370,9 @@ html {
 	border-right: 1px solid gray;
 	white-space: nowrap;
 }
-.JSTableHeader {
+.JSTableHead {
 }
-.JSTableHeaderCell {
+.JSTableHeadCell {
 	background-color: Silver;
 	border-bottom: 1px solid gray;
 	border-right: 1px solid gray;
@@ -389,4 +406,7 @@ html {
 	border: none;
 	position: absolute;
 	vertical-align: middle;
+}
+.JSVerticalScrollBar {
+	font-size: 0;	
 }

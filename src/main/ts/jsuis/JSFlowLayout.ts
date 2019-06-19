@@ -200,9 +200,51 @@ class JSFlowLayout extends JSLayout {
     layoutContainer(container: JSComponent): void {
         var border = this.getBorder();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            /*
+            if (!(container instanceof JSBody)) {
+                var parent: JSComponent = container.getParent();
+                if (!parent || !parent.getLayout()) {
+                    var preferredHeight: number = container.getPreferredHeight();
+                    if (preferredHeight !== null) {
+                        container.setHeight(preferredHeight);
+                    }
+                    var preferredWidth: number = container.getPreferredWidth();
+                    if (preferredWidth !== null) {
+                        container.setWidth(preferredWidth);
+                    }
+                    if (preferredHeight === null && preferredWidth !== null) {
+                        preferredHeight = container.getPreferredHeight();
+                        if (preferredHeight !== null) {
+                            container.setHeight(preferredHeight);
+                        }
+                    }
+                }
+            }
+            */
             this.layoutContainerVertically(container);
             this.layoutContainerHorizontally(container);
         } else {
+            /*
+            if (!(container instanceof JSBody)) {
+                var parent: JSComponent = container.getParent();
+                if (!parent || !parent.getLayout()) {
+                    var preferredWidth: number = container.getPreferredWidth();
+                    if (preferredWidth !== null) {
+                        container.setWidth(preferredWidth);
+                    }
+                    var preferredHeight: number = container.getPreferredHeight();
+                    if (preferredHeight !== null) {
+                        container.setHeight(preferredHeight);
+                    }
+                    if (preferredWidth === null && preferredHeight !== null) {
+                        preferredWidth = container.getPreferredWidth();
+                        if (preferredWidth !== null) {
+                            container.setWidth(preferredWidth);
+                        }
+                    }
+                }
+            }
+            */
             this.layoutContainerHorizontally(container);
             this.layoutContainerVertically(container);
         }
