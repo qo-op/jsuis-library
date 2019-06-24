@@ -18,14 +18,7 @@ class JSScrollBar extends JSPanel {
         
         var index: number = 0;
         
-        /*
-        var viewContainer: JSPanel = this.getViewContainer();
-        this.add(viewContainer, null, index++);
-        */
-        
         var view: JSPanel = this.getView();
-        // view.setWidth(0);
-        // view.setHeight(0);
         this.setViewportView(view);
         
         var orientation: string;
@@ -45,32 +38,15 @@ class JSScrollBar extends JSPanel {
             this.setOrientation(JSScrollBar.VERTICAL);
         }
     }
-    /*
-    getViewContainer(): JSPanel {
-        var viewContainer: JSPanel = this.getData("viewContainer");
-        if (!viewContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSPanel");
-            if (element) {
-                viewContainer = new JSPanel(element);
-            } else {
-                viewContainer = new JSPanel();
-            }
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
-    }
-    */
     getOrientation(): string {
         return this.getAttribute("data-orientation");
     }
     setOrientation(orientation: string) {
         this.setAttribute("data-orientation", orientation);
         if (orientation === JSScrollBar.HORIZONTAL) {
-            this.setUI("JSHorizontalScrollBar");
             this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
             this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_NEVER);
         } else {
-            this.setUI("JSVerticalScrollBar");
             this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
             this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
         }

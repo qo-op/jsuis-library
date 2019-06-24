@@ -1,256 +1,397 @@
 html {
+	height: 100%;
 }
-body.JSBody {
+.JSBody {
+	border: 0;
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
 }
-svg.JSBodyDefsContainer {
+.JSBodyDefsContainer {
+	height: 0;
 }
-div.JSBodyDragImageContainer {
+.JSBodyDialogContainer {
+	display: inline-block;
+	height: 0;
 }
-div.JSBodyPopupMenuContainer {
+.JSBodyDragImageContainer {
+	display: inline-block;
+	height: 0;
 }
-button.JSButton {
+.JSBodyModal {
+	background-color: rgba(0, 0, 0, 0.5);
+	display: inline-block;
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	z-index: 200; /* JSComponent.MODAL_LAYER */
 }
-button.JSButton.undecorated {
+.JSBodyPopupMenuContainer {
+	display: inline-block;
+	height: 0;
+}
+.JSButton {
+	white-space: nowrap;
+}
+.JSButton.undecorated {
 	background: none;
 	border: none;
 	font-size: 0;
 	padding: 0;
 }
-div.JSButtonGraphics {
+.JSButtonGraphics {
+	display: inline-block;
+	font-size: 0;
+	vertical-align: middle;
 }
-span.JSButtonSpan {
+.JSButtonSpan {
+	vertical-align: middle;
 }
-div.JSCheckBox {
+.JSCheckBox {
+	white-space: nowrap;
 }
-input[type="checkbox"].JSCheckBoxInput {
+.JSCheckBoxInput {
+	vertical-align: middle;
 }
-div.JSCheckBoxLabel {
+.JSCheckBoxLabel {
+	display: inline-block;
+	vertical-align: middle;
+	white-space: nowrap;
 }
-div.JSCheckBoxMenuItem {
+.JSCheckBoxMenuItem {
 }
-div.JSCheckBoxMenuItem:hover {
+.JSCheckBoxMenuItem:hover {
 	background-color: #dddddd;
 }
-select.JSComboBox {
+.JSComboBox {
 }
-defs.JSDefs {
+.JSComponent {
 }
-div.JSDialog {
+.JSDefs {
+}
+.JSDialog {
 	background-color: White;
+	display: inline-block;
+	position: absolute;
+	z-index: 200; /* JSComponent.MODAL_LAYER */
 }
-div.JSDialogContentPane {
-	padding: 4px;
-}
-div.JSDialogTitlePanel {
-	background-color: Silver;
-	height: 24px;
-}
-div.JSDialogTitleLabel {
-	padding: 0 4px;
-}
-button.JSDialogCloseButton {
-	background: Red;
+.JSDialogCloseButton {
+	background-color: #eeeeee;
 	border: none;
 	font-size: 0;
 	padding: 6px;
 }
-button.JSDialogCloseButton
+.JSDialogCloseButton
+		> div.JSButtonGraphics
+		> svg.JSPathImage
+		> path.JSPath {
+	stroke: Red;
+}
+.JSDialogCloseButton:hover {
+	background-color: Red;
+	border: none;
+	font-size: 0;
+	padding: 6px;
+}
+.JSDialogCloseButton:hover
 		> div.JSButtonGraphics
 		> svg.JSPathImage
 		> path.JSPath {
 	stroke: White;
 }
-div.JSDiv {
+.JSDialogContentPane {
+	display: inline-block;
+	padding: 4px;
 }
-input[type="file"].JSFileChooser {
+.JSDialogTitleLabel {
+	display: inline-block;
+	white-space: nowrap;
+	padding: 0 4px;
 }
-form.JSForm {
+.JSDialogTitlePanel {
+	background-color: Silver;
+	display: inline-block;
+	height: 24px;
 }
-div.JSFrame {
+.JSDiv {
 }
-div.JSFrameMenuBarContainer {
+.JSFileChooser {
+}
+.JSForm {
+}
+.JSFrame {
+}
+.JSFrameContentPane {
+	display: inline-block;
+	}
+.JSFrameMenuBarContainer {
 	background-color: #eeeeee;
+	display: inline-block;
 }
-div.JSFrameTitleLabel {
-	background-color: SkyBlue;
+.JSFrameTitleLabel {
+	background-color: Silver;
+	display: inline-block;
 	padding: 0 4px;
 	text-align: center;
+	white-space: nowrap;
 }
-div.JSGraphics {
-}
-span.JSGraphics {
-}
-img.JSImage {
-}
-div.JSLabel {
-}
-div.JSLabel.undecorated {
-	background: none;
-	border: none;
+.JSGraphics {
+	display: inline-block;
 	font-size: 0;
-	padding: 0;
 }
-div.JSLabelGraphics {
+.JSHiddenInput {
 }
-div.JSLayeredPane {
+.JSHTMLComponent {
 }
-li.JSLI {
+.JSIFrame {
+	border: 0;
 }
-marker.JSMarker {
+.JSImage {
+	draggable: false;
+	-webkit-user-drag: none;
 }
-div.JSMenu {
+.JSLabel {
+	display: inline-block;
+	white-space: nowrap;
+}
+.JSLabelGraphics {
+	display: inline-block;
+	font-size: 0;
+	vertical-align: middle;
+}
+.JSLabelSpan {
+	vertical-align: middle;
+}
+.JSLayeredPane {
+	display: inline-block;
+}
+.JSLI {
+}
+.JSMarker {
+}
+.JSMenu {
 	padding: 0 4px;
+	position: relative;
 }
-div.JSMenu:hover {
+.JSMenu:hover {
 	background-color: #dddddd;
 }
-div.JSMenuBar {
+.JSMenuBar {
+	display: inline-block;
 }
-div.JSMenuContainer {
+.JSMenuContainer {
+	display: inline-block;
 }
-div.JSMenuGraphics {
+.JSMenuGraphics {
+	display: inline-block;
+	font-size: 0;
+	vertical-align: middle;
 }
-div.JSMenuItem {
+.JSMenuItem {
+	display: block;
 	padding: 0 4px;
 }
-div.JSMenuItem:hover {
+.JSMenuItem:hover {
 	background-color: #dddddd;
 }
-div.JSMenuItemLabel {
+.JSMenuItemLabel {
+	display: inline-block;
+	vertical-align: middle;
+	white-space: nowrap;
 }
-ol.JSOList {
+.JSOList {
 }
-option.JSOption {
+.JSOption {
 }
-div.JSPanel {
+.JSPanel {
+	display: inline-block;
 }
-p.JSParagraph {
+.JSParagraph {
 }
-path.JSPath {
+.JSPath {
 }
-svg.JSPathImage {
+.JSPathImage {
 }
-div.JSPopupMenu {
+.JSPopupMenu {
 	background-color: #eeeeee;
 	border: 1px solid gray;
+	display: inline-block;
 	padding: 4px 0;
+	position: absolute;
 }
-div.JSPopupMenuContainer {
+.JSPopupMenuContainer {
+	display: inline-block;
 }
-div.JSProgressBar {
+.JSProgressBar {
 	border: 1px solid gray;
 	white-space: nowrap;
 }
-input[type="radio"].JSRadioButton {
+.JSRadioButton {
 }
-div.JSScrollPane {
+.JSScrollBar {
+	display: inline-block;
 }
-div.JSScrollPaneViewContainer {
+.JSScrollPane {
+	display: inline-block;
 }
-div.JSSeparator {
+/*
+.JSScrollPaneViewContainer {
+	display: block;
 }
-div.JSSeparatorHorizontalLine {
+*/
+.JSSeparator {
+	display: inline-block;
+}
+.JSSeparatorHorizontalLine {
 	border-top: 1px solid gray;
-	height: 4px;
+	display: block;
 	margin-top: 4px;
+	height: 4px;
 }
-div.JSSeparatorVerticalLine {
+.JSSeparatorVerticalLine {
 	border-left: 1px solid gray;
-	width: 4px;
+	display: inline-block;
 	margin-left: 4px;
+	width: 4px; height: 100%;
 }
-div.JSSplitPane {
+.JSSpan {
 }
-div.JSSplitPaneDivider {
+.JSSplitPane {
+	display: inline-block;
+}
+.JSSplitPaneDivider {
 	background-color: transparent;
+	display: inline-block;
 }
-div.JSSplitPaneDivider.horizontal {
+.JSSplitPaneDivider.horizontal {
 	width: 4px;
 	margin: 0 -4px;
 	padding: 0 4px;
 }
-div.JSSplitPaneDivider.vertical {
+.JSSplitPaneDivider.vertical {
 	height: 4px;
 	margin: -4px 0;
 	padding: 4px 0;
 }
-div.JSSplitPaneDividerPanel {
-	background-color: Silver;
-	width: 100%;
-	height: 100%;
-}
-div.JSSplitPaneLeftContainer {
+.JSSplitPaneLeftContainer {
+	background-color: white;
+	border: 1px solid Gray;
 	display: inline-block;
 	overflow: hidden;
 }
-div.JSSplitPaneRightContainer {
+.JSSplitPaneRightContainer {
+	background-color: white;
+	border: 1px solid Gray;
 	display: inline-block;
 	overflow: hidden;
 }
-svg.JSSVG {
+.JSSVG {
 	display: inline-block;
 }
-image.JSSVGImage {
+.JSSVGComponent {
 }
-div.JSTab {
+.JSSVGImage {
+}
+.JSTab {
 	background-color: Silver;
+	display: inline-block;
+	white-space: nowrap;
 }
-button.JSTabCloseButton {
+.JSTab.selected {
+	background-color: White;
+	display: inline-block;
+	white-space: nowrap;
+}
+.JSTab > JSLabel {
+	color: #404040;
+}
+.JSTab.selected > JSLabel {
+	color: black;
+}
+.JSTabbedPane {
+	display: inline-block;
+}
+.JSTabbedPaneButtonContainer {
+	display: inline-block;
+}
+.JSTabbedPaneCardContainer {
+	display: inline-block;
+}
+.JSTabbedPaneTabContainer {
+	background-color: Silver;
+	display: inline-block;
+}
+.JSTabCloseButton {
 	background: none;
 	border: none;
 	font-size: 0;
 	padding: 0;
 	white-space: nowrap;
 }
-div.JSTabLabel {
-}
-div.JSTabGraphics {
-}
-div.JSTabbedPane {
+.JSTabGraphics {
 	display: inline-block;
+	font-size: 0;
+	vertical-align: middle;
 }
-div.JSTabbedPaneCardContainer {
+.JSTabLabel {
 	display: inline-block;
+	vertical-align: middle;
+	white-space: nowrap;
 }
-div.JSTabbedPaneTabContainer {
-	background-color: Silver;
-	display: inline-block;
-}
-table.JSTable {
+.JSTableHeader {
 	border-left: 1px solid gray;
 	border-spacing: 0;
+	/* display: inline-block; */
+	/* position: absolute; */
+	/* top: 0; left: 0; */
 }
-tbody.JSTableBody {
+.JSTableContent {
+	border-left: 1px solid gray;
+	border-spacing: 0;
+	/* display: inline-block; */
 }
-td.JSTableCell {
+.JSTable {
+	display: inline-block;
+}
+.JSTableBody {
+}
+.JSTableCell {
 	border-bottom: 1px solid gray;
 	border-right: 1px solid gray;
 	white-space: nowrap;
 }
-thead.JSTableHeader {
+.JSTableHead {
 }
-th.JSTableHeaderCell {
+.JSTableHeadCell {
 	background-color: Silver;
 	border-bottom: 1px solid gray;
 	border-right: 1px solid gray;
 	border-top: 1px solid gray;
 	white-space: nowrap;
 }
-tr.JSTableRow {
+.JSTableRow {
 }
-textarea.JSTextArea {
+.JSTextArea {
 	border: 0;
 	margin: 0;
 	padding: 0;
 }
-div.JSToolBar {
+.JSToolBar {
 	background-color: #eeeeee;
+	display: inline-block;
 }
-div.JSTree {
+.JSTree {
+	display: block;
 }
 .JSTreeCell {
 	padding: 0 8px;
 	position: relative;
+	white-space: nowrap;
 }
 .JSTreeCell:hover {
 	background-color: #dddddd;
@@ -260,4 +401,7 @@ div.JSTree {
 	border: none;
 	position: absolute;
 	vertical-align: middle;
+}
+.JSVerticalScrollBar {
+	font-size: 0;	
 }

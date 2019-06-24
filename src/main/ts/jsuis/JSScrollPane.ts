@@ -20,13 +20,7 @@ class JSScrollPane extends JSPanel {
         
         this.setLayout(new JSScrollPaneLayout());
         
-        /*
-        var index: number = 0;
-        
-        var viewContainer: JSScrollPaneViewContainer = this.getViewContainer();
-        this.add(viewContainer, null, index++);
-        */
-        
+        var view: JSComponent;
         var vsbPolicy: string = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
         var hsbPolicy: string = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
         
@@ -34,8 +28,7 @@ class JSScrollPane extends JSPanel {
         case 1:
             // constructor(view: JSComponent);
             if (args[0] instanceof JSComponent) {
-                var view: JSComponent = args[0];
-                this.setViewportView(view);
+                view = args[0];
             }
             break;
         case 2:
@@ -48,7 +41,7 @@ class JSScrollPane extends JSPanel {
         case 3:
             // constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
             if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                var view: JSComponent = args[0];
+                view = args[0];
                 vsbPolicy = args[1];
                 hsbPolicy = args[2];
                 this.setViewportView(view);
@@ -57,24 +50,12 @@ class JSScrollPane extends JSPanel {
         default:
         }
         
+        if (view) {
+            this.setViewportView(view);
+        }
         this.setVsbPolicy(vsbPolicy);
         this.setHsbPolicy(hsbPolicy);
     }
-    /*
-    getViewContainer(): JSScrollPaneViewContainer {
-        var viewContainer: JSScrollPaneViewContainer = this.getData("viewContainer");
-        if (!viewContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSScrollPaneViewContainer");
-            if (element) {
-                viewContainer = new JSScrollPaneViewContainer(element);
-            } else {
-                viewContainer = new JSScrollPaneViewContainer();
-            }
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
-    }
-    */
     getVsbPolicy(): string {
         return this.getStyle("overflow-y");
     }
@@ -90,43 +71,11 @@ class JSScrollPane extends JSPanel {
     getViewportView(): JSComponent {
         return this.getData("viewportView");
     }
-    /*
-    setViewportView(viewportView: JSComponent) {
-        this.setData("viewportView", viewportView);
-        var viewContainer: JSPanel = this.getViewContainer();
-        if (viewportView) {
-            viewContainer.removeAll();
-            viewContainer.add(viewportView);
-        }
-        if (viewportView instanceof JSTable) {
-    */
-            /*
-            this.addAdjustmentListener({
-                adjustmentValueChanged(event: Event, scrollPane: JSScrollPane) {
-                    var table: JSTable = <JSTable> scrollPane.getViewportView();
-                    table.getTableHeader().setStyle("transform", "translate(0, " + scrollPane.element.scrollTop + "px)");
-                }
-            }).withParameters(this);
-            */
-    /*
-        }
-    }
-    */
     setViewportView(viewportView: JSComponent) {
         this.setData("viewportView", viewportView);
         if (viewportView) {
             this.removeAll();
             this.add(viewportView);
-        }
-        if (viewportView instanceof JSTable) {
-            /*
-            this.addAdjustmentListener({
-                adjustmentValueChanged(event: Event, scrollPane: JSScrollPane) {
-                    var table: JSTable = <JSTable> scrollPane.getViewportView();
-                    table.getTableHeader().setStyle("transform", "translate(0, " + scrollPane.element.scrollTop + "px)");
-                }
-            }).withParameters(this);
-            */
         }
     }
     /*

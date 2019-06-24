@@ -106,6 +106,12 @@ declare class JSComponent {
     static VERTICAL: string;
     static HORIZONTAL_SPLIT: string;
     static VERTICAL_SPLIT: string;
+    static VERTICAL_SCROLLBAR_AS_NEEDED: string;
+    static VERTICAL_SCROLLBAR_NEVER: string;
+    static VERTICAL_SCROLLBAR_ALWAYS: string;
+    static HORIZONTAL_SCROLLBAR_AS_NEEDED: string;
+    static HORIZONTAL_SCROLLBAR_NEVER: string;
+    static HORIZONTAL_SCROLLBAR_ALWAYS: string;
     element: Element;
     constructor(element: Element);
     init(): void;
@@ -133,6 +139,8 @@ declare class JSComponent {
     hasClass(clazz: string): boolean;
     addClass(clazz: string): void;
     removeClass(clazz: string): void;
+    getUI(): string;
+    setUI(ui: string): void;
     x: number;
     getX(): number;
     y: number;
@@ -323,6 +331,22 @@ declare class JSDropTargetListener implements DropTargetListener {
     getParameters(): any[];
     setParameters(...parameters: any[]): void;
     withParameters(...parameters: any[]): this;
+}
+declare class JSEmptyBorder implements Border {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
+    constructor(top: number, left: number, bottom: number, right: number);
+    getTop(): number;
+    setTop(top: number): void;
+    getLeft(): number;
+    setLeft(left: number): void;
+    getBottom(): number;
+    setBottom(bottom: number): void;
+    getRight(): number;
+    setRight(right: number): void;
+    paintBorder(component: JSComponent): void;
 }
 declare class JSFileUtils {
     static writeStringToFile(filename: string, text: string): void;
@@ -642,7 +666,6 @@ declare class JSFlowLayout extends JSLayout {
 }
 declare class JSHTMLComponent extends JSComponent {
     constructor(element: HTMLElement);
-    init(): void;
     getWidth(): number;
     getHeight(): number;
     getOuterWidth(): number;
@@ -681,12 +704,13 @@ declare class JSHTMLComponent extends JSComponent {
     setForeground(foreground: string): void;
     getText(): string;
     setText(text: string): void;
+    getHTML(): string;
+    setHTML(html: string): void;
     getCursor(): string;
     setCursor(cursor: string): void;
 }
 declare class JSSVGComponent extends JSComponent {
     constructor(element: SVGElement);
-    init(): void;
     getAttributeNS(attribute: string): string;
     setAttributeNS(attribute: string, value: string): void;
     removeAttributeNS(attribute: string): void;
@@ -707,12 +731,25 @@ declare class JSSVGComponent extends JSComponent {
     getOpacity(): number;
     setOpacity(opacity: number): void;
 }
+declare class JSScrollPaneLayout extends JSLayout {
+    addLayoutComponent(component: JSComponent): void;
+    preferredLayoutWidth(container: JSComponent): number;
+    preferredLayoutHeight(container: JSComponent): number;
+    layoutContainerHorizontally(container: JSComponent): void;
+    layoutContainerVertically(container: JSComponent): void;
+}
 declare class JSSplitPaneLayout extends JSLayout {
     addLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(splitPane: JSSplitPane): number;
     preferredLayoutHeight(splitPane: JSSplitPane): number;
     layoutContainerHorizontally(splitPane: JSSplitPane): void;
     layoutContainerVertically(splitPane: JSSplitPane): void;
+}
+declare class JSTableLayout extends JSBorderLayout {
+    preferredLayoutWidth(container: JSComponent): number;
+    preferredLayoutHeight(container: JSComponent): number;
+    layoutContainerHorizontally(container: JSComponent): void;
+    layoutContainerVertically(container: JSComponent): void;
 }
 declare class JSTreeLayout extends JSLayout {
     preferredLayoutWidth(tree: JSTree): number;
@@ -727,7 +764,6 @@ declare class JSBody extends JSHTMLComponent implements MouseListener {
     dragSource: JSComponent;
     fileChooser: JSFileChooser;
     constructor();
-    init(): void;
     getFrame(): JSFrame;
     setFrame(frame: JSFrame): void;
     getDefsContainer(): JSBodyDefsContainer;
@@ -757,7 +793,6 @@ declare class JSButton extends JSHTMLComponent {
     constructor(icon: JSIcon);
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
-    init(): void;
     getGraphics(): JSButtonGraphics;
     getSpan(): JSButtonSpan;
     setIcon(icon: JSIcon): void;
@@ -780,7 +815,6 @@ declare class JSCheckBox extends JSHTMLComponent {
     constructor(text: string, selected: boolean);
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, selected: boolean);
-    init(): void;
     getInput(): JSCheckBoxInput;
     getLabel(): JSCheckBoxLabel;
     getIcon(): JSIcon;
@@ -794,7 +828,6 @@ declare class JSCheckBoxInput extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(selected: boolean);
-    init(): void;
     setSelected(selected: boolean): void;
     isSelected(): boolean;
 }
@@ -802,7 +835,6 @@ declare class JSComboBox extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(items: Array<string>);
-    init(): void;
     getItems(): Array<any>;
     setItems(items: Array<any>): void;
     getSelectedIndex(): number;
@@ -811,18 +843,15 @@ declare class JSComboBox extends JSHTMLComponent {
 declare class JSDefs extends JSSVGComponent {
     constructor();
     constructor(element: SVGDefsElement);
-    init(): void;
 }
 declare class JSDiv extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSFileChooser extends JSHTMLComponent {
     selectedFiles: FileList;
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     getFileFilter(): string;
     setFileFilter(fileFilter: string): void;
     showOpenDialog(): void;
@@ -840,7 +869,6 @@ declare class JSForm extends JSHTMLComponent {
     }): void;
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     getMethod(): string;
     setMethod(method: string): void;
     getUrl(): string;
@@ -856,7 +884,6 @@ declare class JSForm extends JSHTMLComponent {
 declare class JSFrame extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     getTitleLabel(): JSFrameTitleLabel;
     getMenuBarContainer(): JSFrameMenuBarContainer;
     getContentPane(): JSComponent;
@@ -899,17 +926,24 @@ declare class JSHiddenInput extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(name: string, value: string);
-    init(): void;
     getValue(): string;
     setValue(value: string): void;
     withValue(value: string): this;
+}
+declare class JSIFrame extends JSHTMLComponent {
+    constructor();
+    constructor(element: HTMLElement);
+    getSource(): string;
+    setSource(source: string): void;
+    open(): void;
+    write(content: string): void;
+    close(): void;
 }
 declare class JSImage extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(source: string);
     constructor(source: string, width: number, height: number);
-    init(): void;
     getSource(): string;
     setSource(source: string): void;
 }
@@ -925,7 +959,6 @@ declare class JSImageIcon extends JSIcon {
 declare class JSLabelSpan extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSLabel extends JSHTMLComponent {
     constructor();
@@ -936,7 +969,6 @@ declare class JSLabel extends JSHTMLComponent {
     constructor(text: string, horizontalAlignment: string);
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, horizontalAlignment: string);
-    init(): void;
     getGraphics(): JSLabelGraphics;
     getSpan(): JSLabelSpan;
     setIcon(icon: JSIcon): void;
@@ -944,25 +976,20 @@ declare class JSLabel extends JSHTMLComponent {
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
-    isUndecorated(): boolean;
-    setUndecorated(undecorated: boolean): void;
 }
 declare class JSLI extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(text: string);
-    init(): void;
 }
 declare class JSMarker extends JSSVGComponent {
     constructor();
     constructor(element: SVGMarkerElement);
-    init(): void;
 }
 declare class JSOList extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(items: Array<string>);
-    init(): void;
     getItems(): Array<any>;
     setItems(items: Array<any>): void;
     getType(): string;
@@ -973,7 +1000,6 @@ declare class JSOption extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(text: string);
-    init(): void;
     getText(): string;
     setText(text: string): void;
     getValue(): string;
@@ -984,19 +1010,16 @@ declare class JSParagraph extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(text: string);
     constructor(text: string, horizontalAlignment: string);
-    init(): void;
 }
 declare class JSPanel extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(layout: JSLayout);
-    init(): void;
 }
 declare class JSPath extends JSSVGComponent {
     constructor();
     constructor(element: SVGElement);
     constructor(definition: string);
-    init(): void;
     getDefinition(): string;
     setDefinition(definition: string): void;
 }
@@ -1026,7 +1049,6 @@ declare class JSProgressBar extends JSHTMLComponent {
     constructor(orientation: string);
     constructor(min: number, max: number);
     constructor(orientation: string, min: number, max: number);
-    init(): void;
     getOrientation(): string;
     setOrientation(orientation: string): void;
     getMin(): number;
@@ -1043,18 +1065,15 @@ declare class JSRadioButton extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(selected: boolean);
-    init(): void;
 }
 declare class JSSpan extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSVG extends JSSVGComponent {
     constructor();
     constructor(element: SVGElement);
     constructor(width: number, height: number);
-    init(): void;
     setX(x: number): void;
     setY(y: number): void;
     getViewBox(): string;
@@ -1066,7 +1085,6 @@ declare class JSSVGImage extends JSSVGComponent {
     constructor(icon: JSIcon);
     constructor(source: string);
     constructor(source: string, width: number, height: number);
-    init(): void;
     getSource(): string;
     setSource(source: string): void;
 }
@@ -1074,7 +1092,6 @@ declare class JSTabbedPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
-    init(): void;
     getTabPlacement(): string;
     setTabPlacement(tabPlacement: string): void;
     addTab(title: string, component: JSComponent): JSTab;
@@ -1094,12 +1111,25 @@ declare class JSTabbedPane extends JSPanel {
     getTabCount(): number;
     getTabComponentAt(index: number): JSComponent;
 }
-declare class JSTable extends JSHTMLComponent {
+declare class JSTable extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
-    init(): void;
+    getScrollPane(): JSTableScrollPane;
+    getHorizontalScrollPane(): JSTableHorizontalScrollPane;
+    getVerticalScrollPane(): JSTableVerticalScrollPane;
     getTableHeader(): JSTableHeader;
+    getTableContent(): JSTableContent;
+    getColumns(): string[];
+    setColumns(columns: string[]): void;
+    getRows(): any[][];
+    setRows(rows: any[][]): void;
+}
+declare class JSTableContent extends JSHTMLComponent {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(rows: any[][], columns: string[]);
+    getTableHead(): JSTableHead;
     getTableBody(): JSTableBody;
     getColumns(): string[];
     setColumns(columns: string[]): void;
@@ -1109,7 +1139,6 @@ declare class JSTable extends JSHTMLComponent {
 declare class JSTableBody extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     getRows(): any[][];
     setRows(rows: any[][]): void;
 }
@@ -1117,32 +1146,35 @@ declare class JSTableCell extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(value: any);
-    init(): void;
     getValue(): any;
     setValue(value: any): void;
 }
-declare class JSTableHeader extends JSHTMLComponent {
+declare class JSTableHead extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
-    getTableHeaderRow(): JSTableRow;
+    getTableHeadRow(): JSTableHeadRow;
     getColumns(): string[];
     setColumns(columns: string[]): void;
 }
-declare class JSTableHeaderCell extends JSHTMLComponent {
+declare class JSTableHeadCell extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(text: string);
-    init(): void;
     getContainer(): JSPanel;
     getText(): string;
     setText(text: string): void;
+}
+declare class JSTableHeadRow extends JSHTMLComponent {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(columns: any[]);
+    getColumns(): string[];
+    setColumns(columns: string[]): void;
 }
 declare class JSTableRow extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     constructor(values: any[]);
-    init(): void;
     getValues(): any[];
     setValues(values: any[]): void;
 }
@@ -1152,11 +1184,12 @@ declare class JSTextArea extends JSHTMLComponent {
     constructor(text: string);
     constructor(rows: number, columns: number);
     constructor(text: string, rows: number, columns: number);
-    init(): void;
     getRows(): number;
     setRows(rows: number): void;
     getColumns(): number;
     setColumns(columns: number): void;
+    getText(): string;
+    setText(text: string): void;
 }
 declare class JSTextField extends JSHTMLComponent {
     constructor();
@@ -1164,7 +1197,6 @@ declare class JSTextField extends JSHTMLComponent {
     constructor(columns: number);
     constructor(text: string);
     constructor(text: string, columns: number);
-    init(): void;
     getColumns(): number;
     setColumns(columns: number): void;
     getText(): string;
@@ -1179,7 +1211,6 @@ declare class JSTreeCell extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(value: any);
     constructor(value: any, icon: JSIcon);
-    init(): void;
     getValue(): any;
     setValue(value: any): void;
     getClosedIcon(): JSIcon;
@@ -1195,43 +1226,36 @@ declare class JSTreeCell extends JSHTMLComponent {
     setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
-    getContainer(): JSPanel;
-    setContainer(container: JSPanel): void;
+    getContainer(): JSComponent;
+    setContainer(container: JSComponent): void;
 }
 declare class JSBodyDefsContainer extends JSSVG {
     constructor();
     constructor(element: SVGElement);
-    init(): void;
 }
 declare class JSBodyDialogContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSBodyDragImageContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSBodyModal extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSBodyPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSButtonSpan extends JSSpan {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSCheckBoxLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSDialog extends JSPanel implements MouseListener, ActionListener {
     modal: boolean;
@@ -1241,7 +1265,6 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
     constructor(modal: boolean);
     constructor(title: string);
     constructor(title: string, modal: boolean);
-    init(): void;
     getTitlePanel(): JSDialogTitlePanel;
     getTitleLabel(): JSDialogTitleLabel;
     getCloseButton(): JSDialogCloseButton;
@@ -1266,59 +1289,50 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
 declare class JSDialogContentPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSDialogCloseButton extends JSButton {
     static CLOSE_ICON: JSPathIcon;
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSDialogTitleLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSDialogTitlePanel extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSFrameContentPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSFrameMenuBarContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSFrameTitleLabel extends JSLabel {
-    init(): void;
+    constructor();
+    constructor(element: HTMLElement);
 }
 declare class JSGraphics extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSLayeredPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(layout: JSLayout);
-    init(): void;
 }
 declare class JSMenuBar extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     add(menu: JSMenu): void;
     getMenuContainer(): JSMenuContainer;
 }
 declare class JSMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     add(menu: JSMenu): void;
     setSelected(selected: boolean): void;
     getTimer(): JSTimer;
@@ -1330,7 +1344,6 @@ declare class JSMenuItem extends JSPanel implements MouseListener {
     constructor(icon: JSIcon);
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
-    init(): void;
     getLabel(): JSMenuItemLabel;
     getIcon(): JSIcon;
     setIcon(icon: JSIcon): void;
@@ -1342,14 +1355,12 @@ declare class JSMenuItem extends JSPanel implements MouseListener {
 declare class JSMenuItemLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSPathImage extends JSSVG {
     constructor();
     constructor(element: SVGSVGElement);
     constructor(source: string);
     constructor(source: string, width: number, height: number);
-    init(): void;
     getPath(): JSPath;
     getSource(): string;
     setSource(source: string): void;
@@ -1364,7 +1375,6 @@ declare class JSPopupMenu extends JSPanel {
     invoker: JSComponent;
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     add(component: JSComponent): void;
     addSeparator(): void;
     getInvoker(): JSComponent;
@@ -1376,41 +1386,46 @@ declare class JSPopupMenu extends JSPanel {
 declare class JSPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
+}
+declare class JSScrollBar extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    constructor(orientation: string);
+    getOrientation(): string;
+    setOrientation(orientation: string): void;
+    getVsbPolicy(): string;
+    setVsbPolicy(vsbPolicy: string): void;
+    getHsbPolicy(): string;
+    setHsbPolicy(hsbPolicy: string): void;
+    getView(): JSPanel;
+    getViewportView(): JSComponent;
+    setViewportView(viewportView: JSComponent): void;
+    getMaximum(): number;
+    setMaximum(maximum: number): void;
+    getPreferredWidth(): number;
+    getPreferredHeight(): number;
 }
 declare class JSScrollPane extends JSPanel {
-    static VERTICAL_SCROLLBAR_AS_NEEDED: string;
-    static VERTICAL_SCROLLBAR_NEVER: string;
-    static VERTICAL_SCROLLBAR_ALWAYS: string;
-    static HORIZONTAL_SCROLLBAR_AS_NEEDED: string;
-    static HORIZONTAL_SCROLLBAR_NEVER: string;
-    static HORIZONTAL_SCROLLBAR_ALWAYS: string;
     constructor();
     constructor(element: HTMLElement);
     constructor(view: JSComponent);
     constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
-    init(): void;
-    getViewContainer(): JSScrollPaneViewContainer;
     getVsbPolicy(): string;
     setVsbPolicy(vsbPolicy: string): void;
     getHsbPolicy(): string;
     setHsbPolicy(hsbPolicy: string): void;
     getViewportView(): JSComponent;
     setViewportView(viewportView: JSComponent): void;
-    getPreferredWidth(): number;
-    getPreferredHeight(): number;
 }
-declare class JSScrollPaneViewContainer extends JSPanel {
+declare class JSTableHeader extends JSTableContent {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSeparator extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(orientation: string);
-    init(): void;
     getOrientation(): string;
     setOrientation(orientation: string): void;
     getHorizontalLine(): JSSeparatorHorizontalLine;
@@ -1419,18 +1434,15 @@ declare class JSSeparator extends JSPanel {
 declare class JSSeparatorHorizontalLine extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSeparatorVerticalLine extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSplitPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(orientation: string);
-    init(): void;
     getOrientation(): string;
     setOrientation(orientation: string): void;
     getLeftContainer(): JSSplitPaneLeftContainer;
@@ -1458,30 +1470,24 @@ declare class JSSplitPane extends JSPanel {
 declare class JSSplitPaneDivider extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
-    getPanel(): JSSplitPaneDividerPanel;
 }
 declare class JSSplitPaneDividerPanel extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSplitPaneLeftContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSSplitPaneRightContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSTab extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(tabPlacement: string, closeable: boolean, text: string);
     constructor(tabPlacement: string, closeable: boolean, text: string, icon: JSIcon);
-    init(): void;
     getGraphics(): JSTabGraphics;
     getLabel(): JSTabLabel;
     getCloseButton(): JSTabCloseButton;
@@ -1497,31 +1503,26 @@ declare class JSTabCloseButton extends JSButton {
     static CLOSE_ICON: JSPathIcon;
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSTabLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSTabbedPaneButtonContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
-    init(): void;
     getTabPlacement(): string;
     setTabPlacement(tabPlacement: string): void;
 }
 declare class JSTabbedPaneCardContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSTabbedPaneTabContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
-    init(): void;
     getTabPlacement(): string;
     setTabPlacement(tabPlacement: string): void;
     addTab(title: string): JSTab;
@@ -1544,7 +1545,6 @@ declare class JSTabbedPaneTabContainer extends JSPanel {
 declare class JSToolBar extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
     addSeparator(): void;
 }
 declare class JSTree extends JSPanel {
@@ -1552,7 +1552,6 @@ declare class JSTree extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(root: JSTreeNode);
-    init(): void;
     getRoot(): JSTreeNode;
     setRoot(root: JSTreeNode): void;
     isRootVisible(): boolean;
@@ -1584,7 +1583,6 @@ declare class JSTreeCellButton extends JSButton {
 declare class JSButtonGraphics extends JSGraphics {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSCheckBoxMenuItem extends JSMenuItem {
     constructor();
@@ -1596,7 +1594,6 @@ declare class JSCheckBoxMenuItem extends JSMenuItem {
     constructor(text: string, selected: boolean);
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, selected: boolean);
-    init(): void;
     getInput(): JSCheckBoxInput;
     isSelected(): boolean;
     setSelected(selected: boolean): void;
@@ -1604,7 +1601,6 @@ declare class JSCheckBoxMenuItem extends JSMenuItem {
 declare class JSLabelGraphics extends JSGraphics {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSMenu extends JSMenuItem implements MouseListener, Runnable {
     static DELAY: number;
@@ -1615,7 +1611,6 @@ declare class JSMenu extends JSMenuItem implements MouseListener, Runnable {
     constructor(icon: JSIcon);
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
-    init(): void;
     getGraphics(): JSMenuGraphics;
     getPopupMenuContainer(): JSPopupMenuContainer;
     getPopupMenu(): JSPopupMenu;
@@ -1638,10 +1633,20 @@ declare class JSMenu extends JSMenuItem implements MouseListener, Runnable {
 declare class JSMenuGraphics extends JSGraphics {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
 }
 declare class JSTabGraphics extends JSGraphics {
     constructor();
     constructor(element: HTMLElement);
-    init(): void;
+}
+declare class JSTableScrollPane extends JSScrollPane {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSTableHorizontalScrollPane extends JSScrollPane {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSTableVerticalScrollPane extends JSScrollPane {
+    constructor();
+    constructor(element: HTMLElement);
 }

@@ -182,10 +182,10 @@ var JSComponent = (function () {
         if (this.element.data === undefined) {
             this.element.data = {};
         }
+        this.setUI("JSComponent");
         this.init();
     }
     JSComponent.prototype.init = function () {
-        this.addClass("JSComponent");
     };
     JSComponent.prototype.getAttribute = function (attribute) {
         return this.element.getAttribute(attribute);
@@ -298,6 +298,12 @@ var JSComponent = (function () {
             clazzes = clazzes.replace(" " + clazz + " ", " ");
         }
         this.setClass(clazzes.trim());
+    };
+    JSComponent.prototype.getUI = function () {
+        return this.getClass();
+    };
+    JSComponent.prototype.setUI = function (ui) {
+        this.setClass(ui);
     };
     JSComponent.prototype.getX = function () {
         return this.x;
@@ -1260,6 +1266,12 @@ var JSComponent = (function () {
     JSComponent.VERTICAL = "vertical";
     JSComponent.HORIZONTAL_SPLIT = "horizontal";
     JSComponent.VERTICAL_SPLIT = "vertical";
+    JSComponent.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSComponent.VERTICAL_SCROLLBAR_NEVER = "hidden";
+    JSComponent.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
+    JSComponent.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
+    JSComponent.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
+    JSComponent.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
     return JSComponent;
 }());
 var JSDataTransfer = (function () {
@@ -1398,6 +1410,46 @@ var JSDropTargetListener = (function () {
         return this;
     };
     return JSDropTargetListener;
+}());
+var JSEmptyBorder = (function () {
+    function JSEmptyBorder(top, left, bottom, right) {
+        this.setTop(top);
+        this.setLeft(left);
+        this.setBottom(bottom);
+        this.setRight(right);
+    }
+    JSEmptyBorder.prototype.getTop = function () {
+        return this.top;
+    };
+    JSEmptyBorder.prototype.setTop = function (top) {
+        this.top = top;
+    };
+    JSEmptyBorder.prototype.getLeft = function () {
+        return this.left;
+    };
+    JSEmptyBorder.prototype.setLeft = function (left) {
+        this.left = left;
+    };
+    JSEmptyBorder.prototype.getBottom = function () {
+        return this.bottom;
+    };
+    JSEmptyBorder.prototype.setBottom = function (bottom) {
+        this.bottom = bottom;
+    };
+    JSEmptyBorder.prototype.getRight = function () {
+        return this.right;
+    };
+    JSEmptyBorder.prototype.setRight = function (right) {
+        this.right = right;
+    };
+    JSEmptyBorder.prototype.paintBorder = function (component) {
+        var top = this.getTop();
+        var left = this.getLeft();
+        var bottom = this.getBottom();
+        var right = this.getRight();
+        component.setStyle("padding", top + "px " + right + "px " + bottom + "px " + left + "px");
+    };
+    return JSEmptyBorder;
 }());
 var JSFileUtils = (function () {
     function JSFileUtils() {
@@ -3500,11 +3552,10 @@ var JSFlowLayout = (function (_super) {
 var JSHTMLComponent = (function (_super) {
     __extends(JSHTMLComponent, _super);
     function JSHTMLComponent(element) {
-        return _super.call(this, element) || this;
+        var _this = _super.call(this, element) || this;
+        _this.setUI("JSHTMLComponent");
+        return _this;
     }
-    JSHTMLComponent.prototype.init = function () {
-        this.addClass("JSHTMLComponent");
-    };
     JSHTMLComponent.prototype.getWidth = function () {
         var width = _super.prototype.getWidth.call(this);
         if (width !== undefined) {
@@ -3736,11 +3787,17 @@ var JSHTMLComponent = (function (_super) {
         if (text) {
             var s = text.trim().toLowerCase();
             if (s.indexOf("<html>") === 0 && s.indexOf("</html>", s.length - "</html>".length) !== -1) {
-                this.element.innerHTML = text;
+                this.setHTML(text);
                 return;
             }
         }
         this.element.textContent = text;
+    };
+    JSHTMLComponent.prototype.getHTML = function () {
+        return this.element.innerHTML;
+    };
+    JSHTMLComponent.prototype.setHTML = function (html) {
+        this.element.innerHTML = html;
     };
     JSHTMLComponent.prototype.getCursor = function () {
         return this.getStyle("cursor");
@@ -3753,11 +3810,10 @@ var JSHTMLComponent = (function (_super) {
 var JSSVGComponent = (function (_super) {
     __extends(JSSVGComponent, _super);
     function JSSVGComponent(element) {
-        return _super.call(this, element) || this;
+        var _this = _super.call(this, element) || this;
+        _this.setUI("JSSVGComponent");
+        return _this;
     }
-    JSSVGComponent.prototype.init = function () {
-        this.addClass("JSSVGComponent");
-    };
     JSSVGComponent.prototype.getAttributeNS = function (attribute) {
         return this.element.getAttributeNS(null, attribute);
     };
@@ -3863,6 +3919,53 @@ var JSSVGComponent = (function (_super) {
     };
     return JSSVGComponent;
 }(JSComponent));
+var JSScrollPaneLayout = (function (_super) {
+    __extends(JSScrollPaneLayout, _super);
+    function JSScrollPaneLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSScrollPaneLayout.prototype.addLayoutComponent = function (component) {
+    };
+    JSScrollPaneLayout.prototype.preferredLayoutWidth = function (container) {
+        var view = container.getViewportView();
+        if (view) {
+            return view.getPreferredWidth();
+        }
+        else {
+            return _super.prototype.preferredLayoutWidth.call(this, container);
+        }
+    };
+    JSScrollPaneLayout.prototype.preferredLayoutHeight = function (container) {
+        var view = container.getViewportView();
+        if (view) {
+            return view.getPreferredHeight();
+        }
+        else {
+            return _super.prototype.preferredLayoutHeight.call(this, container);
+        }
+    };
+    JSScrollPaneLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var view = container.getViewportView();
+        if (view) {
+            view.setWidth(view.getPreferredWidth());
+        }
+        container.setValidHorizontally(true);
+    };
+    JSScrollPaneLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var view = container.getViewportView();
+        if (view) {
+            view.setHeight(view.getPreferredHeight());
+        }
+        container.setValidVertically(true);
+    };
+    return JSScrollPaneLayout;
+}(JSLayout));
 var JSSplitPaneLayout = (function (_super) {
     __extends(JSSplitPaneLayout, _super);
     function JSSplitPaneLayout() {
@@ -3977,6 +4080,81 @@ var JSSplitPaneLayout = (function (_super) {
     };
     return JSSplitPaneLayout;
 }(JSLayout));
+var JSTableLayout = (function (_super) {
+    __extends(JSTableLayout, _super);
+    function JSTableLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSTableLayout.prototype.preferredLayoutWidth = function (container) {
+        var table = container;
+        var tableContent = table.getTableContent();
+        return tableContent.getPreferredOuterWidth();
+    };
+    JSTableLayout.prototype.preferredLayoutHeight = function (container) {
+        var table = container;
+        var tableContent = table.getTableContent();
+        return tableContent.getPreferredOuterHeight();
+    };
+    JSTableLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var hgap = this.getHgap();
+        var width = container.getWidth();
+        var x = container.getInsetLeft();
+        var table = container;
+        var scrollPane = table.getScrollPane();
+        scrollPane.setOuterWidth(width);
+        scrollPane.setX(x);
+        var horizontalScrollPane = table.getHorizontalScrollPane();
+        horizontalScrollPane.setOuterWidth(width);
+        horizontalScrollPane.setX(x);
+        var tableHeader = table.getTableHeader();
+        var tableHeaderHead = tableHeader.getTableHead();
+        var tableHeaderHeadRow = tableHeaderHead.getTableHeadRow();
+        var tableHeaderHeadCells = tableHeaderHeadRow.getComponents();
+        var tableContent = table.getTableContent();
+        var tableContentHead = tableContent.getTableHead();
+        var tableContentHeadRow = tableContentHead.getTableHeadRow();
+        var tableContentHeadCells = tableContentHeadRow.getComponents();
+        for (var i = 0; i < tableContentHeadCells.length; i++) {
+            var tableContentHeadCell = tableContentHeadCells[i];
+            var tableHeaderHeadCell = tableHeaderHeadCells[i];
+            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
+        }
+        var scrollPaneView = scrollPane.getViewportView();
+        scrollPaneView.setOuterWidth(tableContent.getPreferredOuterWidth());
+        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
+        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var verticalScrollPane = table.getVerticalScrollPane();
+        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        container.setValidHorizontally(true);
+    };
+    JSTableLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var vgap = this.getVgap();
+        var height = container.getHeight();
+        var y = container.getInsetTop();
+        var table = container;
+        var scrollPane = table.getScrollPane();
+        scrollPane.setOuterHeight(height);
+        scrollPane.setY(y);
+        var horizontalScrollPane = table.getHorizontalScrollPane();
+        horizontalScrollPane.setOuterHeight(height);
+        horizontalScrollPane.setY(y);
+        var scrollPaneView = scrollPane.getViewportView();
+        var tableContent = table.getTableContent();
+        scrollPaneView.setOuterHeight(tableContent.getPreferredHeight());
+        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
+        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var verticalScrollPane = table.getVerticalScrollPane();
+        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        container.setValidVertically(true);
+    };
+    return JSTableLayout;
+}(JSBorderLayout));
 var JSTreeLayout = (function (_super) {
     __extends(JSTreeLayout, _super);
     function JSTreeLayout() {
@@ -4012,16 +4190,7 @@ var JSBody = (function (_super) {
     __extends(JSBody, _super);
     function JSBody() {
         var _this = _super.call(this, document.body) || this;
-        document.documentElement.style.height = "100%";
-        _this.setStyle("border", "0");
-        _this.setStyle("height", "100%");
-        _this.setStyle("margin", "0");
-        _this.setStyle("overflow", "hidden");
-        _this.setStyle("padding", "0");
-        _this.setStyle("user-select", "none");
-        _this.setStyle("-ms-user-select", "none");
-        _this.setStyle("-moz-user-select", "none");
-        _this.setStyle("-webkit-user-select", "none");
+        _this.setUI("JSBody");
         _this.setLayout(new JSBorderLayout());
         var index = 0;
         var defsContainer = _this.getDefsContainer();
@@ -4047,9 +4216,6 @@ var JSBody = (function (_super) {
             JSBody.instance = new JSBody();
         }
         return JSBody.instance;
-    };
-    JSBody.prototype.init = function () {
-        this.addClass("JSBody");
     };
     JSBody.prototype.getFrame = function () {
         var frame = this.getData("frame");
@@ -4187,13 +4353,11 @@ var JSBody = (function (_super) {
                     dialog.setHeight(this.getHeight());
                     dialog.revalidate();
                 }
-                var preferredWidth = dialog.getPreferredWidth();
-                var preferredHeight = dialog.getPreferredHeight();
-                dialog.setWidth(preferredWidth);
-                dialog.setHeight(preferredHeight);
-                dialog.setX(dialog.getX() || (this.getWidth() - preferredWidth) / 2);
-                dialog.setY(dialog.getY() || (this.getHeight() - preferredHeight) / 2);
+                dialog.setWidth(dialog.getPreferredWidth());
+                dialog.setHeight(dialog.getPreferredHeight());
                 dialog.revalidate();
+                dialog.setX(dialog.getX() || (this.getWidth() - dialog.getWidth()) / 2);
+                dialog.setY(dialog.getY() || (this.getHeight() - dialog.getHeight()) / 2);
             }
         }
         this.dialog = dialog;
@@ -4302,7 +4466,7 @@ var JSButton = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
-        _this.setStyle("white-space", "nowrap");
+        _this.setUI("JSButton");
         var index = 0;
         var graphics = _this.getGraphics();
         _this.add(graphics, null, index++);
@@ -4335,9 +4499,6 @@ var JSButton = (function (_super) {
         }
         return _this;
     }
-    JSButton.prototype.init = function () {
-        this.addClass("JSButton");
-    };
     JSButton.prototype.getGraphics = function () {
         var graphics = this.getData("graphics");
         if (!graphics) {
@@ -4423,7 +4584,7 @@ var JSCheckBox = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("white-space", "nowrap");
+        _this.setUI("JSCheckBox");
         var index = 0;
         var input = _this.getInput();
         _this.add(input, null, index++);
@@ -4478,9 +4639,6 @@ var JSCheckBox = (function (_super) {
         }
         return _this;
     }
-    JSCheckBox.prototype.init = function () {
-        this.addClass("JSCheckBox");
-    };
     JSCheckBox.prototype.getInput = function () {
         var input = this.getData("input");
         if (!input) {
@@ -4544,7 +4702,7 @@ var JSCheckBoxInput = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
         _this.setAttribute("type", "checkbox");
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSCheckBoxInput");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "boolean") {
@@ -4556,9 +4714,6 @@ var JSCheckBoxInput = (function (_super) {
         }
         return _this;
     }
-    JSCheckBoxInput.prototype.init = function () {
-        this.addClass("JSCheckBoxInput");
-    };
     JSCheckBoxInput.prototype.setSelected = function (selected) {
         this.element.checked = selected;
     };
@@ -4575,6 +4730,7 @@ var JSComboBox = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]) || this;
+        _this.setUI("JSComboBox");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof Array) {
@@ -4586,9 +4742,6 @@ var JSComboBox = (function (_super) {
         }
         return _this;
     }
-    JSComboBox.prototype.init = function () {
-        this.addClass("JSComboBox");
-    };
     JSComboBox.prototype.getItems = function () {
         return this.getData("item");
     };
@@ -4617,11 +4770,10 @@ var JSDefs = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]) || this;
+        _this.setUI("JSDefs");
+        return _this;
     }
-    JSDefs.prototype.init = function () {
-        this.addClass("JSDefs");
-    };
     return JSDefs;
 }(JSSVGComponent));
 var JSDiv = (function (_super) {
@@ -4631,11 +4783,10 @@ var JSDiv = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSDiv");
+        return _this;
     }
-    JSDiv.prototype.init = function () {
-        this.addClass("JSDiv");
-    };
     return JSDiv;
 }(JSHTMLComponent));
 var JSFileChooser = (function (_super) {
@@ -4647,6 +4798,7 @@ var JSFileChooser = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
         _this.setAttribute("type", "file");
+        _this.setUI("JSFileChooser");
         _this.setStyle("display", "none");
         JSBody.getInstance().setFileChooser(_this);
         _this.addChangeListener({
@@ -4657,9 +4809,6 @@ var JSFileChooser = (function (_super) {
         });
         return _this;
     }
-    JSFileChooser.prototype.init = function () {
-        this.addClass("JSFileChooser");
-    };
     JSFileChooser.prototype.getFileFilter = function () {
         return this.getAttribute("accept");
     };
@@ -4684,7 +4833,9 @@ var JSForm = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]) || this;
+        _this.setUI("JSForm");
+        return _this;
     }
     JSForm.post = function (url, params) {
         var form = new JSForm();
@@ -4693,9 +4844,6 @@ var JSForm = (function (_super) {
     JSForm.get = function (url, params) {
         var form = new JSForm();
         form.get.apply(form, arguments);
-    };
-    JSForm.prototype.init = function () {
-        this.addClass("JSForm");
     };
     JSForm.prototype.getMethod = function () {
         return this.element.method;
@@ -4747,6 +4895,7 @@ var JSFrame = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSFrame");
         _this.setVisible(false);
         var body = JSBody.getInstance();
         body.setFrame(_this);
@@ -4760,9 +4909,6 @@ var JSFrame = (function (_super) {
         _super.prototype.add.call(_this, contentPane, JSLayout.CENTER, index++);
         return _this;
     }
-    JSFrame.prototype.init = function () {
-        this.addClass("JSFrame");
-    };
     JSFrame.prototype.getTitleLabel = function () {
         var titleLabel = this.getData("frameTitleLabel");
         if (!titleLabel) {
@@ -5134,16 +5280,18 @@ var JSGridBagLayout = (function (_super) {
                 }
             }
         }
-        var xsPx = [];
-        var xsPc = [];
+        var xsPx = [container.getInsetLeft()];
+        var xsPc = [0];
         var extraHorizontalSpace = width - preferredLayoutWidth;
         if (extraHorizontalSpace) {
-            xsPx[0] = container.getInsetLeft() + (width - preferredLayoutWidth) / 2 - width100 / 2;
-            xsPc[0] = 50;
-        }
-        else {
-            xsPx[0] = container.getInsetLeft();
-            xsPc[0] = 0;
+            var sum = 0;
+            for (var i = 0; i < weightxs.length; i++) {
+                sum += weightxs[i] || 0;
+            }
+            if (!sum) {
+                xsPx[0] = container.getInsetLeft() + extraHorizontalSpace / 2 - width100 / 2;
+                xsPc[0] = 50;
+            }
         }
         for (var i = 0; i < widthsPx.length; i++) {
             xsPx[i + 1] = xsPx[i] + (widthsPx[i] || 0) + hgap;
@@ -5290,16 +5438,18 @@ var JSGridBagLayout = (function (_super) {
                 }
             }
         }
-        var ysPx = [];
-        var ysPc = [];
+        var ysPx = [container.getInsetTop()];
+        var ysPc = [0];
         var extraVerticalSpace = height - preferredLayoutHeight;
         if (extraVerticalSpace) {
-            ysPx[0] = container.getInsetTop() + (height - preferredLayoutHeight) / 2 - height100 / 2;
-            ysPc[0] = 50;
-        }
-        else {
-            ysPx[0] = container.getInsetTop();
-            ysPc[0] = 0;
+            var sum = 0;
+            for (var i = 0; i < weightys.length; i++) {
+                sum += weightys[i] || 0;
+            }
+            if (!sum) {
+                ysPx[0] = container.getInsetTop() + extraVerticalSpace / 2 - height100 / 2;
+                ysPc[0] = 50;
+            }
         }
         for (var i = 0; i < heightsPx.length; i++) {
             ysPx[i + 1] = ysPx[i] + (heightsPx[i] || 0) + vgap;
@@ -5386,6 +5536,7 @@ var JSHiddenInput = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
         _this.setAttribute("type", "hidden");
+        _this.setUI("JSHiddenInput");
         switch (args.length) {
             case 2:
                 if (typeof args[0] === "string" && typeof args[1] === "string") {
@@ -5399,9 +5550,6 @@ var JSHiddenInput = (function (_super) {
         }
         return _this;
     }
-    JSHiddenInput.prototype.init = function () {
-        this.addClass("JSHiddenInput");
-    };
     JSHiddenInput.prototype.getValue = function () {
         return this.getAttribute("value");
     };
@@ -5414,6 +5562,34 @@ var JSHiddenInput = (function (_super) {
     };
     return JSHiddenInput;
 }(JSHTMLComponent));
+var JSIFrame = (function (_super) {
+    __extends(JSIFrame, _super);
+    function JSIFrame() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLIFrameElement) ? document.createElement("iframe") : args[0]) || this;
+        _this.setUI("JSIFrame");
+        return _this;
+    }
+    JSIFrame.prototype.getSource = function () {
+        return this.getAttribute("src");
+    };
+    JSIFrame.prototype.setSource = function (source) {
+        this.setAttribute("src", source);
+    };
+    JSIFrame.prototype.open = function () {
+        this.element.contentWindow.document.open();
+    };
+    JSIFrame.prototype.write = function (content) {
+        this.element.contentWindow.document.write(content);
+    };
+    JSIFrame.prototype.close = function () {
+        this.element.contentWindow.document.close();
+    };
+    return JSIFrame;
+}(JSHTMLComponent));
 var JSImage = (function (_super) {
     __extends(JSImage, _super);
     function JSImage() {
@@ -5422,8 +5598,7 @@ var JSImage = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]) || this;
-        _this.setStyle("draggable", "false");
-        _this.setStyle("-webkit-user-drag", "none");
+        _this.setUI("JSImage");
         switch (args.length) {
             case 0:
                 break;
@@ -5451,9 +5626,6 @@ var JSImage = (function (_super) {
         }
         return _this;
     }
-    JSImage.prototype.init = function () {
-        this.addClass("JSImage");
-    };
     JSImage.prototype.getSource = function () {
         return this.getAttribute("src");
     };
@@ -5519,12 +5691,9 @@ var JSLabelSpan = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSLabelSpan");
         return _this;
     }
-    JSLabelSpan.prototype.init = function () {
-        this.addClass("JSLabelSpan");
-    };
     return JSLabelSpan;
 }(JSHTMLComponent));
 var JSLabel = (function (_super) {
@@ -5535,8 +5704,7 @@ var JSLabel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "inline-block");
-        _this.setStyle("white-space", "nowrap");
+        _this.setUI("JSLabel");
         var index = 0;
         var graphics = _this.getGraphics();
         _this.add(graphics, null, index++);
@@ -5587,9 +5755,6 @@ var JSLabel = (function (_super) {
         }
         return _this;
     }
-    JSLabel.prototype.init = function () {
-        this.addClass("JSLabel");
-    };
     JSLabel.prototype.getGraphics = function () {
         var graphics = this.getData("graphics");
         if (!graphics) {
@@ -5648,17 +5813,6 @@ var JSLabel = (function (_super) {
             }
         }
     };
-    JSLabel.prototype.isUndecorated = function () {
-        return this.hasClass("undecorated");
-    };
-    JSLabel.prototype.setUndecorated = function (undecorated) {
-        if (undecorated) {
-            this.addClass("undecorated");
-        }
-        else {
-            this.removeClass("undecorated");
-        }
-    };
     return JSLabel;
 }(JSHTMLComponent));
 var JSLI = (function (_super) {
@@ -5669,6 +5823,7 @@ var JSLI = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLIElement) ? document.createElement("li") : args[0]) || this;
+        _this.setUI("JSLI");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -5680,9 +5835,6 @@ var JSLI = (function (_super) {
         }
         return _this;
     }
-    JSLI.prototype.init = function () {
-        this.addClass("JSLI");
-    };
     return JSLI;
 }(JSHTMLComponent));
 var JSMarker = (function (_super) {
@@ -5692,11 +5844,10 @@ var JSMarker = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]) || this;
+        _this.setUI("JSMarker");
+        return _this;
     }
-    JSMarker.prototype.init = function () {
-        this.addClass("JSMarker");
-    };
     return JSMarker;
 }(JSSVGComponent));
 var JSOList = (function (_super) {
@@ -5707,6 +5858,7 @@ var JSOList = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOListElement) ? document.createElement("ol") : args[0]) || this;
+        _this.setUI("JSOList");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof Array) {
@@ -5718,9 +5870,6 @@ var JSOList = (function (_super) {
         }
         return _this;
     }
-    JSOList.prototype.init = function () {
-        this.addClass("JSOList");
-    };
     JSOList.prototype.getItems = function () {
         return this.getData("item");
     };
@@ -5752,6 +5901,7 @@ var JSOption = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]) || this;
+        _this.setUI("JSOption");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -5764,9 +5914,6 @@ var JSOption = (function (_super) {
         }
         return _this;
     }
-    JSOption.prototype.init = function () {
-        this.addClass("JSOption");
-    };
     JSOption.prototype.getText = function () {
         return this.element.text;
     };
@@ -5789,6 +5936,7 @@ var JSParagraph = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]) || this;
+        _this.setUI("JSParagraph");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -5808,9 +5956,6 @@ var JSParagraph = (function (_super) {
         }
         return _this;
     }
-    JSParagraph.prototype.init = function () {
-        this.addClass("JSParagraph");
-    };
     return JSParagraph;
 }(JSHTMLComponent));
 var JSPanel = (function (_super) {
@@ -5821,7 +5966,7 @@ var JSPanel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "inline-block");
+        _this.setUI("JSPanel");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSLayout) {
@@ -5833,9 +5978,6 @@ var JSPanel = (function (_super) {
         }
         return _this;
     }
-    JSPanel.prototype.init = function () {
-        this.addClass("JSPanel");
-    };
     return JSPanel;
 }(JSHTMLComponent));
 var JSPath = (function (_super) {
@@ -5846,6 +5988,7 @@ var JSPath = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]) || this;
+        _this.setUI("JSPath");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -5857,9 +6000,6 @@ var JSPath = (function (_super) {
         }
         return _this;
     }
-    JSPath.prototype.init = function () {
-        this.addClass("JSPath");
-    };
     JSPath.prototype.getDefinition = function () {
         return this.getAttributeNS("d");
     };
@@ -5973,6 +6113,7 @@ var JSProgressBar = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSProgressBar");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -6005,9 +6146,6 @@ var JSProgressBar = (function (_super) {
         _this.setHeight(14);
         return _this;
     }
-    JSProgressBar.prototype.init = function () {
-        this.addClass("JSProgressBar");
-    };
     JSProgressBar.prototype.getOrientation = function () {
         return this.getAttribute("data-orientation");
     };
@@ -6065,6 +6203,7 @@ var JSRadioButton = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
         _this.setAttribute("type", "radio");
+        _this.setUI("JSRadioButton");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "boolean") {
@@ -6076,9 +6215,6 @@ var JSRadioButton = (function (_super) {
         }
         return _this;
     }
-    JSRadioButton.prototype.init = function () {
-        this.addClass("JSRadioButton");
-    };
     return JSRadioButton;
 }(JSHTMLComponent));
 var JSSpan = (function (_super) {
@@ -6088,11 +6224,10 @@ var JSSpan = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        _this.setUI("JSSpan");
+        return _this;
     }
-    JSSpan.prototype.init = function () {
-        this.addClass("JSSpan");
-    };
     return JSSpan;
 }(JSHTMLComponent));
 var JSSVG = (function (_super) {
@@ -6103,6 +6238,7 @@ var JSSVG = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        _this.setUI("JSSVG");
         switch (args.length) {
             case 2:
                 if (typeof args[0] === "number" && typeof args[1] === "number") {
@@ -6117,9 +6253,6 @@ var JSSVG = (function (_super) {
         _this.setStyle("display", "inline-block");
         return _this;
     }
-    JSSVG.prototype.init = function () {
-        this.addClass("JSSVG");
-    };
     JSSVG.prototype.setX = function (x) {
         this.setStyle("left", x + "px");
     };
@@ -6142,6 +6275,7 @@ var JSSVGImage = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : args[0]) || this;
+        _this.setUI("JSSVGImage");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSIcon) {
@@ -6167,9 +6301,6 @@ var JSSVGImage = (function (_super) {
         }
         return _this;
     }
-    JSSVGImage.prototype.init = function () {
-        this.addClass("JSSVGImage");
-    };
     JSSVGImage.prototype.getSource = function () {
         return this.element.getAttributeNS("http://www.w3.org/1999/xlink", "href");
     };
@@ -6186,6 +6317,7 @@ var JSTabbedPane = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTabbedPane");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -6219,9 +6351,6 @@ var JSTabbedPane = (function (_super) {
         tabContainer.add(buttonContainer, null, index++);
         return _this;
     }
-    JSTabbedPane.prototype.init = function () {
-        this.addClass("JSTabbedPane");
-    };
     JSTabbedPane.prototype.getTabPlacement = function () {
         return this.getAttribute("data-tab-placement");
     };
@@ -6410,10 +6539,150 @@ var JSTable = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
-        _this.setStyle("display", "inline-block");
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTable");
         var index = 0;
+        _this.setLayout(new JSTableLayout());
+        var scrollPane = _this.getScrollPane();
+        _this.add(scrollPane);
+        var scrollPaneView = new JSPanel();
+        scrollPaneView.setStyle("position", "absolute");
+        scrollPane.setViewportView(scrollPaneView);
+        var horizontalScrollPane = _this.getHorizontalScrollPane();
+        _this.add(horizontalScrollPane);
+        var horizontalScrollPaneView = new JSPanel(new JSBorderLayout());
+        horizontalScrollPane.setViewportView(horizontalScrollPaneView);
+        var verticalScrollPane = _this.getVerticalScrollPane();
+        horizontalScrollPaneView.add(verticalScrollPane);
+        var tableContent = _this.getTableContent();
+        verticalScrollPane.setViewportView(tableContent);
         var tableHeader = _this.getTableHeader();
+        tableHeader.setAlign(JSBorderLayout.TOP);
+        horizontalScrollPaneView.add(tableHeader);
+        switch (args.length) {
+            case 2:
+                if (args[0] instanceof Array && args[1] instanceof Array) {
+                    var rows = args[0];
+                    var columns = args[1];
+                    _this.setRows(rows);
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        scrollPane.addAdjustmentListener({
+            adjustmentValueChanged: function (event) {
+                horizontalScrollPane.element.scrollLeft = scrollPane.element.scrollLeft;
+                verticalScrollPane.element.scrollTop = scrollPane.element.scrollTop;
+            }
+        });
+        return _this;
+    }
+    JSTable.prototype.getScrollPane = function () {
+        var scrollPane = this.getData("scrollPane");
+        if (!scrollPane) {
+            var element = this.getChild("JSTableScrollPane");
+            if (element) {
+                scrollPane = new JSTableScrollPane(element);
+            }
+            else {
+                scrollPane = new JSTableScrollPane();
+            }
+            this.setData("scrollPane", scrollPane);
+        }
+        return scrollPane;
+    };
+    JSTable.prototype.getHorizontalScrollPane = function () {
+        var horizontalScrollPane = this.getData("horizontalScrollPane");
+        if (!horizontalScrollPane) {
+            var element = this.getChild("JSTableHorizontalScrollPane");
+            if (element) {
+                horizontalScrollPane = new JSTableHorizontalScrollPane(element);
+            }
+            else {
+                horizontalScrollPane = new JSTableHorizontalScrollPane();
+            }
+            this.setData("horizontalScrollPane", horizontalScrollPane);
+        }
+        return horizontalScrollPane;
+    };
+    JSTable.prototype.getVerticalScrollPane = function () {
+        var verticalScrollPane = this.getData("verticalScrollPane");
+        if (!verticalScrollPane) {
+            var horizontalScrollPane = this.getHorizontalScrollPane();
+            var element = horizontalScrollPane.getChild("JSTableVerticalScrollPane");
+            if (element) {
+                verticalScrollPane = new JSTableVerticalScrollPane(element);
+            }
+            else {
+                verticalScrollPane = new JSTableVerticalScrollPane();
+            }
+            this.setData("verticalScrollPane", verticalScrollPane);
+        }
+        return verticalScrollPane;
+    };
+    JSTable.prototype.getTableHeader = function () {
+        var tableHeader = this.getData("tableHeader");
+        if (!tableHeader) {
+            var horizontalScrollPane = this.getHorizontalScrollPane();
+            var horizontalScrollPaneView = horizontalScrollPane.getViewportView();
+            var element = horizontalScrollPaneView.getChild("JSTableHeader");
+            if (element) {
+                tableHeader = new JSTableHeader(element);
+            }
+            else {
+                tableHeader = new JSTableHeader();
+            }
+            this.setData("tableHeader", tableHeader);
+        }
+        return tableHeader;
+    };
+    JSTable.prototype.getTableContent = function () {
+        var tableContent = this.getData("tableContent");
+        if (!tableContent) {
+            var verticalScrollPane = this.getVerticalScrollPane();
+            var element = verticalScrollPane.getChild("JSTableContent");
+            if (element) {
+                tableContent = new JSTableContent(element);
+            }
+            else {
+                tableContent = new JSTableContent();
+            }
+            this.setData("tableContent", tableContent);
+        }
+        return tableContent;
+    };
+    JSTable.prototype.getColumns = function () {
+        var tableHeader = this.getTableHeader();
+        return tableHeader.getColumns();
+    };
+    JSTable.prototype.setColumns = function (columns) {
+        var tableHeader = this.getTableHeader();
+        tableHeader.setColumns(columns);
+        var tableContent = this.getTableContent();
+        tableContent.setColumns(columns);
+    };
+    JSTable.prototype.getRows = function () {
+        var tableContent = this.getTableContent();
+        return tableContent.getRows();
+    };
+    JSTable.prototype.setRows = function (rows) {
+        var tableContent = this.getTableContent();
+        tableContent.setRows(rows);
+    };
+    return JSTable;
+}(JSPanel));
+var JSTableContent = (function (_super) {
+    __extends(JSTableContent, _super);
+    function JSTableContent() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        _this.setUI("JSTableContent");
+        var index = 0;
+        var tableHeader = _this.getTableHead();
         _this.add(tableHeader, null, index++);
         var tableBody = _this.getTableBody();
         _this.add(tableBody, null, index++);
@@ -6430,24 +6699,21 @@ var JSTable = (function (_super) {
         }
         return _this;
     }
-    JSTable.prototype.init = function () {
-        this.addClass("JSTable");
-    };
-    JSTable.prototype.getTableHeader = function () {
-        var tableHeader = this.getData("tableHeader");
-        if (!tableHeader) {
-            var element = this.getChild("JSTableHeader");
+    JSTableContent.prototype.getTableHead = function () {
+        var tableHead = this.getData("tableHead");
+        if (!tableHead) {
+            var element = this.getChild("JSTableHead");
             if (element) {
-                tableHeader = new JSTableHeader(element);
+                tableHead = new JSTableHead(element);
             }
             else {
-                tableHeader = new JSTableHeader();
+                tableHead = new JSTableHead();
             }
-            this.setData("tableHeader", tableHeader);
+            this.setData("tableHead", tableHead);
         }
-        return tableHeader;
+        return tableHead;
     };
-    JSTable.prototype.getTableBody = function () {
+    JSTableContent.prototype.getTableBody = function () {
         var tableBody = this.getData("tableBody");
         if (!tableBody) {
             var element = this.getChild("JSTableBody");
@@ -6461,23 +6727,23 @@ var JSTable = (function (_super) {
         }
         return tableBody;
     };
-    JSTable.prototype.getColumns = function () {
-        var tableHeader = this.getTableHeader();
+    JSTableContent.prototype.getColumns = function () {
+        var tableHeader = this.getTableHead();
         return tableHeader.getColumns();
     };
-    JSTable.prototype.setColumns = function (columns) {
-        var tableHeader = this.getTableHeader();
+    JSTableContent.prototype.setColumns = function (columns) {
+        var tableHeader = this.getTableHead();
         tableHeader.setColumns(columns);
     };
-    JSTable.prototype.getRows = function () {
+    JSTableContent.prototype.getRows = function () {
         var tableBody = this.getTableBody();
         return tableBody.getRows();
     };
-    JSTable.prototype.setRows = function (rows) {
+    JSTableContent.prototype.setRows = function (rows) {
         var tableBody = this.getTableBody();
         tableBody.setRows(rows);
     };
-    return JSTable;
+    return JSTableContent;
 }(JSHTMLComponent));
 var JSTableBody = (function (_super) {
     __extends(JSTableBody, _super);
@@ -6487,12 +6753,10 @@ var JSTableBody = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]) || this;
+        _this.setUI("JSTableBody");
         _this.setEditable(true);
         return _this;
     }
-    JSTableBody.prototype.init = function () {
-        this.addClass("JSTableBody");
-    };
     JSTableBody.prototype.getRows = function () {
         var rows = [];
         var components = this.getComponents();
@@ -6519,6 +6783,7 @@ var JSTableCell = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]) || this;
+        _this.setUI("JSTableCell");
         switch (args.length) {
             case 1:
                 if (!(args[0] instanceof HTMLTableCellElement)) {
@@ -6530,9 +6795,6 @@ var JSTableCell = (function (_super) {
         }
         return _this;
     }
-    JSTableCell.prototype.init = function () {
-        this.addClass("JSTableCell");
-    };
     JSTableCell.prototype.getValue = function () {
         return this.getData("value") || this.getText();
     };
@@ -6547,63 +6809,53 @@ var JSTableCell = (function (_super) {
     };
     return JSTableCell;
 }(JSHTMLComponent));
-var JSTableHeader = (function (_super) {
-    __extends(JSTableHeader, _super);
-    function JSTableHeader() {
+var JSTableHead = (function (_super) {
+    __extends(JSTableHead, _super);
+    function JSTableHead() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]) || this;
+        _this.setUI("JSTableHead");
         var index = 0;
-        var tableHeaderRow = _this.getTableHeaderRow();
-        _this.add(tableHeaderRow, null, index++);
+        var tableHeadRow = _this.getTableHeadRow();
+        _this.add(tableHeadRow, null, index++);
         return _this;
     }
-    JSTableHeader.prototype.init = function () {
-        this.addClass("JSTableHeader");
-    };
-    JSTableHeader.prototype.getTableHeaderRow = function () {
-        var tableHeaderRow = this.getData("tableHeaderRow");
-        if (!tableHeaderRow) {
+    JSTableHead.prototype.getTableHeadRow = function () {
+        var tableHeadRow = this.getData("tableHeadRow");
+        if (!tableHeadRow) {
             var element = this.getChild("JSTableRow");
             if (element) {
-                tableHeaderRow = new JSTableRow(element);
+                tableHeadRow = new JSTableHeadRow(element);
             }
             else {
-                tableHeaderRow = new JSTableRow();
+                tableHeadRow = new JSTableHeadRow();
             }
-            this.setData("tableHeaderRow", tableHeaderRow);
+            this.setData("tableHeadRow", tableHeadRow);
         }
-        return tableHeaderRow;
+        return tableHeadRow;
     };
-    JSTableHeader.prototype.getColumns = function () {
-        var columns = [];
-        var tableHeaderRow = this.getTableHeaderRow();
-        var components = tableHeaderRow.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            columns.push(component.getText());
-        }
-        return columns;
+    JSTableHead.prototype.getColumns = function () {
+        var tableHeadRow = this.getTableHeadRow();
+        return tableHeadRow.getColumns();
     };
-    JSTableHeader.prototype.setColumns = function (columns) {
-        var tableHeaderRow = this.getTableHeaderRow();
-        for (var i = 0; i < columns.length; i++) {
-            var column = columns[i];
-            tableHeaderRow.add(new JSTableHeaderCell(column));
-        }
+    JSTableHead.prototype.setColumns = function (columns) {
+        var tableHeadRow = this.getTableHeadRow();
+        tableHeadRow.setColumns(columns);
     };
-    return JSTableHeader;
+    return JSTableHead;
 }(JSHTMLComponent));
-var JSTableHeaderCell = (function (_super) {
-    __extends(JSTableHeaderCell, _super);
-    function JSTableHeaderCell() {
+var JSTableHeadCell = (function (_super) {
+    __extends(JSTableHeadCell, _super);
+    function JSTableHeadCell() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]) || this;
+        _this.setUI("JSTableHeadCell");
         var index = 0;
         var container = _this.getContainer();
         _this.add(container, null, index++);
@@ -6618,10 +6870,7 @@ var JSTableHeaderCell = (function (_super) {
         }
         return _this;
     }
-    JSTableHeaderCell.prototype.init = function () {
-        this.addClass("JSTableHeaderCell");
-    };
-    JSTableHeaderCell.prototype.getContainer = function () {
+    JSTableHeadCell.prototype.getContainer = function () {
         var container = this.getData("container");
         if (!container) {
             var element = this.getChild("JSPanel");
@@ -6635,15 +6884,53 @@ var JSTableHeaderCell = (function (_super) {
         }
         return container;
     };
-    JSTableHeaderCell.prototype.getText = function () {
+    JSTableHeadCell.prototype.getText = function () {
         var container = this.getContainer();
         return container.getText();
     };
-    JSTableHeaderCell.prototype.setText = function (text) {
+    JSTableHeadCell.prototype.setText = function (text) {
         var container = this.getContainer();
         container.setText(text);
     };
-    return JSTableHeaderCell;
+    return JSTableHeadCell;
+}(JSHTMLComponent));
+var JSTableHeadRow = (function (_super) {
+    __extends(JSTableHeadRow, _super);
+    function JSTableHeadRow() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        _this.setUI("JSTableHeadRow");
+        switch (args.length) {
+            case 1:
+                if (args[0] instanceof Array) {
+                    var columns = args[0];
+                    _this.setColumns(columns);
+                }
+                break;
+            default:
+        }
+        return _this;
+    }
+    JSTableHeadRow.prototype.getColumns = function () {
+        var columns = [];
+        var components = this.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var tableHeadCell = components[i];
+            columns.push(tableHeadCell.getText());
+        }
+        return columns;
+    };
+    JSTableHeadRow.prototype.setColumns = function (columns) {
+        for (var i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            var tableHeadCell = new JSTableHeadCell(column);
+            this.add(tableHeadCell);
+        }
+    };
+    return JSTableHeadRow;
 }(JSHTMLComponent));
 var JSTableRow = (function (_super) {
     __extends(JSTableRow, _super);
@@ -6653,6 +6940,7 @@ var JSTableRow = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        _this.setUI("JSTableRow");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof Array) {
@@ -6664,9 +6952,6 @@ var JSTableRow = (function (_super) {
         }
         return _this;
     }
-    JSTableRow.prototype.init = function () {
-        this.addClass("JSTableRow");
-    };
     JSTableRow.prototype.getValues = function () {
         var values = [];
         var components = this.getComponents();
@@ -6693,6 +6978,7 @@ var JSTextArea = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]) || this;
+        _this.setUI("JSTextArea");
         switch (args.length) {
             case 0:
                 break;
@@ -6724,9 +7010,6 @@ var JSTextArea = (function (_super) {
         }
         return _this;
     }
-    JSTextArea.prototype.init = function () {
-        this.addClass("JSTextArea");
-    };
     JSTextArea.prototype.getRows = function () {
         return +this.getAttribute("rows");
     };
@@ -6739,6 +7022,12 @@ var JSTextArea = (function (_super) {
     JSTextArea.prototype.setColumns = function (columns) {
         this.setAttribute("columns", "" + columns);
     };
+    JSTextArea.prototype.getText = function () {
+        return this.element.value;
+    };
+    JSTextArea.prototype.setText = function (text) {
+        this.element.value = text;
+    };
     return JSTextArea;
 }(JSHTMLComponent));
 var JSTextField = (function (_super) {
@@ -6750,6 +7039,7 @@ var JSTextField = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
         _this.setAttribute("type", "text");
+        _this.setUI("JSTextField");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "number") {
@@ -6773,9 +7063,6 @@ var JSTextField = (function (_super) {
         }
         return _this;
     }
-    JSTextField.prototype.init = function () {
-        this.addClass("JSTextField");
-    };
     JSTextField.prototype.getColumns = function () {
         return +this.getAttribute("size");
     };
@@ -6798,7 +7085,7 @@ var JSTreeCell = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("white-space", "nowrap");
+        _this.setUI("JSTreeCell");
         var index = 0;
         var graphics = _this.getGraphics();
         _super.prototype.add.call(_this, graphics, null, index++);
@@ -6823,9 +7110,6 @@ var JSTreeCell = (function (_super) {
         }
         return _this;
     }
-    JSTreeCell.prototype.init = function () {
-        this.addClass("JSTreeCell");
-    };
     JSTreeCell.prototype.getValue = function () {
         return this.getData("value");
     };
@@ -6994,12 +7278,9 @@ var JSBodyDefsContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
-        _this.setPreferredHeight(0);
+        _this.setUI("JSBodyDefsContainer");
         return _this;
     }
-    JSBodyDefsContainer.prototype.init = function () {
-        this.addClass("JSBodyDefsContainer");
-    };
     return JSBodyDefsContainer;
 }(JSSVG));
 var JSBodyDialogContainer = (function (_super) {
@@ -7010,17 +7291,9 @@ var JSBodyDialogContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("position", "fixed");
-        _this.setStyle("left", "0");
-        _this.setStyle("top", "0");
-        _this.setStyle("width", "100%");
-        _this.setStyle("height", "100%");
-        _this.setStyle("background-color", "rgba(0,0,0,0.5)");
+        _this.setUI("JSBodyDialogContainer");
         return _this;
     }
-    JSBodyDialogContainer.prototype.init = function () {
-        this.addClass("JSBodyDialogContainer");
-    };
     return JSBodyDialogContainer;
 }(JSPanel));
 var JSBodyDragImageContainer = (function (_super) {
@@ -7031,12 +7304,9 @@ var JSBodyDragImageContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setPreferredHeight(0);
+        _this.setUI("JSBodyDragImageContainer");
         return _this;
     }
-    JSBodyDragImageContainer.prototype.init = function () {
-        this.addClass("JSBodyDragImageContainer");
-    };
     return JSBodyDragImageContainer;
 }(JSPanel));
 var JSBodyModal = (function (_super) {
@@ -7047,19 +7317,10 @@ var JSBodyModal = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setLayer(JSComponent.MODAL_LAYER);
+        _this.setUI("JSBodyModal");
         _this.setStyle("display", "none");
-        _this.setStyle("position", "fixed");
-        _this.setStyle("left", "0");
-        _this.setStyle("top", "0");
-        _this.setStyle("width", "100%");
-        _this.setStyle("height", "100%");
-        _this.setStyle("background-color", "rgba(0, 0, 0, 0.5)");
         return _this;
     }
-    JSBodyModal.prototype.init = function () {
-        this.addClass("JSBodyModal");
-    };
     return JSBodyModal;
 }(JSPanel));
 var JSBodyPopupMenuContainer = (function (_super) {
@@ -7070,12 +7331,9 @@ var JSBodyPopupMenuContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setPreferredHeight(0);
+        _this.setUI("JSBodyPopupMenuContainer");
         return _this;
     }
-    JSBodyPopupMenuContainer.prototype.init = function () {
-        this.addClass("JSBodyPopupMenuContainer");
-    };
     return JSBodyPopupMenuContainer;
 }(JSPanel));
 var JSButtonSpan = (function (_super) {
@@ -7086,12 +7344,9 @@ var JSButtonSpan = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSButtonSpan");
         return _this;
     }
-    JSButtonSpan.prototype.init = function () {
-        this.addClass("JSButtonSpan");
-    };
     return JSButtonSpan;
 }(JSSpan));
 var JSCheckBoxLabel = (function (_super) {
@@ -7102,12 +7357,9 @@ var JSCheckBoxLabel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSCheckBoxLabel");
         return _this;
     }
-    JSCheckBoxLabel.prototype.init = function () {
-        this.addClass("JSCheckBoxLabel");
-    };
     return JSCheckBoxLabel;
 }(JSLabel));
 var JSDialog = (function (_super) {
@@ -7118,9 +7370,8 @@ var JSDialog = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSDialog");
         _this.setVisible(false);
-        _this.setStyle("position", "absolute");
-        _this.setLayer(JSComponent.MODAL_LAYER);
         _super.prototype.setLayout.call(_this, new JSBorderLayout());
         var index = 0;
         var titlePanel = _this.getTitlePanel();
@@ -7157,9 +7408,6 @@ var JSDialog = (function (_super) {
         closeButton.addActionListener(_this);
         return _this;
     }
-    JSDialog.prototype.init = function () {
-        this.addClass("JSDialog");
-    };
     JSDialog.prototype.getTitlePanel = function () {
         var titlePanel = this.getData("dialogTitlePanel");
         if (!titlePanel) {
@@ -7281,11 +7529,10 @@ var JSDialogContentPane = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSDialogContentPane");
+        return _this;
     }
-    JSDialogContentPane.prototype.init = function () {
-        this.addClass("JSDialogContentPane");
-    };
     return JSDialogContentPane;
 }(JSPanel));
 var JSDialogCloseButton = (function (_super) {
@@ -7296,12 +7543,10 @@ var JSDialogCloseButton = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        _this.setUI("JSDialogCloseButton");
         _this.setIcon(JSDialogCloseButton.CLOSE_ICON);
         return _this;
     }
-    JSDialogCloseButton.prototype.init = function () {
-        this.addClass("JSDialogCloseButton");
-    };
     JSDialogCloseButton.CLOSE_ICON = new JSPathIcon("M0,0L12,12M12,0L0,12", 12, 12);
     return JSDialogCloseButton;
 }(JSButton));
@@ -7313,12 +7558,9 @@ var JSDialogTitleLabel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        _this.setUI("JSDialogTitleLabel");
         return _this;
     }
-    JSDialogTitleLabel.prototype.init = function () {
-        this.addClass("JSDialogTitleLabel");
-    };
     return JSDialogTitleLabel;
 }(JSLabel));
 var JSDialogTitlePanel = (function (_super) {
@@ -7329,12 +7571,10 @@ var JSDialogTitlePanel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSDialogTitlePanel");
         _this.setLayout(new JSBorderLayout());
         return _this;
     }
-    JSDialogTitlePanel.prototype.init = function () {
-        this.addClass("JSDialogTitlePanel");
-    };
     return JSDialogTitlePanel;
 }(JSPanel));
 var JSFrameContentPane = (function (_super) {
@@ -7345,12 +7585,10 @@ var JSFrameContentPane = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSFrameContentPane");
         _this.setLayout(new JSBorderLayout());
         return _this;
     }
-    JSFrameContentPane.prototype.init = function () {
-        this.addClass("JSFrameContentPane");
-    };
     return JSFrameContentPane;
 }(JSPanel));
 var JSFrameMenuBarContainer = (function (_super) {
@@ -7360,21 +7598,23 @@ var JSFrameMenuBarContainer = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSFrameMenuBarContainer");
+        return _this;
     }
-    JSFrameMenuBarContainer.prototype.init = function () {
-        this.addClass("JSFrameMenuBarContainer");
-    };
     return JSFrameMenuBarContainer;
 }(JSPanel));
 var JSFrameTitleLabel = (function (_super) {
     __extends(JSFrameTitleLabel, _super);
     function JSFrameTitleLabel() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSFrameTitleLabel");
+        return _this;
     }
-    JSFrameTitleLabel.prototype.init = function () {
-        this.addClass("JSFrameTitleLabel");
-    };
     return JSFrameTitleLabel;
 }(JSLabel));
 var JSGraphics = (function (_super) {
@@ -7385,12 +7625,9 @@ var JSGraphics = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("font-size", "0");
+        _this.setUI("JSGraphics");
         return _this;
     }
-    JSGraphics.prototype.init = function () {
-        this.addClass("JSGraphics");
-    };
     return JSGraphics;
 }(JSPanel));
 var JSLayeredPane = (function (_super) {
@@ -7401,6 +7638,7 @@ var JSLayeredPane = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSLayeredPane");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSLayout) {
@@ -7412,9 +7650,6 @@ var JSLayeredPane = (function (_super) {
         }
         return _this;
     }
-    JSLayeredPane.prototype.init = function () {
-        this.addClass("JSLayeredPane");
-    };
     return JSLayeredPane;
 }(JSPanel));
 var JSMenuBar = (function (_super) {
@@ -7425,14 +7660,12 @@ var JSMenuBar = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSMenuBar");
         var index = 0;
         var menuContainer = _this.getMenuContainer();
         _super.prototype.add.call(_this, menuContainer, null, index++);
         return _this;
     }
-    JSMenuBar.prototype.init = function () {
-        this.addClass("JSMenuBar");
-    };
     JSMenuBar.prototype.add = function (menu) {
         var menuContainer = this.getMenuContainer();
         menuContainer.add(menu);
@@ -7461,6 +7694,7 @@ var JSMenuContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSMenuContainer");
         JSBody.getInstance().addMouseListener({
             mousePressed: function (mouseEvent, menuContainer) {
                 menuContainer.setData("pressed", false);
@@ -7482,9 +7716,6 @@ var JSMenuContainer = (function (_super) {
         }, true).withParameters(_this);
         return _this;
     }
-    JSMenuContainer.prototype.init = function () {
-        this.addClass("JSMenuContainer");
-    };
     JSMenuContainer.prototype.add = function (menu) {
         var selection = this.getSelection();
         if (!selection) {
@@ -7522,7 +7753,7 @@ var JSMenuItem = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        _this.setUI("JSMenuItem");
         var index = 0;
         var label = _this.getLabel();
         _this.add(label, null, index++);
@@ -7554,9 +7785,6 @@ var JSMenuItem = (function (_super) {
         _this.addMouseListener(_this);
         return _this;
     }
-    JSMenuItem.prototype.init = function () {
-        this.addClass("JSMenuItem");
-    };
     JSMenuItem.prototype.getLabel = function () {
         var label = this.getData("label");
         if (!label) {
@@ -7632,12 +7860,9 @@ var JSMenuItemLabel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSMenuItemLabel");
         return _this;
     }
-    JSMenuItemLabel.prototype.init = function () {
-        this.addClass("JSMenuItemLabel");
-    };
     return JSMenuItemLabel;
 }(JSLabel));
 var JSPathImage = (function (_super) {
@@ -7648,6 +7873,7 @@ var JSPathImage = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        _this.setUI("JSPathImage");
         var index = 0;
         var path = _this.getPath();
         _this.add(path, null, index++);
@@ -7676,9 +7902,6 @@ var JSPathImage = (function (_super) {
         }
         return _this;
     }
-    JSPathImage.prototype.init = function () {
-        this.addClass("JSPathImage");
-    };
     JSPathImage.prototype.getPath = function () {
         var path = this.getData("path");
         if (!path) {
@@ -7735,7 +7958,7 @@ var JSPopupMenu = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("position", "absolute");
+        _this.setUI("JSPopupMenu");
         _this.setVisible(false);
         JSBody.getInstance().addMouseListener({
             mousePressed: function (mouseEvent, popupMenu) {
@@ -7762,9 +7985,6 @@ var JSPopupMenu = (function (_super) {
         _this.setLayer(JSComponent.POPUP_LAYER);
         return _this;
     }
-    JSPopupMenu.prototype.init = function () {
-        this.addClass("JSPopupMenu");
-    };
     JSPopupMenu.prototype.add = function (component) {
         var selection = this.getSelection();
         if (!selection) {
@@ -7821,12 +8041,128 @@ var JSPopupMenuContainer = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSPopupMenuContainer");
+        return _this;
     }
-    JSPopupMenuContainer.prototype.init = function () {
-        this.addClass("JSPopupMenuContainer");
-    };
     return JSPopupMenuContainer;
+}(JSPanel));
+var JSScrollBar = (function (_super) {
+    __extends(JSScrollBar, _super);
+    function JSScrollBar() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSScrollBar");
+        var index = 0;
+        var view = _this.getView();
+        _this.setViewportView(view);
+        var orientation;
+        switch (args.length) {
+            case 1:
+                if (typeof args[0] === "string") {
+                    orientation = args[0];
+                    _this.setOrientation(orientation);
+                }
+                break;
+            default:
+        }
+        if (!orientation) {
+            _this.setOrientation(JSScrollBar.VERTICAL);
+        }
+        return _this;
+    }
+    JSScrollBar.prototype.getOrientation = function () {
+        return this.getAttribute("data-orientation");
+    };
+    JSScrollBar.prototype.setOrientation = function (orientation) {
+        this.setAttribute("data-orientation", orientation);
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
+            this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_NEVER);
+        }
+        else {
+            this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
+            this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
+        }
+    };
+    JSScrollBar.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSScrollBar.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSScrollBar.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSScrollBar.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    JSScrollBar.prototype.getView = function () {
+        var view = this.getData("view");
+        if (!view) {
+            var element = this.getChild("JSPanel");
+            if (element) {
+                view = new JSPanel(element);
+            }
+            else {
+                view = new JSPanel();
+            }
+            this.setData("view", view);
+        }
+        return view;
+    };
+    JSScrollBar.prototype.getViewportView = function () {
+        return this.getData("viewportView");
+    };
+    JSScrollBar.prototype.setViewportView = function (viewportView) {
+        this.setData("viewportView", viewportView);
+        this.removeAll();
+        this.add(viewportView);
+    };
+    JSScrollBar.prototype.getMaximum = function () {
+        var view = this.getView();
+        var orientation = this.getOrientation();
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            return view.getWidth();
+        }
+        else {
+            return view.getHeight();
+        }
+    };
+    JSScrollBar.prototype.setMaximum = function (maximum) {
+        var view = this.getView();
+        var orientation = this.getOrientation();
+        if (orientation === JSScrollBar.HORIZONTAL) {
+            view.setWidth(maximum);
+            view.setHeight(1);
+            view.setStyle("margin-top", "-1px");
+        }
+        else {
+            view.setHeight(maximum);
+            view.setWidth(1);
+            view.setStyle("margin-left", "-1px");
+        }
+    };
+    JSScrollBar.prototype.getPreferredWidth = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
+        view.setStyle("display", display);
+        return preferredWidth;
+    };
+    JSScrollBar.prototype.getPreferredHeight = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredHeight = _super.prototype.getPreferredHeight.call(this);
+        view.setStyle("display", display);
+        return preferredHeight;
+    };
+    return JSScrollBar;
 }(JSPanel));
 var JSScrollPane = (function (_super) {
     __extends(JSScrollPane, _super);
@@ -7836,57 +8172,40 @@ var JSScrollPane = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var index = 0;
-        var viewContainer = _this.getViewContainer();
-        _this.add(viewContainer, null, index++);
-        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        _this.setUI("JSScrollPane");
+        _this.setLayout(new JSScrollPaneLayout());
+        var view;
+        var vsbPolicy = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
+        var hsbPolicy = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSComponent) {
-                    var view = args[0];
-                    _this.setViewportView(view);
+                    view = args[0];
                 }
                 break;
             case 2:
                 if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var vsbPolicy = args[0];
-                    var hsbPolicy = args[1];
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
+                    vsbPolicy = args[0];
+                    hsbPolicy = args[1];
                 }
                 break;
             case 3:
                 if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                    var view = args[0];
-                    var vsbPolicy = args[1];
-                    var hsbPolicy = args[2];
+                    view = args[0];
+                    vsbPolicy = args[1];
+                    hsbPolicy = args[2];
                     _this.setViewportView(view);
-                    _this.setVsbPolicy(vsbPolicy);
-                    _this.setHsbPolicy(hsbPolicy);
                 }
                 break;
             default:
         }
+        if (view) {
+            _this.setViewportView(view);
+        }
+        _this.setVsbPolicy(vsbPolicy);
+        _this.setHsbPolicy(hsbPolicy);
         return _this;
     }
-    JSScrollPane.prototype.init = function () {
-        this.addClass("JSScrollPane");
-    };
-    JSScrollPane.prototype.getViewContainer = function () {
-        var viewContainer = this.getData("viewContainer");
-        if (!viewContainer) {
-            var element = this.getChild("JSScrollPaneViewContainer");
-            if (element) {
-                viewContainer = new JSScrollPaneViewContainer(element);
-            }
-            else {
-                viewContainer = new JSScrollPaneViewContainer();
-            }
-            this.setData("viewContainer", viewContainer);
-        }
-        return viewContainer;
-    };
     JSScrollPane.prototype.getVsbPolicy = function () {
         return this.getStyle("overflow-y");
     };
@@ -7904,64 +8223,26 @@ var JSScrollPane = (function (_super) {
     };
     JSScrollPane.prototype.setViewportView = function (viewportView) {
         this.setData("viewportView", viewportView);
-        var viewContainer = this.getViewContainer();
         if (viewportView) {
-            viewContainer.removeAll();
-            viewContainer.add(viewportView);
-        }
-        if (viewportView instanceof JSTable) {
+            this.removeAll();
+            this.add(viewportView);
         }
     };
-    JSScrollPane.prototype.getPreferredWidth = function () {
-        var preferredWidth = this.getAttribute("data-preferred-width");
-        if (preferredWidth) {
-            return +preferredWidth;
-        }
-        var viewportView = this.getViewportView();
-        if (viewportView) {
-            return viewportView.getPreferredWidth();
-        }
-        else {
-            return 0;
-        }
-    };
-    JSScrollPane.prototype.getPreferredHeight = function () {
-        var preferredHeight = this.getAttribute("data-preferred-height");
-        if (preferredHeight) {
-            return +preferredHeight;
-        }
-        var viewportView = this.getViewportView();
-        if (viewportView) {
-            return viewportView.getPreferredHeight();
-        }
-        else {
-            return 0;
-        }
-    };
-    JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.VERTICAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.VERTICAL_SCROLLBAR_ALWAYS = "scroll";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED = "auto";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER = "hidden";
-    JSScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS = "scroll";
     return JSScrollPane;
 }(JSPanel));
-var JSScrollPaneViewContainer = (function (_super) {
-    __extends(JSScrollPaneViewContainer, _super);
-    function JSScrollPaneViewContainer() {
+var JSTableHeader = (function (_super) {
+    __extends(JSTableHeader, _super);
+    function JSTableHeader() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        _this.setUI("JSTableHeader");
         return _this;
     }
-    JSScrollPaneViewContainer.prototype.init = function () {
-        this.addClass("JSScrollPaneViewContainer");
-    };
-    return JSScrollPaneViewContainer;
-}(JSPanel));
+    return JSTableHeader;
+}(JSTableContent));
 var JSSeparator = (function (_super) {
     __extends(JSSeparator, _super);
     function JSSeparator() {
@@ -7970,6 +8251,7 @@ var JSSeparator = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSSeparator");
         switch (args.length) {
             case 0:
                 _this.setOrientation(JSComponent.HORIZONTAL);
@@ -7995,9 +8277,6 @@ var JSSeparator = (function (_super) {
         });
         return _this;
     }
-    JSSeparator.prototype.init = function () {
-        this.addClass("JSSeparator");
-    };
     JSSeparator.prototype.getOrientation = function () {
         return this.getAttribute("data-orientation");
     };
@@ -8052,12 +8331,9 @@ var JSSeparatorHorizontalLine = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        _this.setUI("JSSeparatorHorizontalLine");
         return _this;
     }
-    JSSeparatorHorizontalLine.prototype.init = function () {
-        this.addClass("JSSeparatorHorizontalLine");
-    };
     return JSSeparatorHorizontalLine;
 }(JSPanel));
 var JSSeparatorVerticalLine = (function (_super) {
@@ -8068,12 +8344,9 @@ var JSSeparatorVerticalLine = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("height", "100%");
+        _this.setUI("JSSeparatorVerticalLine");
         return _this;
     }
-    JSSeparatorVerticalLine.prototype.init = function () {
-        this.addClass("JSSeparatorVerticalLine");
-    };
     return JSSeparatorVerticalLine;
 }(JSPanel));
 var JSSplitPane = (function (_super) {
@@ -8084,6 +8357,7 @@ var JSSplitPane = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSSplitPane");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -8104,9 +8378,6 @@ var JSSplitPane = (function (_super) {
         _this.setDividerProportionalLocation(.5);
         return _this;
     }
-    JSSplitPane.prototype.init = function () {
-        this.addClass("JSSplitPane");
-    };
     JSSplitPane.prototype.getOrientation = function () {
         return this.getAttribute("data-orientation");
     };
@@ -8267,9 +8538,7 @@ var JSSplitPaneDivider = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        var index = 0;
-        var panel = _this.getPanel();
-        _this.add(panel, null, index++);
+        _this.setUI("JSSplitPaneDivider");
         _this.addMouseListener({
             mousePressed: function (mouseEvent, divider) {
                 var splitPane = divider.getParent();
@@ -8302,23 +8571,6 @@ var JSSplitPaneDivider = (function (_super) {
         }).withParameters(_this);
         return _this;
     }
-    JSSplitPaneDivider.prototype.init = function () {
-        this.addClass("JSSplitPaneDivider");
-    };
-    JSSplitPaneDivider.prototype.getPanel = function () {
-        var panel = this.getData("splitPaneDividerPanel");
-        if (!panel) {
-            var element = this.getChild("JSSplitPaneDividerPanel");
-            if (element) {
-                panel = new JSSplitPaneDividerPanel(element);
-            }
-            else {
-                panel = new JSSplitPaneDividerPanel();
-            }
-            this.setData("splitPaneDividerPanel", panel);
-        }
-        return panel;
-    };
     return JSSplitPaneDivider;
 }(JSPanel));
 var JSSplitPaneDividerPanel = (function (_super) {
@@ -8329,12 +8581,9 @@ var JSSplitPaneDividerPanel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        _this.setUI("JSSplitPaneDividerPanel");
         return _this;
     }
-    JSSplitPaneDividerPanel.prototype.init = function () {
-        this.addClass("JSSplitPaneDividerPanel");
-    };
     return JSSplitPaneDividerPanel;
 }(JSPanel));
 var JSSplitPaneLeftContainer = (function (_super) {
@@ -8345,12 +8594,10 @@ var JSSplitPaneLeftContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSSplitPaneLeftContainer");
         _this.setLayout(new JSBorderLayout());
         return _this;
     }
-    JSSplitPaneLeftContainer.prototype.init = function () {
-        this.addClass("JSSplitPaneLeftContainer");
-    };
     return JSSplitPaneLeftContainer;
 }(JSPanel));
 var JSSplitPaneRightContainer = (function (_super) {
@@ -8361,12 +8608,10 @@ var JSSplitPaneRightContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSSplitPaneRightContainer");
         _this.setLayout(new JSBorderLayout());
         return _this;
     }
-    JSSplitPaneRightContainer.prototype.init = function () {
-        this.addClass("JSSplitPaneRightContainer");
-    };
     return JSSplitPaneRightContainer;
 }(JSPanel));
 var JSTab = (function (_super) {
@@ -8377,7 +8622,7 @@ var JSTab = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("white-space", "nowrap");
+        _this.setUI("JSTab");
         var index = 0;
         var graphics = _this.getGraphics();
         _this.add(graphics, null, index++);
@@ -8412,9 +8657,6 @@ var JSTab = (function (_super) {
         }
         return _this;
     }
-    JSTab.prototype.init = function () {
-        this.addClass("JSTab");
-    };
     JSTab.prototype.getGraphics = function () {
         var graphics = this.getData("graphics");
         if (!graphics) {
@@ -8525,10 +8767,11 @@ var JSTab = (function (_super) {
         this.setData("text", text);
     };
     JSTab.prototype.setSelected = function (selected) {
-        this.setBackground(selected ? "White" : "Silver");
-        var label = this.getLabel();
-        if (label) {
-            label.setForeground(selected ? "black" : "#404040");
+        if (selected) {
+            this.addClass("selected");
+        }
+        else {
+            this.removeClass("selected");
         }
         _super.prototype.setSelected.call(this, selected);
     };
@@ -8542,12 +8785,10 @@ var JSTabCloseButton = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        _this.setUI("JSTabCloseButton");
         _this.setIcon(JSTabCloseButton.CLOSE_ICON);
         return _this;
     }
-    JSTabCloseButton.prototype.init = function () {
-        this.addClass("JSTabCloseButton");
-    };
     JSTabCloseButton.CLOSE_ICON = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withStroke("red");
     return JSTabCloseButton;
 }(JSButton));
@@ -8559,12 +8800,9 @@ var JSTabLabel = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSTabLabel");
         return _this;
     }
-    JSTabLabel.prototype.init = function () {
-        this.addClass("JSTabLabel");
-    };
     return JSTabLabel;
 }(JSLabel));
 var JSTabbedPaneButtonContainer = (function (_super) {
@@ -8575,6 +8813,7 @@ var JSTabbedPaneButtonContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTabbedPaneButtonContainer");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -8609,9 +8848,6 @@ var JSTabbedPaneButtonContainer = (function (_super) {
         }
         return _this;
     }
-    JSTabbedPaneButtonContainer.prototype.init = function () {
-        this.addClass("JSTabbedPaneButtonContainer");
-    };
     JSTabbedPaneButtonContainer.prototype.getTabPlacement = function () {
         return this.getAttribute("data-tab-placement");
     };
@@ -8627,12 +8863,11 @@ var JSTabbedPaneCardContainer = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTabbedPaneCardContainer");
+        _this.setLayout(new JSCardLayout());
+        return _this;
     }
-    JSTabbedPaneCardContainer.prototype.init = function () {
-        this.addClass("JSTabbedPaneCardContainer");
-        this.setLayout(new JSCardLayout());
-    };
     return JSTabbedPaneCardContainer;
 }(JSPanel));
 var JSTabbedPaneTabContainer = (function (_super) {
@@ -8643,6 +8878,7 @@ var JSTabbedPaneTabContainer = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTabbedPaneTabContainer");
         switch (args.length) {
             case 1:
                 if (typeof args[0] === "string") {
@@ -8674,9 +8910,6 @@ var JSTabbedPaneTabContainer = (function (_super) {
         }
         return _this;
     }
-    JSTabbedPaneTabContainer.prototype.init = function () {
-        this.addClass("JSTabbedPaneTabContainer");
-    };
     JSTabbedPaneTabContainer.prototype.getTabPlacement = function () {
         return this.getAttribute("data-tab-placement");
     };
@@ -8877,11 +9110,10 @@ var JSToolBar = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSToolBar");
+        return _this;
     }
-    JSToolBar.prototype.init = function () {
-        this.addClass("JSToolBar");
-    };
     JSToolBar.prototype.addSeparator = function () {
         var separator = new JSPanel();
         separator.setWidth(8);
@@ -8897,7 +9129,7 @@ var JSTree = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("display", "block");
+        _this.setUI("JSTree");
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSTreeNode) {
@@ -8911,9 +9143,6 @@ var JSTree = (function (_super) {
         _this.setRootVisible(true);
         return _this;
     }
-    JSTree.prototype.init = function () {
-        this.addClass("JSTree");
-    };
     JSTree.prototype.getRoot = function () {
         var root = this.getData("root");
         if (!root) {
@@ -8968,7 +9197,7 @@ var JSTree = (function (_super) {
             var parentTreeCell = this.getTreeCell(parentNode.getTreePath());
             container = parentTreeCell.getContainer();
             if (!container) {
-                container = new JSPanel();
+                container = new JSDiv();
                 container.setStyle("display", "none");
                 var grandParentContainer = this;
                 var grandParentNode = parentNode.getParent();
@@ -9093,12 +9322,9 @@ var JSButtonGraphics = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSButtonGraphics");
         return _this;
     }
-    JSButtonGraphics.prototype.init = function () {
-        this.addClass("JSButtonGraphics");
-    };
     return JSButtonGraphics;
 }(JSGraphics));
 var JSCheckBoxMenuItem = (function (_super) {
@@ -9109,6 +9335,7 @@ var JSCheckBoxMenuItem = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSCheckBoxMenuItem");
         var index = 0;
         var input = _this.getInput();
         _this.add(input, null, index++);
@@ -9162,9 +9389,6 @@ var JSCheckBoxMenuItem = (function (_super) {
         _this.addMouseListener(_this);
         return _this;
     }
-    JSCheckBoxMenuItem.prototype.init = function () {
-        this.addClass("JSCheckBoxMenuItem");
-    };
     JSCheckBoxMenuItem.prototype.getInput = function () {
         var input = this.getData("input");
         if (!input) {
@@ -9197,12 +9421,9 @@ var JSLabelGraphics = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSLabelGraphics");
         return _this;
     }
-    JSLabelGraphics.prototype.init = function () {
-        this.addClass("JSLabelGraphics");
-    };
     return JSLabelGraphics;
 }(JSGraphics));
 var JSMenu = (function (_super) {
@@ -9214,7 +9435,7 @@ var JSMenu = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.delay = JSMenu.DELAY;
-        _this.setStyle("position", "relative");
+        _this.setUI("JSMenu");
         var index = 0;
         index++;
         var graphics = _this.getGraphics();
@@ -9244,9 +9465,6 @@ var JSMenu = (function (_super) {
         }
         return _this;
     }
-    JSMenu.prototype.init = function () {
-        this.addClass("JSMenu");
-    };
     JSMenu.prototype.getGraphics = function () {
         var graphics = this.getData("graphics");
         if (!graphics) {
@@ -9458,12 +9676,9 @@ var JSMenuGraphics = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSMenuGraphics");
         return _this;
     }
-    JSMenuGraphics.prototype.init = function () {
-        this.addClass("JSMenuGraphics");
-    };
     return JSMenuGraphics;
 }(JSGraphics));
 var JSTabGraphics = (function (_super) {
@@ -9474,11 +9689,51 @@ var JSTabGraphics = (function (_super) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setStyle("vertical-align", "middle");
+        _this.setUI("JSTabGraphics");
         return _this;
     }
-    JSTabGraphics.prototype.init = function () {
-        this.addClass("JSTabGraphics");
-    };
     return JSTabGraphics;
 }(JSGraphics));
+var JSTableScrollPane = (function (_super) {
+    __extends(JSTableScrollPane, _super);
+    function JSTableScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableScrollPane");
+        return _this;
+    }
+    return JSTableScrollPane;
+}(JSScrollPane));
+var JSTableHorizontalScrollPane = (function (_super) {
+    __extends(JSTableHorizontalScrollPane, _super);
+    function JSTableHorizontalScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableHorizontalScrollPane");
+        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return _this;
+    }
+    return JSTableHorizontalScrollPane;
+}(JSScrollPane));
+var JSTableVerticalScrollPane = (function (_super) {
+    __extends(JSTableVerticalScrollPane, _super);
+    function JSTableVerticalScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableVerticalScrollPane");
+        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return _this;
+    }
+    return JSTableVerticalScrollPane;
+}(JSScrollPane));

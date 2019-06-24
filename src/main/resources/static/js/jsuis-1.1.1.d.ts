@@ -745,6 +745,12 @@ declare class JSSplitPaneLayout extends JSLayout {
     layoutContainerHorizontally(splitPane: JSSplitPane): void;
     layoutContainerVertically(splitPane: JSSplitPane): void;
 }
+declare class JSTableLayout extends JSBorderLayout {
+    preferredLayoutWidth(container: JSComponent): number;
+    preferredLayoutHeight(container: JSComponent): number;
+    layoutContainerHorizontally(container: JSComponent): void;
+    layoutContainerVertically(container: JSComponent): void;
+}
 declare class JSTreeLayout extends JSLayout {
     preferredLayoutWidth(tree: JSTree): number;
     preferredLayoutHeight(tree: JSTree): number;
@@ -1105,12 +1111,15 @@ declare class JSTabbedPane extends JSPanel {
     getTabCount(): number;
     getTabComponentAt(index: number): JSComponent;
 }
-declare class JSTable extends JSHTMLComponent {
+declare class JSTable extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
-    getTableHead(): JSTableHead;
-    getTableBody(): JSTableBody;
+    getScrollPane(): JSTableScrollPane;
+    getHorizontalScrollPane(): JSTableHorizontalScrollPane;
+    getVerticalScrollPane(): JSTableVerticalScrollPane;
+    getTableHeader(): JSTableHeader;
+    getTableContent(): JSTableContent;
     getColumns(): string[];
     setColumns(columns: string[]): void;
     getRows(): any[][];
@@ -1409,23 +1418,6 @@ declare class JSScrollPane extends JSPanel {
     getViewportView(): JSComponent;
     setViewportView(viewportView: JSComponent): void;
 }
-declare class JSScrollTable extends JSPanel {
-    constructor();
-    constructor(element: HTMLElement);
-    constructor(rows: any[][], columns: string[]);
-    getVerticalScrollBar(): JSScrollBar;
-    getHorizontalScrollBar(): JSScrollBar;
-    getHorizontalScrollPane(): JSScrollPane;
-    getVerticalScrollPane(): JSScrollPane;
-    getTableHeader(): JSTableHeader;
-    getTableContent(): JSTableContent;
-    getColumns(): string[];
-    setColumns(columns: string[]): void;
-    getRows(): any[][];
-    setRows(rows: any[][]): void;
-    validateHorizontally(): void;
-    validateVertically(): void;
-}
 declare class JSTableHeader extends JSTableContent {
     constructor();
     constructor(element: HTMLElement);
@@ -1643,6 +1635,18 @@ declare class JSMenuGraphics extends JSGraphics {
     constructor(element: HTMLElement);
 }
 declare class JSTabGraphics extends JSGraphics {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSTableScrollPane extends JSScrollPane {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSTableHorizontalScrollPane extends JSScrollPane {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSTableVerticalScrollPane extends JSScrollPane {
     constructor();
     constructor(element: HTMLElement);
 }

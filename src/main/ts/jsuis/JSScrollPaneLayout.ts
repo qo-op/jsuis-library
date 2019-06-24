@@ -12,12 +12,20 @@ class JSScrollPaneLayout extends JSLayout {
     
     preferredLayoutWidth(container: JSComponent): number {
         var view: JSComponent = (<JSScrollPane> container).getViewportView();
-        return view.getPreferredWidth();
+        if (view) {
+            return view.getPreferredWidth();
+        } else {
+            return super.preferredLayoutWidth(container);
+        }
     }
     
     preferredLayoutHeight(container: JSComponent): number {
         var view: JSComponent = (<JSScrollPane> container).getViewportView();
-        return view.getPreferredHeight();
+        if (view) {
+            return view.getPreferredHeight();
+        } else {
+            return super.preferredLayoutHeight(container);
+        }
     }
     
     layoutContainerHorizontally(container: JSComponent): void {
@@ -25,7 +33,9 @@ class JSScrollPaneLayout extends JSLayout {
             return;
         }
         var view: JSComponent = (<JSScrollPane> container).getViewportView();
-        view.setWidth(view.getPreferredWidth());
+        if (view) {
+            view.setWidth(view.getPreferredWidth());
+        }
         container.setValidHorizontally(true);
     }
     
@@ -34,7 +44,9 @@ class JSScrollPaneLayout extends JSLayout {
             return;
         }
         var view: JSComponent = (<JSScrollPane> container).getViewportView();
-        view.setHeight(view.getPreferredHeight());
+        if (view) {
+            view.setHeight(view.getPreferredHeight());
+        }
         container.setValidVertically(true);
     }
 }

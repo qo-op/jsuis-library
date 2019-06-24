@@ -3928,18 +3928,30 @@ var JSScrollPaneLayout = (function (_super) {
     };
     JSScrollPaneLayout.prototype.preferredLayoutWidth = function (container) {
         var view = container.getViewportView();
-        return view.getPreferredWidth();
+        if (view) {
+            return view.getPreferredWidth();
+        }
+        else {
+            return _super.prototype.preferredLayoutWidth.call(this, container);
+        }
     };
     JSScrollPaneLayout.prototype.preferredLayoutHeight = function (container) {
         var view = container.getViewportView();
-        return view.getPreferredHeight();
+        if (view) {
+            return view.getPreferredHeight();
+        }
+        else {
+            return _super.prototype.preferredLayoutHeight.call(this, container);
+        }
     };
     JSScrollPaneLayout.prototype.layoutContainerHorizontally = function (container) {
         if (container.isValidHorizontally()) {
             return;
         }
         var view = container.getViewportView();
-        view.setWidth(view.getPreferredWidth());
+        if (view) {
+            view.setWidth(view.getPreferredWidth());
+        }
         container.setValidHorizontally(true);
     };
     JSScrollPaneLayout.prototype.layoutContainerVertically = function (container) {
@@ -3947,7 +3959,9 @@ var JSScrollPaneLayout = (function (_super) {
             return;
         }
         var view = container.getViewportView();
-        view.setHeight(view.getPreferredHeight());
+        if (view) {
+            view.setHeight(view.getPreferredHeight());
+        }
         container.setValidVertically(true);
     };
     return JSScrollPaneLayout;
@@ -4066,6 +4080,81 @@ var JSSplitPaneLayout = (function (_super) {
     };
     return JSSplitPaneLayout;
 }(JSLayout));
+var JSTableLayout = (function (_super) {
+    __extends(JSTableLayout, _super);
+    function JSTableLayout() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JSTableLayout.prototype.preferredLayoutWidth = function (container) {
+        var table = container;
+        var tableContent = table.getTableContent();
+        return tableContent.getPreferredOuterWidth();
+    };
+    JSTableLayout.prototype.preferredLayoutHeight = function (container) {
+        var table = container;
+        var tableContent = table.getTableContent();
+        return tableContent.getPreferredOuterHeight();
+    };
+    JSTableLayout.prototype.layoutContainerHorizontally = function (container) {
+        if (container.isValidHorizontally()) {
+            return;
+        }
+        var hgap = this.getHgap();
+        var width = container.getWidth();
+        var x = container.getInsetLeft();
+        var table = container;
+        var scrollPane = table.getScrollPane();
+        scrollPane.setOuterWidth(width);
+        scrollPane.setX(x);
+        var horizontalScrollPane = table.getHorizontalScrollPane();
+        horizontalScrollPane.setOuterWidth(width);
+        horizontalScrollPane.setX(x);
+        var tableHeader = table.getTableHeader();
+        var tableHeaderHead = tableHeader.getTableHead();
+        var tableHeaderHeadRow = tableHeaderHead.getTableHeadRow();
+        var tableHeaderHeadCells = tableHeaderHeadRow.getComponents();
+        var tableContent = table.getTableContent();
+        var tableContentHead = tableContent.getTableHead();
+        var tableContentHeadRow = tableContentHead.getTableHeadRow();
+        var tableContentHeadCells = tableContentHeadRow.getComponents();
+        for (var i = 0; i < tableContentHeadCells.length; i++) {
+            var tableContentHeadCell = tableContentHeadCells[i];
+            var tableHeaderHeadCell = tableHeaderHeadCells[i];
+            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
+        }
+        var scrollPaneView = scrollPane.getViewportView();
+        scrollPaneView.setOuterWidth(tableContent.getPreferredOuterWidth());
+        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
+        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var verticalScrollPane = table.getVerticalScrollPane();
+        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        container.setValidHorizontally(true);
+    };
+    JSTableLayout.prototype.layoutContainerVertically = function (container) {
+        if (container.isValidVertically()) {
+            return;
+        }
+        var vgap = this.getVgap();
+        var height = container.getHeight();
+        var y = container.getInsetTop();
+        var table = container;
+        var scrollPane = table.getScrollPane();
+        scrollPane.setOuterHeight(height);
+        scrollPane.setY(y);
+        var horizontalScrollPane = table.getHorizontalScrollPane();
+        horizontalScrollPane.setOuterHeight(height);
+        horizontalScrollPane.setY(y);
+        var scrollPaneView = scrollPane.getViewportView();
+        var tableContent = table.getTableContent();
+        scrollPaneView.setOuterHeight(tableContent.getPreferredHeight());
+        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
+        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var verticalScrollPane = table.getVerticalScrollPane();
+        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        container.setValidVertically(true);
+    };
+    return JSTableLayout;
+}(JSBorderLayout));
 var JSTreeLayout = (function (_super) {
     __extends(JSTreeLayout, _super);
     function JSTreeLayout() {
@@ -6450,13 +6539,26 @@ var JSTable = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSTable");
         var index = 0;
-        var tableHeader = _this.getTableHead();
-        _this.add(tableHeader, null, index++);
-        var tableBody = _this.getTableBody();
-        _this.add(tableBody, null, index++);
+        _this.setLayout(new JSTableLayout());
+        var scrollPane = _this.getScrollPane();
+        _this.add(scrollPane);
+        var scrollPaneView = new JSPanel();
+        scrollPaneView.setStyle("position", "absolute");
+        scrollPane.setViewportView(scrollPaneView);
+        var horizontalScrollPane = _this.getHorizontalScrollPane();
+        _this.add(horizontalScrollPane);
+        var horizontalScrollPaneView = new JSPanel(new JSBorderLayout());
+        horizontalScrollPane.setViewportView(horizontalScrollPaneView);
+        var verticalScrollPane = _this.getVerticalScrollPane();
+        horizontalScrollPaneView.add(verticalScrollPane);
+        var tableContent = _this.getTableContent();
+        verticalScrollPane.setViewportView(tableContent);
+        var tableHeader = _this.getTableHeader();
+        tableHeader.setAlign(JSBorderLayout.TOP);
+        horizontalScrollPaneView.add(tableHeader);
         switch (args.length) {
             case 2:
                 if (args[0] instanceof Array && args[1] instanceof Array) {
@@ -6468,54 +6570,108 @@ var JSTable = (function (_super) {
                 break;
             default:
         }
+        scrollPane.addAdjustmentListener({
+            adjustmentValueChanged: function (event) {
+                horizontalScrollPane.element.scrollLeft = scrollPane.element.scrollLeft;
+                verticalScrollPane.element.scrollTop = scrollPane.element.scrollTop;
+            }
+        });
         return _this;
     }
-    JSTable.prototype.getTableHead = function () {
-        var tableHead = this.getData("tableHead");
-        if (!tableHead) {
-            var element = this.getChild("JSTableHead");
+    JSTable.prototype.getScrollPane = function () {
+        var scrollPane = this.getData("scrollPane");
+        if (!scrollPane) {
+            var element = this.getChild("JSTableScrollPane");
             if (element) {
-                tableHead = new JSTableHead(element);
+                scrollPane = new JSTableScrollPane(element);
             }
             else {
-                tableHead = new JSTableHead();
+                scrollPane = new JSTableScrollPane();
             }
-            this.setData("tableHead", tableHead);
+            this.setData("scrollPane", scrollPane);
         }
-        return tableHead;
+        return scrollPane;
     };
-    JSTable.prototype.getTableBody = function () {
-        var tableBody = this.getData("tableBody");
-        if (!tableBody) {
-            var element = this.getChild("JSTableBody");
+    JSTable.prototype.getHorizontalScrollPane = function () {
+        var horizontalScrollPane = this.getData("horizontalScrollPane");
+        if (!horizontalScrollPane) {
+            var element = this.getChild("JSTableHorizontalScrollPane");
             if (element) {
-                tableBody = new JSTableBody(element);
+                horizontalScrollPane = new JSTableHorizontalScrollPane(element);
             }
             else {
-                tableBody = new JSTableBody();
+                horizontalScrollPane = new JSTableHorizontalScrollPane();
             }
-            this.setData("tableBody", tableBody);
+            this.setData("horizontalScrollPane", horizontalScrollPane);
         }
-        return tableBody;
+        return horizontalScrollPane;
+    };
+    JSTable.prototype.getVerticalScrollPane = function () {
+        var verticalScrollPane = this.getData("verticalScrollPane");
+        if (!verticalScrollPane) {
+            var horizontalScrollPane = this.getHorizontalScrollPane();
+            var element = horizontalScrollPane.getChild("JSTableVerticalScrollPane");
+            if (element) {
+                verticalScrollPane = new JSTableVerticalScrollPane(element);
+            }
+            else {
+                verticalScrollPane = new JSTableVerticalScrollPane();
+            }
+            this.setData("verticalScrollPane", verticalScrollPane);
+        }
+        return verticalScrollPane;
+    };
+    JSTable.prototype.getTableHeader = function () {
+        var tableHeader = this.getData("tableHeader");
+        if (!tableHeader) {
+            var horizontalScrollPane = this.getHorizontalScrollPane();
+            var horizontalScrollPaneView = horizontalScrollPane.getViewportView();
+            var element = horizontalScrollPaneView.getChild("JSTableHeader");
+            if (element) {
+                tableHeader = new JSTableHeader(element);
+            }
+            else {
+                tableHeader = new JSTableHeader();
+            }
+            this.setData("tableHeader", tableHeader);
+        }
+        return tableHeader;
+    };
+    JSTable.prototype.getTableContent = function () {
+        var tableContent = this.getData("tableContent");
+        if (!tableContent) {
+            var verticalScrollPane = this.getVerticalScrollPane();
+            var element = verticalScrollPane.getChild("JSTableContent");
+            if (element) {
+                tableContent = new JSTableContent(element);
+            }
+            else {
+                tableContent = new JSTableContent();
+            }
+            this.setData("tableContent", tableContent);
+        }
+        return tableContent;
     };
     JSTable.prototype.getColumns = function () {
-        var tableHeader = this.getTableHead();
+        var tableHeader = this.getTableHeader();
         return tableHeader.getColumns();
     };
     JSTable.prototype.setColumns = function (columns) {
-        var tableHeader = this.getTableHead();
+        var tableHeader = this.getTableHeader();
         tableHeader.setColumns(columns);
+        var tableContent = this.getTableContent();
+        tableContent.setColumns(columns);
     };
     JSTable.prototype.getRows = function () {
-        var tableBody = this.getTableBody();
-        return tableBody.getRows();
+        var tableContent = this.getTableContent();
+        return tableContent.getRows();
     };
     JSTable.prototype.setRows = function (rows) {
-        var tableBody = this.getTableBody();
-        tableBody.setRows(rows);
+        var tableContent = this.getTableContent();
+        tableContent.setRows(rows);
     };
     return JSTable;
-}(JSHTMLComponent));
+}(JSPanel));
 var JSTableContent = (function (_super) {
     __extends(JSTableContent, _super);
     function JSTableContent() {
@@ -7924,12 +8080,10 @@ var JSScrollBar = (function (_super) {
     JSScrollBar.prototype.setOrientation = function (orientation) {
         this.setAttribute("data-orientation", orientation);
         if (orientation === JSScrollBar.HORIZONTAL) {
-            this.setUI("JSHorizontalScrollBar");
             this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
             this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_NEVER);
         }
         else {
-            this.setUI("JSVerticalScrollBar");
             this.setVsbPolicy(JSScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
             this.setHsbPolicy(JSScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
         }
@@ -8020,13 +8174,13 @@ var JSScrollPane = (function (_super) {
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSScrollPane");
         _this.setLayout(new JSScrollPaneLayout());
+        var view;
         var vsbPolicy = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
         var hsbPolicy = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSComponent) {
-                    var view = args[0];
-                    _this.setViewportView(view);
+                    view = args[0];
                 }
                 break;
             case 2:
@@ -8037,13 +8191,16 @@ var JSScrollPane = (function (_super) {
                 break;
             case 3:
                 if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                    var view = args[0];
+                    view = args[0];
                     vsbPolicy = args[1];
                     hsbPolicy = args[2];
                     _this.setViewportView(view);
                 }
                 break;
             default:
+        }
+        if (view) {
+            _this.setViewportView(view);
         }
         _this.setVsbPolicy(vsbPolicy);
         _this.setHsbPolicy(hsbPolicy);
@@ -8070,200 +8227,8 @@ var JSScrollPane = (function (_super) {
             this.removeAll();
             this.add(viewportView);
         }
-        if (viewportView instanceof JSTable) {
-        }
     };
     return JSScrollPane;
-}(JSPanel));
-var JSScrollTable = (function (_super) {
-    __extends(JSScrollTable, _super);
-    function JSScrollTable() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
-        _this.setUI("JSScrollTable");
-        var index = 0;
-        _this.setLayout(new JSBorderLayout());
-        var panel = new JSPanel(new JSGridBagLayout());
-        _this.add(panel);
-        var verticalScrollBar = _this.getVerticalScrollBar();
-        verticalScrollBar.setLayer(1);
-        panel.add(verticalScrollBar, { gridx: 1, gridy: 0, weighty: 1, fill: JSGridBagLayout.VERTICAL }, index++);
-        var horizontalScrollBar = _this.getHorizontalScrollBar();
-        horizontalScrollBar.setLayer(1);
-        panel.add(horizontalScrollBar, { gridx: 0, gridy: 1, weightx: 1, fill: JSGridBagLayout.HORIZONTAL }, index++);
-        var horizontalScrollPane = _this.getHorizontalScrollPane();
-        _this.add(horizontalScrollPane);
-        var view = new JSPanel(new JSBorderLayout());
-        horizontalScrollPane.setViewportView(view.withId("view1"));
-        var verticalScrollPane = _this.getVerticalScrollPane();
-        view.add(verticalScrollPane);
-        var tableContent = _this.getTableContent();
-        verticalScrollPane.setViewportView(tableContent.withId("view2"));
-        var tableHeader = _this.getTableHeader();
-        tableHeader.setAlign(JSBorderLayout.TOP);
-        view.add(tableHeader);
-        switch (args.length) {
-            case 2:
-                if (args[0] instanceof Array && args[1] instanceof Array) {
-                    var rows = args[0];
-                    var columns = args[1];
-                    _this.setRows(rows);
-                    _this.setColumns(columns);
-                }
-                break;
-            default:
-        }
-        horizontalScrollBar.addAdjustmentListener({
-            adjustmentValueChanged: function (event) {
-                horizontalScrollPane.element.scrollLeft = horizontalScrollBar.element.scrollLeft;
-            }
-        });
-        verticalScrollBar.addAdjustmentListener({
-            adjustmentValueChanged: function (event) {
-                verticalScrollPane.element.scrollTop = verticalScrollBar.element.scrollTop;
-            }
-        });
-        return _this;
-    }
-    JSScrollTable.prototype.getVerticalScrollBar = function () {
-        var verticalScrollBar = this.getData("verticalScrollBar");
-        if (!verticalScrollBar) {
-            var element = this.getChild("JSVerticalScrollBar");
-            if (element) {
-                verticalScrollBar = new JSScrollBar(element);
-            }
-            else {
-                verticalScrollBar = new JSScrollBar(JSScrollBar.VERTICAL);
-            }
-            this.setData("verticalScrollBar", verticalScrollBar);
-        }
-        return verticalScrollBar;
-    };
-    JSScrollTable.prototype.getHorizontalScrollBar = function () {
-        var horizontalScrollBar = this.getData("horizontalScrollBar");
-        if (!horizontalScrollBar) {
-            var element = this.getChild("JSHorizontalScrollBar");
-            if (element) {
-                horizontalScrollBar = new JSScrollBar(element);
-            }
-            else {
-                horizontalScrollBar = new JSScrollBar(JSScrollBar.HORIZONTAL);
-            }
-            this.setData("horizontalScrollBar", horizontalScrollBar);
-        }
-        return horizontalScrollBar;
-    };
-    JSScrollTable.prototype.getHorizontalScrollPane = function () {
-        var horizontalScrollPane = this.getData("horizontalScrollPane");
-        if (!horizontalScrollPane) {
-            var element = this.getChild("JSScrollPane");
-            if (element) {
-                horizontalScrollPane = new JSScrollPane(element);
-            }
-            else {
-                horizontalScrollPane = new JSScrollPane(JSScrollPane.VERTICAL_SCROLLBAR_NEVER, JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            }
-            this.setData("horizontalScrollPane", horizontalScrollPane);
-        }
-        return horizontalScrollPane;
-    };
-    JSScrollTable.prototype.getVerticalScrollPane = function () {
-        var verticalScrollPane = this.getData("verticalScrollPane");
-        if (!verticalScrollPane) {
-            verticalScrollPane = new JSScrollPane(JSScrollPane.VERTICAL_SCROLLBAR_NEVER, JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            this.setData("verticalScrollPane", verticalScrollPane);
-        }
-        return verticalScrollPane;
-    };
-    JSScrollTable.prototype.getTableHeader = function () {
-        var tableHeader = this.getData("tableHeader");
-        if (!tableHeader) {
-            tableHeader = new JSTableHeader();
-            this.setData("tableHeader", tableHeader);
-        }
-        return tableHeader;
-    };
-    JSScrollTable.prototype.getTableContent = function () {
-        var tableContent = this.getData("tableContent");
-        if (!tableContent) {
-            tableContent = new JSTableContent();
-            this.setData("tableContent", tableContent);
-        }
-        return tableContent;
-    };
-    JSScrollTable.prototype.getColumns = function () {
-        var tableHeader = this.getTableHeader();
-        return tableHeader.getColumns();
-    };
-    JSScrollTable.prototype.setColumns = function (columns) {
-        var tableHeader = this.getTableHeader();
-        tableHeader.setColumns(columns);
-        var tableContent = this.getTableContent();
-        tableContent.setColumns(columns);
-    };
-    JSScrollTable.prototype.getRows = function () {
-        var tableContent = this.getTableContent();
-        return tableContent.getRows();
-    };
-    JSScrollTable.prototype.setRows = function (rows) {
-        var tableContent = this.getTableContent();
-        tableContent.setRows(rows);
-    };
-    JSScrollTable.prototype.validateHorizontally = function () {
-        var tableHeader = this.getTableHeader();
-        var tableHeaderHead = tableHeader.getTableHead();
-        var tableHeaderHeadRow = tableHeaderHead.getTableHeadRow();
-        var tableHeaderHeadCells = tableHeaderHeadRow.getComponents();
-        var tableContent = this.getTableContent();
-        var tableContentHead = tableContent.getTableHead();
-        var tableContentHeadRow = tableContentHead.getTableHeadRow();
-        var tableContentHeadCells = tableContentHeadRow.getComponents();
-        for (var i = 0; i < tableContentHeadCells.length; i++) {
-            var tableContentHeadCell = tableContentHeadCells[i];
-            var tableHeaderHeadCell = tableHeaderHeadCells[i];
-            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
-        }
-        _super.prototype.validateHorizontally.call(this);
-        var horizontalScrollPane = this.getHorizontalScrollPane();
-        var horizontalScrollBar = this.getHorizontalScrollBar();
-        horizontalScrollBar.setStyle("display", tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth() ? "" : "none");
-        var verticalScrollBar = this.getVerticalScrollBar();
-        verticalScrollBar.setMaximum(tableContent.getPreferredHeight());
-        var verticalScrollPane = this.getVerticalScrollPane();
-        if (tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth()) {
-            verticalScrollPane.setHeight(horizontalScrollPane.getHeight() - horizontalScrollBar.getHeight());
-        }
-        else {
-            verticalScrollPane.setHeight(horizontalScrollPane.getHeight());
-        }
-    };
-    JSScrollTable.prototype.validateVertically = function () {
-        _super.prototype.validateVertically.call(this);
-        var tableHeader = this.getTableHeader();
-        var tableContent = this.getTableContent();
-        var horizontalScrollBar = this.getHorizontalScrollBar();
-        var verticalScrollBar = this.getVerticalScrollBar();
-        var verticalScrollPane = this.getVerticalScrollPane();
-        var horizontalScrollPane = this.getHorizontalScrollPane();
-        if (tableHeader.getPreferredWidth() > horizontalScrollPane.getWidth()) {
-            verticalScrollPane.setHeight(horizontalScrollPane.getHeight() - horizontalScrollBar.getHeight());
-        }
-        else {
-            verticalScrollPane.setHeight(horizontalScrollPane.getHeight());
-        }
-        verticalScrollBar.setStyle("display", tableContent.getPreferredHeight() > verticalScrollPane.getHeight() ? "" : "none");
-        horizontalScrollBar.setMaximum(tableHeader.getPreferredWidth());
-        if (tableContent.getPreferredHeight() > verticalScrollPane.getHeight()) {
-            horizontalScrollPane.setWidth(this.getWidth() - verticalScrollBar.getWidth());
-        }
-        else {
-            horizontalScrollPane.setWidth(this.getWidth());
-        }
-    };
-    return JSScrollTable;
 }(JSPanel));
 var JSTableHeader = (function (_super) {
     __extends(JSTableHeader, _super);
@@ -9729,3 +9694,46 @@ var JSTabGraphics = (function (_super) {
     }
     return JSTabGraphics;
 }(JSGraphics));
+var JSTableScrollPane = (function (_super) {
+    __extends(JSTableScrollPane, _super);
+    function JSTableScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableScrollPane");
+        return _this;
+    }
+    return JSTableScrollPane;
+}(JSScrollPane));
+var JSTableHorizontalScrollPane = (function (_super) {
+    __extends(JSTableHorizontalScrollPane, _super);
+    function JSTableHorizontalScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableHorizontalScrollPane");
+        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return _this;
+    }
+    return JSTableHorizontalScrollPane;
+}(JSScrollPane));
+var JSTableVerticalScrollPane = (function (_super) {
+    __extends(JSTableVerticalScrollPane, _super);
+    function JSTableVerticalScrollPane() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSTableVerticalScrollPane");
+        _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return _this;
+    }
+    return JSTableVerticalScrollPane;
+}(JSScrollPane));
