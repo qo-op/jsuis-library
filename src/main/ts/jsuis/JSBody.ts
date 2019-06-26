@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSBody extends JSHTMLComponent implements MouseListener {
+class JSBody extends JSHTMLComponent {
     
     static instance: JSBody;
     static getInstance(): JSBody {
@@ -28,6 +28,12 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         
         var index: number = 0;
         
+        var dragContainer: JSBodyDragContainer = this.getDragContainer();
+        this.add(dragContainer, JSBorderLayout.NORTH, index++);
+        
+        var glassPane: JSBodyGlassPane = this.getGlassPane();
+        dragContainer.add(glassPane);
+        
         var defsContainer: JSBodyDefsContainer = this.getDefsContainer();
         this.add(defsContainer, JSBorderLayout.NORTH, index++);
         
@@ -43,10 +49,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         var modal: JSBodyModal = this.getModal();
         dialogContainer.add(modal);
         
-        var dragImageContainer: JSBodyDragImageContainer = this.getDragImageContainer();
-        this.add(dragImageContainer, JSBorderLayout.NORTH, index++);
-        
-        this.addMouseListener(this, true);
+        this.addMouseListener(new JSBodyMouseListener(), true);
         
         window.addEventListener("resize", function() {
             JSBody.getInstance().revalidate();
@@ -75,6 +78,33 @@ class JSBody extends JSHTMLComponent implements MouseListener {
             this.add(frame);
         }
         this.setData("frame", frame);
+    }
+    getDragContainer(): JSBodyDragContainer {
+        var dragContainer: JSBodyDragContainer = this.getData("dragContainer");
+        if (!dragContainer) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDragContainer");
+            if (element) {
+                dragContainer = new JSBodyDragContainer(element);
+            } else {
+                dragContainer = new JSBodyDragContainer();
+            }
+            this.setData("dragContainer", dragContainer);
+        }
+        return dragContainer;
+    }
+    getGlassPane(): JSBodyGlassPane {
+        var glassPane: JSBodyGlassPane = this.getData("glassPane");
+        if (!glassPane) {
+            var dragContainer: JSBodyDialogContainer = this.getData("dragContainer");
+            var element: HTMLElement = <HTMLElement> dragContainer.getChild("JSBodyGlassPane");
+            if (element) {
+                glassPane = new JSBodyGlassPane(element);
+            } else {
+                glassPane = new JSBodyGlassPane();
+            }
+            this.setData("glassPane", glassPane);
+        }
+        return glassPane;
     }
     getDefsContainer(): JSBodyDefsContainer {
         var defsContainer: JSBodyDefsContainer = this.getData("defsContainer");
@@ -193,20 +223,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         }
         this.dialog = dialog;
     }
-    getDragImageContainer(): JSBodyDragImageContainer {
-        var dragImageContainer: JSBodyDragImageContainer = this.getData("dragImageContainer");
-        if (!dragImageContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDragImageContainer");
-            if (element) {
-                dragImageContainer = new JSBodyDragImageContainer(element);
-            } else {
-                dragImageContainer = new JSBodyDragImageContainer();
-            }
-            dragImageContainer.setVisible(false);
-            this.setData("dragImageContainer", dragImageContainer);
-        }
-        return dragImageContainer;
-    }
+    /*
     getDragImage(): JSComponent {
         return this.dragImage; 
     }
@@ -229,6 +246,7 @@ class JSBody extends JSHTMLComponent implements MouseListener {
         }
         this.dragImage = dragImage;
     }
+    */
     getDragSource(): JSComponent {
         return this.dragSource;
     }
@@ -257,33 +275,5 @@ class JSBody extends JSHTMLComponent implements MouseListener {
             this.setData("timer", timer); 
         }
         return timer;
-    }
-    mouseMoved(mouseEvent: MouseEvent) {
-        var dragSource: JSComponent = this.getDragSource();
-        if (dragSource) {
-            var dragStart = dragSource.getData("dragStart");
-            if (!dragStart) {
-                dragSource.fireDragStart(mouseEvent);
-                dragSource.setData("dragStart", true);
-            }
-            dragSource.fireDrag(mouseEvent);
-            dragSource.fireMouseDragged(mouseEvent);
-        }
-    }
-    mouseReleased(mouseEvent: MouseEvent) {
-        var dragSource: JSComponent = this.getDragSource();
-        if (dragSource) {
-            var timer: JSTimer = this.getTimer();
-            timer.schedule({
-                run() {
-                    var dragStart = dragSource.getData("dragStart");
-                    if (dragStart) {
-                        dragSource.fireDragEnd(mouseEvent);
-                        dragSource.setData("dragStart", false);
-                    }
-                    JSBody.getInstance().setDragSource(null);
-                }
-            }, 0);
-        }
     }
 }

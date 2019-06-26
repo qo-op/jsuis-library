@@ -301,8 +301,9 @@ var jstutorial;
             var cancelButton = new JSButton("Cancel");
             cancelButton.setStyle("margin-left", "4px");
             buttonPanel.add(cancelButton);
-            okButton.addActionListener(_this);
-            cancelButton.addActionListener(_this);
+            var actionListener = new JSDialogActionListener(_this);
+            okButton.addActionListener(actionListener);
+            cancelButton.addActionListener(actionListener);
             return _this;
         }
         JSDialog_About.getInstance = function () {
@@ -323,9 +324,10 @@ var jstutorial;
             var _this = _super.call(this) || this;
             _this.addClass("JSFrame_JSTutorial");
             _this.setLayout(new JSBorderLayout());
-            _this.setTitle("JSUIS - JavaScript User Interface");
+            var label_Title = jstutorial.JSLabel_Title.getInstance();
+            _this.add(label_Title, JSBorderLayout.NORTH);
             var menuBar_JSTutorial = jstutorial.JSMenuBar_JSTutorial.getInstance();
-            _this.setMenuBar(menuBar_JSTutorial);
+            _this.add(menuBar_JSTutorial, JSBorderLayout.NORTH);
             var menu_Tutorials = jstutorial.JSMenu_Tutorials.getInstance();
             menuBar_JSTutorial.add(menu_Tutorials);
             var menu_Examples = jstutorial.JSMenu_Examples.getInstance();
@@ -585,6 +587,25 @@ var jstutorial;
         return JSIFrame_Example;
     }(JSIFrame));
     jstutorial.JSIFrame_Example = JSIFrame_Example;
+})(jstutorial || (jstutorial = {}));
+var jstutorial;
+(function (jstutorial) {
+    var JSLabel_Title = (function (_super) {
+        __extends(JSLabel_Title, _super);
+        function JSLabel_Title() {
+            var _this = _super.call(this, "JSUIS - JavaScript User Interface", JSLabel.CENTER) || this;
+            _this.addClass("JSLabel_Title");
+            return _this;
+        }
+        JSLabel_Title.getInstance = function () {
+            if (JSLabel_Title.instance === undefined) {
+                JSLabel_Title.instance = new JSLabel_Title();
+            }
+            return JSLabel_Title.instance;
+        };
+        return JSLabel_Title;
+    }(JSLabel));
+    jstutorial.JSLabel_Title = JSLabel_Title;
 })(jstutorial || (jstutorial = {}));
 var jstutorial;
 (function (jstutorial) {

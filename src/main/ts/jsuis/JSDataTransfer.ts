@@ -19,12 +19,14 @@ class JSDataTransfer {
     static setData(key: string, value: any) {
         JSDataTransfer.getInstance().setData(key, value);
     }
+    /*
     static getDragImage(): JSComponent {
         return JSDataTransfer.getInstance().getDragImage();
     }
     static setDragImage(dragImage: JSComponent) {
         JSDataTransfer.getInstance().setDragImage(dragImage);
     }
+    */
     
     data: { [ key: string ]: any } = {};
     
@@ -36,10 +38,12 @@ class JSDataTransfer {
         var data = this.data;
         data[key] = value;
     }
+    /*
     getDragImage(): JSComponent {
         return JSBody.getInstance().getDragImage();
     }
     setDragImage(dragImage: JSComponent) {
         JSBody.getInstance().setDragImage(dragImage);
     }
+    */
 }

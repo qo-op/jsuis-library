@@ -22,43 +22,8 @@ class JSFrame extends JSHTMLComponent {
         
         super.setLayout(new JSBorderLayout());
         
-        var index: number = 0;
-        
-        var titleLabel: JSFrameTitleLabel = this.getTitleLabel();
-        super.add(titleLabel, JSLayout.NORTH, index++);
-        
-        var menuBarContainer: JSFrameMenuBarContainer = this.getMenuBarContainer();
-        super.add(menuBarContainer, JSLayout.NORTH, index++);
-        
         var contentPane: JSComponent = this.getContentPane();
-        super.add(contentPane, JSLayout.CENTER, index++);
-    }
-    getTitleLabel(): JSFrameTitleLabel {
-        var titleLabel: JSFrameTitleLabel = this.getData("frameTitleLabel");
-        if (!titleLabel) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSFrameTitleLabel");
-            if (element) {
-                titleLabel = new JSFrameTitleLabel(element);
-            } else {
-                titleLabel = new JSFrameTitleLabel();
-            }
-            titleLabel.setPreferredHeight(0);
-            this.setData("frameTitleLabel", titleLabel);
-        }
-        return titleLabel;
-    }
-    getMenuBarContainer(): JSFrameMenuBarContainer {
-        var menuBarContainer: JSFrameMenuBarContainer = this.getData("menuBarContainer");
-        if (!menuBarContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSFrameMenuBarContainer");
-            if (element) {
-                menuBarContainer = new JSFrameMenuBarContainer(element);
-            } else {
-                menuBarContainer = new JSFrameMenuBarContainer();
-            }
-            this.setData("menuBarContainer", menuBarContainer);
-        }
-        return menuBarContainer;
+        super.add(contentPane, JSLayout.CENTER);
     }
     getContentPane(): JSComponent {
         var contentPane: JSFrameContentPane = this.getData("contentPane");
@@ -85,24 +50,6 @@ class JSFrame extends JSHTMLComponent {
             super.add(contentPane);
         }
         this.setData("contentPane", contentPane);
-    }
-    getTitle(): string {
-        var titleLabel: JSFrameTitleLabel = this.getTitleLabel();
-        return titleLabel.getText();
-    }
-    setTitle(title: string) {
-        var titleLabel: JSFrameTitleLabel = this.getTitleLabel();
-        titleLabel.setText(title);
-        if (title) {
-            titleLabel.setPreferredHeight(null);
-        }
-        if (this.isValid()) {
-            this.revalidate();
-        }
-    }
-    setMenuBar(menuBar: JSMenuBar) {
-        var menuBarContainer: JSFrameMenuBarContainer = this.getMenuBarContainer();
-        menuBarContainer.add(menuBar);
     }
     getLayout(): JSLayout {
         var contentPane: JSComponent = this.getContentPane();

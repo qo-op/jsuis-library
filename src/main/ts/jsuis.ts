@@ -17,9 +17,12 @@
 /// <reference path = "jsuis/JSAction.ts"/>
 /// <reference path = "jsuis/JSActionListener.ts"/>
 /// <reference path = "jsuis/JSAdjustmentListener.ts"/>
+/// <reference path = "jsuis/JSBodyMouseListener.ts"/>
 /// <reference path = "jsuis/JSChangeListener.ts"/>
 /// <reference path = "jsuis/JSComponent.ts"/>
 /// <reference path = "jsuis/JSDataTransfer.ts"/>
+/// <reference path = "jsuis/JSDialogActionListener.ts"/>
+/// <reference path = "jsuis/JSDialogMouseListener.ts"/>
 /// <reference path = "jsuis/JSDragSourceListener.ts"/>
 /// <reference path = "jsuis/JSDropTargetListener.ts"/>
 /// <reference path = "jsuis/JSEmptyBorder.ts"/>
@@ -37,6 +40,8 @@
 /// <reference path = "jsuis/JSResourceBundle.ts"/>
 /// <reference path = "jsuis/JSRunnable.ts"/>
 /// <reference path = "jsuis/JSSelection.ts"/>
+/// <reference path = "jsuis/JSSplitPaneDragSourceListener.ts"/>
+/// <reference path = "jsuis/JSSplitPaneMouseListener.ts"/>
 /// <reference path = "jsuis/JSTimer.ts"/>
 /// <reference path = "jsuis/JSTreeCellRenderer.ts"/>
 /// <reference path = "jsuis/JSTreeNode.ts"/>
@@ -66,7 +71,7 @@
         /// <reference path = "jsuis/JSIFrame.ts"/>
         /// <reference path = "jsuis/JSImage.ts"/>
         /// <reference path = "jsuis/JSImageIcon.ts"/>
-        /// <reference path = "jsuis/JSLabelSpan.ts"/>
+        /// <reference path = "jsuis/JSLabelText.ts"/>
         /// <reference path = "jsuis/JSLabel.ts"/>
         /// <reference path = "jsuis/JSLI.ts"/>
         /// <reference path = "jsuis/JSMarker.ts"/>
@@ -95,10 +100,11 @@
         /// <reference path = "jsuis/JSTreeCell.ts"/>
             /// <reference path = "jsuis/JSBodyDefsContainer.ts"/>
             /// <reference path = "jsuis/JSBodyDialogContainer.ts"/>
-            /// <reference path = "jsuis/JSBodyDragImageContainer.ts"/>
+            /// <reference path = "jsuis/JSBodyDragContainer.ts"/>
+            /// <reference path = "jsuis/JSBodyGlassPane.ts"/>
             /// <reference path = "jsuis/JSBodyModal.ts"/>
             /// <reference path = "jsuis/JSBodyPopupMenuContainer.ts"/>
-            /// <reference path = "jsuis/JSButtonSpan.ts"/>
+            /// <reference path = "jsuis/JSButtonText.ts"/>
             /// <reference path = "jsuis/JSCheckBoxLabel.ts"/>
             /// <reference path = "jsuis/JSDialog.ts"/>
             /// <reference path = "jsuis/JSDialogContentPane.ts"/>

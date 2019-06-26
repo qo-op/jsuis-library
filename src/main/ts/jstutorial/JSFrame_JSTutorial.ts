@@ -15,13 +15,14 @@ namespace jstutorial {
             /*
              * JSUIS - JavaScript User Interface
              */
-            this.setTitle("JSUIS - JavaScript User Interface");
+            var label_Title: JSLabel_Title = JSLabel_Title.getInstance();
+            this.add(label_Title, JSBorderLayout.NORTH);
             
             /*
              * Tutorials | Examples | Help
              */
             var menuBar_JSTutorial: JSMenuBar_JSTutorial = JSMenuBar_JSTutorial.getInstance();
-            this.setMenuBar(menuBar_JSTutorial);
+            this.add(menuBar_JSTutorial, JSBorderLayout.NORTH);
             
             /*
              * Tutorials

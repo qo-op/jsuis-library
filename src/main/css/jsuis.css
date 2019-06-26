@@ -19,9 +19,15 @@ html {
 	display: inline-block;
 	height: 0;
 }
-.JSBodyDragImageContainer {
+.JSBodyDragContainer {
 	display: inline-block;
 	height: 0;
+}
+.JSBodyGlassPane {
+	display: inline-block;
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
 }
 .JSBodyModal {
 	background-color: rgba(0, 0, 0, 0.5);
@@ -49,7 +55,13 @@ html {
 	font-size: 0;
 	vertical-align: middle;
 }
-.JSButtonSpan {
+.JSButtonGraphics.top {
+	display: block;
+}
+.JSButtonGraphics.bottom {
+	display: block;
+}
+.JSButtonText {
 	vertical-align: middle;
 }
 .JSCheckBox {
@@ -128,17 +140,6 @@ html {
 }
 .JSFrameContentPane {
 	display: inline-block;
-	}
-.JSFrameMenuBarContainer {
-	background-color: #eeeeee;
-	display: inline-block;
-}
-.JSFrameTitleLabel {
-	background-color: Silver;
-	display: inline-block;
-	padding: 0 4px;
-	text-align: center;
-	white-space: nowrap;
 }
 .JSGraphics {
 	display: inline-block;
@@ -164,7 +165,7 @@ html {
 	font-size: 0;
 	vertical-align: middle;
 }
-.JSLabelSpan {
+.JSLabelText {
 	vertical-align: middle;
 }
 .JSLayeredPane {

@@ -1,13 +1,13 @@
-.JSFrameMenuBarContainer {
-	background-image: linear-gradient(#dddddd, #eeeeee);
-	display: inline-block;
-}
-.JSFrameTitleLabel {
+.JSLabel.JSLabel_Title {
 	background-image: linear-gradient(#cccccc, #dddddd);
 	display: inline-block;
 	padding: 0 4px;
 	text-align: center;
 	white-space: nowrap;
+}
+.JSMenuBar.JSMenuBar_JSTutorial {
+	background-image: linear-gradient(#dddddd, #eeeeee);
+	display: inline-block;
 }
 .JSSplitPane.JSSplitPane_Left {
 	background-color: #eeeeee;

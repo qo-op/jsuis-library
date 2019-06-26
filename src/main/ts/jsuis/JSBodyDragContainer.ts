@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSSplitPaneDivider
+ * JSBodyDragContainer
  * 
  * @author Yassuo Toda
  */
-class JSSplitPaneDivider extends JSPanel {
+class JSBodyDragContainer extends JSPanel {
     
     constructor();
     constructor(element: HTMLElement);
@@ -13,6 +13,7 @@ class JSSplitPaneDivider extends JSPanel {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
-        this.setUI("JSSplitPaneDivider");
+        this.setUI("JSBodyDragContainer");
+        this.setLayer(JSLayeredPane.DRAG_LAYER);
     }
 }

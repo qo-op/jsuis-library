@@ -23,12 +23,15 @@ var data = [
 ];
 
 var table = new JSTable(data, columnNames);
+table.setAlign(JSLayout.CENTER);
+table.setPreferredWidth(200);
+table.setPreferredHeight(150);
 
-var scrollPane = new JSScrollPane(table);
-scrollPane.setAlign(JSLayout.CENTER);
-scrollPane.setPreferredWidth(200);
-scrollPane.setPreferredHeight(150);
-frame.add(scrollPane);
-// frame.add(table);
+// var scrollPane = new JSScrollPane(table);
+// scrollPane.setAlign(JSLayout.CENTER);
+// scrollPane.setPreferredWidth(200);
+// scrollPane.setPreferredHeight(150);
+// frame.add(scrollPane);
+frame.add(table);
 
 frame.setVisible(true);

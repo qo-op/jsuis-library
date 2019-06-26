@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSDialog extends JSPanel implements MouseListener, ActionListener {
+class JSDialog extends JSPanel {
     
     modal: boolean;
     title: string;
@@ -62,10 +62,12 @@ class JSDialog extends JSPanel implements MouseListener, ActionListener {
             break;
         default:
         }
-        
-        titleLabel.addMouseListener(this);
-        
-        closeButton.addActionListener(this);
+    }
+    init() {
+        var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
+        titleLabel.addMouseListener(new JSDialogMouseListener(this));
+        var closeButton: JSDialogCloseButton = this.getCloseButton();
+        closeButton.addActionListener(new JSDialogActionListener(this));
     }
     getTitlePanel(): JSDialogTitlePanel {
         var titlePanel: JSDialogTitlePanel = this.getData("dialogTitlePanel");
@@ -161,21 +163,5 @@ class JSDialog extends JSPanel implements MouseListener, ActionListener {
             super.setVisible(visible);
             JSBody.getInstance().setDialog(null);
         }
-    }
-    mousePressed(mouseEvent: MouseEvent): void {
-        this.setData("dx", mouseEvent.x - this.getX());
-        this.setData("dy", mouseEvent.y - this.getY());
-        mouseEvent.stopPropagation();
-    }
-    mouseDragged(mouseEvent: MouseEvent): void {
-        this.setX(mouseEvent.x - this.getData("dx"));
-        this.setY(mouseEvent.y - this.getData("dy"));
-        mouseEvent.stopPropagation();
-    }
-    actionPerformed(mouseEvent: MouseEvent): void {
-        this.setVisible(false);
-        var body: JSBody = JSBody.getInstance();
-        body.getModal().setStyle("display", "none");
-        mouseEvent.stopPropagation();
     }
 }

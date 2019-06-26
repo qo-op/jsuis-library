@@ -18,7 +18,7 @@
 
 <div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver; height: 100px"></div>
 
-<p>Example 1 (see <a target="_self" href="/examples/jsbutton">ButtonDemo</a> for a more complete example)</p>
+<p>Example 1 (see <a target="_self" href="/examples/jsbutton">ButtonDemo.html</a> for a more complete example)</p>
 <p>Click the left button to disable the middle button.<br>
 Click the right button to enable the middle button.<br>
 Click the middle button and nothing happens.</p>

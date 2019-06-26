@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSButtonSpan
+ * JSButtonText
  * 
  * @author Yassuo Toda
  */
-class JSButtonSpan extends JSSpan {
+class JSButtonText extends JSSpan {
     
     constructor();
     constructor(element: HTMLElement);
@@ -13,6 +13,6 @@ class JSButtonSpan extends JSSpan {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]);
-        this.setUI("JSButtonSpan");
+        this.setUI("JSButtonText");
     }
 }

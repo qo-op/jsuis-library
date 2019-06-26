@@ -22,11 +22,12 @@
 <script>
 	var frame = new JSFrame();
 	var buttonDemo = new JSPanel();
-	var leftButtonIcon = new JSImageIcon("/img/right.gif");
-	var middleButtonIcon = new JSImageIcon("/img/middle.gif");
-	var rightButtonIcon = new JSImageIcon("/img/left.gif");
+	var leftButtonIcon = new JSImageIcon("/img/right.gif", 20, 22);
+	var middleButtonIcon = new JSImageIcon("/img/middle.gif", 20, 22);
+	var rightButtonIcon = new JSImageIcon("/img/left.gif", 20, 22);
 	var b1 = new JSButton("Disable middle button", leftButtonIcon);
 	var b2 = new JSButton("Middle button", middleButtonIcon);
+	b2.setVerticalTextPosition(JSButton.BOTTOM);
 	var b3 = new JSButton("Enable middle button", rightButtonIcon);
 	b3.setEnabled(false);
 	b1.addActionListener({

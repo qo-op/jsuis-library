@@ -82,6 +82,10 @@ declare class JSAdjustmentListener implements AdjustmentListener {
     setParameters(...parameters: any[]): void;
     withParameters(...parameters: any[]): this;
 }
+declare class JSBodyMouseListener implements MouseListener {
+    mouseMoved(mouseEvent: MouseEvent): void;
+    mouseReleased(mouseEvent: MouseEvent): void;
+}
 declare class JSChangeListener implements ChangeListener {
     stateChanged: (event: Event, ...parameters: any[]) => void;
     parameters: any[];
@@ -301,15 +305,26 @@ declare class JSDataTransfer {
     static getInstance(): JSDataTransfer;
     static getData(key: string): any;
     static setData(key: string, value: any): void;
-    static getDragImage(): JSComponent;
-    static setDragImage(dragImage: JSComponent): void;
     data: {
         [key: string]: any;
     };
     getData(key: string): any;
     setData(key: string, value: any): void;
-    getDragImage(): JSComponent;
-    setDragImage(dragImage: JSComponent): void;
+}
+declare class JSDialogActionListener implements ActionListener {
+    dialog: JSDialog;
+    constructor(dialog: JSDialog);
+    getDialog(): JSDialog;
+    setDialog(dialog: JSDialog): void;
+    actionPerformed(mouseEvent: MouseEvent): void;
+}
+declare class JSDialogMouseListener implements MouseListener {
+    dialog: JSDialog;
+    constructor(dialog: JSDialog);
+    getDialog(): JSDialog;
+    setDialog(dialog: JSDialog): void;
+    mousePressed(mouseEvent: MouseEvent): void;
+    mouseDragged(mouseEvent: MouseEvent): void;
 }
 declare class JSDragSourceListener implements DragSourceListener {
     dragStart: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
@@ -529,6 +544,22 @@ declare class JSSelection {
     setSelected(component: JSComponent): void;
     setSelectedIndex(selectedIndex: number): void;
     getSelectedIndex(): number;
+}
+declare class JSSplitPaneDragSourceListener implements DragSourceListener {
+    splitPane: JSSplitPane;
+    constructor(splitPane: JSSplitPane);
+    getSplitPane(): JSSplitPane;
+    setSplitPane(splitPane: JSSplitPane): void;
+    dragStart(mouseEvent: MouseEvent): void;
+    dragEnd(mouseEvent: MouseEvent): void;
+}
+declare class JSSplitPaneMouseListener implements MouseListener {
+    splitPane: JSSplitPane;
+    constructor(splitPane: JSSplitPane);
+    getSplitPane(): JSSplitPane;
+    setSplitPane(splitPane: JSSplitPane): void;
+    mousePressed(mouseEvent: MouseEvent): void;
+    mouseDragged(mouseEvent: MouseEvent): void;
 }
 declare class JSTimer {
     pids: {
@@ -755,7 +786,7 @@ declare class JSTreeLayout extends JSLayout {
     preferredLayoutWidth(tree: JSTree): number;
     preferredLayoutHeight(tree: JSTree): number;
 }
-declare class JSBody extends JSHTMLComponent implements MouseListener {
+declare class JSBody extends JSHTMLComponent {
     static instance: JSBody;
     static getInstance(): JSBody;
     popupMenu: JSComponent;
@@ -766,6 +797,8 @@ declare class JSBody extends JSHTMLComponent implements MouseListener {
     constructor();
     getFrame(): JSFrame;
     setFrame(frame: JSFrame): void;
+    getDragContainer(): JSBodyDragContainer;
+    getGlassPane(): JSBodyGlassPane;
     getDefsContainer(): JSBodyDefsContainer;
     getDefs(): JSDefs;
     getPopupMenuContainer(): JSBodyPopupMenuContainer;
@@ -775,16 +808,11 @@ declare class JSBody extends JSHTMLComponent implements MouseListener {
     getModal(): JSBodyModal;
     getDialog(): JSDialog;
     setDialog(dialog: JSDialog): void;
-    getDragImageContainer(): JSBodyDragImageContainer;
-    getDragImage(): JSComponent;
-    setDragImage(dragImage: JSComponent): void;
     getDragSource(): JSComponent;
     setDragSource(dragSource: JSComponent): void;
     getFileChooser(): JSFileChooser;
     setFileChooser(fileChooser: JSFileChooser): void;
     getTimer(): JSTimer;
-    mouseMoved(mouseEvent: MouseEvent): void;
-    mouseReleased(mouseEvent: MouseEvent): void;
 }
 declare class JSButton extends JSHTMLComponent {
     constructor();
@@ -794,12 +822,14 @@ declare class JSButton extends JSHTMLComponent {
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
     getGraphics(): JSButtonGraphics;
-    getSpan(): JSButtonSpan;
+    getTextComponent(): JSButtonText;
     setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
+    getVerticalTextPosition(): string;
+    setVerticalTextPosition(verticalTextPosition: string): void;
     isUndecorated(): boolean;
     setUndecorated(undecorated: boolean): void;
     isEnabled(): boolean;
@@ -884,13 +914,8 @@ declare class JSForm extends JSHTMLComponent {
 declare class JSFrame extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
-    getTitleLabel(): JSFrameTitleLabel;
-    getMenuBarContainer(): JSFrameMenuBarContainer;
     getContentPane(): JSComponent;
     setContentPane(contentPane: JSComponent): void;
-    getTitle(): string;
-    setTitle(title: string): void;
-    setMenuBar(menuBar: JSMenuBar): void;
     getLayout(): JSLayout;
     setLayout(layout: JSLayout): void;
     validateHorizontally(): void;
@@ -956,7 +981,7 @@ declare class JSImageIcon extends JSIcon {
     setSource(source: string): void;
     paintIcon(component: JSComponent, graphics: JSComponent): void;
 }
-declare class JSLabelSpan extends JSHTMLComponent {
+declare class JSLabelText extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
 }
@@ -970,12 +995,14 @@ declare class JSLabel extends JSHTMLComponent {
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, horizontalAlignment: string);
     getGraphics(): JSLabelGraphics;
-    getSpan(): JSLabelSpan;
+    getTextComponent(): JSLabelText;
     setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
+    getVerticalTextPosition(): string;
+    setVerticalTextPosition(verticalTextPosition: string): void;
 }
 declare class JSLI extends JSHTMLComponent {
     constructor();
@@ -1237,7 +1264,11 @@ declare class JSBodyDialogContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSBodyDragImageContainer extends JSPanel {
+declare class JSBodyDragContainer extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+}
+declare class JSBodyGlassPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
 }
@@ -1249,7 +1280,7 @@ declare class JSBodyPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSButtonSpan extends JSSpan {
+declare class JSButtonText extends JSSpan {
     constructor();
     constructor(element: HTMLElement);
 }
@@ -1257,7 +1288,7 @@ declare class JSCheckBoxLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSDialog extends JSPanel implements MouseListener, ActionListener {
+declare class JSDialog extends JSPanel {
     modal: boolean;
     title: string;
     constructor();
@@ -1265,6 +1296,7 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
     constructor(modal: boolean);
     constructor(title: string);
     constructor(title: string, modal: boolean);
+    init(): void;
     getTitlePanel(): JSDialogTitlePanel;
     getTitleLabel(): JSDialogTitleLabel;
     getCloseButton(): JSDialogCloseButton;
@@ -1282,9 +1314,6 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
         [key: string]: number | string;
     }, index: number): void;
     setVisible(visible: boolean): void;
-    mousePressed(mouseEvent: MouseEvent): void;
-    mouseDragged(mouseEvent: MouseEvent): void;
-    actionPerformed(mouseEvent: MouseEvent): void;
 }
 declare class JSDialogContentPane extends JSPanel {
     constructor();
@@ -1443,10 +1472,12 @@ declare class JSSplitPane extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(orientation: string);
+    init(): void;
     getOrientation(): string;
     setOrientation(orientation: string): void;
     getLeftContainer(): JSSplitPaneLeftContainer;
     getRightContainer(): JSSplitPaneRightContainer;
+    getDivider(): JSSplitPaneDivider;
     getLeftComponent(): JSComponent;
     setLeftComponent(leftComponent: JSComponent): void;
     getRightComponent(): JSComponent;
@@ -1455,7 +1486,6 @@ declare class JSSplitPane extends JSPanel {
     setTopComponent(component: JSComponent): void;
     getBottomComponent(): JSComponent;
     setBottomComponent(component: JSComponent): void;
-    getDivider(): JSSplitPaneDivider;
     getDividerSize(): number;
     setDividerSize(dividerSize: number): void;
     dividerLocation: number;

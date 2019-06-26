@@ -82,6 +82,10 @@ declare class JSAdjustmentListener implements AdjustmentListener {
     setParameters(...parameters: any[]): void;
     withParameters(...parameters: any[]): this;
 }
+declare class JSBodyMouseListener implements MouseListener {
+    mouseMoved(mouseEvent: MouseEvent): void;
+    mouseReleased(mouseEvent: MouseEvent): void;
+}
 declare class JSChangeListener implements ChangeListener {
     stateChanged: (event: Event, ...parameters: any[]) => void;
     parameters: any[];
@@ -311,6 +315,21 @@ declare class JSDataTransfer {
     getDragImage(): JSComponent;
     setDragImage(dragImage: JSComponent): void;
 }
+declare class JSDialogActionListener implements ActionListener {
+    dialog: JSDialog;
+    constructor(dialog: JSDialog);
+    getDialog(): JSDialog;
+    setDialog(dialog: JSDialog): void;
+    actionPerformed(mouseEvent: MouseEvent): void;
+}
+declare class JSDialogMouseListener implements MouseListener {
+    dialog: JSDialog;
+    constructor(dialog: JSDialog);
+    getDialog(): JSDialog;
+    setDialog(dialog: JSDialog): void;
+    mousePressed(mouseEvent: MouseEvent): void;
+    mouseDragged(mouseEvent: MouseEvent): void;
+}
 declare class JSDragSourceListener implements DragSourceListener {
     dragStart: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
     drag: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
@@ -529,6 +548,14 @@ declare class JSSelection {
     setSelected(component: JSComponent): void;
     setSelectedIndex(selectedIndex: number): void;
     getSelectedIndex(): number;
+}
+declare class JSSplitPaneDividerMouseListener implements MouseListener {
+    splitPaneDivider: JSSplitPaneDivider;
+    constructor(splitPaneDivider: JSSplitPaneDivider);
+    getSplitPaneDivider(): JSSplitPaneDivider;
+    setSplitPaneDivider(splitPaneDivider: JSSplitPaneDivider): void;
+    mousePressed(mouseEvent: MouseEvent): void;
+    mouseDragged(mouseEvent: MouseEvent): void;
 }
 declare class JSTimer {
     pids: {
@@ -755,7 +782,7 @@ declare class JSTreeLayout extends JSLayout {
     preferredLayoutWidth(tree: JSTree): number;
     preferredLayoutHeight(tree: JSTree): number;
 }
-declare class JSBody extends JSHTMLComponent implements MouseListener {
+declare class JSBody extends JSHTMLComponent {
     static instance: JSBody;
     static getInstance(): JSBody;
     popupMenu: JSComponent;
@@ -783,8 +810,6 @@ declare class JSBody extends JSHTMLComponent implements MouseListener {
     getFileChooser(): JSFileChooser;
     setFileChooser(fileChooser: JSFileChooser): void;
     getTimer(): JSTimer;
-    mouseMoved(mouseEvent: MouseEvent): void;
-    mouseReleased(mouseEvent: MouseEvent): void;
 }
 declare class JSButton extends JSHTMLComponent {
     constructor();
@@ -794,12 +819,14 @@ declare class JSButton extends JSHTMLComponent {
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
     getGraphics(): JSButtonGraphics;
-    getSpan(): JSButtonSpan;
+    getTextComponent(): JSButtonText;
     setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
+    getVerticalTextPosition(): string;
+    setVerticalTextPosition(verticalTextPosition: string): void;
     isUndecorated(): boolean;
     setUndecorated(undecorated: boolean): void;
     isEnabled(): boolean;
@@ -956,7 +983,7 @@ declare class JSImageIcon extends JSIcon {
     setSource(source: string): void;
     paintIcon(component: JSComponent, graphics: JSComponent): void;
 }
-declare class JSLabelSpan extends JSHTMLComponent {
+declare class JSLabelText extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
 }
@@ -970,12 +997,14 @@ declare class JSLabel extends JSHTMLComponent {
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, horizontalAlignment: string);
     getGraphics(): JSLabelGraphics;
-    getSpan(): JSLabelSpan;
+    getTextComponent(): JSLabelText;
     setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
+    getVerticalTextPosition(): string;
+    setVerticalTextPosition(verticalTextPosition: string): void;
 }
 declare class JSLI extends JSHTMLComponent {
     constructor();
@@ -1249,7 +1278,7 @@ declare class JSBodyPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSButtonSpan extends JSSpan {
+declare class JSButtonText extends JSSpan {
     constructor();
     constructor(element: HTMLElement);
 }
@@ -1257,7 +1286,7 @@ declare class JSCheckBoxLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSDialog extends JSPanel implements MouseListener, ActionListener {
+declare class JSDialog extends JSPanel {
     modal: boolean;
     title: string;
     constructor();
@@ -1265,6 +1294,7 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
     constructor(modal: boolean);
     constructor(title: string);
     constructor(title: string, modal: boolean);
+    init(): void;
     getTitlePanel(): JSDialogTitlePanel;
     getTitleLabel(): JSDialogTitleLabel;
     getCloseButton(): JSDialogCloseButton;
@@ -1282,9 +1312,6 @@ declare class JSDialog extends JSPanel implements MouseListener, ActionListener 
         [key: string]: number | string;
     }, index: number): void;
     setVisible(visible: boolean): void;
-    mousePressed(mouseEvent: MouseEvent): void;
-    mouseDragged(mouseEvent: MouseEvent): void;
-    actionPerformed(mouseEvent: MouseEvent): void;
 }
 declare class JSDialogContentPane extends JSPanel {
     constructor();

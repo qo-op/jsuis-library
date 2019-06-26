@@ -31,8 +31,10 @@ namespace jstutorial {
             cancelButton.setStyle("margin-left", "4px");
             buttonPanel.add(cancelButton);
             
-            okButton.addActionListener(this);
-            cancelButton.addActionListener(this);
+            var actionListener: JSDialogActionListener = new JSDialogActionListener(this);
+            
+            okButton.addActionListener(actionListener);
+            cancelButton.addActionListener(actionListener);
         }
     }
 }

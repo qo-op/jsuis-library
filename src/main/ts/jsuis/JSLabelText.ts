@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSLabelSpan
+ * JSLabelText
  * 
  * @author Yassuo Toda
  */
-class JSLabelSpan extends JSHTMLComponent {
+class JSLabelText extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLElement);
@@ -13,6 +13,6 @@ class JSLabelSpan extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]);
-        this.setUI("JSLabelSpan");
+        this.setUI("JSLabelText");
     }
 }

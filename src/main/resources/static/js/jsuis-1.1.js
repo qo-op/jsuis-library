@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -143,6 +143,41 @@ var JSAdjustmentListener = (function () {
         return this;
     };
     return JSAdjustmentListener;
+}());
+var JSBodyMouseListener = (function () {
+    function JSBodyMouseListener() {
+    }
+    JSBodyMouseListener.prototype.mouseMoved = function (mouseEvent) {
+        var body = JSBody.getInstance();
+        var dragSource = body.getDragSource();
+        if (dragSource) {
+            var dragStart = dragSource.getData("dragStart");
+            if (!dragStart) {
+                dragSource.fireDragStart(mouseEvent);
+                dragSource.setData("dragStart", true);
+            }
+            dragSource.fireDrag(mouseEvent);
+            dragSource.fireMouseDragged(mouseEvent);
+        }
+    };
+    JSBodyMouseListener.prototype.mouseReleased = function (mouseEvent) {
+        var body = JSBody.getInstance();
+        var dragSource = body.getDragSource();
+        if (dragSource) {
+            var timer = body.getTimer();
+            timer.schedule({
+                run: function () {
+                    var dragStart = dragSource.getData("dragStart");
+                    if (dragStart) {
+                        dragSource.fireDragEnd(mouseEvent);
+                        dragSource.setData("dragStart", false);
+                    }
+                    JSBody.getInstance().setDragSource(null);
+                }
+            }, 0);
+        }
+    };
+    return JSBodyMouseListener;
 }());
 var JSChangeListener = (function () {
     function JSChangeListener(changeListener) {
@@ -1312,6 +1347,49 @@ var JSDataTransfer = (function () {
     };
     return JSDataTransfer;
 }());
+var JSDialogActionListener = (function () {
+    function JSDialogActionListener(dialog) {
+        this.setDialog(dialog);
+    }
+    JSDialogActionListener.prototype.getDialog = function () {
+        return this.dialog;
+    };
+    JSDialogActionListener.prototype.setDialog = function (dialog) {
+        this.dialog = dialog;
+    };
+    JSDialogActionListener.prototype.actionPerformed = function (mouseEvent) {
+        var dialog = this.getDialog();
+        dialog.setVisible(false);
+        var body = JSBody.getInstance();
+        body.getModal().setStyle("display", "none");
+        mouseEvent.stopPropagation();
+    };
+    return JSDialogActionListener;
+}());
+var JSDialogMouseListener = (function () {
+    function JSDialogMouseListener(dialog) {
+        this.setDialog(dialog);
+    }
+    JSDialogMouseListener.prototype.getDialog = function () {
+        return this.dialog;
+    };
+    JSDialogMouseListener.prototype.setDialog = function (dialog) {
+        this.dialog = dialog;
+    };
+    JSDialogMouseListener.prototype.mousePressed = function (mouseEvent) {
+        var dialog = this.getDialog();
+        dialog.setData("dx", mouseEvent.x - dialog.getX());
+        dialog.setData("dy", mouseEvent.y - dialog.getY());
+        mouseEvent.stopPropagation();
+    };
+    JSDialogMouseListener.prototype.mouseDragged = function (mouseEvent) {
+        var dialog = this.getDialog();
+        dialog.setX(mouseEvent.x - dialog.getData("dx"));
+        dialog.setY(mouseEvent.y - dialog.getData("dy"));
+        mouseEvent.stopPropagation();
+    };
+    return JSDialogMouseListener;
+}());
 var JSDragSourceListener = (function () {
     function JSDragSourceListener(dragSourceListener) {
         this.parameters = [];
@@ -2048,6 +2126,48 @@ var JSSelection = (function () {
         return components.indexOf(this.getSelected());
     };
     return JSSelection;
+}());
+var JSSplitPaneDividerMouseListener = (function () {
+    function JSSplitPaneDividerMouseListener(splitPaneDivider) {
+        this.setSplitPaneDivider(splitPaneDivider);
+    }
+    JSSplitPaneDividerMouseListener.prototype.getSplitPaneDivider = function () {
+        return this.splitPaneDivider;
+    };
+    JSSplitPaneDividerMouseListener.prototype.setSplitPaneDivider = function (splitPaneDivider) {
+        this.splitPaneDivider = splitPaneDivider;
+    };
+    JSSplitPaneDividerMouseListener.prototype.mousePressed = function (mouseEvent) {
+        var splitPaneDivider = this.getSplitPaneDivider();
+        var splitPane = splitPaneDivider.getParent();
+        var orientation = splitPane.getOrientation();
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
+        }
+        else {
+            splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
+        }
+        mouseEvent.stopPropagation();
+    };
+    JSSplitPaneDividerMouseListener.prototype.mouseDragged = function (mouseEvent) {
+        var splitPaneDivider = this.getSplitPaneDivider();
+        var splitPane = splitPaneDivider.getParent();
+        var orientation = splitPane.getOrientation();
+        if (orientation === JSSplitPane.VERTICAL_SPLIT) {
+            var y = mouseEvent.y;
+            if (y) {
+                splitPane.setDividerLocation(y - splitPane.getData("dy"), splitPane.getDividerProportionalLocation());
+            }
+        }
+        else {
+            var x = mouseEvent.x;
+            if (x) {
+                splitPane.setDividerLocation(x - splitPane.getData("dx"), splitPane.getDividerProportionalLocation());
+            }
+        }
+        mouseEvent.stopPropagation();
+    };
+    return JSSplitPaneDividerMouseListener;
 }());
 var JSTimer = (function () {
     function JSTimer() {
@@ -4205,7 +4325,7 @@ var JSBody = (function (_super) {
         dialogContainer.add(modal);
         var dragImageContainer = _this.getDragImageContainer();
         _this.add(dragImageContainer, JSBorderLayout.NORTH, index++);
-        _this.addMouseListener(_this, true);
+        _this.addMouseListener(new JSBodyMouseListener(), true);
         window.addEventListener("resize", function () {
             JSBody.getInstance().revalidate();
         });
@@ -4428,34 +4548,6 @@ var JSBody = (function (_super) {
         }
         return timer;
     };
-    JSBody.prototype.mouseMoved = function (mouseEvent) {
-        var dragSource = this.getDragSource();
-        if (dragSource) {
-            var dragStart = dragSource.getData("dragStart");
-            if (!dragStart) {
-                dragSource.fireDragStart(mouseEvent);
-                dragSource.setData("dragStart", true);
-            }
-            dragSource.fireDrag(mouseEvent);
-            dragSource.fireMouseDragged(mouseEvent);
-        }
-    };
-    JSBody.prototype.mouseReleased = function (mouseEvent) {
-        var dragSource = this.getDragSource();
-        if (dragSource) {
-            var timer = this.getTimer();
-            timer.schedule({
-                run: function () {
-                    var dragStart = dragSource.getData("dragStart");
-                    if (dragStart) {
-                        dragSource.fireDragEnd(mouseEvent);
-                        dragSource.setData("dragStart", false);
-                    }
-                    JSBody.getInstance().setDragSource(null);
-                }
-            }, 0);
-        }
-    };
     return JSBody;
 }(JSHTMLComponent));
 var JSButton = (function (_super) {
@@ -4470,8 +4562,8 @@ var JSButton = (function (_super) {
         var index = 0;
         var graphics = _this.getGraphics();
         _this.add(graphics, null, index++);
-        var span = _this.getSpan();
-        _this.add(span, null, index++);
+        var textComponent = _this.getTextComponent();
+        _this.add(textComponent, null, index++);
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSAction) {
@@ -4513,35 +4605,64 @@ var JSButton = (function (_super) {
         }
         return graphics;
     };
-    JSButton.prototype.getSpan = function () {
-        var span = this.getData("span");
-        if (!span) {
-            var element = this.getChild("JSButtonSpan");
+    JSButton.prototype.getTextComponent = function () {
+        var textComponent = this.getData("textComponent");
+        if (!textComponent) {
+            var element = this.getChild("JSButtonText");
             if (element) {
-                span = new JSButtonSpan(element);
+                textComponent = new JSButtonText(element);
             }
             else {
-                span = new JSButtonSpan();
+                textComponent = new JSButtonText();
             }
-            this.setData("span", span);
+            this.setData("textComponent", textComponent);
         }
-        return span;
+        return textComponent;
     };
     JSButton.prototype.setIcon = function (icon) {
         _super.prototype.setIcon.call(this, icon);
-        var span = this.getSpan();
-        var text = span.getText();
-        span.setStyle("margin-left", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        var text = this.getText();
+        var graphics = this.getGraphics();
+        var verticalTextPosition = this.getVerticalTextPosition();
+        switch (verticalTextPosition) {
+            case JSButton.TOP:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.BOTTOM:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.CENTER:
+            default:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        }
     };
     JSButton.prototype.getText = function () {
-        var span = this.getSpan();
-        return span.getText();
+        var textComponent = this.getTextComponent();
+        return textComponent.getText();
     };
     JSButton.prototype.setText = function (text) {
-        var span = this.getSpan();
-        span.setText(text);
+        var textComponent = this.getTextComponent();
+        textComponent.setText(text);
         var icon = this.getIcon();
-        span.setStyle("margin-left", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        var graphics = this.getGraphics();
+        var verticalTextPosition = this.getVerticalTextPosition();
+        switch (verticalTextPosition) {
+            case JSButton.TOP:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.BOTTOM:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.CENTER:
+            default:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        }
     };
     JSButton.prototype.getIconTextGap = function () {
         return this.getData("iconTextGap") || 4;
@@ -4550,11 +4671,54 @@ var JSButton = (function (_super) {
         this.setData("iconTextGap", iconTextGap);
         var icon = this.getIcon();
         if (icon) {
-            var span = this.getSpan();
-            var text = span.getText();
+            var text = this.getText();
             if (text) {
-                span.setStyle("margin-left", this.getIconTextGap() + "px");
+                var graphics = this.getGraphics();
+                var verticalTextPosition = this.getVerticalTextPosition();
+                switch (verticalTextPosition) {
+                    case JSButton.TOP:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-top", this.getIconTextGap() + "px");
+                        break;
+                    case JSButton.BOTTOM:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
+                        break;
+                    case JSButton.CENTER:
+                    default:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-right", this.getIconTextGap() + "px");
+                }
             }
+        }
+    };
+    JSButton.prototype.getVerticalTextPosition = function () {
+        return this.getData("verticalTextPosition") || JSButton.CENTER;
+    };
+    JSButton.prototype.setVerticalTextPosition = function (verticalTextPosition) {
+        this.setData("verticalTextPosition", verticalTextPosition);
+        var text = this.getText();
+        var icon = this.getIcon();
+        var graphics = this.getGraphics();
+        switch (verticalTextPosition) {
+            case JSButton.TOP:
+                graphics.removeClass("top");
+                graphics.addClass("bottom");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.BOTTOM:
+                graphics.removeClass("bottom");
+                graphics.addClass("top");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSButton.CENTER:
+            default:
+                graphics.removeClass("top");
+                graphics.removeClass("bottom");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
         }
     };
     JSButton.prototype.isUndecorated = function () {
@@ -5683,18 +5847,18 @@ var JSImageIcon = (function (_super) {
     };
     return JSImageIcon;
 }(JSIcon));
-var JSLabelSpan = (function (_super) {
-    __extends(JSLabelSpan, _super);
-    function JSLabelSpan() {
+var JSLabelText = (function (_super) {
+    __extends(JSLabelText, _super);
+    function JSLabelText() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
-        _this.setUI("JSLabelSpan");
+        _this.setUI("JSLabelText");
         return _this;
     }
-    return JSLabelSpan;
+    return JSLabelText;
 }(JSHTMLComponent));
 var JSLabel = (function (_super) {
     __extends(JSLabel, _super);
@@ -5708,8 +5872,8 @@ var JSLabel = (function (_super) {
         var index = 0;
         var graphics = _this.getGraphics();
         _this.add(graphics, null, index++);
-        var span = _this.getSpan();
-        _this.add(span, null, index++);
+        var textComponent = _this.getTextComponent();
+        _this.add(textComponent, null, index++);
         switch (args.length) {
             case 1:
                 if (args[0] instanceof JSIcon) {
@@ -5769,35 +5933,64 @@ var JSLabel = (function (_super) {
         }
         return graphics;
     };
-    JSLabel.prototype.getSpan = function () {
-        var span = this.getData("label");
-        if (!span) {
-            var element = this.getChild("JSLabelSpan");
+    JSLabel.prototype.getTextComponent = function () {
+        var textComponent = this.getData("textComponent");
+        if (!textComponent) {
+            var element = this.getChild("JSLabelText");
             if (element) {
-                span = new JSLabelSpan(element);
+                textComponent = new JSLabelText(element);
             }
             else {
-                span = new JSLabelSpan();
+                textComponent = new JSLabelText();
             }
-            this.setData("label", span);
+            this.setData("textComponent", textComponent);
         }
-        return span;
+        return textComponent;
     };
     JSLabel.prototype.setIcon = function (icon) {
         _super.prototype.setIcon.call(this, icon);
-        var span = this.getSpan();
-        var text = span.getText();
-        span.setStyle("margin-left", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        var text = this.getText();
+        var graphics = this.getGraphics();
+        var verticalTextPosition = this.getVerticalTextPosition();
+        switch (verticalTextPosition) {
+            case JSLabel.TOP:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.BOTTOM:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.CENTER:
+            default:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        }
     };
     JSLabel.prototype.getText = function () {
-        var span = this.getSpan();
-        return span.getText();
+        var textComponent = this.getTextComponent();
+        return textComponent.getText();
     };
     JSLabel.prototype.setText = function (text) {
-        var span = this.getSpan();
-        span.setText(text);
+        var textComponent = this.getTextComponent();
+        textComponent.setText(text);
         var icon = this.getIcon();
-        span.setStyle("margin-left", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        var graphics = this.getGraphics();
+        var verticalTextPosition = this.getVerticalTextPosition();
+        switch (verticalTextPosition) {
+            case JSLabel.TOP:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.BOTTOM:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.CENTER:
+            default:
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        }
     };
     JSLabel.prototype.getIconTextGap = function () {
         return this.getData("iconTextGap") || 4;
@@ -5806,11 +5999,54 @@ var JSLabel = (function (_super) {
         this.setData("iconTextGap", iconTextGap);
         var icon = this.getIcon();
         if (icon) {
-            var span = this.getSpan();
-            var text = span.getText();
+            var text = this.getText();
             if (text) {
-                span.setStyle("margin-left", this.getIconTextGap() + "px");
+                var graphics = this.getGraphics();
+                var verticalTextPosition = this.getVerticalTextPosition();
+                switch (verticalTextPosition) {
+                    case JSLabel.TOP:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-top", this.getIconTextGap() + "px");
+                        break;
+                    case JSLabel.BOTTOM:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
+                        break;
+                    case JSLabel.CENTER:
+                    default:
+                        graphics.setStyle("margin", "0");
+                        graphics.setStyle("margin-right", this.getIconTextGap() + "px");
+                }
             }
+        }
+    };
+    JSLabel.prototype.getVerticalTextPosition = function () {
+        return this.getData("verticalTextPosition") || JSLabel.CENTER;
+    };
+    JSLabel.prototype.setVerticalTextPosition = function (verticalTextPosition) {
+        this.setData("verticalTextPosition", verticalTextPosition);
+        var text = this.getText();
+        var icon = this.getIcon();
+        var graphics = this.getGraphics();
+        switch (verticalTextPosition) {
+            case JSLabel.TOP:
+                graphics.removeClass("top");
+                graphics.addClass("bottom");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.BOTTOM:
+                graphics.removeClass("bottom");
+                graphics.addClass("top");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                break;
+            case JSLabel.CENTER:
+            default:
+                graphics.removeClass("top");
+                graphics.removeClass("bottom");
+                graphics.setStyle("margin", "0");
+                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
         }
     };
     return JSLabel;
@@ -7336,18 +7572,18 @@ var JSBodyPopupMenuContainer = (function (_super) {
     }
     return JSBodyPopupMenuContainer;
 }(JSPanel));
-var JSButtonSpan = (function (_super) {
-    __extends(JSButtonSpan, _super);
-    function JSButtonSpan() {
+var JSButtonText = (function (_super) {
+    __extends(JSButtonText, _super);
+    function JSButtonText() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
-        _this.setUI("JSButtonSpan");
+        _this.setUI("JSButtonText");
         return _this;
     }
-    return JSButtonSpan;
+    return JSButtonText;
 }(JSSpan));
 var JSCheckBoxLabel = (function (_super) {
     __extends(JSCheckBoxLabel, _super);
@@ -7404,10 +7640,14 @@ var JSDialog = (function (_super) {
                 break;
             default:
         }
-        titleLabel.addMouseListener(_this);
-        closeButton.addActionListener(_this);
         return _this;
     }
+    JSDialog.prototype.init = function () {
+        var titleLabel = this.getTitleLabel();
+        titleLabel.addMouseListener(new JSDialogMouseListener(this));
+        var closeButton = this.getCloseButton();
+        closeButton.addActionListener(new JSDialogActionListener(this));
+    };
     JSDialog.prototype.getTitlePanel = function () {
         var titlePanel = this.getData("dialogTitlePanel");
         if (!titlePanel) {
@@ -7503,22 +7743,6 @@ var JSDialog = (function (_super) {
             _super.prototype.setVisible.call(this, visible);
             JSBody.getInstance().setDialog(null);
         }
-    };
-    JSDialog.prototype.mousePressed = function (mouseEvent) {
-        this.setData("dx", mouseEvent.x - this.getX());
-        this.setData("dy", mouseEvent.y - this.getY());
-        mouseEvent.stopPropagation();
-    };
-    JSDialog.prototype.mouseDragged = function (mouseEvent) {
-        this.setX(mouseEvent.x - this.getData("dx"));
-        this.setY(mouseEvent.y - this.getData("dy"));
-        mouseEvent.stopPropagation();
-    };
-    JSDialog.prototype.actionPerformed = function (mouseEvent) {
-        this.setVisible(false);
-        var body = JSBody.getInstance();
-        body.getModal().setStyle("display", "none");
-        mouseEvent.stopPropagation();
     };
     return JSDialog;
 }(JSPanel));
@@ -8539,36 +8763,7 @@ var JSSplitPaneDivider = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSSplitPaneDivider");
-        _this.addMouseListener({
-            mousePressed: function (mouseEvent, divider) {
-                var splitPane = divider.getParent();
-                var orientation = splitPane.getOrientation();
-                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                    splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
-                }
-                else {
-                    splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
-                }
-                mouseEvent.stopPropagation();
-            },
-            mouseDragged: function (mouseEvent, divider) {
-                var splitPane = divider.getParent();
-                var orientation = splitPane.getOrientation();
-                if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-                    var y = mouseEvent.y;
-                    if (y) {
-                        splitPane.setDividerLocation(y - splitPane.getData("dy"), splitPane.getDividerProportionalLocation());
-                    }
-                }
-                else {
-                    var x = mouseEvent.x;
-                    if (x) {
-                        splitPane.setDividerLocation(x - splitPane.getData("dx"), splitPane.getDividerProportionalLocation());
-                    }
-                }
-                mouseEvent.stopPropagation();
-            }
-        }).withParameters(_this);
+        _this.addMouseListener(new JSSplitPaneDividerMouseListener(_this));
         return _this;
     }
     return JSSplitPaneDivider;

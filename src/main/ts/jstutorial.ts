@@ -22,6 +22,7 @@
 /// <reference path = "jstutorial/JSIcon_Open.ts"/>
 /// <reference path = "jstutorial/JSIcon_Run.ts"/>
 /// <reference path = "jstutorial/JSIFrame_Example.ts"/>
+/// <reference path = "jstutorial/JSLabel_Title.ts"/>
 /// <reference path = "jstutorial/JSMenu_ComponentExamples.ts"/>
 /// <reference path = "jstutorial/JSMenu_ComponentTutorials.ts"/>
 /// <reference path = "jstutorial/JSMenu_ContainerExamples.ts"/>
