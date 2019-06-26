@@ -22,9 +22,12 @@
 <script>
 	var frame = new JSFrame();
 	var buttonDemo = new JSPanel();
-	var b1 = new JSButton("Disable middle button");
-	var b2 = new JSButton("Middle button");
-	var b3 = new JSButton("Enable middle button");
+	var leftButtonIcon = new JSImageIcon("/img/right.gif");
+	var middleButtonIcon = new JSImageIcon("/img/middle.gif");
+	var rightButtonIcon = new JSImageIcon("/img/left.gif");
+	var b1 = new JSButton("Disable middle button", leftButtonIcon);
+	var b2 = new JSButton("Middle button", middleButtonIcon);
+	var b3 = new JSButton("Enable middle button", rightButtonIcon);
 	b3.setEnabled(false);
 	b1.addActionListener({
 		actionPerformed: function(mouseEvent) {
