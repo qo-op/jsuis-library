@@ -204,6 +204,10 @@ declare class JSComponent {
     invalidateChildren(): void;
     invalidateChildrenHorizontally(): void;
     invalidateChildrenVertically(): void;
+    isValidateRoot(): boolean;
+    invalidateParent(): void;
+    invalidateParentHorizontally(): void;
+    invalidateParentVertically(): void;
     validate(): void;
     validateHorizontally(): void;
     validateVertically(): void;
@@ -234,6 +238,8 @@ declare class JSComponent {
     getPaddingLeft(): number;
     getPaddingBottom(): number;
     getPaddingRight(): number;
+    setMargin(top: number, left: number, bottom: number, right: number): void;
+    setPadding(top: number, left: number, bottom: number, right: number): void;
     align: string;
     getAlign(): string;
     setAlign(align: string): void;
@@ -721,6 +727,8 @@ declare class JSHTMLComponent extends JSComponent {
     getPaddingLeft(): number;
     getPaddingBottom(): number;
     getPaddingRight(): number;
+    setMargin(top: number, left: number, bottom: number, right: number): void;
+    setPadding(top: number, left: number, bottom: number, right: number): void;
     getBackground(): string;
     setBackground(background: string): void;
     getForeground(): string;
@@ -1584,6 +1592,13 @@ declare class JSToolBar extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     addSeparator(): void;
+    add(component: JSComponent): void;
+    add(component: JSComponent, constraints: number | string | {
+        [key: string]: number | string;
+    }): void;
+    add(component: JSComponent, constraints: number | string | {
+        [key: string]: number | string;
+    }, index: number): void;
 }
 declare class JSTree extends JSPanel {
     selectionTreeNode: JSTreeNode;

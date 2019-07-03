@@ -22,7 +22,7 @@
 <script>
 	var frame = new JSFrame(); // Create the frame.
 	var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
-	frame.add(label, JSBorderLayout.CENTER); // Add the label.
+	frame.add(label); // Add the label.
 	frame.setVisible(true); // Show the frame.
 </script>
 </body>

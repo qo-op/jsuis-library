@@ -40,7 +40,6 @@
 /// <reference path = "jsuis/JSResourceBundle.ts"/>
 /// <reference path = "jsuis/JSRunnable.ts"/>
 /// <reference path = "jsuis/JSSelection.ts"/>
-/// <reference path = "jsuis/JSSplitPaneDragSourceListener.ts"/>
 /// <reference path = "jsuis/JSSplitPaneMouseListener.ts"/>
 /// <reference path = "jsuis/JSTimer.ts"/>
 /// <reference path = "jsuis/JSTreeCellRenderer.ts"/>
@@ -115,6 +114,7 @@
             /// <reference path = "jsuis/JSFrameMenuBarContainer.ts"/>
             /// <reference path = "jsuis/JSFrameTitleLabel.ts"/>
             /// <reference path = "jsuis/JSGraphics.ts"/>
+            /// <reference path = "jsuis/JSHorizontalScrollBar.ts"/>
             /// <reference path = "jsuis/JSLayeredPane.ts"/>
             /// <reference path = "jsuis/JSMenuBar.ts"/>
             /// <reference path = "jsuis/JSMenuContainer.ts"/>
@@ -143,6 +143,7 @@
             /// <reference path = "jsuis/JSToolBar.ts"/>
             /// <reference path = "jsuis/JSTree.ts"/>
             /// <reference path = "jsuis/JSTreeCellButton.ts"/>
+            /// <reference path = "jsuis/JSVerticalScrollBar.ts"/>
                 /// <reference path = "jsuis/JSButtonGraphics.ts"/>
                 /// <reference path = "jsuis/JSCheckBoxMenuItem.ts"/>
                 /// <reference path = "jsuis/JSLabelGraphics.ts"/>

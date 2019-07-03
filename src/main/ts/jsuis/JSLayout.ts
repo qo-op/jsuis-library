@@ -105,27 +105,6 @@ class JSLayout {
     }
     
     layoutContainer(container: JSComponent): void {
-        /*
-        if (!(container instanceof JSBody)) {
-            var parent: JSComponent = container.getParent();
-            if (!parent || !parent.getLayout()) {
-                var preferredWidth: number = container.getPreferredWidth();
-                if (preferredWidth !== null) {
-                    container.setWidth(preferredWidth);
-                }
-                var preferredHeight: number = container.getPreferredHeight();
-                if (preferredHeight !== null) {
-                    container.setHeight(preferredHeight);
-                }
-                if (preferredWidth === null && preferredHeight !== null) {
-                    preferredWidth = container.getPreferredWidth();
-                    if (preferredWidth !== null) {
-                        container.setWidth(preferredWidth);
-                    }
-                }
-            }
-        }
-        */
         this.layoutContainerHorizontally(container);
         this.layoutContainerVertically(container);
     }
@@ -134,12 +113,34 @@ class JSLayout {
         if (container.isValidHorizontally()) {
             return;
         }
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var layout: JSLayout = component.getLayout();
+            if (layout) {
+                component.setWidth(layout.preferredLayoutWidth(component));
+            }
+        }
         container.setValidHorizontally(true);
     }
     
     layoutContainerVertically(container: JSComponent): void {
         if (container.isValidVertically()) {
             return;
+        }
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var layout: JSLayout = component.getLayout();
+            if (layout) {
+                component.setHeight(layout.preferredLayoutHeight(component));
+            }
         }
         container.setValidVertically(true);
     }

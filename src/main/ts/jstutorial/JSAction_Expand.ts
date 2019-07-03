@@ -19,7 +19,7 @@ namespace jstutorial {
             var panel_ToggleButton: JSPanel_ToggleButton = JSPanel_ToggleButton.getInstance();
             if (panel_ToggleButton.isFirst()) {
                 var splitPane_Left: JSSplitPane_Left = JSSplitPane_Left.getInstance();
-                splitPane_Left.setDividerLocation(splitPane_Left.getLeftComponent().getPreferredOuterWidth() + 1);
+                splitPane_Left.setDividerLocation(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
                 panel_ToggleButton.last();
             }
         }

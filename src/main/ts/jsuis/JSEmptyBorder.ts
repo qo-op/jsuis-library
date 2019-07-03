@@ -46,6 +46,6 @@ class JSEmptyBorder implements Border {
         var left: number = this.getLeft();
         var bottom: number = this.getBottom();
         var right: number = this.getRight();
-        component.setStyle("margin", top + "px " + right + "px " + bottom + "px " + left + "px");
+        component.setStyle("padding", top + "px " + right + "px " + bottom + "px " + left + "px");
     }
 }

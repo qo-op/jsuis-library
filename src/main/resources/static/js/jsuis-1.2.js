@@ -360,14 +360,16 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setWidth = function (width) {
         this.width = width;
-        this.revalidateHorizontally();
+        this.invalidateChildrenHorizontally();
+        this.validateHorizontally();
     };
     JSComponent.prototype.getHeight = function () {
         return this.height;
     };
     JSComponent.prototype.setHeight = function (height) {
         this.height = height;
-        this.revalidateVertically();
+        this.invalidateChildrenVertically();
+        this.validateVertically();
     };
     JSComponent.prototype.getOuterWidth = function () {
         return this.getWidth();
@@ -519,19 +521,16 @@ var JSComponent = (function () {
         this.validVertically = validVertically;
     };
     JSComponent.prototype.invalidate = function () {
-        var valid = this.isValid();
         this.setValid(false);
-        this.invalidateChildren();
+        this.invalidateParent();
     };
     JSComponent.prototype.invalidateHorizontally = function () {
-        var validHorizontally = this.isValidHorizontally();
         this.setValidHorizontally(false);
-        this.invalidateChildrenHorizontally();
+        this.invalidateParentHorizontally();
     };
     JSComponent.prototype.invalidateVertically = function () {
-        var validVertically = this.isValidVertically();
         this.setValidVertically(false);
-        this.invalidateChildrenVertically();
+        this.invalidateParentVertically();
     };
     JSComponent.prototype.invalidateChildren = function () {
         var components = this.getComponents();
@@ -552,6 +551,33 @@ var JSComponent = (function () {
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
             component.invalidateVertically();
+        }
+    };
+    JSComponent.prototype.isValidateRoot = function () {
+        return false;
+    };
+    JSComponent.prototype.invalidateParent = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidate();
+            }
+        }
+    };
+    JSComponent.prototype.invalidateParentHorizontally = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidateHorizontally();
+            }
+        }
+    };
+    JSComponent.prototype.invalidateParentVertically = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidateVertically();
+            }
         }
     };
     JSComponent.prototype.validate = function () {
@@ -612,15 +638,51 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.revalidate = function () {
         this.invalidate();
-        this.validate();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validate();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validate();
+        }
     };
     JSComponent.prototype.revalidateHorizontally = function () {
         this.invalidateHorizontally();
-        this.validateHorizontally();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validateHorizontally();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validateHorizontally();
+        }
     };
     JSComponent.prototype.revalidateVertically = function () {
         this.invalidateVertically();
-        this.validateVertically();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validateVertically();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validateVertically();
+        }
     };
     JSComponent.prototype.isVisible = function () {
         return this.getStyle("visibility") !== "hidden";
@@ -698,6 +760,10 @@ var JSComponent = (function () {
     JSComponent.prototype.getPaddingRight = function () {
         return 0;
     };
+    JSComponent.prototype.setMargin = function (top, left, bottom, right) {
+    };
+    JSComponent.prototype.setPadding = function (top, left, bottom, right) {
+    };
     JSComponent.prototype.getAlign = function () {
         return this.align;
     };
@@ -714,7 +780,12 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setBorder = function (border) {
         this.setData("border", border);
-        border.paintBorder(this);
+        if (border) {
+            border.paintBorder(this);
+        }
+        else {
+            this.setStyle("border", "none");
+        }
     };
     JSComponent.prototype.getCursor = function () {
         return "";
@@ -2210,8 +2281,8 @@ var JSTreeCellRenderer = (function () {
     function JSTreeCellRenderer() {
         this.icons = {};
         this.leafMargin = 32;
-        this.openMargin = 0;
-        this.closedMargin = 0;
+        this.openMargin = 32;
+        this.closedMargin = 32;
     }
     JSTreeCellRenderer.prototype.getTreeCellRendererComponent = function (tree, value) {
         var treeNode = value;
@@ -2247,7 +2318,7 @@ var JSTreeCellRenderer = (function () {
             treeNode = parentNode;
             parentNode = treeNode.getParent();
         }
-        treeCell.getLabel().setStyle("margin-left", margin + "px");
+        treeCell.setStyle("padding-left", margin + "px");
         return treeCell;
     };
     JSTreeCellRenderer.prototype.getIcon = function (treeNode) {
@@ -3896,6 +3967,18 @@ var JSHTMLComponent = (function (_super) {
         else {
             return +this.getComputedStyle("padding-right").replace("px", "");
         }
+    };
+    JSHTMLComponent.prototype.setMargin = function (top, left, bottom, right) {
+        this.setStyle("margin-top", top + "px");
+        this.setStyle("margin-left", left + "px");
+        this.setStyle("margin-bottom", bottom + "px");
+        this.setStyle("margin-right", right + "px");
+    };
+    JSHTMLComponent.prototype.setPadding = function (top, left, bottom, right) {
+        this.setStyle("padding-top", top + "px");
+        this.setStyle("padding-left", left + "px");
+        this.setStyle("padding-bottom", bottom + "px");
+        this.setStyle("padding-right", right + "px");
     };
     JSHTMLComponent.prototype.getBackground = function () {
         return this.getStyle("background-color");
@@ -8824,6 +8907,9 @@ var JSSplitPane = (function (_super) {
         var leftContainer = this.getLeftContainer();
         leftContainer.removeAll();
         leftContainer.add(leftComponent);
+        if (this.isValid()) {
+            leftContainer.revalidate();
+        }
     };
     JSSplitPane.prototype.getRightComponent = function () {
         var rightContainer = this.getRightContainer();
@@ -8837,6 +8923,9 @@ var JSSplitPane = (function (_super) {
         var rightContainer = this.getRightContainer();
         rightContainer.removeAll();
         rightContainer.add(rightComponent);
+        if (this.isValid()) {
+            rightContainer.revalidate();
+        }
     };
     JSSplitPane.prototype.getTopComponent = function () {
         return this.getLeftComponent();
@@ -9458,13 +9547,25 @@ var JSToolBar = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSToolBar");
-        _this.setLayout(new JSLayout());
+        _this.setLayout(new JSBorderLayout());
         return _this;
     }
     JSToolBar.prototype.addSeparator = function () {
         var separator = new JSPanel();
         separator.setWidth(8);
         this.add(separator);
+    };
+    JSToolBar.prototype.add = function () {
+        switch (arguments.length) {
+            case 1:
+                if (arguments[0] instanceof JSComponent) {
+                    var component = arguments[0];
+                    _super.prototype.add.call(this, component, JSBorderLayout.WEST);
+                }
+                break;
+            default:
+                _super.prototype.add.apply(this, arguments);
+        }
     };
     return JSToolBar;
 }(JSPanel));

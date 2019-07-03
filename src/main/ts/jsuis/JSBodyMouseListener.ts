@@ -12,6 +12,7 @@ class JSBodyMouseListener implements MouseListener {
         if (dragSource) {
             var dragStart = dragSource.getData("dragStart");
             if (!dragStart) {
+                body.getGlassPane().setStyle("display", "");
                 dragSource.fireDragStart(mouseEvent);
                 dragSource.setData("dragStart", true);
             }
@@ -26,12 +27,14 @@ class JSBodyMouseListener implements MouseListener {
             var timer: JSTimer = body.getTimer();
             timer.schedule({
                 run() {
+                    var body: JSBody = JSBody.getInstance();
                     var dragStart = dragSource.getData("dragStart");
                     if (dragStart) {
                         dragSource.fireDragEnd(mouseEvent);
                         dragSource.setData("dragStart", false);
+                        body.getGlassPane().setStyle("display", "none");
                     }
-                    JSBody.getInstance().setDragSource(null);
+                    body.setDragSource(null);
                 }
             }, 0);
         }

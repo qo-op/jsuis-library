@@ -45,20 +45,51 @@ class JSTableLayout extends JSBorderLayout {
         var tableContentHead: JSTableHead = tableContent.getTableHead();
         var tableContentHeadRow: JSTableHeadRow = tableContentHead.getTableHeadRow();
         var tableContentHeadCells: JSComponent[] = tableContentHeadRow.getComponents();
+        var tableContentBody: JSTableBody = tableContent.getTableBody();
         for (var i: number = 0; i < tableContentHeadCells.length; i++) {
             var tableContentHeadCell: JSTableHeadCell = <JSTableHeadCell> tableContentHeadCells[i];
+            var tableContentHeadCellPreferredWidth = tableContentHeadCell.getPreferredWidth();
             var tableHeaderHeadCell: JSTableHeadCell = <JSTableHeadCell> tableHeaderHeadCells[i];
-            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
+            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth);
+        }
+        var tableHeaderPreferredOuterWidth = tableHeader.getPreferredOuterWidth();
+        
+        if (width > tableHeaderPreferredOuterWidth) {
+            var tableContentHeadCell: JSTableHeadCell = <JSTableHeadCell> tableContentHeadCells[tableContentHeadCells.length - 1];
+            var tableContentHeadCellPreferredWidth = tableContentHeadCell.getPreferredWidth();
+            var tableHeaderHeadCell: JSTableHeadCell = <JSTableHeadCell> tableHeaderHeadCells[tableHeaderHeadCells.length - 1];
+            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
+            tableContentHeadCell.setWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
         }
         
         var scrollPaneView: JSComponent = scrollPane.getViewportView();
-        scrollPaneView.setOuterWidth(tableContent.getPreferredOuterWidth());
-        
-        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
-        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var tableContentPreferredOuterWidth: number = tableContent.getPreferredOuterWidth();
+        var tableContentPreferredOuterHeight: number = tableContent.getPreferredOuterHeight();
+        scrollPaneView.setOuterWidth(tableContentPreferredOuterWidth);
         
         var verticalScrollPane: JSScrollPane = table.getVerticalScrollPane();
-        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var horizontalScrollBar: JSHorizontalScrollBar = table.getHorizontalScrollBar();
+        var horizontalScrollBarPreferredOuterHeight: number = horizontalScrollBar.getPreferredOuterHeight();
+        var verticalScrollBar: JSVerticalScrollBar = table.getVerticalScrollBar();
+        var verticalScrollBarPreferredOuterWidth: number = verticalScrollBar.getPreferredOuterWidth();
+        verticalScrollBar.setOuterWidth(verticalScrollBarPreferredOuterWidth);
+        
+        var scrollPaneOuterHeight: number = scrollPane.getOuterHeight();
+        if (tableContentPreferredOuterWidth > width) {
+            horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
+            if (tableContentPreferredOuterHeight > scrollPaneOuterHeight) {
+                horizontalScrollPane.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollBar.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
+            } else {
+                horizontalScrollPane.setOuterWidth(width);
+                horizontalScrollBar.setOuterWidth(width);
+            }
+            horizontalScrollBar.setY(scrollPaneOuterHeight - horizontalScrollBarPreferredOuterHeight);
+            horizontalScrollBar.setVisible(true);
+        } else {
+            horizontalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterWidth(width);
+        }
         
         container.setValidHorizontally(true);
     }
@@ -83,13 +114,51 @@ class JSTableLayout extends JSBorderLayout {
         
         var scrollPaneView: JSComponent = scrollPane.getViewportView();
         var tableContent: JSTableContent = table.getTableContent();
-        scrollPaneView.setOuterHeight(tableContent.getPreferredHeight());
-        
-        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
-        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var tableContentPreferredOuterWidth: number = tableContent.getPreferredOuterWidth();
+        var tableContentPreferredOuterHeight: number = tableContent.getPreferredOuterHeight();
+        scrollPaneView.setOuterHeight(tableContentPreferredOuterHeight);
         
         var verticalScrollPane: JSScrollPane = table.getVerticalScrollPane();
-        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var horizontalScrollBar: JSHorizontalScrollBar = table.getHorizontalScrollBar();
+        var horizontalScrollBarPreferredOuterHeight: number = horizontalScrollBar.getPreferredOuterHeight();
+        horizontalScrollBar.setOuterHeight(horizontalScrollBarPreferredOuterHeight);
+        var verticalScrollBar: JSVerticalScrollBar = table.getVerticalScrollBar();
+        var verticalScrollBarPreferredOuterWidth: number = verticalScrollBar.getPreferredOuterWidth();
+        
+        var scrollPaneOuterWidth: number = scrollPane.getOuterWidth();
+        if (tableContentPreferredOuterHeight > height) {
+            verticalScrollBar.setMaximum(tableContentPreferredOuterHeight);
+            if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+                horizontalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+                verticalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+                verticalScrollBar.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+            } else {
+                horizontalScrollPane.setOuterHeight(height);
+                verticalScrollPane.setOuterHeight(height);
+                verticalScrollBar.setOuterHeight(height);
+            }
+            verticalScrollBar.setX(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+            verticalScrollBar.setVisible(true);
+        } else {
+            verticalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterHeight(height);
+            verticalScrollPane.setOuterHeight(height);
+        }
+        if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+            horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
+            if (tableContentPreferredOuterHeight > height) {
+                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+            } else {
+                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
+                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth);
+            }
+            horizontalScrollBar.setY(height - horizontalScrollBarPreferredOuterHeight);
+            horizontalScrollBar.setVisible(true);
+        } else {
+            horizontalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
+        }
         
         container.setValidVertically(true);
     }

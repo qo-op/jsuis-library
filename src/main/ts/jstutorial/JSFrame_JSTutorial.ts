@@ -218,7 +218,7 @@ namespace jstutorial {
             tree_Examples.expand(treeNode_ContainerExamples);
             tree_Examples.expand(treeNode_ComponentExamples);
 
-            splitPane_Left.setDividerLocation(splitPane_Left.getLeftComponent().getPreferredOuterWidth() + 1);
+            splitPane_Left.setDividerLocation(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
             
             var element = document.getElementById("tutorial");
             if (element) {

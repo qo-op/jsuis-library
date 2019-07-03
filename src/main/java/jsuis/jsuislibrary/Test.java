@@ -31,6 +31,8 @@ public class Test {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
-		frame.validate();
+		frame.invalidate();
+		
+		new JPanel().revalidate();
 	}
 }

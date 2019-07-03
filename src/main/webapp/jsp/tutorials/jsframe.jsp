@@ -25,7 +25,7 @@
 &lt;script&gt;
 	var frame = new JSFrame(); // Create the frame.
 	var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
-	frame.add(label, JSBorderLayout.CENTER); // Add the label.
+	frame.add(label); // Add the label.
 	frame.setVisible(true); // Show the frame.
 &lt;/script&gt;
 &lt;/body&gt;
@@ -44,7 +44,7 @@
 		tutorial.getComponents().push(frame);
 		
 		var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
-		frame.add(label, JSBorderLayout.CENTER); // Add the label.
+		frame.add(label); // Add the label.
 	</script>
 	<script>
 		new jstutorial.JSFrame_JSTutorial(${args}).setVisible(true);

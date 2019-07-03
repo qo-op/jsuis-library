@@ -47,10 +47,10 @@
 <p>After adding the button to the frame: <b class="monospaced">frame.add(button);</b>, the remaining lines add an action listener to the button and set the frame visible.</p>
 <h3>Download JSUIS library</h3>
 <p>In order to use JSUIS library, download the JSUIS js and css files.</p>
-<a href="/download/jsuisjs">jsuis-${version}.js</a> (beta version)<br>
-<a href="/download/jsuiscss">jsuis-${version}.css</a> (beta version)<br><br>
-<a href="/download/jsuisjs">jsuis-${previous_version}.js</a> (stable version)<br>
-<a href="/download/jsuiscss">jsuis-${previous_version}.css</a> (stable version)<br><br>
+<a href="/download/jsuisbetajs">jsuis-${version}.js</a> (beta version)<br>
+<a href="/download/jsuisbetacss">jsuis-${version}.css</a> (beta version)<br><br>
+<a href="/download/jsuisstablejs">jsuis-${previous_version}.js</a> (stable version)<br>
+<a href="/download/jsuisstablecss">jsuis-${previous_version}.css</a> (stable version)<br><br>
 
 		</div>
 	</div>

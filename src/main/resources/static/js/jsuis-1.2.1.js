@@ -153,6 +153,7 @@ var JSBodyMouseListener = (function () {
         if (dragSource) {
             var dragStart = dragSource.getData("dragStart");
             if (!dragStart) {
+                body.getGlassPane().setStyle("display", "");
                 dragSource.fireDragStart(mouseEvent);
                 dragSource.setData("dragStart", true);
             }
@@ -167,12 +168,14 @@ var JSBodyMouseListener = (function () {
             var timer = body.getTimer();
             timer.schedule({
                 run: function () {
+                    var body = JSBody.getInstance();
                     var dragStart = dragSource.getData("dragStart");
                     if (dragStart) {
                         dragSource.fireDragEnd(mouseEvent);
                         dragSource.setData("dragStart", false);
+                        body.getGlassPane().setStyle("display", "none");
                     }
-                    JSBody.getInstance().setDragSource(null);
+                    body.setDragSource(null);
                 }
             }, 0);
         }
@@ -561,12 +564,11 @@ var JSComponent = (function () {
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerHorizontally(this);
-                validHorizontally = this.isValidHorizontally();
             }
             else {
                 this.setValidHorizontally(true);
-                validHorizontally = true;
             }
+            validHorizontally = this.isValidHorizontally();
             if (validHorizontally) {
                 this.validateChildrenHorizontally();
             }
@@ -581,12 +583,11 @@ var JSComponent = (function () {
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerVertically(this);
-                validVertically = this.isValidVertically();
             }
             else {
                 this.setValidVertically(true);
-                validVertically = true;
             }
+            validVertically = this.isValidVertically();
             if (validVertically) {
                 this.validateChildrenVertically();
             }
@@ -1513,7 +1514,7 @@ var JSEmptyBorder = (function () {
         var left = this.getLeft();
         var bottom = this.getBottom();
         var right = this.getRight();
-        component.setStyle("margin", top + "px " + right + "px " + bottom + "px " + left + "px");
+        component.setStyle("padding", top + "px " + right + "px " + bottom + "px " + left + "px");
     };
     return JSEmptyBorder;
 }());
@@ -1637,11 +1638,33 @@ var JSLayout = (function () {
         if (container.isValidHorizontally()) {
             return;
         }
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var layout = component.getLayout();
+            if (layout) {
+                component.setWidth(layout.preferredLayoutWidth(component));
+            }
+        }
         container.setValidHorizontally(true);
     };
     JSLayout.prototype.layoutContainerVertically = function (container) {
         if (container.isValidVertically()) {
             return;
+        }
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var layout = component.getLayout();
+            if (layout) {
+                component.setHeight(layout.preferredLayoutHeight(component));
+            }
         }
         container.setValidVertically(true);
     };
@@ -2114,24 +2137,6 @@ var JSSelection = (function () {
         return components.indexOf(this.getSelected());
     };
     return JSSelection;
-}());
-var JSSplitPaneDragSourceListener = (function () {
-    function JSSplitPaneDragSourceListener(splitPane) {
-        this.setSplitPane(splitPane);
-    }
-    JSSplitPaneDragSourceListener.prototype.getSplitPane = function () {
-        return this.splitPane;
-    };
-    JSSplitPaneDragSourceListener.prototype.setSplitPane = function (splitPane) {
-        this.splitPane = splitPane;
-    };
-    JSSplitPaneDragSourceListener.prototype.dragStart = function (mouseEvent) {
-        JSBody.getInstance().getGlassPane().setStyle("display", "");
-    };
-    JSSplitPaneDragSourceListener.prototype.dragEnd = function (mouseEvent) {
-        JSBody.getInstance().getGlassPane().setStyle("display", "none");
-    };
-    return JSSplitPaneDragSourceListener;
 }());
 var JSSplitPaneMouseListener = (function () {
     function JSSplitPaneMouseListener(splitPane) {
@@ -4241,17 +4246,49 @@ var JSTableLayout = (function (_super) {
         var tableContentHead = tableContent.getTableHead();
         var tableContentHeadRow = tableContentHead.getTableHeadRow();
         var tableContentHeadCells = tableContentHeadRow.getComponents();
+        var tableContentBody = tableContent.getTableBody();
         for (var i = 0; i < tableContentHeadCells.length; i++) {
             var tableContentHeadCell = tableContentHeadCells[i];
+            var tableContentHeadCellPreferredWidth = tableContentHeadCell.getPreferredWidth();
             var tableHeaderHeadCell = tableHeaderHeadCells[i];
-            tableHeaderHeadCell.getContainer().setWidth(tableContentHeadCell.getPreferredWidth());
+            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth);
+        }
+        var tableHeaderPreferredOuterWidth = tableHeader.getPreferredOuterWidth();
+        if (width > tableHeaderPreferredOuterWidth) {
+            var tableContentHeadCell = tableContentHeadCells[tableContentHeadCells.length - 1];
+            var tableContentHeadCellPreferredWidth = tableContentHeadCell.getPreferredWidth();
+            var tableHeaderHeadCell = tableHeaderHeadCells[tableHeaderHeadCells.length - 1];
+            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
+            tableContentHeadCell.setWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
         }
         var scrollPaneView = scrollPane.getViewportView();
-        scrollPaneView.setOuterWidth(tableContent.getPreferredOuterWidth());
-        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
-        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var tableContentPreferredOuterWidth = tableContent.getPreferredOuterWidth();
+        var tableContentPreferredOuterHeight = tableContent.getPreferredOuterHeight();
+        scrollPaneView.setOuterWidth(tableContentPreferredOuterWidth);
         var verticalScrollPane = table.getVerticalScrollPane();
-        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var horizontalScrollBar = table.getHorizontalScrollBar();
+        var horizontalScrollBarPreferredOuterHeight = horizontalScrollBar.getPreferredOuterHeight();
+        var verticalScrollBar = table.getVerticalScrollBar();
+        var verticalScrollBarPreferredOuterWidth = verticalScrollBar.getPreferredOuterWidth();
+        verticalScrollBar.setOuterWidth(verticalScrollBarPreferredOuterWidth);
+        var scrollPaneOuterHeight = scrollPane.getOuterHeight();
+        if (tableContentPreferredOuterWidth > width) {
+            horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
+            if (tableContentPreferredOuterHeight > scrollPaneOuterHeight) {
+                horizontalScrollPane.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollBar.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
+            }
+            else {
+                horizontalScrollPane.setOuterWidth(width);
+                horizontalScrollBar.setOuterWidth(width);
+            }
+            horizontalScrollBar.setY(scrollPaneOuterHeight - horizontalScrollBarPreferredOuterHeight);
+            horizontalScrollBar.setVisible(true);
+        }
+        else {
+            horizontalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterWidth(width);
+        }
         container.setValidHorizontally(true);
     };
     JSTableLayout.prototype.layoutContainerVertically = function (container) {
@@ -4270,11 +4307,53 @@ var JSTableLayout = (function (_super) {
         horizontalScrollPane.setY(y);
         var scrollPaneView = scrollPane.getViewportView();
         var tableContent = table.getTableContent();
-        scrollPaneView.setOuterHeight(tableContent.getPreferredHeight());
-        horizontalScrollPane.setWidth(scrollPane.element.clientWidth);
-        horizontalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var tableContentPreferredOuterWidth = tableContent.getPreferredOuterWidth();
+        var tableContentPreferredOuterHeight = tableContent.getPreferredOuterHeight();
+        scrollPaneView.setOuterHeight(tableContentPreferredOuterHeight);
         var verticalScrollPane = table.getVerticalScrollPane();
-        verticalScrollPane.setHeight(scrollPane.element.clientHeight);
+        var horizontalScrollBar = table.getHorizontalScrollBar();
+        var horizontalScrollBarPreferredOuterHeight = horizontalScrollBar.getPreferredOuterHeight();
+        horizontalScrollBar.setOuterHeight(horizontalScrollBarPreferredOuterHeight);
+        var verticalScrollBar = table.getVerticalScrollBar();
+        var verticalScrollBarPreferredOuterWidth = verticalScrollBar.getPreferredOuterWidth();
+        var scrollPaneOuterWidth = scrollPane.getOuterWidth();
+        if (tableContentPreferredOuterHeight > height) {
+            verticalScrollBar.setMaximum(tableContentPreferredOuterHeight);
+            if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+                horizontalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+                verticalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+                verticalScrollBar.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+            }
+            else {
+                horizontalScrollPane.setOuterHeight(height);
+                verticalScrollPane.setOuterHeight(height);
+                verticalScrollBar.setOuterHeight(height);
+            }
+            verticalScrollBar.setX(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+            verticalScrollBar.setVisible(true);
+        }
+        else {
+            verticalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterHeight(height);
+            verticalScrollPane.setOuterHeight(height);
+        }
+        if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+            horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
+            if (tableContentPreferredOuterHeight > height) {
+                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+            }
+            else {
+                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
+                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth);
+            }
+            horizontalScrollBar.setY(height - horizontalScrollBarPreferredOuterHeight);
+            horizontalScrollBar.setVisible(true);
+        }
+        else {
+            horizontalScrollBar.setVisible(false);
+            horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
+        }
         container.setValidVertically(true);
     };
     return JSTableLayout;
@@ -6726,6 +6805,7 @@ var JSTable = (function (_super) {
         var index = 0;
         _this.setLayout(new JSTableLayout());
         var scrollPane = _this.getScrollPane();
+        scrollPane.setVisible(false);
         _this.add(scrollPane);
         var scrollPaneView = new JSPanel();
         scrollPaneView.setStyle("position", "absolute");
@@ -6741,6 +6821,12 @@ var JSTable = (function (_super) {
         var tableHeader = _this.getTableHeader();
         tableHeader.setAlign(JSBorderLayout.TOP);
         horizontalScrollPaneView.add(tableHeader);
+        var horizontalScrollBar = _this.getHorizontalScrollBar();
+        horizontalScrollBar.setVisible(false);
+        _this.add(horizontalScrollBar);
+        var verticalScrollBar = _this.getVerticalScrollBar();
+        verticalScrollBar.setVisible(false);
+        _this.add(verticalScrollBar);
         switch (args.length) {
             case 2:
                 if (args[0] instanceof Array && args[1] instanceof Array) {
@@ -6752,10 +6838,14 @@ var JSTable = (function (_super) {
                 break;
             default:
         }
-        scrollPane.addAdjustmentListener({
+        horizontalScrollBar.addAdjustmentListener({
             adjustmentValueChanged: function (event) {
-                horizontalScrollPane.element.scrollLeft = scrollPane.element.scrollLeft;
-                verticalScrollPane.element.scrollTop = scrollPane.element.scrollTop;
+                horizontalScrollPane.element.scrollLeft = horizontalScrollBar.element.scrollLeft;
+            }
+        });
+        verticalScrollBar.addAdjustmentListener({
+            adjustmentValueChanged: function (event) {
+                verticalScrollPane.element.scrollTop = verticalScrollBar.element.scrollTop;
             }
         });
         return _this;
@@ -6833,6 +6923,34 @@ var JSTable = (function (_super) {
             this.setData("tableContent", tableContent);
         }
         return tableContent;
+    };
+    JSTable.prototype.getHorizontalScrollBar = function () {
+        var horizontalScrollBar = this.getData("horizontalScrollBar");
+        if (!horizontalScrollBar) {
+            var element = this.getChild("JSHorizontalScrollBar");
+            if (element) {
+                horizontalScrollBar = new JSHorizontalScrollBar(element);
+            }
+            else {
+                horizontalScrollBar = new JSHorizontalScrollBar();
+            }
+            this.setData("horizontalScrollBar", horizontalScrollBar);
+        }
+        return horizontalScrollBar;
+    };
+    JSTable.prototype.getVerticalScrollBar = function () {
+        var verticalScrollBar = this.getData("verticalScrollBar");
+        if (!verticalScrollBar) {
+            var element = this.getChild("JSVerticalScrollBar");
+            if (element) {
+                verticalScrollBar = new JSVerticalScrollBar(element);
+            }
+            else {
+                verticalScrollBar = new JSVerticalScrollBar();
+            }
+            this.setData("verticalScrollBar", verticalScrollBar);
+        }
+        return verticalScrollBar;
     };
     JSTable.prototype.getColumns = function () {
         var tableHeader = this.getTableHeader();
@@ -7815,6 +7933,75 @@ var JSGraphics = (function (_super) {
     }
     return JSGraphics;
 }(JSPanel));
+var JSHorizontalScrollBar = (function (_super) {
+    __extends(JSHorizontalScrollBar, _super);
+    function JSHorizontalScrollBar() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSHorizontalScrollBar");
+        _this.setHsbPolicy(JSHorizontalScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
+        _this.setVsbPolicy(JSHorizontalScrollBar.VERTICAL_SCROLLBAR_NEVER);
+        var view = _this.getView();
+        _this.setViewportView(view);
+        return _this;
+    }
+    JSHorizontalScrollBar.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSHorizontalScrollBar.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSHorizontalScrollBar.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSHorizontalScrollBar.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    JSHorizontalScrollBar.prototype.getView = function () {
+        var view = this.getData("view");
+        if (!view) {
+            var element = this.getChild("JSPanel");
+            if (element) {
+                view = new JSPanel(element);
+            }
+            else {
+                view = new JSPanel();
+            }
+            this.setData("view", view);
+        }
+        return view;
+    };
+    JSHorizontalScrollBar.prototype.getViewportView = function () {
+        return this.getData("viewportView");
+    };
+    JSHorizontalScrollBar.prototype.setViewportView = function (viewportView) {
+        this.setData("viewportView", viewportView);
+        this.removeAll();
+        this.add(viewportView);
+    };
+    JSHorizontalScrollBar.prototype.getMaximum = function () {
+        var view = this.getView();
+        return view.getWidth();
+    };
+    JSHorizontalScrollBar.prototype.setMaximum = function (maximum) {
+        var view = this.getView();
+        view.setWidth(maximum);
+        view.setHeight(1);
+        view.setStyle("margin-top", "-1px");
+    };
+    JSHorizontalScrollBar.prototype.getPreferredHeight = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredHeight = _super.prototype.getPreferredHeight.call(this);
+        view.setStyle("display", display);
+        return preferredHeight;
+    };
+    return JSHorizontalScrollBar;
+}(JSPanel));
 var JSLayeredPane = (function (_super) {
     __extends(JSLayeredPane, _super);
     function JSLayeredPane() {
@@ -8565,7 +8752,6 @@ var JSSplitPane = (function (_super) {
     }
     JSSplitPane.prototype.init = function () {
         var divider = this.getDivider();
-        divider.addDragSourceListener(new JSSplitPaneDragSourceListener(this));
         divider.addMouseListener(new JSSplitPaneMouseListener(this));
     };
     JSSplitPane.prototype.getOrientation = function () {
@@ -9272,6 +9458,7 @@ var JSToolBar = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSToolBar");
+        _this.setLayout(new JSLayout());
         return _this;
     }
     JSToolBar.prototype.addSeparator = function () {
@@ -9474,6 +9661,75 @@ var JSTreeCellButton = (function (_super) {
     }
     return JSTreeCellButton;
 }(JSButton));
+var JSVerticalScrollBar = (function (_super) {
+    __extends(JSVerticalScrollBar, _super);
+    function JSVerticalScrollBar() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        _this.setUI("JSVerticalScrollBar");
+        _this.setVsbPolicy(JSVerticalScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
+        _this.setHsbPolicy(JSVerticalScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
+        var view = _this.getView();
+        _this.setViewportView(view);
+        return _this;
+    }
+    JSVerticalScrollBar.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSVerticalScrollBar.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSVerticalScrollBar.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSVerticalScrollBar.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    JSVerticalScrollBar.prototype.getView = function () {
+        var view = this.getData("view");
+        if (!view) {
+            var element = this.getChild("JSPanel");
+            if (element) {
+                view = new JSPanel(element);
+            }
+            else {
+                view = new JSPanel();
+            }
+            this.setData("view", view);
+        }
+        return view;
+    };
+    JSVerticalScrollBar.prototype.getViewportView = function () {
+        return this.getData("viewportView");
+    };
+    JSVerticalScrollBar.prototype.setViewportView = function (viewportView) {
+        this.setData("viewportView", viewportView);
+        this.removeAll();
+        this.add(viewportView);
+    };
+    JSVerticalScrollBar.prototype.getMaximum = function () {
+        var view = this.getView();
+        return view.getHeight();
+    };
+    JSVerticalScrollBar.prototype.setMaximum = function (maximum) {
+        var view = this.getView();
+        view.setHeight(maximum);
+        view.setWidth(1);
+        view.setStyle("margin-left", "-1px");
+    };
+    JSVerticalScrollBar.prototype.getPreferredWidth = function () {
+        var view = this.getView();
+        var display = this.getStyle("display");
+        view.setStyle("display", "none");
+        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
+        view.setStyle("display", display);
+        return preferredWidth;
+    };
+    return JSVerticalScrollBar;
+}(JSPanel));
 var JSButtonGraphics = (function (_super) {
     __extends(JSButtonGraphics, _super);
     function JSButtonGraphics() {

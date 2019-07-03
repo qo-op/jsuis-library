@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class JSFrameExampleController {
 	
 	private static final String VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/version.txt").trim();
+	private static final String MINOR_VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/minor_version.txt").trim();
 	private static final String PREVIOUS_VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/previous_version.txt").trim();
 	
 	@RequestMapping("/examples/jsframe")
@@ -29,7 +30,7 @@ public class JSFrameExampleController {
 	    	args = "{" + args.substring(0, args.length() - 1) + "}";
 	    }
 	    
-		request.setAttribute("version", VERSION);
+		request.setAttribute("version", VERSION + "." + MINOR_VERSION);
 		request.setAttribute("previous_version", PREVIOUS_VERSION);
 		request.setAttribute("build", JSTutorialUtils.getInstance().getBuild());
 		request.setAttribute("args", args);

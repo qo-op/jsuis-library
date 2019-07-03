@@ -28,7 +28,7 @@ public class JSTutorialUtils {
 	
 	public String getBuild() {
 	    String date = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
-	    // return "";
-		return "?" + date;
+	 // return "";
+	    return "?" + date;
 	}
 }

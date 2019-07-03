@@ -21,6 +21,7 @@ class JSTable extends JSPanel {
         this.setLayout(new JSTableLayout());
         
         var scrollPane: JSTableScrollPane = this.getScrollPane();
+        scrollPane.setVisible(false);
         this.add(scrollPane);
         
         var scrollPaneView: JSPanel = new JSPanel();
@@ -43,6 +44,14 @@ class JSTable extends JSPanel {
         tableHeader.setAlign(JSBorderLayout.TOP);
         horizontalScrollPaneView.add(tableHeader);
         
+        var horizontalScrollBar: JSHorizontalScrollBar = this.getHorizontalScrollBar();
+        horizontalScrollBar.setVisible(false);
+        this.add(horizontalScrollBar);
+        
+        var verticalScrollBar: JSHorizontalScrollBar = this.getVerticalScrollBar();
+        verticalScrollBar.setVisible(false);
+        this.add(verticalScrollBar);
+        
         switch (args.length) {
         case 2:
             // constructor(rows: any[][], columns: string[]);
@@ -56,10 +65,14 @@ class JSTable extends JSPanel {
         default:
         }
         
-        scrollPane.addAdjustmentListener({
+        horizontalScrollBar.addAdjustmentListener({
             adjustmentValueChanged(event: Event) {
-                horizontalScrollPane.element.scrollLeft = scrollPane.element.scrollLeft;
-                verticalScrollPane.element.scrollTop = scrollPane.element.scrollTop;
+                horizontalScrollPane.element.scrollLeft = horizontalScrollBar.element.scrollLeft;
+            }
+        });
+        verticalScrollBar.addAdjustmentListener({
+            adjustmentValueChanged(event: Event) {
+                verticalScrollPane.element.scrollTop = verticalScrollBar.element.scrollTop;
             }
         });
     }
@@ -131,6 +144,32 @@ class JSTable extends JSPanel {
             this.setData("tableContent", tableContent);
         }
         return tableContent;
+    }
+    getHorizontalScrollBar(): JSHorizontalScrollBar {
+        var horizontalScrollBar: JSHorizontalScrollBar = this.getData("horizontalScrollBar");
+        if (!horizontalScrollBar) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSHorizontalScrollBar");
+            if (element) {
+                horizontalScrollBar = new JSHorizontalScrollBar(element);
+            } else {
+                horizontalScrollBar = new JSHorizontalScrollBar();
+            }
+            this.setData("horizontalScrollBar", horizontalScrollBar);
+        }
+        return horizontalScrollBar;
+    }
+    getVerticalScrollBar(): JSVerticalScrollBar {
+        var verticalScrollBar: JSVerticalScrollBar = this.getData("verticalScrollBar");
+        if (!verticalScrollBar) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSVerticalScrollBar");
+            if (element) {
+                verticalScrollBar = new JSVerticalScrollBar(element);
+            } else {
+                verticalScrollBar = new JSVerticalScrollBar();
+            }
+            this.setData("verticalScrollBar", verticalScrollBar);
+        }
+        return verticalScrollBar;
     }
     getColumns(): string[] {
         var tableHeader = this.getTableHeader();

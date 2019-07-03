@@ -73,7 +73,7 @@ var jstutorial;
             var panel_ToggleButton = jstutorial.JSPanel_ToggleButton.getInstance();
             if (panel_ToggleButton.isFirst()) {
                 var splitPane_Left = jstutorial.JSSplitPane_Left.getInstance();
-                splitPane_Left.setDividerLocation(splitPane_Left.getLeftComponent().getPreferredOuterWidth() + 1);
+                splitPane_Left.setDividerLocation(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
                 panel_ToggleButton.last();
             }
         };
@@ -416,7 +416,7 @@ var jstutorial;
             tree_Tutorials.expand(treeNode_ComponentTutorials);
             tree_Examples.expand(treeNode_ContainerExamples);
             tree_Examples.expand(treeNode_ComponentExamples);
-            splitPane_Left.setDividerLocation(splitPane_Left.getLeftComponent().getPreferredOuterWidth() + 1);
+            splitPane_Left.setDividerLocation(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
             var element = document.getElementById("tutorial");
             if (element) {
                 var tutorial = new JSDiv(element);

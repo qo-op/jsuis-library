@@ -545,14 +545,6 @@ declare class JSSelection {
     setSelectedIndex(selectedIndex: number): void;
     getSelectedIndex(): number;
 }
-declare class JSSplitPaneDragSourceListener implements DragSourceListener {
-    splitPane: JSSplitPane;
-    constructor(splitPane: JSSplitPane);
-    getSplitPane(): JSSplitPane;
-    setSplitPane(splitPane: JSSplitPane): void;
-    dragStart(mouseEvent: MouseEvent): void;
-    dragEnd(mouseEvent: MouseEvent): void;
-}
 declare class JSSplitPaneMouseListener implements MouseListener {
     splitPane: JSSplitPane;
     constructor(splitPane: JSSplitPane);
@@ -1147,6 +1139,8 @@ declare class JSTable extends JSPanel {
     getVerticalScrollPane(): JSTableVerticalScrollPane;
     getTableHeader(): JSTableHeader;
     getTableContent(): JSTableContent;
+    getHorizontalScrollBar(): JSHorizontalScrollBar;
+    getVerticalScrollBar(): JSVerticalScrollBar;
     getColumns(): string[];
     setColumns(columns: string[]): void;
     getRows(): any[][];
@@ -1347,6 +1341,20 @@ declare class JSFrameTitleLabel extends JSLabel {
 declare class JSGraphics extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
+}
+declare class JSHorizontalScrollBar extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    getVsbPolicy(): string;
+    setVsbPolicy(vsbPolicy: string): void;
+    getHsbPolicy(): string;
+    setHsbPolicy(hsbPolicy: string): void;
+    getView(): JSPanel;
+    getViewportView(): JSComponent;
+    setViewportView(viewportView: JSComponent): void;
+    getMaximum(): number;
+    setMaximum(maximum: number): void;
+    getPreferredHeight(): number;
 }
 declare class JSLayeredPane extends JSPanel {
     constructor();
@@ -1609,6 +1617,20 @@ declare class JSTree extends JSPanel {
 }
 declare class JSTreeCellButton extends JSButton {
     constructor(icon: JSIcon);
+}
+declare class JSVerticalScrollBar extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    getVsbPolicy(): string;
+    setVsbPolicy(vsbPolicy: string): void;
+    getHsbPolicy(): string;
+    setHsbPolicy(hsbPolicy: string): void;
+    getView(): JSPanel;
+    getViewportView(): JSComponent;
+    setViewportView(viewportView: JSComponent): void;
+    getMaximum(): number;
+    setMaximum(maximum: number): void;
+    getPreferredWidth(): number;
 }
 declare class JSButtonGraphics extends JSGraphics {
     constructor();

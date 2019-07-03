@@ -47,7 +47,7 @@ html {
 .JSButton.undecorated {
 	background: none;
 	border: none;
-	font-size: 0;
+	/* font-size: 0; */
 	padding: 0;
 }
 .JSButtonGraphics {
@@ -159,6 +159,12 @@ html {
 .JSLabel {
 	display: inline-block;
 	white-space: nowrap;
+}
+.JSLabel.undecorated {
+	background: none;
+	border: none;
+	/* font-size: 0; */
+	padding: 0;
 }
 .JSLabelGraphics {
 	display: inline-block;
@@ -281,13 +287,13 @@ html {
 }
 .JSSplitPaneLeftContainer {
 	background-color: white;
-	border: 1px solid Gray;
+	/* border: 1px solid Gray; */
 	display: inline-block;
 	overflow: hidden;
 }
 .JSSplitPaneRightContainer {
 	background-color: white;
-	border: 1px solid Gray;
+	/* border: 1px solid Gray; */
 	display: inline-block;
 	overflow: hidden;
 }

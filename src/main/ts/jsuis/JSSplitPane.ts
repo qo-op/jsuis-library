@@ -40,13 +40,10 @@ class JSSplitPane extends JSPanel {
         var divider: JSSplitPaneDivider = this.getDivider();
         this.add(divider, null, index++);
         
-        // this.setDividerSize(4);
-        
         this.setDividerProportionalLocation(.5);
     }
     init() {
         var divider: JSSplitPaneDivider = this.getDivider();
-        divider.addDragSourceListener(new JSSplitPaneDragSourceListener(this));
         divider.addMouseListener(new JSSplitPaneMouseListener(this));
     }
     getOrientation(): string {
@@ -115,6 +112,9 @@ class JSSplitPane extends JSPanel {
         var leftContainer: JSSplitPaneLeftContainer = this.getLeftContainer();
         leftContainer.removeAll();
         leftContainer.add(leftComponent);
+        if (this.isValid()) {
+            leftContainer.revalidate();
+        }
     }
     getRightComponent(): JSComponent {
         var rightContainer: JSSplitPaneRightContainer = this.getRightContainer();
@@ -128,6 +128,9 @@ class JSSplitPane extends JSPanel {
         var rightContainer: JSSplitPaneRightContainer = this.getRightContainer();
         rightContainer.removeAll();
         rightContainer.add(rightComponent);
+        if (this.isValid()) {
+            rightContainer.revalidate();
+        }
     }
     getTopComponent(): JSComponent {
         return this.getLeftComponent();

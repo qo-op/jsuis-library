@@ -10,8 +10,8 @@ class JSTreeCellRenderer {
     openIcon: JSIcon;
     closedIcon: JSIcon;
     leafMargin: number = 32;
-    openMargin: number = 0;
-    closedMargin: number = 0;
+    openMargin: number = 32;
+    closedMargin: number = 32;
     constructor() {
     }
     getTreeCellRendererComponent(tree: JSTree, value: any): JSComponent {
@@ -45,7 +45,8 @@ class JSTreeCellRenderer {
             treeNode = parentNode;
             parentNode = treeNode.getParent();
         }
-        treeCell.getLabel().setStyle("margin-left", margin + "px");
+        // treeCell.getLabel().setStyle("margin-left", margin + "px");
+        treeCell.setStyle("padding-left", margin + "px");
         return treeCell;
     }
     getIcon(treeNode: JSTreeNode): JSIcon {

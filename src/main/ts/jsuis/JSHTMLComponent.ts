@@ -221,6 +221,19 @@ class JSHTMLComponent extends JSComponent {
             return +this.getComputedStyle("padding-right").replace("px", "");
         }
     }
+    setMargin(top: number, left: number, bottom: number, right: number): void {
+        this.setStyle("margin-top", top + "px");
+        this.setStyle("margin-left", left + "px");
+        this.setStyle("margin-bottom", bottom + "px");
+        this.setStyle("margin-right", right + "px");
+    }
+    setPadding(top: number, left: number, bottom: number, right: number): void {
+        this.setStyle("padding-top", top + "px");
+        this.setStyle("padding-left", left + "px");
+        this.setStyle("padding-bottom", bottom + "px");
+        this.setStyle("padding-right", right + "px");
+    }
+    
     getBackground(): string {
         return this.getStyle("background-color");
     }
