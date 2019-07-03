@@ -33,6 +33,6 @@ public class Test {
 		
 		frame.invalidate();
 		
-		new JPanel().revalidate();
+		new JPanel().isValidateRoot();
 	}
 }

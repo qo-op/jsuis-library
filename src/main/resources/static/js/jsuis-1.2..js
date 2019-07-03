@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -360,14 +360,16 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setWidth = function (width) {
         this.width = width;
-        this.revalidateHorizontally();
+        this.invalidateChildrenHorizontally();
+        this.validateHorizontally();
     };
     JSComponent.prototype.getHeight = function () {
         return this.height;
     };
     JSComponent.prototype.setHeight = function (height) {
         this.height = height;
-        this.revalidateVertically();
+        this.invalidateChildrenVertically();
+        this.validateVertically();
     };
     JSComponent.prototype.getOuterWidth = function () {
         return this.getWidth();
@@ -519,19 +521,16 @@ var JSComponent = (function () {
         this.validVertically = validVertically;
     };
     JSComponent.prototype.invalidate = function () {
-        var valid = this.isValid();
         this.setValid(false);
-        this.invalidateChildren();
+        this.invalidateParent();
     };
     JSComponent.prototype.invalidateHorizontally = function () {
-        var validHorizontally = this.isValidHorizontally();
         this.setValidHorizontally(false);
-        this.invalidateChildrenHorizontally();
+        this.invalidateParentHorizontally();
     };
     JSComponent.prototype.invalidateVertically = function () {
-        var validVertically = this.isValidVertically();
         this.setValidVertically(false);
-        this.invalidateChildrenVertically();
+        this.invalidateParentVertically();
     };
     JSComponent.prototype.invalidateChildren = function () {
         var components = this.getComponents();
@@ -544,14 +543,41 @@ var JSComponent = (function () {
         var components = this.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
-            component.invalidateHorizontally();
+            component.setValidHorizontally(false);
         }
     };
     JSComponent.prototype.invalidateChildrenVertically = function () {
         var components = this.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
-            component.invalidateVertically();
+            component.setValidVertically(false);
+        }
+    };
+    JSComponent.prototype.isValidateRoot = function () {
+        return false;
+    };
+    JSComponent.prototype.invalidateParent = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidate();
+            }
+        }
+    };
+    JSComponent.prototype.invalidateParentHorizontally = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidateHorizontally();
+            }
+        }
+    };
+    JSComponent.prototype.invalidateParentVertically = function () {
+        if (!this.isValidateRoot()) {
+            var parent = this.getParent();
+            if (parent) {
+                parent.invalidateVertically();
+            }
         }
     };
     JSComponent.prototype.validate = function () {
@@ -612,15 +638,51 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.revalidate = function () {
         this.invalidate();
-        this.validate();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validate();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validate();
+        }
     };
     JSComponent.prototype.revalidateHorizontally = function () {
         this.invalidateHorizontally();
-        this.validateHorizontally();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validateHorizontally();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validateHorizontally();
+        }
     };
     JSComponent.prototype.revalidateVertically = function () {
         this.invalidateVertically();
-        this.validateVertically();
+        var parent = this.getParent();
+        if (!parent) {
+            this.validateVertically();
+        }
+        else {
+            while (!parent.isValidateRoot()) {
+                if (!parent.getParent()) {
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            parent.validateVertically();
+        }
     };
     JSComponent.prototype.isVisible = function () {
         return this.getStyle("visibility") !== "hidden";
@@ -698,6 +760,10 @@ var JSComponent = (function () {
     JSComponent.prototype.getPaddingRight = function () {
         return 0;
     };
+    JSComponent.prototype.setMargin = function (top, left, bottom, right) {
+    };
+    JSComponent.prototype.setPadding = function (top, left, bottom, right) {
+    };
     JSComponent.prototype.getAlign = function () {
         return this.align;
     };
@@ -714,7 +780,12 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setBorder = function (border) {
         this.setData("border", border);
-        border.paintBorder(this);
+        if (border) {
+            border.paintBorder(this);
+        }
+        else {
+            this.setStyle("border", "none");
+        }
     };
     JSComponent.prototype.getCursor = function () {
         return "";
@@ -1677,6 +1748,7 @@ var JSLayout = (function () {
     JSLayout.LEFT = "left";
     JSLayout.BOTTOM = "bottom";
     JSLayout.RIGHT = "right";
+    JSLayout.JUSTIFY = "justify";
     JSLayout.LEFT_RIGHT = "left_right";
     JSLayout.HORIZONTAL = "horizontal";
     JSLayout.VERTICAL = "vertical";
@@ -1691,26 +1763,33 @@ var JSLayout = (function () {
 }());
 var JSLineBorder = (function () {
     function JSLineBorder() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
+        this.color = "Black";
         this.thickness = 1;
-        switch (args.length) {
+        this.radius = 0;
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var color = args[0];
+                if (typeof arguments[0] === "string") {
+                    var color = arguments[0];
                     this.setColor(color);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "number") {
-                    var color = args[0];
-                    var thickness = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+                    var color = arguments[0];
+                    var thickness = arguments[1];
                     this.setColor(color);
                     this.setThickness(thickness);
                 }
                 break;
+            case 3:
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var color = arguments[0];
+                    var thickness = arguments[1];
+                    var radius = arguments[2];
+                    this.setColor(color);
+                    this.setThickness(thickness);
+                    this.setRadius(radius);
+                }
             default:
         }
     }
@@ -1726,10 +1805,22 @@ var JSLineBorder = (function () {
     JSLineBorder.prototype.setThickness = function (thickness) {
         this.thickness = thickness;
     };
+    JSLineBorder.prototype.getRadius = function () {
+        return this.radius;
+    };
+    JSLineBorder.prototype.setRadius = function (radius) {
+        this.radius = radius;
+    };
     JSLineBorder.prototype.paintBorder = function (component) {
-        var color = this.getColor();
         var thickness = this.getThickness();
-        component.setStyle("border", thickness + "px solid " + color);
+        if (thickness) {
+            var color = this.getColor();
+            component.setStyle("border", thickness + "px solid " + color);
+        }
+        var radius = this.getRadius();
+        if (radius) {
+            component.setStyle("border-radius", radius + "px");
+        }
     };
     return JSLineBorder;
 }());
@@ -2210,8 +2301,8 @@ var JSTreeCellRenderer = (function () {
     function JSTreeCellRenderer() {
         this.icons = {};
         this.leafMargin = 32;
-        this.openMargin = 0;
-        this.closedMargin = 0;
+        this.openMargin = 32;
+        this.closedMargin = 32;
     }
     JSTreeCellRenderer.prototype.getTreeCellRendererComponent = function (tree, value) {
         var treeNode = value;
@@ -2247,7 +2338,7 @@ var JSTreeCellRenderer = (function () {
             treeNode = parentNode;
             parentNode = treeNode.getParent();
         }
-        treeCell.getLabel().setStyle("margin-left", margin + "px");
+        treeCell.setStyle("padding-left", margin + "px");
         return treeCell;
     };
     JSTreeCellRenderer.prototype.getIcon = function (treeNode) {
@@ -2992,32 +3083,44 @@ var JSCardLayout = (function (_super) {
 var JSFlowLayout = (function (_super) {
     __extends(JSFlowLayout, _super);
     function JSFlowLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
         _this.border = JSFlowLayout.NORTH;
         _this.align = JSFlowLayout.CENTER;
         _this.hgap = 0;
         _this.vgap = 0;
-        switch (args.length) {
+        switch (arguments.length) {
             case 0:
                 break;
+            case 1:
+                if (typeof arguments[0] === "string") {
+                    var align = arguments[0];
+                    _this.setAlign(align);
+                }
+                break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var border = args[0];
-                    var align = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var border = arguments[0];
+                    var align = arguments[1];
                     _this.setBorder(border);
                     _this.setAlign(align);
                 }
                 break;
+            case 3:
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var align = arguments[0];
+                    var hgap = arguments[1];
+                    var vgap = arguments[2];
+                    _this.setAlign(align);
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
+                }
+                break;
             case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
-                    var border = args[0];
-                    var align = args[1];
-                    var hgap = args[2];
-                    var vgap = args[3];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string" && typeof arguments[2] === "number" && typeof arguments[3] === "number") {
+                    var border = arguments[0];
+                    var align = arguments[1];
+                    var hgap = arguments[2];
+                    var vgap = arguments[3];
                     _this.setBorder(border);
                     _this.setAlign(align);
                     _this.setHgap(hgap);
@@ -3540,6 +3643,8 @@ var JSFlowLayout = (function (_super) {
             }
             switch (align) {
                 case JSFlowLayout.LEFT:
+                case JSFlowLayout.LEFT_RIGHT:
+                case JSFlowLayout.JUSTIFY:
                     break;
                 case JSFlowLayout.RIGHT:
                     x += width - rowWidth;
@@ -3548,16 +3653,32 @@ var JSFlowLayout = (function (_super) {
                 default:
                     x += (width - rowWidth) / 2;
             }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                var extraHorizontalSpace = width - rowWidth;
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth + extraHorizontalSpace / components.length);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + extraHorizontalSpace / components.length + hgap;
                 }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                component.setX(x);
-                x += componentPreferredOuterWidth + hgap;
+            }
+            else {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + hgap;
+                }
             }
         }
     };
@@ -3896,6 +4017,18 @@ var JSHTMLComponent = (function (_super) {
         else {
             return +this.getComputedStyle("padding-right").replace("px", "");
         }
+    };
+    JSHTMLComponent.prototype.setMargin = function (top, left, bottom, right) {
+        this.setStyle("margin-top", top + "px");
+        this.setStyle("margin-left", left + "px");
+        this.setStyle("margin-bottom", bottom + "px");
+        this.setStyle("margin-right", right + "px");
+    };
+    JSHTMLComponent.prototype.setPadding = function (top, left, bottom, right) {
+        this.setStyle("padding-top", top + "px");
+        this.setStyle("padding-left", left + "px");
+        this.setStyle("padding-bottom", bottom + "px");
+        this.setStyle("padding-right", right + "px");
     };
     JSHTMLComponent.prototype.getBackground = function () {
         return this.getStyle("background-color");
@@ -8824,6 +8957,9 @@ var JSSplitPane = (function (_super) {
         var leftContainer = this.getLeftContainer();
         leftContainer.removeAll();
         leftContainer.add(leftComponent);
+        if (this.isValid()) {
+            leftContainer.revalidate();
+        }
     };
     JSSplitPane.prototype.getRightComponent = function () {
         var rightContainer = this.getRightContainer();
@@ -8837,6 +8973,9 @@ var JSSplitPane = (function (_super) {
         var rightContainer = this.getRightContainer();
         rightContainer.removeAll();
         rightContainer.add(rightComponent);
+        if (this.isValid()) {
+            rightContainer.revalidate();
+        }
     };
     JSSplitPane.prototype.getTopComponent = function () {
         return this.getLeftComponent();
@@ -9458,13 +9597,25 @@ var JSToolBar = (function (_super) {
         }
         var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
         _this.setUI("JSToolBar");
-        _this.setLayout(new JSLayout());
+        _this.setLayout(new JSBorderLayout());
         return _this;
     }
     JSToolBar.prototype.addSeparator = function () {
         var separator = new JSPanel();
         separator.setWidth(8);
         this.add(separator);
+    };
+    JSToolBar.prototype.add = function () {
+        switch (arguments.length) {
+            case 1:
+                if (arguments[0] instanceof JSComponent) {
+                    var component = arguments[0];
+                    _super.prototype.add.call(this, component, JSBorderLayout.WEST);
+                }
+                break;
+            default:
+                _super.prototype.add.apply(this, arguments);
+        }
     };
     return JSToolBar;
 }(JSPanel));

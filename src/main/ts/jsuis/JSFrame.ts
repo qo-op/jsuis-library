@@ -23,7 +23,7 @@ class JSFrame extends JSHTMLComponent {
         super.setLayout(new JSBorderLayout());
         
         var contentPane: JSComponent = this.getContentPane();
-        super.add(contentPane, JSLayout.CENTER);
+        super.add(contentPane);
     }
     getContentPane(): JSComponent {
         var contentPane: JSFrameContentPane = this.getData("contentPane");

@@ -543,14 +543,14 @@ var JSComponent = (function () {
         var components = this.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
-            component.invalidateHorizontally();
+            component.setValidHorizontally(false);
         }
     };
     JSComponent.prototype.invalidateChildrenVertically = function () {
         var components = this.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
-            component.invalidateVertically();
+            component.setValidVertically(false);
         }
     };
     JSComponent.prototype.isValidateRoot = function () {
@@ -1748,6 +1748,7 @@ var JSLayout = (function () {
     JSLayout.LEFT = "left";
     JSLayout.BOTTOM = "bottom";
     JSLayout.RIGHT = "right";
+    JSLayout.JUSTIFY = "justify";
     JSLayout.LEFT_RIGHT = "left_right";
     JSLayout.HORIZONTAL = "horizontal";
     JSLayout.VERTICAL = "vertical";
@@ -1762,26 +1763,33 @@ var JSLayout = (function () {
 }());
 var JSLineBorder = (function () {
     function JSLineBorder() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
+        this.color = "Black";
         this.thickness = 1;
-        switch (args.length) {
+        this.radius = 0;
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var color = args[0];
+                if (typeof arguments[0] === "string") {
+                    var color = arguments[0];
                     this.setColor(color);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "number") {
-                    var color = args[0];
-                    var thickness = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+                    var color = arguments[0];
+                    var thickness = arguments[1];
                     this.setColor(color);
                     this.setThickness(thickness);
                 }
                 break;
+            case 3:
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var color = arguments[0];
+                    var thickness = arguments[1];
+                    var radius = arguments[2];
+                    this.setColor(color);
+                    this.setThickness(thickness);
+                    this.setRadius(radius);
+                }
             default:
         }
     }
@@ -1797,10 +1805,22 @@ var JSLineBorder = (function () {
     JSLineBorder.prototype.setThickness = function (thickness) {
         this.thickness = thickness;
     };
+    JSLineBorder.prototype.getRadius = function () {
+        return this.radius;
+    };
+    JSLineBorder.prototype.setRadius = function (radius) {
+        this.radius = radius;
+    };
     JSLineBorder.prototype.paintBorder = function (component) {
-        var color = this.getColor();
         var thickness = this.getThickness();
-        component.setStyle("border", thickness + "px solid " + color);
+        if (thickness) {
+            var color = this.getColor();
+            component.setStyle("border", thickness + "px solid " + color);
+        }
+        var radius = this.getRadius();
+        if (radius) {
+            component.setStyle("border-radius", radius + "px");
+        }
     };
     return JSLineBorder;
 }());
@@ -3063,32 +3083,44 @@ var JSCardLayout = (function (_super) {
 var JSFlowLayout = (function (_super) {
     __extends(JSFlowLayout, _super);
     function JSFlowLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
         _this.border = JSFlowLayout.NORTH;
         _this.align = JSFlowLayout.CENTER;
         _this.hgap = 0;
         _this.vgap = 0;
-        switch (args.length) {
+        switch (arguments.length) {
             case 0:
                 break;
+            case 1:
+                if (typeof arguments[0] === "string") {
+                    var align = arguments[0];
+                    _this.setAlign(align);
+                }
+                break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var border = args[0];
-                    var align = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var border = arguments[0];
+                    var align = arguments[1];
                     _this.setBorder(border);
                     _this.setAlign(align);
                 }
                 break;
+            case 3:
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var align = arguments[0];
+                    var hgap = arguments[1];
+                    var vgap = arguments[2];
+                    _this.setAlign(align);
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
+                }
+                break;
             case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
-                    var border = args[0];
-                    var align = args[1];
-                    var hgap = args[2];
-                    var vgap = args[3];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string" && typeof arguments[2] === "number" && typeof arguments[3] === "number") {
+                    var border = arguments[0];
+                    var align = arguments[1];
+                    var hgap = arguments[2];
+                    var vgap = arguments[3];
                     _this.setBorder(border);
                     _this.setAlign(align);
                     _this.setHgap(hgap);
@@ -3611,6 +3643,8 @@ var JSFlowLayout = (function (_super) {
             }
             switch (align) {
                 case JSFlowLayout.LEFT:
+                case JSFlowLayout.LEFT_RIGHT:
+                case JSFlowLayout.JUSTIFY:
                     break;
                 case JSFlowLayout.RIGHT:
                     x += width - rowWidth;
@@ -3619,16 +3653,32 @@ var JSFlowLayout = (function (_super) {
                 default:
                     x += (width - rowWidth) / 2;
             }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                var extraHorizontalSpace = width - rowWidth;
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth + extraHorizontalSpace / components.length);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + extraHorizontalSpace / components.length + hgap;
                 }
-                var componentPreferredOuterWidth = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                component.setX(x);
-                x += componentPreferredOuterWidth + hgap;
+            }
+            else {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + hgap;
+                }
             }
         }
     };

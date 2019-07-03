@@ -203,6 +203,7 @@ class JSComponent {
     }
     setWidth(width: number): void {
         this.width = width;
+        this.setValidHorizontally(false);
         this.invalidateChildrenHorizontally();
         this.validateHorizontally();
     }
@@ -212,6 +213,7 @@ class JSComponent {
     }
     setHeight(height: number): void {
         this.height = height;
+        this.setValidVertically(false);
         this.invalidateChildrenVertically();
         this.validateVertically();
     }
@@ -397,14 +399,16 @@ class JSComponent {
         var components: JSComponent[] = this.getComponents();
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
-            component.invalidateHorizontally();
+            // component.invalidateHorizontally();
+            component.setValidHorizontally(false);
         }
     }
     invalidateChildrenVertically(): void {
         var components: JSComponent[] = this.getComponents();
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
-            component.invalidateVertically();
+            // component.invalidateVertically();
+            component.setValidVertically(false);
         }
     }
     isValidateRoot(): boolean {

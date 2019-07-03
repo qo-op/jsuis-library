@@ -22,6 +22,7 @@ class JSLayout {
     static LEFT: string = "left";
     static BOTTOM: string = "bottom";
     static RIGHT: string = "right";
+    static JUSTIFY: string = "justify";
     static LEFT_RIGHT: string = "left_right";
     // static CENTER: string = "center";
     

@@ -397,6 +397,7 @@ declare class JSLayout {
     static LEFT: string;
     static BOTTOM: string;
     static RIGHT: string;
+    static JUSTIFY: string;
     static LEFT_RIGHT: string;
     static HORIZONTAL: string;
     static VERTICAL: string;
@@ -421,12 +422,16 @@ declare class JSLayout {
 declare class JSLineBorder implements Border {
     color: string;
     thickness: number;
+    radius: number;
     constructor(color: string);
     constructor(color: string, thickness: number);
+    constructor(color: string, thickness: number, radius: number);
     getColor(): string;
     setColor(color: string): void;
     getThickness(): number;
     setThickness(thickness: number): void;
+    getRadius(): number;
+    setRadius(radius: number): void;
     paintBorder(component: JSComponent): void;
 }
 declare class JSMatteBorder implements Border {
@@ -674,7 +679,9 @@ declare class JSFlowLayout extends JSLayout {
     hgap: number;
     vgap: number;
     constructor();
+    constructor(align: string);
     constructor(border: string, align: string);
+    constructor(align: string, hgap: number, vgap: number);
     constructor(border: string, align: string, hgap: number, vgap: number);
     getHgap(): number;
     setHgap(hgap: number): void;

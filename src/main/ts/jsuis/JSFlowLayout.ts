@@ -12,31 +12,51 @@ class JSFlowLayout extends JSLayout {
     vgap: number = 0;
     
     constructor();
+    constructor(align: string);
     constructor(border: string, align: string);
+    constructor(align: string, hgap: number, vgap: number);
     constructor(border: string, align: string, hgap: number, vgap: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         super();
-        switch (args.length) {
+        switch (arguments.length) {
         case 0:
             // constructor;
             break;
+        case 1:
+            // constructor(align: string);
+            if (typeof arguments[0] === "string") {
+                var align: string = arguments[0];
+                this.setAlign(align);
+            }
+            break;
         case 2:
             // constructor(border: string, align: string);
-            if (typeof args[0] === "string" && typeof args[1] === "string") {
-                var border: string = args[0];
-                var align: string = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                var border: string = arguments[0];
+                var align: string = arguments[1];
                 this.setBorder(border);
                 this.setAlign(align);
             }
             break;
+        case 3:
+            // constructor(align: string, hgap: number, vgap: number);
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                var align: string = arguments[0];
+                var hgap: number = arguments[1];
+                var vgap: number = arguments[2];
+                this.setAlign(align);
+                this.setHgap(hgap);
+                this.setVgap(vgap);
+            }
+            break;
         case 4:
             // constructor(border: string, align: string, hgap: number, vgap: number);
-            if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
-                var border: string = args[0];
-                var align: string = args[1];
-                var hgap: number = args[2];
-                var vgap: number = args[3];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "string" && typeof arguments[2] === "number" && typeof arguments[3] === "number") {
+                var border: string = arguments[0];
+                var align: string = arguments[1];
+                var hgap: number = arguments[2];
+                var vgap: number = arguments[3];
                 this.setBorder(border);
                 this.setAlign(align);
                 this.setHgap(hgap);
@@ -200,51 +220,9 @@ class JSFlowLayout extends JSLayout {
     layoutContainer(container: JSComponent): void {
         var border = this.getBorder();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
-            /*
-            if (!(container instanceof JSBody)) {
-                var parent: JSComponent = container.getParent();
-                if (!parent || !parent.getLayout()) {
-                    var preferredHeight: number = container.getPreferredHeight();
-                    if (preferredHeight !== null) {
-                        container.setHeight(preferredHeight);
-                    }
-                    var preferredWidth: number = container.getPreferredWidth();
-                    if (preferredWidth !== null) {
-                        container.setWidth(preferredWidth);
-                    }
-                    if (preferredHeight === null && preferredWidth !== null) {
-                        preferredHeight = container.getPreferredHeight();
-                        if (preferredHeight !== null) {
-                            container.setHeight(preferredHeight);
-                        }
-                    }
-                }
-            }
-            */
             this.layoutContainerVertically(container);
             this.layoutContainerHorizontally(container);
         } else {
-            /*
-            if (!(container instanceof JSBody)) {
-                var parent: JSComponent = container.getParent();
-                if (!parent || !parent.getLayout()) {
-                    var preferredWidth: number = container.getPreferredWidth();
-                    if (preferredWidth !== null) {
-                        container.setWidth(preferredWidth);
-                    }
-                    var preferredHeight: number = container.getPreferredHeight();
-                    if (preferredHeight !== null) {
-                        container.setHeight(preferredHeight);
-                    }
-                    if (preferredWidth === null && preferredHeight !== null) {
-                        preferredWidth = container.getPreferredWidth();
-                        if (preferredWidth !== null) {
-                            container.setWidth(preferredWidth);
-                        }
-                    }
-                }
-            }
-            */
             this.layoutContainerHorizontally(container);
             this.layoutContainerVertically(container);
         }
@@ -593,6 +571,8 @@ class JSFlowLayout extends JSLayout {
             }
             switch (align) {
             case JSFlowLayout.LEFT:
+            case JSFlowLayout.LEFT_RIGHT:
+            case JSFlowLayout.JUSTIFY:
                 break;
             case JSFlowLayout.RIGHT:
                 x += width - rowWidth;
@@ -601,16 +581,31 @@ class JSFlowLayout extends JSLayout {
             default:
                 x += (width - rowWidth) / 2;
             }
-            for (var i: number = 0; i < components.length; i++) {
-                var component: JSComponent = components[i];
-                var componentAlign: string = component.getAlign();
-                if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                var extraHorizontalSpace: number = width - rowWidth;
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    var componentAlign: string = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth + extraHorizontalSpace / components.length);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + extraHorizontalSpace / components.length + hgap;
                 }
-                var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                component.setOuterWidth(componentPreferredOuterWidth);
-                component.setX(x);
-                x += componentPreferredOuterWidth + hgap;
+            } else {
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    var componentAlign: string = component.getAlign();
+                    if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
+                        continue;
+                    }
+                    var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
+                    component.setOuterWidth(componentPreferredOuterWidth);
+                    component.setX(x);
+                    x += componentPreferredOuterWidth + hgap;
+                }
             }
         }
     }
