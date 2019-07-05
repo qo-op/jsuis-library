@@ -144,6 +144,7 @@
             /// <reference path = "jsuis/JSTree.ts"/>
             /// <reference path = "jsuis/JSTreeCellButton.ts"/>
             /// <reference path = "jsuis/JSVerticalScrollBar.ts"/>
+            /// <reference path = "jsuis/JSTableLowerRightCorner.ts"/>
                 /// <reference path = "jsuis/JSButtonGraphics.ts"/>
                 /// <reference path = "jsuis/JSCheckBoxMenuItem.ts"/>
                 /// <reference path = "jsuis/JSLabelGraphics.ts"/>

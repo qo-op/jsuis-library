@@ -51,7 +51,7 @@ class JSSplitPaneLayout extends JSLayout {
         if (splitPane.isValidHorizontally()) {
             return;
         }
-        var width: number = splitPane.getWidth();
+        var width: number = splitPane.getContentWidth();
         var width100: number = width + splitPane.getPaddingLeft() + splitPane.getPaddingRight();
         var x: number = splitPane.getInsetLeft();
         var leftContainer: JSSplitPaneLeftContainer = splitPane.getLeftContainer();
@@ -84,7 +84,7 @@ class JSSplitPaneLayout extends JSLayout {
         if (splitPane.isValidVertically()) {
             return;
         }
-        var height: number = splitPane.getHeight();
+        var height: number = splitPane.getContentHeight();
         var height100: number = height + splitPane.getPaddingTop() + splitPane.getPaddingBottom();
         var y: number = splitPane.getInsetTop();
         var leftContainer: JSSplitPaneLeftContainer = splitPane.getLeftContainer();

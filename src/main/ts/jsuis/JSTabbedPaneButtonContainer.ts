@@ -12,16 +12,16 @@ class JSTabbedPaneButtonContainer extends JSPanel {
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTabbedPaneButtonContainer");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(tabPlacement: string);
-            if (typeof args[0] === "string") {
-                var tabPlacement: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var tabPlacement: string = arguments[0];
                 this.setTabPlacement(tabPlacement);
             }
             break;

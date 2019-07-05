@@ -8,8 +8,6 @@ class JSFlowLayout extends JSLayout {
     
     border: string = JSFlowLayout.NORTH;
     align: string = JSFlowLayout.CENTER;
-    hgap: number = 0;
-    vgap: number = 0;
     
     constructor();
     constructor(align: string);
@@ -65,18 +63,6 @@ class JSFlowLayout extends JSLayout {
             break;
         default:
         }
-    }
-    getHgap(): number {
-        return this.hgap;
-    }
-    setHgap(hgap: number) {
-        this.hgap = hgap;
-    }
-    getVgap(): number {
-        return this.vgap;
-    }
-    setVgap(vgap: number) {
-        this.vgap = vgap;
     }
     getAlign(): string {
         return this.align;
@@ -148,7 +134,7 @@ class JSFlowLayout extends JSLayout {
             if (preferredLayoutWidth != 0) {
                 preferredLayoutWidth -= hgap;
             }
-            var width = container.getWidth();
+            var width: number = container.getContentWidth();
             if (width) {
                 preferredLayoutWidth = Math.min(preferredLayoutWidth, width);
             }
@@ -177,7 +163,7 @@ class JSFlowLayout extends JSLayout {
             if (preferredLayoutHeight != 0) {
                 preferredLayoutHeight -= vgap;
             }
-            var height = container.getHeight();
+            var height: number = container.getContentHeight();
             if (height) {
                 preferredLayoutHeight = Math.min(preferredLayoutHeight, height);
             }
@@ -240,8 +226,8 @@ class JSFlowLayout extends JSLayout {
         }
         var hgap: number = this.getHgap();
         var vgap: number = this.getVgap();
-        var width: number = container.getWidth();
-        var height: number = container.getHeight();
+        var width: number = container.getContentWidth();
+        var height: number = container.getContentHeight();
         var rowWidth: number = 0;
         var rowHeight: number = 0;
         var n: number = 0;
@@ -372,8 +358,8 @@ class JSFlowLayout extends JSLayout {
         }
         var hgap: number = this.getHgap();
         var vgap: number = this.getVgap();
-        var width: number = container.getWidth();
-        var height: number = container.getHeight();
+        var width: number = container.getContentWidth();
+        var height: number = container.getContentHeight();
         var rowWidth: number = 0;
         var rowHeight: number = 0;
         var n: number = 0;
@@ -496,7 +482,7 @@ class JSFlowLayout extends JSLayout {
         var border = this.getBorder();
         var align: string = this.getAlign();
         var hgap: number = this.getHgap();
-        var width: number = container.getWidth();
+        var width: number = container.getContentWidth();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
@@ -614,7 +600,7 @@ class JSFlowLayout extends JSLayout {
         var border = this.getBorder();
         var align: string = this.getAlign();
         var vgap: number = this.getVgap();
-        var height: number = container.getHeight();
+        var height: number = container.getContentHeight();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];

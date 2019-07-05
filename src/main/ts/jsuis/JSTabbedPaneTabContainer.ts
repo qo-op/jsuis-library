@@ -12,16 +12,16 @@ class JSTabbedPaneTabContainer extends JSPanel {
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTabbedPaneTabContainer");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(tabPlacement: string);
-            if (typeof args[0] === "string") {
-                var tabPlacement: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var tabPlacement: string = arguments[0];
                 this.setTabPlacement(tabPlacement);
             }
             break;
@@ -57,22 +57,22 @@ class JSTabbedPaneTabContainer extends JSPanel {
     addTab(title: string): JSTab;
     addTab(title: string, icon: JSIcon): JSTab;
     // overload
-    addTab(...args: any[]): JSTab {
+    addTab(): JSTab {
         var tabPlacement: string = this.getTabPlacement();
         var tab: JSTab;
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // addTab(title: string): JSComponent;
-            if (typeof args[0] === "string") {
-                var title: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var title: string = arguments[0];
                 tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, false, title);
             }
             break;
         case 2:
             // addTab(title: string, icon: JSIcon): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var title: string = args[0];
-                var icon: JSIcon = args[1];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var title: string = arguments[0];
+                var icon: JSIcon = arguments[1];
                 tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, false, title, icon);
             }
             break;
@@ -107,24 +107,24 @@ class JSTabbedPaneTabContainer extends JSPanel {
     addCloseabeTab(title: string): JSTab;
     addCloseabeTab(title: string, icon: JSIcon): JSTab;
     // overload
-    addCloseabeTab(...args: any[]): JSTab {
+    addCloseabeTab(): JSTab {
         var tabPlacement: string = this.getTabPlacement();
         var tab: JSTab;
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // addTab(title: string): JSComponent;
-            if (typeof args[0] === "string") {
-                var title: string = args[0];
-                var closeable: boolean = args[1];
+            if (typeof arguments[0] === "string") {
+                var title: string = arguments[0];
+                var closeable: boolean = arguments[1];
                 tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, true, title);
             }
             break;
         case 2:
             // addTab(title: string, icon: JSIcon): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var title: string = args[0];
-                var icon: JSIcon = args[1];
-                var closeable: boolean = args[2];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var title: string = arguments[0];
+                var icon: JSIcon = arguments[1];
+                var closeable: boolean = arguments[2];
                 tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, true, title, icon);
             }
             break;
@@ -173,15 +173,15 @@ class JSTabbedPaneTabContainer extends JSPanel {
     remove(component: JSComponent): void;
     remove(index: number): void;
     // overload
-    remove(...args: any[]): void {
+    remove(): void {
         var component: JSComponent;
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // remove(index: number): void;
-            if (args[0] instanceof JSComponent) {
-                component = args[0];
-            } else if (typeof args[0] === "number") {
-                var index: number = args[0];
+            if (arguments[0] instanceof JSComponent) {
+                component = arguments[0];
+            } else if (typeof arguments[0] === "number") {
+                var index: number = arguments[0];
                 var components: JSComponent[] = this.getComponents();
                 component = components[index];
             }

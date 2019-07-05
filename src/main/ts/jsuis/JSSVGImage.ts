@@ -12,28 +12,28 @@ class JSSVGImage extends JSSVGComponent {
     constructor(source: string);
     constructor(source: string, width: number, height: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: SVGImageElement);
-        super(args.length === 0 || !(args[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : arguments[0]);
         this.setUI("JSSVGImage");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(source: string);
-            if (args[0] instanceof JSIcon) {
-                var icon: JSIcon = args[0];
+            if (arguments[0] instanceof JSIcon) {
+                var icon: JSIcon = arguments[0];
                 this.setIcon(icon);
-            } else if (typeof args[0] === "string") {
-                var source: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var source: string = arguments[0];
                 this.setSource(source);
             }
             break;
         case 3:
             // constructor(source: string, width: number, height: number);
-            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                var source: string = args[0];
-                var width: number = args[1];
-                var height: number = args[2];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                var source: string = arguments[0];
+                var width: number = arguments[1];
+                var height: number = arguments[2];
                 this.setSource(source);
                 this.setWidth(width);
                 this.setHeight(height);

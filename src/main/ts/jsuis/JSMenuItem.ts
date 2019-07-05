@@ -13,38 +13,36 @@ class JSMenuItem extends JSPanel implements MouseListener {
     constructor(text: string);
     constructor(text: string, icon: JSIcon);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSMenuItem");
         
-        var index: number = 0;
-        
         var label: JSMenuItemLabel = this.getLabel();
-        this.add(label, null, index++);
+        this.add(label);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(action: JSAction);
             // constructor(icon: JSIcon);
             // constructor(text: string);
-            if (args[0] instanceof JSAction) {
-                var action: JSAction = args[0];
+            if (arguments[0] instanceof JSAction) {
+                var action: JSAction = arguments[0];
                 this.setAction(action);
-            } else if (args[0] instanceof JSIcon) {
-                var icon: JSIcon = args[0];
+            } else if (arguments[0] instanceof JSIcon) {
+                var icon: JSIcon = arguments[0];
                 this.setIcon(icon);
-            } else if (typeof args[0] === "string") {
-                var text: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
         case 2:
             // constructor(text: string, icon: JSIcon);
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var text: string = args[0];
-                var icon: JSIcon = args[1];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var text: string = arguments[0];
+                var icon: JSIcon = arguments[1];
                 this.setText(text);
                 this.setIcon(icon);
             }

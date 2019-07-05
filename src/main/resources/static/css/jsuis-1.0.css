@@ -37,6 +37,7 @@ html {
 }
 .JSButton {
 	white-space: nowrap;
+	vertical-align: middle;
 }
 .JSButton.undecorated {
 	background: none;

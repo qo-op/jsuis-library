@@ -9,16 +9,14 @@ class JSTableHead extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : arguments[0]);
         this.setUI("JSTableHead");
         
-        var index: number = 0;
-        
         var tableHeadRow: JSTableHeadRow = this.getTableHeadRow();
-        this.add(tableHeadRow, null, index++);
+        this.add(tableHeadRow);
     }
     getTableHeadRow(): JSTableHeadRow {
         var tableHeadRow: JSTableHeadRow = this.getData("tableHeadRow");

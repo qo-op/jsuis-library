@@ -10,16 +10,16 @@ class JSOList extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(items: Array<string>);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLOListElement) ? document.createElement("ol") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLOListElement) ? document.createElement("ol") : arguments[0]);
         this.setUI("JSOList");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(items: Array<string>);
-            if (args[0] instanceof Array) {
-                var items: Array<any> = args[0];
+            if (arguments[0] instanceof Array) {
+                var items: Array<any> = arguments[0];
                 this.setItems(items);
             }
             break;

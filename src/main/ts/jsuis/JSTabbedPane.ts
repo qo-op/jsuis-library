@@ -10,16 +10,16 @@ class JSTabbedPane extends JSPanel {
     constructor(element: HTMLElement);
     constructor(tabPlacement: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTabbedPane");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(tabPlacement: string);
-            if (typeof args[0] === "string") {
-                var tabPlacement: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var tabPlacement: string = arguments[0];
                 this.setTabPlacement(tabPlacement);
             }
             break;
@@ -27,28 +27,26 @@ class JSTabbedPane extends JSPanel {
         }
         this.setLayout(new JSBorderLayout());
         
-        var index: number = 0;
-        
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
         var tabPlacement: string = this.getTabPlacement();
         switch (tabPlacement) {
         case JSTabbedPane.LEFT:
-            this.add(tabContainer, JSBorderLayout.WEST, index++);
+            this.add(tabContainer, JSBorderLayout.WEST);
             break;
         case JSTabbedPane.RIGHT:
-            this.add(tabContainer, JSBorderLayout.EAST, index++);
+            this.add(tabContainer, JSBorderLayout.EAST);
             break;
         case JSTabbedPane.BOTTOM:
-            this.add(tabContainer, JSBorderLayout.SOUTH, index++);
+            this.add(tabContainer, JSBorderLayout.SOUTH);
             break;
         case JSTabbedPane.TOP:
         default:
-            this.add(tabContainer, JSBorderLayout.NORTH, index++);
+            this.add(tabContainer, JSBorderLayout.NORTH);
         }
         var cardContainer: JSTabbedPaneCardContainer = this.getCardContainer();
-        this.add(cardContainer, null, index++);
+        this.add(cardContainer);
         var buttonContainer: JSTabbedPaneButtonContainer = this.getButtonContainer();
-        tabContainer.add(buttonContainer, null, index++);
+        tabContainer.add(buttonContainer);
     }
     getTabPlacement(): string {
         return this.getAttribute("data-tab-placement");
@@ -59,24 +57,24 @@ class JSTabbedPane extends JSPanel {
     addTab(title: string, component: JSComponent): JSTab;
     addTab(title: string, icon: JSIcon, component: JSComponent): JSTab;
     // overload
-    addTab(...args: any[]): JSTab {
+    addTab(): JSTab {
         var tab: JSTab;
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // addTab(title: string, component: JSComponent): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSComponent) {
-                var title: string = args[0];
-                var component: JSComponent = args[1];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSComponent) {
+                var title: string = arguments[0];
+                var component: JSComponent = arguments[1];
                 tab = tabContainer.addTab(title);
             }
             break;
         case 3:
             // addTab(title: string, icon: JSIcon, component: JSComponent): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon && args[2] instanceof JSComponent) {
-                var title: string = args[0];
-                var icon: JSIcon = args[1];
-                var component: JSComponent = args[2];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && arguments[2] instanceof JSComponent) {
+                var title: string = arguments[0];
+                var icon: JSIcon = arguments[1];
+                var component: JSComponent = arguments[2];
                 tab = tabContainer.addTab(title, icon);
             }
             break;
@@ -96,24 +94,24 @@ class JSTabbedPane extends JSPanel {
     addCloseableTab(title: string, component: JSComponent): JSTab;
     addCloseableTab(title: string, icon: JSIcon, component: JSComponent): JSTab;
     // overload
-    addCloseableTab(...args: any[]): JSTab {
+    addCloseableTab(): JSTab {
         var tab: JSTab;
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // addCloseableTab(title: string, component: JSComponent): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSComponent) {
-                var title: string = args[0];
-                var component: JSComponent = args[1];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSComponent) {
+                var title: string = arguments[0];
+                var component: JSComponent = arguments[1];
                 tab = tabContainer.addCloseabeTab(title);
             }
             break;
         case 3:
             // addCloseableTab(title: string, icon: JSIcon, component: JSComponent): JSComponent;
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon && args[2] instanceof JSComponent) {
-                var title: string = args[0];
-                var icon: JSIcon = args[1];
-                var component: JSComponent = args[2];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && arguments[2] instanceof JSComponent) {
+                var title: string = arguments[0];
+                var icon: JSIcon = arguments[1];
+                var component: JSComponent = arguments[2];
                 tab = tabContainer.addCloseabeTab(title, icon);
             }
             break;

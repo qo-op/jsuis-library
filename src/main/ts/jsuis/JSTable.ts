@@ -10,23 +10,14 @@ class JSTable extends JSPanel {
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTable");
-        
-        var index: number = 0;
+        // this.setEditable(true);
         
         this.setLayout(new JSTableLayout());
-        
-        var scrollPane: JSTableScrollPane = this.getScrollPane();
-        scrollPane.setVisible(false);
-        this.add(scrollPane);
-        
-        var scrollPaneView: JSPanel = new JSPanel();
-        scrollPaneView.setStyle("position", "absolute");
-        scrollPane.setViewportView(scrollPaneView);
         
         var horizontalScrollPane: JSTableHorizontalScrollPane = this.getHorizontalScrollPane();
         this.add(horizontalScrollPane);
@@ -52,12 +43,16 @@ class JSTable extends JSPanel {
         verticalScrollBar.setVisible(false);
         this.add(verticalScrollBar);
         
-        switch (args.length) {
+        var tableLowerRightCorner: JSTableLowerRightCorner = this.getTableLowerRightCorner();
+        tableLowerRightCorner.setVisible(false);
+        this.add(tableLowerRightCorner);
+        
+        switch (arguments.length) {
         case 2:
             // constructor(rows: any[][], columns: string[]);
-            if (args[0] instanceof Array && args[1] instanceof Array) {
-                var rows: any[][] = args[0];
-                var columns: string[] = args[1];
+            if (arguments[0] instanceof Array && arguments[1] instanceof Array) {
+                var rows: any[][] = arguments[0];
+                var columns: string[] = arguments[1];
                 this.setRows(rows);
                 this.setColumns(columns);
             }
@@ -75,19 +70,6 @@ class JSTable extends JSPanel {
                 verticalScrollPane.element.scrollTop = verticalScrollBar.element.scrollTop;
             }
         });
-    }
-    getScrollPane(): JSTableScrollPane {
-        var scrollPane: JSTableScrollPane = this.getData("scrollPane");
-        if (!scrollPane) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableScrollPane");
-            if (element) {
-                scrollPane = new JSTableScrollPane(element);
-            } else {
-                scrollPane = new JSTableScrollPane();
-            }
-            this.setData("scrollPane", scrollPane);
-        }
-        return scrollPane;
     }
     getHorizontalScrollPane(): JSTableHorizontalScrollPane {
         var horizontalScrollPane: JSScrollPane = this.getData("horizontalScrollPane");
@@ -171,6 +153,19 @@ class JSTable extends JSPanel {
         }
         return verticalScrollBar;
     }
+    getTableLowerRightCorner(): JSTableLowerRightCorner {
+        var tableLowerRightCorner: JSTableLowerRightCorner = this.getData("tableLowerRightCorner");
+        if (!tableLowerRightCorner) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSTableLowerRightCorner");
+            if (element) {
+                tableLowerRightCorner = new JSTableLowerRightCorner(element);
+            } else {
+                tableLowerRightCorner = new JSTableLowerRightCorner();
+            }
+            this.setData("tableLowerRightCorner", tableLowerRightCorner);
+        }
+        return tableLowerRightCorner;
+    }
     getColumns(): string[] {
         var tableHeader = this.getTableHeader();
         return tableHeader.getColumns();
@@ -182,11 +177,27 @@ class JSTable extends JSPanel {
         tableContent.setColumns(columns);
     }
     getRows(): any[][] {
-        var tableContent = this.getTableContent();
+        var tableContent: JSTableContent = this.getTableContent();
         return tableContent.getRows();
     }
     setRows(rows: any[][]) {
-        var tableContent = this.getTableContent();
+        var tableContent: JSTableContent = this.getTableContent();
         tableContent.setRows(rows);
+    }
+    addRow(row: any[]) {
+        var tableContent: JSTableContent = this.getTableContent();
+        tableContent.addRow(row);
+    }
+    removeRow(row: number): void {
+        var tableContent: JSTableContent = this.getTableContent();
+        tableContent.removeRow(row);
+    }
+    removeAllRows(): void {
+        var tableContent: JSTableContent = this.getTableContent();
+        tableContent.removeAllRows();
+    }
+    setEditable(editable: boolean) {
+        var tableContent: JSTableContent = this.getTableContent();
+        tableContent.setEditable(editable);
     }
 }

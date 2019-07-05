@@ -10,16 +10,16 @@ class JSTableCell extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(value: any);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTableCellElement) ? document.createElement("td") : arguments[0]);
         this.setUI("JSTableCell");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(value: any);
-            if (!(args[0] instanceof HTMLTableCellElement)) {
-                var value: any = args[0];
+            if (!(arguments[0] instanceof HTMLTableCellElement)) {
+                var value: any = arguments[0];
                 this.setValue(value);
             }
             break;

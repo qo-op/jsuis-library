@@ -6,39 +6,24 @@
  */
 class JSBorderLayout extends JSLayout {
     
-    hgap: number = 0;
-    vgap: number = 0;
-    
     constructor();
     constructor(hgap: number, vgap: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         super();
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // constructor(hgap: number, vgap: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var hgap: number = args[0];
-                var vgap: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var hgap: number = arguments[0];
+                var vgap: number = arguments[1];
                 this.setHgap(hgap);
                 this.setVgap(vgap);
             }
             break;
         default:
         }
-    }
-    getHgap(): number {
-        return this.hgap;
-    }
-    setHgap(hgap: number) {
-        this.hgap = hgap;
-    }
-    getVgap(): number {
-        return this.vgap;
-    }
-    setVgap(vgap: number) {
-        this.vgap = vgap;
     }
     
     addLayoutComponent(component: JSComponent): void {
@@ -148,7 +133,7 @@ class JSBorderLayout extends JSLayout {
             return;
         }
         var hgap: number = this.getHgap();
-        var width: number = container.getWidth();
+        var width: number = container.getContentWidth();
         var x: number = container.getInsetLeft();
         var components: JSComponent[] = container.getComponents().slice();
         for (var i: number = 0; i < components.length; i++) {
@@ -288,7 +273,7 @@ class JSBorderLayout extends JSLayout {
             return;
         }
         var vgap: number = this.getVgap();
-        var height: number = container.getHeight();
+        var height: number = container.getContentHeight();
         var y: number = container.getInsetTop();
         var components: JSComponent[] = container.getComponents().slice();
         for (var i: number = 0; i < components.length; i++) {

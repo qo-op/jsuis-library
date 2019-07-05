@@ -10,17 +10,17 @@ class JSSVG extends JSSVGComponent {
     constructor(element: SVGElement);
     constructor(width: number, height: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: SVGElement);
-        super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]);
         this.setUI("JSSVG");
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // constructor(width: number, height: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var width: number = args[0];
-                var height: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var width: number = arguments[0];
+                var height: number = arguments[1];
                 this.setWidth(width);
                 this.setHeight(height);
             }

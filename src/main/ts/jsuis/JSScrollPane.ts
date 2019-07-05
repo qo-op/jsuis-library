@@ -12,10 +12,10 @@ class JSScrollPane extends JSPanel {
     constructor(vsbPolicy: string, hsbPolicy: string);
     constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSScrollPane");
         
         this.setLayout(new JSScrollPaneLayout());
@@ -24,26 +24,26 @@ class JSScrollPane extends JSPanel {
         var vsbPolicy: string = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
         var hsbPolicy: string = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(view: JSComponent);
-            if (args[0] instanceof JSComponent) {
-                view = args[0];
+            if (arguments[0] instanceof JSComponent) {
+                view = arguments[0];
             }
             break;
         case 2:
             // constructor(vsbPolicy: string, hsbPolicy: string);
-            if (typeof args[0] === "string" && typeof args[1] === "string") {
-                vsbPolicy = args[0];
-                hsbPolicy = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                vsbPolicy = arguments[0];
+                hsbPolicy = arguments[1];
             }
             break;
         case 3:
             // constructor(view: JSComponent, vsbPolicy: string, hsbPolicy: string);
-            if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                view = args[0];
-                vsbPolicy = args[1];
-                hsbPolicy = args[2];
+            if (arguments[0] instanceof JSComponent && typeof arguments[1] === "string" && typeof arguments[2] === "string") {
+                view = arguments[0];
+                vsbPolicy = arguments[1];
+                hsbPolicy = arguments[2];
                 this.setViewportView(view);
             }
             break;
@@ -77,6 +77,9 @@ class JSScrollPane extends JSPanel {
             this.removeAll();
             this.add(viewportView);
         }
+    }
+    isValidateRoot(): boolean {
+        return true;
     }
     /*
     getPreferredWidth(): number {

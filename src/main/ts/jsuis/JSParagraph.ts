@@ -11,24 +11,24 @@ class JSParagraph extends JSHTMLComponent {
     constructor(text: string);
     constructor(text: string, horizontalAlignment: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLParagraphElement) ? document.createElement("p") : arguments[0]);
         this.setUI("JSParagraph");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(text: string);
-            if (typeof args[0] === "string") {
-                var text: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
         case 2:
             // constructor(text: string, horizontalAlignment: string);
-            if (typeof args[0] === "string" && typeof args[1] === "string") {
-                var text: string = args[0];
-                var horizontalAlignment: string = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                var text: string = arguments[0];
+                var horizontalAlignment: string = arguments[1];
                 this.setText(text);
                 this.setStyle("text-align", horizontalAlignment);
             }

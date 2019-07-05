@@ -38,7 +38,7 @@
 </pre>
 <p>When you click on the button [Click me!], it displays an alert box with the text "Hello, World!".</p>
 
-<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver; height: 100px"></div>
+<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver;"></div>
 
 <p>Example 1: Hello, World!</p>
 <p>The first line written in javascript: <b class="monospaced">var frame = new JSFrame();</b> creates a JSFrame container.</p>
@@ -57,8 +57,10 @@
 	<script>
     	var tutorial = new JSDiv(document.getElementById("tutorial"));
 		var frame = new JSDiv(document.getElementById("example1"));
-		frame.setLayout(new JSBorderLayout());
+		frame.setPreferredHeight(100);
 		tutorial.getComponents().push(frame);
+		frame.setParent(tutorial);
+		frame.setLayout(new JSBorderLayout());
 		
 		frame.setLayout(new JSGridBagLayout());
 		var button = new JSButton("Click me!");

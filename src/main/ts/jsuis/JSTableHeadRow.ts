@@ -10,16 +10,16 @@ class JSTableHeadRow extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(columns: any[]);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : arguments[0]);
         this.setUI("JSTableHeadRow");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(values: any[]);
-            if (args[0] instanceof Array) {
-                var columns: any[] = args[0];
+            if (arguments[0] instanceof Array) {
+                var columns: any[] = arguments[0];
                 this.setColumns(columns);
             }
             break;

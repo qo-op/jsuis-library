@@ -11,28 +11,70 @@ class JSHTMLComponent extends JSComponent {
         this.setUI("JSHTMLComponent");
     }
     getWidth(): number {
-        var width = super.getWidth();
+        var width: number = super.getWidth();
         if (width !== undefined) {
             return width;
         }
-        return this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return this.element.getBoundingClientRect().width;
+        } else {
+            return this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        }
     }
     getHeight(): number {
-        var height = super.getHeight();
+        var height: number = super.getHeight();
         if (height !== undefined) {
             return height;
         }
-        return this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return this.element.getBoundingClientRect().height;
+        } else {
+            return this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        }
     }
+    
+    getContentWidth(): number {
+        var width: number = this.getWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        } else {
+            return width;
+        }
+    }
+    getContentHeight(): number {
+        var height: number = this.getHeight();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        } else {
+            return height;
+        }
+    }
+    
     getOuterWidth(): number {
-        return this.getWidth() +
-            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
-            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        var width: number = this.getWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return width;
+        } else {
+            return width +
+                this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+                this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        }
     }
     getOuterHeight(): number {
-        return this.getHeight() +
-            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
-            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        var height: number = this.getHeight();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return height;
+        } else {
+            return height +
+                this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+                this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        }
     }
     
     setX(x: number): void {
@@ -49,16 +91,26 @@ class JSHTMLComponent extends JSComponent {
         super.setWidth(width);
     }
     setOuterWidth(outerWidth: number): void {
-        this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
-                this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            this.setWidth(outerWidth);
+        } else {
+            this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
+                    this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
+        }
     }
     setHeight(height: number): void {
         this.setStyle("height", height + "px");
         super.setHeight(height);
     }
     setOuterHeight(outerHeight: number): void {
-        this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
-                this.getPaddingBottom() - this.getBorderBottomWidth() - this.getMarginBottom());
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            this.setHeight(outerHeight);
+        } else {
+            this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
+                    this.getPaddingBottom() - this.getBorderBottomWidth() - this.getMarginBottom());
+        }
     }
     
     getInsetTop(): number {
@@ -158,68 +210,28 @@ class JSHTMLComponent extends JSComponent {
         return +this.getComputedStyle("margin-right").replace("px", "");
     }
     getBorderTopWidth(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("border-top-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-top-width").replace("px", "");
     }
     getBorderLeftWidth(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("border-left-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-left-width").replace("px", "");
     }
     getBorderBottomWidth(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("border-bottom-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-bottom-width").replace("px", "");
     }
     getBorderRightWidth(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("border-right-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-right-width").replace("px", "");
     }
     getPaddingTop(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("padding-top").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-top").replace("px", "");
     }
     getPaddingLeft(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("padding-left").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-left").replace("px", "");
     }
     getPaddingBottom(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("padding-bottom").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-bottom").replace("px", "");
     }
     getPaddingRight(): number {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        } else {
-            return +this.getComputedStyle("padding-right").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-right").replace("px", "");
     }
     setMargin(top: number, left: number, bottom: number, right: number): void {
         this.setStyle("margin-top", top + "px");

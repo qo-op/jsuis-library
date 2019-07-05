@@ -10,26 +10,24 @@ class JSTableContent extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTableElement) ? document.createElement("table") : arguments[0]);
         this.setUI("JSTableContent");
         
-        var index: number = 0;
-        
         var tableHeader = this.getTableHead();
-        this.add(tableHeader, null, index++);
+        this.add(tableHeader);
         
         var tableBody = this.getTableBody();
-        this.add(tableBody, null, index++);
+        this.add(tableBody);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // constructor(rows: any[][], columns: string[]);
-            if (args[0] instanceof Array && args[1] instanceof Array) {
-                var rows: any[][] = args[0];
-                var columns: string[] = args[1];
+            if (arguments[0] instanceof Array && arguments[1] instanceof Array) {
+                var rows: any[][] = arguments[0];
+                var columns: string[] = arguments[1];
                 this.setRows(rows);
                 this.setColumns(columns);
             }
@@ -78,5 +76,21 @@ class JSTableContent extends JSHTMLComponent {
     setRows(rows: any[][]) {
         var tableBody: JSTableBody = this.getTableBody();
         tableBody.setRows(rows);
+    }
+    addRow(row: any[]) {
+        var tableBody: JSTableBody = this.getTableBody();
+        tableBody.addRow(row);
+    }
+    removeRow(row: number): void {
+        var tableBody: JSTableBody = this.getTableBody();
+        tableBody.remove(row);
+    }
+    removeAllRows(): void {
+        var tableBody: JSTableBody = this.getTableBody();
+        tableBody.removeAll();
+    }
+    setEditable(editable: boolean) {
+        var tableBody: JSTableBody = this.getTableBody();
+        tableBody.setEditable(editable);
     }
 }

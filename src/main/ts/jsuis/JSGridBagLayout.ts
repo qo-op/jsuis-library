@@ -6,39 +6,24 @@
  */
 class JSGridBagLayout extends JSLayout {
     
-    hgap: number = 0;
-    vgap: number = 0;
-    
     constructor();
     constructor(hgap: number, vgap: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         super();
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // constructor(hgap: number, vgap: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var hgap: number = args[0];
-                var vgap: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var hgap: number = arguments[0];
+                var vgap: number = arguments[1];
                 this.setHgap(hgap);
                 this.setVgap(vgap);
             }
             break;
         default:
         }
-    }
-    getHgap(): number {
-        return this.hgap;
-    }
-    setHgap(hgap: number) {
-        this.hgap = hgap;
-    }
-    getVgap(): number {
-        return this.vgap;
-    }
-    setVgap(vgap: number) {
-        this.vgap = vgap;
     }
     
     addLayoutComponent(component: JSComponent): void {
@@ -47,7 +32,7 @@ class JSGridBagLayout extends JSLayout {
     
     preferredLayoutWidth(container: JSComponent): number {
         var preferredLayoutWidth: number = 0;
-        var width: number = container.getWidth();
+        var width: number = container.getContentWidth();
         var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {
             var c: number = ((<{ gridx?: number }> a.getConstraints() || {}).gridx || 0) + ((<{ gridwidth?: number }> a.getConstraints() || {}).gridwidth || 1);
@@ -110,7 +95,7 @@ class JSGridBagLayout extends JSLayout {
     
     preferredLayoutHeight(container: JSComponent): number {
         var preferredLayoutHeight: number = 0;
-        var height: number = container.getHeight();
+        var height: number = container.getContentHeight();
         var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {
             var c: number = ((<{ gridy?: number }> a.getConstraints() || {}).gridy || 0) + ((<{ gridheight?: number }> a.getConstraints() || {}).gridheight || 1);
@@ -176,7 +161,7 @@ class JSGridBagLayout extends JSLayout {
             return;
         }
         var preferredLayoutWidth: number = 0;
-        var width: number = container.getWidth();
+        var width: number = container.getContentWidth();
         var width100: number = width + container.getPaddingLeft() + container.getPaddingRight();
         var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {
@@ -337,7 +322,7 @@ class JSGridBagLayout extends JSLayout {
             return;
         }
         var preferredLayoutHeight: number = 0;
-        var height: number = container.getHeight();
+        var height: number = container.getContentHeight();
         var height100: number = height + container.getPaddingTop() + container.getPaddingBottom();
         var components: JSComponent[] = container.getComponents().slice();
         components.sort(function (a, b) {

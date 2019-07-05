@@ -11,30 +11,28 @@ class JSTab extends JSPanel {
     constructor(tabPlacement: string, closeable: boolean, text: string);
     constructor(tabPlacement: string, closeable: boolean, text: string, icon: JSIcon);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTab");
         
-        var index: number = 0;
-        
         var graphics: JSTabGraphics = this.getGraphics();
-        this.add(graphics, null, index++);
+        this.add(graphics);
         
         var label: JSLabel = this.getLabel();
-        this.add(label, null, index++);
+        this.add(label);
         
         var tabCloseButton: JSButton = this.getCloseButton();
-        this.add(tabCloseButton, null, index++);
+        this.add(tabCloseButton);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 3:
             // constructor(tabPlacement: string, closeable: boolean, text: string);
-            if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string") {
-                var tabPlacement: string = args[0];
-                var closeable: boolean = args[1];
-                var text: string = args[2];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean" && typeof arguments[2] === "string") {
+                var tabPlacement: string = arguments[0];
+                var closeable: boolean = arguments[1];
+                var text: string = arguments[2];
                 this.setTabPlacement(tabPlacement);
                 this.setCloseable(closeable);
                 this.setText(text);
@@ -42,11 +40,11 @@ class JSTab extends JSPanel {
             break;
         case 4:
             // constructor(tabPlacement: string, closeable: boolean, text: string, icon: JSIcon);
-            if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string" && args[3] instanceof JSIcon) {
-                var tabPlacement: string = args[0];
-                var closeable: boolean = args[1];
-                var text: string = args[2];
-                var icon: JSIcon = args[3];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean" && typeof arguments[2] === "string" && arguments[3] instanceof JSIcon) {
+                var tabPlacement: string = arguments[0];
+                var closeable: boolean = arguments[1];
+                var text: string = arguments[2];
+                var icon: JSIcon = arguments[3];
                 this.setTabPlacement(tabPlacement);
                 this.setCloseable(closeable);
                 this.setText(text);

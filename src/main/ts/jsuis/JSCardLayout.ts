@@ -49,7 +49,7 @@ class JSCardLayout extends JSLayout {
         if (container.isValidHorizontally()) {
             return;
         }
-        var width: number = container.getWidth();
+        var width: number = container.getContentWidth();
         var x: number = container.getInsetLeft();
         var components: JSComponent[] = container.getComponents();
         for (var i: number = 0; i < components.length; i++) {
@@ -67,7 +67,7 @@ class JSCardLayout extends JSLayout {
         if (container.isValidVertically()) {
             return;
         }
-        var height: number = container.getHeight();
+        var height: number = container.getContentHeight();
         var y: number = container.getInsetTop();
         var components: JSComponent[] = container.getComponents();
         for (var i: number = 0; i < components.length; i++) {
@@ -131,19 +131,19 @@ class JSCardLayout extends JSLayout {
     show(container: JSComponent, index: number): void;
     show(container: JSComponent, constraints: string): void;
     // overload
-    show(...args: any[]) {
+    show() {
     // show(container: JSComponent, indexOrConstraints: number | string): void {
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // show(container: JSComponent, index: number): void;
             // show(container: JSComponent, constraints: string): void;
-            if (args[0] instanceof JSComponent && typeof args[1] === "number") {
-                var container: JSComponent = args[0];
-                var index: number = args[1];
+            if (arguments[0] instanceof JSComponent && typeof arguments[1] === "number") {
+                var container: JSComponent = arguments[0];
+                var index: number = arguments[1];
                 this.setSelectedIndex(container, index);
-            } else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
-                var container: JSComponent = args[0];
-                var constraints: string = args[1];
+            } else if (arguments[0] instanceof JSComponent && typeof arguments[1] === "string") {
+                var container: JSComponent = arguments[0];
+                var constraints: string = arguments[1];
                 var components: JSComponent[] = container.getComponents();
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];

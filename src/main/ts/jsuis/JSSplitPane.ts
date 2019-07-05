@@ -10,17 +10,17 @@ class JSSplitPane extends JSPanel {
     constructor(element: HTMLElement);
     constructor(orientation: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSSplitPane");
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(selected: boolean);
-            if (typeof args[0] === "string") {
-                var orientation: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var orientation: string = arguments[0];
                 this.setOrientation(orientation);
             }
             break;
@@ -29,16 +29,14 @@ class JSSplitPane extends JSPanel {
         
         this.setLayout(new JSSplitPaneLayout());
         
-        var index: number = 0;
-        
         var leftContainer: JSSplitPaneLeftContainer = this.getLeftContainer();
-        this.add(leftContainer, null, index++);
+        this.add(leftContainer);
         
         var rightContainer: JSSplitPaneRightContainer = this.getRightContainer();
-        this.add(rightContainer, null, index++);
+        this.add(rightContainer);
         
         var divider: JSSplitPaneDivider = this.getDivider();
-        this.add(divider, null, index++);
+        this.add(divider);
         
         this.setDividerProportionalLocation(.5);
     }

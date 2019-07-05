@@ -16,7 +16,7 @@
 <h3>How to use JS Button</h3>
 <p>The following application displays three buttons (based on <a target="_blank" href="https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ButtonDemoProject/src/components/ButtonDemo.java">ButtonDemo.java</a>).</p>
 
-<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver; height: 100px"></div>
+<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver;"></div>
 
 <p>Example 1 (see <a target="_self" href="/examples/jsbutton">ButtonDemo.html</a> for a more complete example)</p>
 <p>Click the left button to disable the middle button.<br>
@@ -63,8 +63,10 @@ Click the middle button and nothing happens.</p>
 	<script>
     	var tutorial = new JSDiv(document.getElementById("tutorial"));
 		var frame = new JSDiv(document.getElementById("example1"));
-		frame.setLayout(new JSBorderLayout());
+		frame.setPreferredHeight(100);
 		tutorial.getComponents().push(frame);
+		frame.setParent(tutorial);
+		frame.setLayout(new JSBorderLayout());
 		
 		var buttonDemo = new JSPanel();
 		var b1 = new JSButton("Disable middle button");

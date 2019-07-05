@@ -17,25 +17,25 @@ class JSAction implements ActionListener {
     constructor(name: string);
     constructor(name: string, icon: JSIcon);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(icon: JSIcon);
             // constructor(name: string);
-            if (args[0] instanceof JSIcon) {
-                var icon: JSIcon = args[0];
+            if (arguments[0] instanceof JSIcon) {
+                var icon: JSIcon = arguments[0];
                 this.setIcon(icon);
-            } else if (typeof args[0] === "string") {
-                var name: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var name: string = arguments[0];
                 this.setName(name);
             }
             break;
         case 2:
             // constructor(name: string, icon: JSIcon);
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var name: string = args[0];
-                var icon: JSIcon = args[1];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var name: string = arguments[0];
+                var icon: JSIcon = arguments[1];
                 this.setName(name);
                 this.setIcon(icon);
             }

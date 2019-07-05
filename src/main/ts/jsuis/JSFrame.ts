@@ -9,10 +9,10 @@ class JSFrame extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSFrame");
         
         this.setVisible(false);
@@ -66,14 +66,17 @@ class JSFrame extends JSHTMLComponent {
             if (layout) {
                 layout.layoutContainerHorizontally(this);
                 validHorizontally = this.isValidHorizontally();
+                if (!validHorizontally) {
+                    JSLayout.validateLater(this);
+                }
             } else {
                 this.setValidHorizontally(true);
-                validHorizontally = true;
-            }
-            if (validHorizontally) {
-                this.validateChildrenHorizontally();
-            } else {
-                JSLayout.validateLater(this);
+                var components: JSComponent[] = this.getComponents();
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    component.setValidHorizontally(false);
+                    component.validateHorizontally();
+                }
             }
         }
     }
@@ -84,14 +87,17 @@ class JSFrame extends JSHTMLComponent {
             if (layout) {
                 layout.layoutContainerVertically(this);
                 validVertically = this.isValidVertically();
+                if (!validVertically) {
+                    JSLayout.validateLater(this);
+                }
             } else {
                 this.setValidVertically(true);
-                validVertically = true;
-            }
-            if (validVertically) {
-                this.validateChildrenVertically();
-            } else {
-                JSLayout.validateLater(this);
+                var components: JSComponent[] = this.getComponents();
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    component.setValidVertically(false);
+                    component.validateVertically();
+                }
             }
         }
     }

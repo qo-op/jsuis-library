@@ -9,12 +9,11 @@ class JSTableBody extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : arguments[0]);
         this.setUI("JSTableBody");
-        this.setEditable(true);
     }
     getRows(): any[][] {
         var rows: any[][] = [];
@@ -31,5 +30,9 @@ class JSTableBody extends JSHTMLComponent {
             var tableRow: JSTableRow = new JSTableRow(row);
             this.add(tableRow);
         }
+    }
+    addRow(row: any[]): void {
+        var tableRow: JSTableRow = new JSTableRow(row);
+        this.add(tableRow);
     }
 }

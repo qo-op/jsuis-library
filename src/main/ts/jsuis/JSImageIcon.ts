@@ -12,23 +12,23 @@ class JSImageIcon extends JSIcon {
     constructor(source: string);
     constructor(source: string, iconWidth: number, iconHeight: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         super();
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(source: string);
-            if (typeof args[0] === "string") {
-                var source: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var source: string = arguments[0];
                 this.setSource(source);
             }
             break;
         case 3:
             // constructor(source: string, iconWidth: number, iconHeight: number);
-            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                var source: string = args[0];
-                var iconWidth: number = args[1];
-                var iconHeight: number = args[2];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                var source: string = arguments[0];
+                var iconWidth: number = arguments[1];
+                var iconHeight: number = arguments[2];
                 this.setSource(source);
                 this.setIconWidth(iconWidth);
                 this.setIconHeight(iconHeight);

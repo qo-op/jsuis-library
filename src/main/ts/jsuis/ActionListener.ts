@@ -5,5 +5,5 @@
  * @author Yassuo Toda
  */
 interface ActionListener {
-    actionPerformed(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    actionPerformed(event: Event, ...parameters: any[]): void;
 }

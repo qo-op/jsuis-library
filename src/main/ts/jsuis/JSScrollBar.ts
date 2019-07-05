@@ -10,24 +10,22 @@ class JSScrollBar extends JSPanel {
     constructor(element: HTMLElement);
     constructor(orientation: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSScrollBar");
-        
-        var index: number = 0;
         
         var view: JSPanel = this.getView();
         this.setViewportView(view);
         
         var orientation: string;
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(orientation: string);
-            if (typeof args[0] === "string") {
-                orientation = args[0];
+            if (typeof arguments[0] === "string") {
+                orientation = arguments[0];
                 this.setOrientation(orientation);
             }
             break;

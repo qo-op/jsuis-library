@@ -5,8 +5,8 @@ JSUIS is a javascript library that can be used to build user interfaces. Its com
 For example, the following code creates a simple user interface.
 
 	<head>
-		<link rel="stylesheet" href="/css/jsuis-1.1.2.css">
-		<script src="/js/jsuis-1.1.2.js"></script>
+		<link rel="stylesheet" href="/css/jsuis-1.2.4.css">
+		<script src="/js/jsuis-1.2.4.js"></script>
 	</head>
 	<body>
 	<script>

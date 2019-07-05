@@ -9,10 +9,10 @@ class JSBodyDefsContainer extends JSSVG {
     constructor();
     constructor(element: SVGElement);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: SVGElement);
-        super(args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]);
         this.setUI("JSBodyDefsContainer");
     }
 }

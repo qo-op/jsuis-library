@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSTree extends JSPanel {
+class JSTree extends JSDiv {
     
     selectionTreeNode: JSTreeNode;
     
@@ -12,16 +12,16 @@ class JSTree extends JSPanel {
     constructor(element: HTMLElement);
     constructor(root: JSTreeNode);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTree");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(root: JSTreeNode);
-            if (args[0] instanceof JSTreeNode) {
-                var root: JSTreeNode = args[0];
+            if (arguments[0] instanceof JSTreeNode) {
+                var root: JSTreeNode = arguments[0];
                 this.setRoot(root);
             }
             break;

@@ -15,19 +15,17 @@ class JSDialog extends JSPanel {
     constructor(title: string);
     constructor(title: string, modal: boolean);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSDialog");
         this.setVisible(false);
         
         super.setLayout(new JSBorderLayout());
         
-        var index: number = 0;
-        
         var titlePanel: JSDialogTitlePanel = this.getTitlePanel();
-        super.add(titlePanel, JSLayout.NORTH, index++);
+        super.add(titlePanel, JSLayout.NORTH);
         
         var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
         titlePanel.add(titleLabel);
@@ -37,25 +35,25 @@ class JSDialog extends JSPanel {
         titlePanel.add(closeButton, JSLayout.EAST);
         
         var contentPane: JSDialogContentPane = this.getContentPane();
-        super.add(contentPane, JSLayout.CENTER, index++);
+        super.add(contentPane, JSLayout.CENTER);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(modal: boolean);
             // constructor(title: string);
-            if (typeof args[0] === "boolean") {
-                var modal: boolean = args[0];
+            if (typeof arguments[0] === "boolean") {
+                var modal: boolean = arguments[0];
                 this.setModal(modal);
-            } else if (typeof args[0] === "string") {
-                var title: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var title: string = arguments[0];
                 this.setTitle(title);
             }
             break;
         case 2:
             // constructor(title: string, modal: boolean);
-            if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                var title: string = args[0];
-                var modal: boolean = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean") {
+                var title: string = arguments[0];
+                var modal: boolean = arguments[1];
                 this.setTitle(title);
                 this.setModal(modal);
             }

@@ -10,22 +10,22 @@ class JSSeparator extends JSPanel {
     constructor(element: HTMLElement);
     constructor(orientation: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSSeparator");
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 0:
             this.setOrientation(JSComponent.HORIZONTAL);
             break;
         case 1:
             // constructor(selected: boolean);
-            if (args[0] instanceof HTMLElement) {
+            if (arguments[0] instanceof HTMLElement) {
                 this.setOrientation(JSComponent.HORIZONTAL);
-            } else if (typeof args[0] === "string") {
-                var orientation: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var orientation: string = arguments[0];
                 this.setOrientation(orientation);
             }
             break;
@@ -46,13 +46,12 @@ class JSSeparator extends JSPanel {
     }
     setOrientation(orientation: string) {
         this.setAttribute("data-orientation", orientation);
+        this.removeAll();
         if (orientation === JSComponent.VERTICAL) {
             var verticalLine: JSSeparatorVerticalLine = this.getVerticalLine();
-            this.removeAll();
             this.add(verticalLine);
         } else {
             var horizontalLine: JSSeparatorHorizontalLine = this.getHorizontalLine();
-            this.removeAll();
             this.add(horizontalLine);
         }
     }

@@ -16,33 +16,31 @@ class JSCheckBox extends JSHTMLComponent {
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, selected: boolean);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSCheckBox");
         
-        var index: number = 0;
-        
         var input: JSCheckBoxInput = this.getInput();
-        this.add(input, null, index++);
+        this.add(input);
         
         var label: JSCheckBoxLabel = this.getLabel();
-        this.add(label, null, index++);
+        this.add(label);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(action: JSAction);
             // constructor(icon: JSIcon);
             // constructor(text: string);
-            if (args[0] instanceof JSAction) {
-                var action: JSAction = args[0];
+            if (arguments[0] instanceof JSAction) {
+                var action: JSAction = arguments[0];
                 this.setAction(action);
-            } else if (args[0] instanceof JSIcon) {
-                var icon: JSIcon = args[0];
+            } else if (arguments[0] instanceof JSIcon) {
+                var icon: JSIcon = arguments[0];
                 this.setIcon(icon);
-            } else if (typeof args[0] === "string") {
-                var text: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
@@ -50,29 +48,29 @@ class JSCheckBox extends JSHTMLComponent {
             // constructor(icon: JSIcon, selected: boolean);
             // constructor(text: string, selected: boolean);
             // constructor(text: string, icon: JSIcon);
-            if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                var icon: JSIcon = args[0];
-                var selected: boolean = args[1];
+            if (arguments[0] instanceof JSIcon && typeof arguments[1] === "boolean") {
+                var icon: JSIcon = arguments[0];
+                var selected: boolean = arguments[1];
                 this.setIcon(icon);
                 this.setSelected(selected);
-            } else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                var text: string = args[0];
-                var selected: boolean = args[1];
+            } else if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean") {
+                var text: string = arguments[0];
+                var selected: boolean = arguments[1];
                 this.setText(text);
                 this.setSelected(selected);
-            } else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var text: string = args[0];
-                var icon: JSIcon = args[1];
+            } else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var text: string = arguments[0];
+                var icon: JSIcon = arguments[1];
                 this.setText(text);
                 this.setIcon(icon);
             }
             break;
         case 3:
             // constructor(text: string, icon: JSIcon, selected: boolean);
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
-                var text: string = args[0];
-                var icon: JSIcon = args[1];
-                var selected: boolean = args[2];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "boolean") {
+                var text: string = arguments[0];
+                var icon: JSIcon = arguments[1];
+                var selected: boolean = arguments[2];
                 this.setText(text);
                 this.setIcon(icon);
                 this.setSelected(selected);

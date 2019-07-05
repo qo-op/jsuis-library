@@ -14,34 +14,34 @@ class JSProgressBar extends JSHTMLComponent {
     constructor(min: number, max: number);
     constructor(orientation: string, min: number, max: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSProgressBar");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(orientation: string);
-            if (typeof args[0] === "string") {
-                var orientation: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var orientation: string = arguments[0];
                 this.setOrientation(orientation);
             }
             break;
         case 2:
             // constructor(min: number, max: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var min: number = args[0];
-                var max: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var min: number = arguments[0];
+                var max: number = arguments[1];
                 this.setMin(min);
                 this.setMax(max);
             }
             break;
         case 3:
             // constructor(orientation: string, min: number, max: number);
-            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                var orientation: string = args[0];
-                var min: number = args[1];
-                var max: number = args[2];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                var orientation: string = arguments[0];
+                var min: number = arguments[1];
+                var max: number = arguments[2];
                 this.setOrientation(orientation);
                 this.setMin(min);
                 this.setMax(max);
@@ -92,7 +92,7 @@ class JSProgressBar extends JSHTMLComponent {
     }
     setValue(value: number) {
         var barContainer: JSDiv = this.getBarContainer();
-        var width = barContainer.getWidth();
+        var width: number = barContainer.getContentWidth();
         var bar: JSPanel = this.getBar();
         var min: number = this.getMin();
         var max: number = this.getMax();

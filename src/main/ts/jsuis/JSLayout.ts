@@ -83,6 +83,22 @@ class JSLayout {
         }
     }
     
+    hgap: number = 0;
+    vgap: number = 0;
+    
+    getHgap(): number {
+        return this.hgap;
+    }
+    setHgap(hgap: number) {
+        this.hgap = hgap;
+    }
+    getVgap(): number {
+        return this.vgap;
+    }
+    setVgap(vgap: number) {
+        this.vgap = vgap;
+    }
+    
     addLayoutComponent(component: JSComponent): void {
     }
     

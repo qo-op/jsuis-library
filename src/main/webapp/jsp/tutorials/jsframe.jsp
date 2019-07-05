@@ -31,7 +31,7 @@
 &lt;/body&gt;
 </pre>
 
-<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver; height: 100px"></div>
+<div id="example1" style="position: relative; border: 1px solid Gray; background-color: Silver;"></div>
 
 <p>Example 1: Hello, World!</p>
 
@@ -40,8 +40,10 @@
 	<script>
     	var tutorial = new JSDiv(document.getElementById("tutorial"));
 		var frame = new JSDiv(document.getElementById("example1"));
-		frame.setLayout(new JSBorderLayout());
+		frame.setPreferredHeight(100);
 		tutorial.getComponents().push(frame);
+		frame.setParent(tutorial);
+		frame.setLayout(new JSBorderLayout());
 		
 		var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
 		frame.add(label); // Add the label.

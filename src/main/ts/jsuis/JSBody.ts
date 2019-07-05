@@ -26,25 +26,23 @@ class JSBody extends JSHTMLComponent {
         
         this.setLayout(new JSBorderLayout());
         
-        var index: number = 0;
-        
         var dragContainer: JSBodyDragContainer = this.getDragContainer();
-        this.add(dragContainer, JSBorderLayout.NORTH, index++);
+        this.add(dragContainer, JSBorderLayout.NORTH);
         
         var glassPane: JSBodyGlassPane = this.getGlassPane();
         dragContainer.add(glassPane);
         
         var defsContainer: JSBodyDefsContainer = this.getDefsContainer();
-        this.add(defsContainer, JSBorderLayout.NORTH, index++);
+        this.add(defsContainer, JSBorderLayout.NORTH);
         
         var defs: JSDefs = this.getDefs();
         defsContainer.add(defs);
         
         var popupMenuContainer: JSBodyPopupMenuContainer = this.getPopupMenuContainer();
-        this.add(popupMenuContainer, JSBorderLayout.NORTH, index++);
+        this.add(popupMenuContainer, JSBorderLayout.NORTH);
         
         var dialogContainer: JSBodyDialogContainer = this.getDialogContainer();
-        this.add(dialogContainer, JSBorderLayout.NORTH, index++);
+        this.add(dialogContainer, JSBorderLayout.NORTH);
         
         var modal: JSBodyModal = this.getModal();
         dialogContainer.add(modal);

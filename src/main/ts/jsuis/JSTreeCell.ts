@@ -19,33 +19,31 @@ class JSTreeCell extends JSHTMLComponent {
     constructor(value: any);
     constructor(value: any, icon: JSIcon);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTreeCell");
         
-        var index: number = 0;
-        
         var graphics: JSGraphics = this.getGraphics();
-        super.add(graphics, null, index++);
+        super.add(graphics);
         
         var label: JSLabel = this.getLabel();
-        this.add(label, null, index++);
+        this.add(label);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(value: any);
-            if (!(args[0] instanceof HTMLDivElement)) {
-                var value: any = args[0];
+            if (!(arguments[0] instanceof HTMLDivElement)) {
+                var value: any = arguments[0];
                 this.setValue(value);
             }
             break;
         case 2:
             // constructor(value: any, icon: JSICon);
-            if (args[1] instanceof JSIcon) {
-                var value: any= args[0];
-                var icon: JSIcon = args[1];
+            if (arguments[1] instanceof JSIcon) {
+                var value: any= arguments[0];
+                var icon: JSIcon = arguments[1];
                 this.setValue(value);
                 this.setIcon(icon);
             }

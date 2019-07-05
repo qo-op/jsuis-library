@@ -13,14 +13,14 @@ class JSIcon {
     constructor();
     constructor(iconWidth: number, iconHeight: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
-        switch (args.length) {
+        switch (arguments.length) {
         case 2:
             // constructor(iconWidth: number, iconHeight: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") { 
-                var iconWidth: number = args[0];
-                var iconHeight: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") { 
+                var iconWidth: number = arguments[0];
+                var iconHeight: number = arguments[1];
                 this.setIconWidth(iconWidth);
                 this.setIconHeight(iconHeight);
             }

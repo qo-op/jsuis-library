@@ -6,15 +6,15 @@
  */
 class JSActionListener implements ActionListener {
     
-    actionPerformed: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    actionPerformed: (event: Event, ...parameters: any[]) => void;
     
     parameters: any[] = [];
     
     constructor(actionListener: ActionListener) {
         var jsActionListener: JSActionListener = this;
-        this.actionPerformed = function(mouseEvent: MouseEvent) {
+        this.actionPerformed = function(event: Event) {
             var parameters: any[] = jsActionListener.getParameters().slice();
-            parameters.unshift(mouseEvent);
+            parameters.unshift(event);
             actionListener.actionPerformed.apply(actionListener, parameters);
         }
     }

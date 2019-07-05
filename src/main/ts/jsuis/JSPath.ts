@@ -10,16 +10,16 @@ class JSPath extends JSSVGComponent {
     constructor(element: SVGElement);
     constructor(definition: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: SVGElement);
-        super(args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : arguments[0]);
         this.setUI("JSPath");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(definition: string);
-            if (typeof args[0] === "string") {
-                var definition: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var definition: string = arguments[0];
                 this.setDefinition(definition);
             }
             break;

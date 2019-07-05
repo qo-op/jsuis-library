@@ -13,25 +13,21 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var JSAction = (function () {
     function JSAction() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var name = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var name = arguments[0];
                     this.setName(name);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var name = args[0];
-                    var icon = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var name = arguments[0];
+                    var icon = arguments[1];
                     this.setName(name);
                     this.setIcon(icon);
                 }
@@ -88,9 +84,9 @@ var JSActionListener = (function () {
     function JSActionListener(actionListener) {
         this.parameters = [];
         var jsActionListener = this;
-        this.actionPerformed = function (mouseEvent) {
+        this.actionPerformed = function (event) {
             var parameters = jsActionListener.getParameters().slice();
-            parameters.unshift(mouseEvent);
+            parameters.unshift(event);
             actionListener.actionPerformed.apply(actionListener, parameters);
         };
     }
@@ -361,7 +357,6 @@ var JSComponent = (function () {
     JSComponent.prototype.setWidth = function (width) {
         this.width = width;
         this.setValidHorizontally(false);
-        this.invalidateChildrenHorizontally();
         this.validateHorizontally();
     };
     JSComponent.prototype.getHeight = function () {
@@ -370,8 +365,19 @@ var JSComponent = (function () {
     JSComponent.prototype.setHeight = function (height) {
         this.height = height;
         this.setValidVertically(false);
-        this.invalidateChildrenVertically();
         this.validateVertically();
+    };
+    JSComponent.prototype.getContentWidth = function () {
+        return this.getWidth();
+    };
+    JSComponent.prototype.setContentWidth = function (contentWidth) {
+        this.setWidth(contentWidth);
+    };
+    JSComponent.prototype.getContentHeight = function () {
+        return this.getHeight();
+    };
+    JSComponent.prototype.setContentHeight = function (contentHeight) {
+        this.setHeight(contentHeight);
     };
     JSComponent.prototype.getOuterWidth = function () {
         return this.getWidth();
@@ -497,10 +503,15 @@ var JSComponent = (function () {
         }
     };
     JSComponent.prototype.removeAll = function () {
-        var components = this.getComponents();
+        var components = this.getComponents().slice();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
             this.remove(component);
+        }
+        var element = this.element;
+        var firstChild;
+        while (firstChild = element.firstChild) {
+            element.removeChild(firstChild);
         }
     };
     JSComponent.prototype.isValid = function () {
@@ -533,27 +544,6 @@ var JSComponent = (function () {
     JSComponent.prototype.invalidateVertically = function () {
         this.setValidVertically(false);
         this.invalidateParentVertically();
-    };
-    JSComponent.prototype.invalidateChildren = function () {
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            component.invalidate();
-        }
-    };
-    JSComponent.prototype.invalidateChildrenHorizontally = function () {
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            component.setValidHorizontally(false);
-        }
-    };
-    JSComponent.prototype.invalidateChildrenVertically = function () {
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            component.setValidVertically(false);
-        }
     };
     JSComponent.prototype.isValidateRoot = function () {
         return false;
@@ -592,16 +582,26 @@ var JSComponent = (function () {
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerHorizontally(this);
+                validHorizontally = this.isValidHorizontally();
+                if (!validHorizontally) {
+                    JSLayout.validateLater(this);
+                }
             }
             else {
                 this.setValidHorizontally(true);
-            }
-            validHorizontally = this.isValidHorizontally();
-            if (validHorizontally) {
-                this.validateChildrenHorizontally();
-            }
-            else {
-                JSLayout.validateLater(this);
+                var components = this.getComponents();
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentLayout = component.getLayout();
+                    if (componentLayout) {
+                        component.setOuterWidth(component.getPreferredOuterWidth());
+                        component.setStyle("position", "relative");
+                    }
+                    else {
+                        component.setValidHorizontally(false);
+                        component.validateHorizontally();
+                    }
+                }
             }
         }
     };
@@ -611,31 +611,26 @@ var JSComponent = (function () {
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerVertically(this);
+                validVertically = this.isValidVertically();
+                if (!validVertically) {
+                    JSLayout.validateLater(this);
+                }
             }
             else {
                 this.setValidVertically(true);
+                var components = this.getComponents();
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    var componentLayout = component.getLayout();
+                    if (componentLayout) {
+                        component.setOuterHeight(component.getPreferredOuterHeight());
+                    }
+                    else {
+                        component.setValidVertically(false);
+                        component.validateVertically();
+                    }
+                }
             }
-            validVertically = this.isValidVertically();
-            if (validVertically) {
-                this.validateChildrenVertically();
-            }
-            else {
-                JSLayout.validateLater(this);
-            }
-        }
-    };
-    JSComponent.prototype.validateChildrenHorizontally = function () {
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            component.validateHorizontally();
-        }
-    };
-    JSComponent.prototype.validateChildrenVertically = function () {
-        var components = this.getComponents();
-        for (var i = 0; i < components.length; i++) {
-            var component = components[i];
-            component.validateVertically();
         }
     };
     JSComponent.prototype.revalidate = function () {
@@ -1013,11 +1008,11 @@ var JSComponent = (function () {
             jsActionListeners.splice(index, 1);
         }
     };
-    JSComponent.prototype.fireActionPerformed = function (mouseEvent) {
+    JSComponent.prototype.fireActionPerformed = function (event) {
         var jsActionListeners = this.getJSActionListeners();
         for (var i = 0; i < jsActionListeners.length; i++) {
             var jsActionListener = jsActionListeners[i];
-            jsActionListener.actionPerformed(mouseEvent);
+            jsActionListener.actionPerformed(event);
         }
     };
     JSComponent.prototype.getMouseDraggedListeners = function () {
@@ -1606,15 +1601,11 @@ var JSFileUtils = (function () {
 }());
 var JSIcon = (function () {
     function JSIcon() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var iconWidth = args[0];
-                    var iconHeight = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var iconWidth = arguments[0];
+                    var iconHeight = arguments[1];
                     this.setIconWidth(iconWidth);
                     this.setIconHeight(iconHeight);
                 }
@@ -1650,6 +1641,8 @@ var JSIcon = (function () {
 }());
 var JSLayout = (function () {
     function JSLayout() {
+        this.hgap = 0;
+        this.vgap = 0;
     }
     JSLayout.getContainers = function () {
         return JSLayout.containers;
@@ -1684,6 +1677,18 @@ var JSLayout = (function () {
                 }
             }
         }
+    };
+    JSLayout.prototype.getHgap = function () {
+        return this.hgap;
+    };
+    JSLayout.prototype.setHgap = function (hgap) {
+        this.hgap = hgap;
+    };
+    JSLayout.prototype.getVgap = function () {
+        return this.vgap;
+    };
+    JSLayout.prototype.setVgap = function (vgap) {
+        this.vgap = vgap;
     };
     JSLayout.prototype.addLayoutComponent = function (component) {
     };
@@ -1769,6 +1774,8 @@ var JSLineBorder = (function () {
         this.thickness = 1;
         this.radius = 0;
         switch (arguments.length) {
+            case 0:
+                break;
             case 1:
                 if (typeof arguments[0] === "string") {
                     var color = arguments[0];
@@ -2000,22 +2007,18 @@ var JSProperties = (function () {
         this.properties = properties;
     };
     JSProperties.prototype.getProperty = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var value;
         var properties = this.getProperties();
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var key = args[0];
+                if (typeof arguments[0] === "string") {
+                    var key = arguments[0];
                     value = properties[key];
                 }
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var key = args[0];
-                    var defaultValue = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var key = arguments[0];
+                    var defaultValue = arguments[1];
                     value = properties[key];
                     if (value === undefined) {
                         value = defaultValue;
@@ -2391,17 +2394,13 @@ var JSTreeCellRenderer = (function () {
 }());
 var JSTreeNode = (function () {
     function JSTreeNode() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         this.userObject = null;
         this.nodes = [];
         this.parent = null;
         this.expanded = false;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                var userObject = args[0];
+                var userObject = arguments[0];
                 this.setUserObject(userObject);
                 break;
             default:
@@ -2513,18 +2512,12 @@ var JSTreeSelectionListener = (function () {
 var JSBorderLayout = (function (_super) {
     __extends(JSBorderLayout, _super);
     function JSBorderLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
-        _this.hgap = 0;
-        _this.vgap = 0;
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var hgap = args[0];
-                    var vgap = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var hgap = arguments[0];
+                    var vgap = arguments[1];
                     _this.setHgap(hgap);
                     _this.setVgap(vgap);
                 }
@@ -2533,18 +2526,6 @@ var JSBorderLayout = (function (_super) {
         }
         return _this;
     }
-    JSBorderLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSBorderLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSBorderLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSBorderLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
     JSBorderLayout.prototype.addLayoutComponent = function (component) {
         component.setStyle("position", "absolute");
     };
@@ -2649,7 +2630,7 @@ var JSBorderLayout = (function (_super) {
             return;
         }
         var hgap = this.getHgap();
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         var x = container.getInsetLeft();
         var components = container.getComponents().slice();
         for (var i = 0; i < components.length; i++) {
@@ -2788,7 +2769,7 @@ var JSBorderLayout = (function (_super) {
             return;
         }
         var vgap = this.getVgap();
-        var height = container.getHeight();
+        var height = container.getContentHeight();
         var y = container.getInsetTop();
         var components = container.getComponents().slice();
         for (var i = 0; i < components.length; i++) {
@@ -2976,7 +2957,7 @@ var JSCardLayout = (function (_super) {
         if (container.isValidHorizontally()) {
             return;
         }
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         var x = container.getInsetLeft();
         var components = container.getComponents();
         for (var i = 0; i < components.length; i++) {
@@ -2993,7 +2974,7 @@ var JSCardLayout = (function (_super) {
         if (container.isValidVertically()) {
             return;
         }
-        var height = container.getHeight();
+        var height = container.getContentHeight();
         var y = container.getInsetTop();
         var components = container.getComponents();
         for (var i = 0; i < components.length; i++) {
@@ -3052,20 +3033,16 @@ var JSCardLayout = (function (_super) {
         this.setSelectedIndex(container, componentCount - 1);
     };
     JSCardLayout.prototype.show = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (args[0] instanceof JSComponent && typeof args[1] === "number") {
-                    var container = args[0];
-                    var index = args[1];
+                if (arguments[0] instanceof JSComponent && typeof arguments[1] === "number") {
+                    var container = arguments[0];
+                    var index = arguments[1];
                     this.setSelectedIndex(container, index);
                 }
-                else if (args[0] instanceof JSComponent && typeof args[1] === "string") {
-                    var container = args[0];
-                    var constraints = args[1];
+                else if (arguments[0] instanceof JSComponent && typeof arguments[1] === "string") {
+                    var container = arguments[0];
+                    var constraints = arguments[1];
                     var components = container.getComponents();
                     for (var i = 0; i < components.length; i++) {
                         var component = components[i];
@@ -3088,8 +3065,6 @@ var JSFlowLayout = (function (_super) {
         var _this = _super.call(this) || this;
         _this.border = JSFlowLayout.NORTH;
         _this.align = JSFlowLayout.CENTER;
-        _this.hgap = 0;
-        _this.vgap = 0;
         switch (arguments.length) {
             case 0:
                 break;
@@ -3133,18 +3108,6 @@ var JSFlowLayout = (function (_super) {
         }
         return _this;
     }
-    JSFlowLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSFlowLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSFlowLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSFlowLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
     JSFlowLayout.prototype.getAlign = function () {
         return this.align;
     };
@@ -3214,7 +3177,7 @@ var JSFlowLayout = (function (_super) {
             if (preferredLayoutWidth != 0) {
                 preferredLayoutWidth -= hgap;
             }
-            var width = container.getWidth();
+            var width = container.getContentWidth();
             if (width) {
                 preferredLayoutWidth = Math.min(preferredLayoutWidth, width);
             }
@@ -3242,7 +3205,7 @@ var JSFlowLayout = (function (_super) {
             if (preferredLayoutHeight != 0) {
                 preferredLayoutHeight -= vgap;
             }
-            var height = container.getHeight();
+            var height = container.getContentHeight();
             if (height) {
                 preferredLayoutHeight = Math.min(preferredLayoutHeight, height);
             }
@@ -3305,8 +3268,8 @@ var JSFlowLayout = (function (_super) {
         }
         var hgap = this.getHgap();
         var vgap = this.getVgap();
-        var width = container.getWidth();
-        var height = container.getHeight();
+        var width = container.getContentWidth();
+        var height = container.getContentHeight();
         var rowWidth = 0;
         var rowHeight = 0;
         var n = 0;
@@ -3439,8 +3402,8 @@ var JSFlowLayout = (function (_super) {
         }
         var hgap = this.getHgap();
         var vgap = this.getVgap();
-        var width = container.getWidth();
-        var height = container.getHeight();
+        var width = container.getContentWidth();
+        var height = container.getContentHeight();
         var rowWidth = 0;
         var rowHeight = 0;
         var n = 0;
@@ -3565,7 +3528,7 @@ var JSFlowLayout = (function (_super) {
         var border = this.getBorder();
         var align = this.getAlign();
         var hgap = this.getHgap();
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
@@ -3688,7 +3651,7 @@ var JSFlowLayout = (function (_super) {
         var border = this.getBorder();
         var align = this.getAlign();
         var vgap = this.getVgap();
-        var height = container.getHeight();
+        var height = container.getContentHeight();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
@@ -3813,24 +3776,70 @@ var JSHTMLComponent = (function (_super) {
         if (width !== undefined) {
             return width;
         }
-        return this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return this.element.getBoundingClientRect().width;
+        }
+        else {
+            return this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        }
     };
     JSHTMLComponent.prototype.getHeight = function () {
         var height = _super.prototype.getHeight.call(this);
         if (height !== undefined) {
             return height;
         }
-        return this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return this.element.getBoundingClientRect().height;
+        }
+        else {
+            return this.element.getBoundingClientRect().height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        }
+    };
+    JSHTMLComponent.prototype.getContentWidth = function () {
+        var width = this.getWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        }
+        else {
+            return width;
+        }
+    };
+    JSHTMLComponent.prototype.getContentHeight = function () {
+        var height = this.getHeight();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return height - this.getBorderTopWidth() - this.getPaddingTop() - this.getPaddingBottom() - this.getBorderBottomWidth();
+        }
+        else {
+            return height;
+        }
     };
     JSHTMLComponent.prototype.getOuterWidth = function () {
-        return this.getWidth() +
-            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
-            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        var width = this.getWidth();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return width;
+        }
+        else {
+            return width +
+                this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+                this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
+        }
     };
     JSHTMLComponent.prototype.getOuterHeight = function () {
-        return this.getHeight() +
-            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
-            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        var height = this.getHeight();
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            return height;
+        }
+        else {
+            return height +
+                this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+                this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
+        }
     };
     JSHTMLComponent.prototype.setX = function (x) {
         _super.prototype.setX.call(this, x);
@@ -3845,16 +3854,28 @@ var JSHTMLComponent = (function (_super) {
         _super.prototype.setWidth.call(this, width);
     };
     JSHTMLComponent.prototype.setOuterWidth = function (outerWidth) {
-        this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
-            this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            this.setWidth(outerWidth);
+        }
+        else {
+            this.setWidth(outerWidth - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
+                this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
+        }
     };
     JSHTMLComponent.prototype.setHeight = function (height) {
         this.setStyle("height", height + "px");
         _super.prototype.setHeight.call(this, height);
     };
     JSHTMLComponent.prototype.setOuterHeight = function (outerHeight) {
-        this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
-            this.getPaddingBottom() - this.getBorderBottomWidth() - this.getMarginBottom());
+        var boxSizing = this.getComputedStyle("box-sizing");
+        if (boxSizing === "border-box") {
+            this.setHeight(outerHeight);
+        }
+        else {
+            this.setHeight(outerHeight - this.getMarginTop() - this.getBorderTopWidth() - this.getPaddingTop() -
+                this.getPaddingBottom() - this.getBorderBottomWidth() - this.getMarginBottom());
+        }
     };
     JSHTMLComponent.prototype.getInsetTop = function () {
         return this.getPaddingTop();
@@ -3949,76 +3970,28 @@ var JSHTMLComponent = (function (_super) {
         return +this.getComputedStyle("margin-right").replace("px", "");
     };
     JSHTMLComponent.prototype.getBorderTopWidth = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("border-top-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-top-width").replace("px", "");
     };
     JSHTMLComponent.prototype.getBorderLeftWidth = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("border-left-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-left-width").replace("px", "");
     };
     JSHTMLComponent.prototype.getBorderBottomWidth = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("border-bottom-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-bottom-width").replace("px", "");
     };
     JSHTMLComponent.prototype.getBorderRightWidth = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("border-right-width").replace("px", "");
-        }
+        return +this.getComputedStyle("border-right-width").replace("px", "");
     };
     JSHTMLComponent.prototype.getPaddingTop = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("padding-top").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-top").replace("px", "");
     };
     JSHTMLComponent.prototype.getPaddingLeft = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("padding-left").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-left").replace("px", "");
     };
     JSHTMLComponent.prototype.getPaddingBottom = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("padding-bottom").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-bottom").replace("px", "");
     };
     JSHTMLComponent.prototype.getPaddingRight = function () {
-        var boxSizing = this.getComputedStyle("box-sizing");
-        if (boxSizing === "border-box") {
-            return 0;
-        }
-        else {
-            return +this.getComputedStyle("padding-right").replace("px", "");
-        }
+        return +this.getComputedStyle("padding-right").replace("px", "");
     };
     JSHTMLComponent.prototype.setMargin = function (top, left, bottom, right) {
         this.setStyle("margin-top", top + "px");
@@ -4110,7 +4083,7 @@ var JSSVGComponent = (function (_super) {
         this.setAttribute("y", y + "");
     };
     JSSVGComponent.prototype.setWidth = function (width) {
-        this.setAttribute("width", width + "px");
+        this.setAttribute("width", width + "");
         _super.prototype.setWidth.call(this, width);
     };
     JSSVGComponent.prototype.setOuterWidth = function (outerWidth) {
@@ -4118,7 +4091,7 @@ var JSSVGComponent = (function (_super) {
             this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     };
     JSSVGComponent.prototype.setHeight = function (height) {
-        this.setAttribute("height", height + "px");
+        this.setAttribute("height", height + "");
         _super.prototype.setHeight.call(this, height);
     };
     JSSVGComponent.prototype.setOuterHeight = function (outerHeight) {
@@ -4282,7 +4255,7 @@ var JSSplitPaneLayout = (function (_super) {
         if (splitPane.isValidHorizontally()) {
             return;
         }
-        var width = splitPane.getWidth();
+        var width = splitPane.getContentWidth();
         var width100 = width + splitPane.getPaddingLeft() + splitPane.getPaddingRight();
         var x = splitPane.getInsetLeft();
         var leftContainer = splitPane.getLeftContainer();
@@ -4315,7 +4288,7 @@ var JSSplitPaneLayout = (function (_super) {
         if (splitPane.isValidVertically()) {
             return;
         }
-        var height = splitPane.getHeight();
+        var height = splitPane.getContentHeight();
         var height100 = height + splitPane.getPaddingTop() + splitPane.getPaddingBottom();
         var y = splitPane.getInsetTop();
         var leftContainer = splitPane.getLeftContainer();
@@ -4366,12 +4339,9 @@ var JSTableLayout = (function (_super) {
             return;
         }
         var hgap = this.getHgap();
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         var x = container.getInsetLeft();
         var table = container;
-        var scrollPane = table.getScrollPane();
-        scrollPane.setOuterWidth(width);
-        scrollPane.setX(x);
         var horizontalScrollPane = table.getHorizontalScrollPane();
         horizontalScrollPane.setOuterWidth(width);
         horizontalScrollPane.setX(x);
@@ -4398,20 +4368,18 @@ var JSTableLayout = (function (_super) {
             tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
             tableContentHeadCell.setWidth(tableContentHeadCellPreferredWidth + (width - tableHeaderPreferredOuterWidth));
         }
-        var scrollPaneView = scrollPane.getViewportView();
         var tableContentPreferredOuterWidth = tableContent.getPreferredOuterWidth();
         var tableContentPreferredOuterHeight = tableContent.getPreferredOuterHeight();
-        scrollPaneView.setOuterWidth(tableContentPreferredOuterWidth);
         var verticalScrollPane = table.getVerticalScrollPane();
         var horizontalScrollBar = table.getHorizontalScrollBar();
         var horizontalScrollBarPreferredOuterHeight = horizontalScrollBar.getPreferredOuterHeight();
         var verticalScrollBar = table.getVerticalScrollBar();
         var verticalScrollBarPreferredOuterWidth = verticalScrollBar.getPreferredOuterWidth();
         verticalScrollBar.setOuterWidth(verticalScrollBarPreferredOuterWidth);
-        var scrollPaneOuterHeight = scrollPane.getOuterHeight();
+        var horizontalScrollPaneOuterHeight = horizontalScrollPane.getOuterHeight();
         if (tableContentPreferredOuterWidth > width) {
             horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
-            if (tableContentPreferredOuterHeight > scrollPaneOuterHeight) {
+            if (tableContentPreferredOuterHeight > horizontalScrollPaneOuterHeight) {
                 horizontalScrollPane.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
                 horizontalScrollBar.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
             }
@@ -4419,13 +4387,15 @@ var JSTableLayout = (function (_super) {
                 horizontalScrollPane.setOuterWidth(width);
                 horizontalScrollBar.setOuterWidth(width);
             }
-            horizontalScrollBar.setY(scrollPaneOuterHeight - horizontalScrollBarPreferredOuterHeight);
+            horizontalScrollBar.setY(horizontalScrollPaneOuterHeight - horizontalScrollBarPreferredOuterHeight);
             horizontalScrollBar.setVisible(true);
         }
         else {
             horizontalScrollBar.setVisible(false);
             horizontalScrollPane.setOuterWidth(width);
         }
+        var tableLowerRightCorner = table.getTableLowerRightCorner();
+        tableLowerRightCorner.setX(width - verticalScrollBar.getWidth());
         container.setValidHorizontally(true);
     };
     JSTableLayout.prototype.layoutContainerVertically = function (container) {
@@ -4433,40 +4403,39 @@ var JSTableLayout = (function (_super) {
             return;
         }
         var vgap = this.getVgap();
-        var height = container.getHeight();
+        var width = container.getContentWidth();
+        var height = container.getContentHeight();
         var y = container.getInsetTop();
         var table = container;
-        var scrollPane = table.getScrollPane();
-        scrollPane.setOuterHeight(height);
-        scrollPane.setY(y);
         var horizontalScrollPane = table.getHorizontalScrollPane();
         horizontalScrollPane.setOuterHeight(height);
         horizontalScrollPane.setY(y);
-        var scrollPaneView = scrollPane.getViewportView();
         var tableContent = table.getTableContent();
         var tableContentPreferredOuterWidth = tableContent.getPreferredOuterWidth();
         var tableContentPreferredOuterHeight = tableContent.getPreferredOuterHeight();
-        scrollPaneView.setOuterHeight(tableContentPreferredOuterHeight);
         var verticalScrollPane = table.getVerticalScrollPane();
         var horizontalScrollBar = table.getHorizontalScrollBar();
         var horizontalScrollBarPreferredOuterHeight = horizontalScrollBar.getPreferredOuterHeight();
         horizontalScrollBar.setOuterHeight(horizontalScrollBarPreferredOuterHeight);
         var verticalScrollBar = table.getVerticalScrollBar();
         var verticalScrollBarPreferredOuterWidth = verticalScrollBar.getPreferredOuterWidth();
-        var scrollPaneOuterWidth = scrollPane.getOuterWidth();
+        var tableHeader = table.getTableHeader();
+        var tableHeaderPreferredOuterHeight = tableHeader.getPreferredOuterHeight();
         if (tableContentPreferredOuterHeight > height) {
             verticalScrollBar.setMaximum(tableContentPreferredOuterHeight);
-            if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+            if (tableContentPreferredOuterWidth > width) {
                 horizontalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
                 verticalScrollPane.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
-                verticalScrollBar.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight);
+                verticalScrollBar.setOuterHeight(height - horizontalScrollBarPreferredOuterHeight - tableHeaderPreferredOuterHeight);
+                verticalScrollBar.setY(y + tableHeaderPreferredOuterHeight);
             }
             else {
                 horizontalScrollPane.setOuterHeight(height);
                 verticalScrollPane.setOuterHeight(height);
-                verticalScrollBar.setOuterHeight(height);
+                verticalScrollBar.setOuterHeight(height - tableHeaderPreferredOuterHeight);
+                verticalScrollBar.setY(y + tableHeaderPreferredOuterHeight);
             }
-            verticalScrollBar.setX(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+            verticalScrollBar.setX(width - verticalScrollBarPreferredOuterWidth);
             verticalScrollBar.setVisible(true);
         }
         else {
@@ -4474,23 +4443,27 @@ var JSTableLayout = (function (_super) {
             horizontalScrollPane.setOuterHeight(height);
             verticalScrollPane.setOuterHeight(height);
         }
-        if (tableContentPreferredOuterWidth > scrollPaneOuterWidth) {
+        if (tableContentPreferredOuterWidth > width) {
             horizontalScrollBar.setMaximum(tableContentPreferredOuterWidth);
             if (tableContentPreferredOuterHeight > height) {
-                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
-                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollPane.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
+                horizontalScrollBar.setOuterWidth(width - verticalScrollBarPreferredOuterWidth);
             }
             else {
-                horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
-                horizontalScrollBar.setOuterWidth(scrollPaneOuterWidth);
+                horizontalScrollPane.setOuterWidth(width);
+                horizontalScrollBar.setOuterWidth(width);
             }
             horizontalScrollBar.setY(height - horizontalScrollBarPreferredOuterHeight);
             horizontalScrollBar.setVisible(true);
         }
         else {
             horizontalScrollBar.setVisible(false);
-            horizontalScrollPane.setOuterWidth(scrollPaneOuterWidth);
+            horizontalScrollPane.setOuterWidth(width);
         }
+        var tableLowerRightCorner = table.getTableLowerRightCorner();
+        tableLowerRightCorner.setX(width - verticalScrollBar.getWidth());
+        tableLowerRightCorner.setY(height - horizontalScrollBar.getHeight());
+        tableLowerRightCorner.setVisible(horizontalScrollBar.isVisible() && verticalScrollBar.isVisible());
         container.setValidVertically(true);
     };
     return JSTableLayout;
@@ -4532,19 +4505,18 @@ var JSBody = (function (_super) {
         var _this = _super.call(this, document.body) || this;
         _this.setUI("JSBody");
         _this.setLayout(new JSBorderLayout());
-        var index = 0;
         var dragContainer = _this.getDragContainer();
-        _this.add(dragContainer, JSBorderLayout.NORTH, index++);
+        _this.add(dragContainer, JSBorderLayout.NORTH);
         var glassPane = _this.getGlassPane();
         dragContainer.add(glassPane);
         var defsContainer = _this.getDefsContainer();
-        _this.add(defsContainer, JSBorderLayout.NORTH, index++);
+        _this.add(defsContainer, JSBorderLayout.NORTH);
         var defs = _this.getDefs();
         defsContainer.add(defs);
         var popupMenuContainer = _this.getPopupMenuContainer();
-        _this.add(popupMenuContainer, JSBorderLayout.NORTH, index++);
+        _this.add(popupMenuContainer, JSBorderLayout.NORTH);
         var dialogContainer = _this.getDialogContainer();
-        _this.add(dialogContainer, JSBorderLayout.NORTH, index++);
+        _this.add(dialogContainer, JSBorderLayout.NORTH);
         var modal = _this.getModal();
         dialogContainer.add(modal);
         _this.addMouseListener(new JSBodyMouseListener(), true);
@@ -4767,36 +4739,32 @@ var JSBody = (function (_super) {
 var JSButton = (function (_super) {
     __extends(JSButton, _super);
     function JSButton() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLButtonElement) ? document.createElement("button") : arguments[0]) || this;
         _this.setUI("JSButton");
-        var index = 0;
+        _this.setLayout(new JSBorderLayout(4, 4));
         var graphics = _this.getGraphics();
-        _this.add(graphics, null, index++);
+        _this.add(graphics, JSBorderLayout.WEST);
         var textComponent = _this.getTextComponent();
-        _this.add(textComponent, null, index++);
-        switch (args.length) {
+        _this.add(textComponent);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
+                if (arguments[0] instanceof JSAction) {
+                    var action = arguments[0];
                     _this.setAction(action);
                 }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                else if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
@@ -4835,22 +4803,10 @@ var JSButton = (function (_super) {
     };
     JSButton.prototype.setIcon = function (icon) {
         _super.prototype.setIcon.call(this, icon);
-        var text = this.getText();
         var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSButton.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSButton.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSButton.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        graphics.setStyle("display", icon ? "" : "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSButton.prototype.getText = function () {
@@ -4860,79 +4816,36 @@ var JSButton = (function (_super) {
     JSButton.prototype.setText = function (text) {
         var textComponent = this.getTextComponent();
         textComponent.setText(text);
-        var icon = this.getIcon();
-        var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSButton.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSButton.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSButton.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        textComponent.setStyle("display", text ? "" : "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSButton.prototype.getIconTextGap = function () {
-        return this.getData("iconTextGap") || 4;
+        var layout = this.getLayout();
+        return layout.getHgap() || layout.getVgap();
     };
     JSButton.prototype.setIconTextGap = function (iconTextGap) {
-        this.setData("iconTextGap", iconTextGap);
-        var icon = this.getIcon();
-        if (icon) {
-            var text = this.getText();
-            if (text) {
-                var graphics = this.getGraphics();
-                var verticalTextPosition = this.getVerticalTextPosition();
-                switch (verticalTextPosition) {
-                    case JSButton.TOP:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-top", this.getIconTextGap() + "px");
-                        break;
-                    case JSButton.BOTTOM:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
-                        break;
-                    case JSButton.CENTER:
-                    default:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-right", this.getIconTextGap() + "px");
-                }
-            }
-        }
+        var layout = this.getLayout();
+        layout.setHgap(iconTextGap);
+        layout.setVgap(iconTextGap);
     };
     JSButton.prototype.getVerticalTextPosition = function () {
         return this.getData("verticalTextPosition") || JSButton.CENTER;
     };
     JSButton.prototype.setVerticalTextPosition = function (verticalTextPosition) {
         this.setData("verticalTextPosition", verticalTextPosition);
-        var text = this.getText();
-        var icon = this.getIcon();
         var graphics = this.getGraphics();
         switch (verticalTextPosition) {
             case JSButton.TOP:
-                graphics.removeClass("top");
-                graphics.addClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.SOUTH);
                 break;
             case JSButton.BOTTOM:
-                graphics.removeClass("bottom");
-                graphics.addClass("top");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.NORTH);
                 break;
             case JSButton.CENTER:
             default:
-                graphics.removeClass("top");
-                graphics.removeClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.WEST);
         }
     };
     JSButton.prototype.isUndecorated = function () {
@@ -4957,57 +4870,52 @@ var JSButton = (function (_super) {
 var JSCheckBox = (function (_super) {
     __extends(JSCheckBox, _super);
     function JSCheckBox() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSCheckBox");
-        var index = 0;
         var input = _this.getInput();
-        _this.add(input, null, index++);
+        _this.add(input);
         var label = _this.getLabel();
-        _this.add(label, null, index++);
-        switch (args.length) {
+        _this.add(label);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
+                if (arguments[0] instanceof JSAction) {
+                    var action = arguments[0];
                     _this.setAction(action);
                 }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                else if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                    var icon = args[0];
-                    var selected = args[1];
+                if (arguments[0] instanceof JSIcon && typeof arguments[1] === "boolean") {
+                    var icon = arguments[0];
+                    var selected = arguments[1];
                     _this.setIcon(icon);
                     _this.setSelected(selected);
                 }
-                else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                    var text = args[0];
-                    var selected = args[1];
+                else if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean") {
+                    var text = arguments[0];
+                    var selected = arguments[1];
                     _this.setText(text);
                     _this.setSelected(selected);
                 }
-                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
-                    var text = args[0];
-                    var icon = args[1];
-                    var selected = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "boolean") {
+                    var text = arguments[0];
+                    var icon = arguments[1];
+                    var selected = arguments[2];
                     _this.setText(text);
                     _this.setIcon(icon);
                     _this.setSelected(selected);
@@ -5074,17 +4982,13 @@ var JSCheckBox = (function (_super) {
 var JSCheckBoxInput = (function (_super) {
     __extends(JSCheckBoxInput, _super);
     function JSCheckBoxInput() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]) || this;
         _this.setAttribute("type", "checkbox");
         _this.setUI("JSCheckBoxInput");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "boolean") {
-                    var selected = args[0];
+                if (typeof arguments[0] === "boolean") {
+                    var selected = arguments[0];
                     _this.setAttribute("checked", "" + selected);
                 }
                 break;
@@ -5103,16 +5007,12 @@ var JSCheckBoxInput = (function (_super) {
 var JSComboBox = (function (_super) {
     __extends(JSComboBox, _super);
     function JSComboBox() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSelectElement) ? document.createElement("select") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLSelectElement) ? document.createElement("select") : arguments[0]) || this;
         _this.setUI("JSComboBox");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof Array) {
-                    var items = args[0];
+                if (arguments[0] instanceof Array) {
+                    var items = arguments[0];
                     _this.setItems(items);
                 }
                 break;
@@ -5121,34 +5021,59 @@ var JSComboBox = (function (_super) {
         return _this;
     }
     JSComboBox.prototype.getItems = function () {
-        return this.getData("item");
+        return this.getData("items");
     };
     JSComboBox.prototype.setItems = function (items) {
         this.setData("items", items);
+        this.removeAll();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var option = new JSOption(item);
+            var option = new JSOption(item.toString());
             this.add(option);
         }
     };
     JSComboBox.prototype.getSelectedIndex = function () {
         return this.element.selectedIndex;
     };
+    JSComboBox.prototype.setSelectedIndex = function (selectedIndex) {
+        this.element.selectedIndex = selectedIndex;
+        this.fireActionPerformed(null);
+    };
     JSComboBox.prototype.getSelectedItem = function () {
         var items = this.getItems();
         var selectedIndex = this.getSelectedIndex();
         return items[selectedIndex];
+    };
+    JSComboBox.prototype.addActionListener = function (actionListener, useCapture) {
+        var actionListeners = this.getActionListeners();
+        var jsActionListeners = this.getJSActionListeners();
+        var index = actionListeners.indexOf(actionListener);
+        if (index !== -1) {
+            return jsActionListeners[index];
+            ;
+        }
+        actionListeners.push(actionListener);
+        var jsActionListener = new JSActionListener(actionListener);
+        jsActionListeners.push(jsActionListener);
+        var changeListener = this.getData("changeListener" + !!useCapture);
+        if (!changeListener) {
+            changeListener = {
+                stateChanged: function (event, source) {
+                    source.fireActionPerformed(event);
+                    event.stopPropagation();
+                }
+            };
+            this.addChangeListener(changeListener, !!useCapture).withParameters(this);
+            this.setData("changeListener" + !!useCapture, changeListener);
+        }
+        return jsActionListener.withParameters(this);
     };
     return JSComboBox;
 }(JSHTMLComponent));
 var JSDefs = (function (_super) {
     __extends(JSDefs, _super);
     function JSDefs() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : arguments[0]) || this;
         _this.setUI("JSDefs");
         return _this;
     }
@@ -5157,24 +5082,20 @@ var JSDefs = (function (_super) {
 var JSDiv = (function (_super) {
     __extends(JSDiv, _super);
     function JSDiv() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSDiv");
         return _this;
     }
+    JSDiv.prototype.setWidth = function (width) {
+        this.setValidHorizontally(false);
+        this.validateHorizontally();
+    };
     return JSDiv;
 }(JSHTMLComponent));
 var JSFileChooser = (function (_super) {
     __extends(JSFileChooser, _super);
     function JSFileChooser() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]) || this;
         _this.setAttribute("type", "file");
         _this.setUI("JSFileChooser");
         _this.setStyle("display", "none");
@@ -5207,11 +5128,7 @@ var JSFileChooser = (function (_super) {
 var JSForm = (function (_super) {
     __extends(JSForm, _super);
     function JSForm() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLFormElement) ? document.createElement("form") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLFormElement) ? document.createElement("form") : arguments[0]) || this;
         _this.setUI("JSForm");
         return _this;
     }
@@ -5268,11 +5185,7 @@ var JSForm = (function (_super) {
 var JSFrame = (function (_super) {
     __extends(JSFrame, _super);
     function JSFrame() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSFrame");
         _this.setVisible(false);
         var body = JSBody.getInstance();
@@ -5324,16 +5237,18 @@ var JSFrame = (function (_super) {
             if (layout) {
                 layout.layoutContainerHorizontally(this);
                 validHorizontally = this.isValidHorizontally();
+                if (!validHorizontally) {
+                    JSLayout.validateLater(this);
+                }
             }
             else {
                 this.setValidHorizontally(true);
-                validHorizontally = true;
-            }
-            if (validHorizontally) {
-                this.validateChildrenHorizontally();
-            }
-            else {
-                JSLayout.validateLater(this);
+                var components = this.getComponents();
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    component.setValidHorizontally(false);
+                    component.validateHorizontally();
+                }
             }
         }
     };
@@ -5344,16 +5259,18 @@ var JSFrame = (function (_super) {
             if (layout) {
                 layout.layoutContainerVertically(this);
                 validVertically = this.isValidVertically();
+                if (!validVertically) {
+                    JSLayout.validateLater(this);
+                }
             }
             else {
                 this.setValidVertically(true);
-                validVertically = true;
-            }
-            if (validVertically) {
-                this.validateChildrenVertically();
-            }
-            else {
-                JSLayout.validateLater(this);
+                var components = this.getComponents();
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    component.setValidVertically(false);
+                    component.validateVertically();
+                }
             }
         }
     };
@@ -5381,18 +5298,12 @@ var JSFrame = (function (_super) {
 var JSGridBagLayout = (function (_super) {
     __extends(JSGridBagLayout, _super);
     function JSGridBagLayout() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
-        _this.hgap = 0;
-        _this.vgap = 0;
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var hgap = args[0];
-                    var vgap = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var hgap = arguments[0];
+                    var vgap = arguments[1];
                     _this.setHgap(hgap);
                     _this.setVgap(vgap);
                 }
@@ -5401,24 +5312,12 @@ var JSGridBagLayout = (function (_super) {
         }
         return _this;
     }
-    JSGridBagLayout.prototype.getHgap = function () {
-        return this.hgap;
-    };
-    JSGridBagLayout.prototype.setHgap = function (hgap) {
-        this.hgap = hgap;
-    };
-    JSGridBagLayout.prototype.getVgap = function () {
-        return this.vgap;
-    };
-    JSGridBagLayout.prototype.setVgap = function (vgap) {
-        this.vgap = vgap;
-    };
     JSGridBagLayout.prototype.addLayoutComponent = function (component) {
         component.setStyle("position", "absolute");
     };
     JSGridBagLayout.prototype.preferredLayoutWidth = function (container) {
         var preferredLayoutWidth = 0;
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         var components = container.getComponents().slice();
         components.sort(function (a, b) {
             var c = ((a.getConstraints() || {}).gridx || 0) + ((a.getConstraints() || {}).gridwidth || 1);
@@ -5479,7 +5378,7 @@ var JSGridBagLayout = (function (_super) {
     };
     JSGridBagLayout.prototype.preferredLayoutHeight = function (container) {
         var preferredLayoutHeight = 0;
-        var height = container.getHeight();
+        var height = container.getContentHeight();
         var components = container.getComponents().slice();
         components.sort(function (a, b) {
             var c = ((a.getConstraints() || {}).gridy || 0) + ((a.getConstraints() || {}).gridheight || 1);
@@ -5543,7 +5442,7 @@ var JSGridBagLayout = (function (_super) {
             return;
         }
         var preferredLayoutWidth = 0;
-        var width = container.getWidth();
+        var width = container.getContentWidth();
         var width100 = width + container.getPaddingLeft() + container.getPaddingRight();
         var components = container.getComponents().slice();
         components.sort(function (a, b) {
@@ -5701,7 +5600,7 @@ var JSGridBagLayout = (function (_super) {
             return;
         }
         var preferredLayoutHeight = 0;
-        var height = container.getHeight();
+        var height = container.getContentHeight();
         var height100 = height + container.getPaddingTop() + container.getPaddingBottom();
         var components = container.getComponents().slice();
         components.sort(function (a, b) {
@@ -5856,18 +5755,14 @@ var JSGridBagLayout = (function (_super) {
 var JSHiddenInput = (function (_super) {
     __extends(JSHiddenInput, _super);
     function JSHiddenInput() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]) || this;
         _this.setAttribute("type", "hidden");
         _this.setUI("JSHiddenInput");
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var name = args[0];
-                    var value = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var name = arguments[0];
+                    var value = arguments[1];
                     _this.setName(name);
                     _this.setValue(value);
                 }
@@ -5891,11 +5786,7 @@ var JSHiddenInput = (function (_super) {
 var JSIFrame = (function (_super) {
     __extends(JSIFrame, _super);
     function JSIFrame() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLIFrameElement) ? document.createElement("iframe") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLIFrameElement) ? document.createElement("iframe") : arguments[0]) || this;
         _this.setUI("JSIFrame");
         return _this;
     }
@@ -5919,30 +5810,26 @@ var JSIFrame = (function (_super) {
 var JSImage = (function (_super) {
     __extends(JSImage, _super);
     function JSImage() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLImageElement) ? document.createElement("img") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLImageElement) ? document.createElement("img") : arguments[0]) || this;
         _this.setUI("JSImage");
-        switch (args.length) {
+        switch (arguments.length) {
             case 0:
                 break;
             case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var source = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var source = arguments[0];
                     _this.setSource(source);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var width = args[1];
-                    var height = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var source = arguments[0];
+                    var width = arguments[1];
+                    var height = arguments[2];
                     _this.setSource(source);
                     _this.setWidth(width);
                     _this.setHeight(height);
@@ -5963,23 +5850,19 @@ var JSImage = (function (_super) {
 var JSImageIcon = (function (_super) {
     __extends(JSImageIcon, _super);
     function JSImageIcon() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var source = args[0];
+                if (typeof arguments[0] === "string") {
+                    var source = arguments[0];
                     _this.setSource(source);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var iconWidth = args[1];
-                    var iconHeight = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var source = arguments[0];
+                    var iconWidth = arguments[1];
+                    var iconHeight = arguments[2];
                     _this.setSource(source);
                     _this.setIconWidth(iconWidth);
                     _this.setIconHeight(iconHeight);
@@ -6012,11 +5895,7 @@ var JSImageIcon = (function (_super) {
 var JSLabelText = (function (_super) {
     __extends(JSLabelText, _super);
     function JSLabelText() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLabelElement) ? document.createElement("label") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLLabelElement) ? document.createElement("label") : arguments[0]) || this;
         _this.setUI("JSLabelText");
         return _this;
     }
@@ -6025,56 +5904,51 @@ var JSLabelText = (function (_super) {
 var JSLabel = (function (_super) {
     __extends(JSLabel, _super);
     function JSLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLabel");
-        var index = 0;
         var graphics = _this.getGraphics();
-        _this.add(graphics, null, index++);
+        _this.add(graphics);
         var textComponent = _this.getTextComponent();
-        _this.add(textComponent, null, index++);
-        switch (args.length) {
+        _this.add(textComponent);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (args[0] instanceof JSIcon && typeof args[1] === "string") {
-                    var icon = args[0];
-                    var horizontalAlignment = args[1];
+                if (arguments[0] instanceof JSIcon && typeof arguments[1] === "string") {
+                    var icon = arguments[0];
+                    var horizontalAlignment = arguments[1];
                     _this.setIcon(icon);
-                    _this.setStyle("text-align", horizontalAlignment);
+                    _this.setHorizontalAlignment(horizontalAlignment);
                 }
-                else if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var text = args[0];
-                    var horizontalAlignment = args[1];
+                else if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var text = arguments[0];
+                    var horizontalAlignment = arguments[1];
                     _this.setText(text);
-                    _this.setStyle("text-align", horizontalAlignment);
+                    _this.setHorizontalAlignment(horizontalAlignment);
                 }
-                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "string") {
-                    var text = args[0];
-                    var icon = args[1];
-                    var horizontalAlignment = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "string") {
+                    var text = arguments[0];
+                    var icon = arguments[1];
+                    var horizontalAlignment = arguments[2];
                     _this.setText(text);
                     _this.setIcon(icon);
-                    _this.setStyle("text-align", horizontalAlignment);
+                    _this.setHorizontalAlignment(horizontalAlignment);
                 }
                 break;
             default:
@@ -6182,6 +6056,13 @@ var JSLabel = (function (_super) {
             }
         }
     };
+    JSLabel.prototype.getHorizontalAlignment = function () {
+        return this.getData("horizontalAlignment");
+    };
+    JSLabel.prototype.setHorizontalAlignment = function (horizontalAlignment) {
+        this.setData("horizontalAlignment", horizontalAlignment);
+        this.setStyle("text-align", horizontalAlignment);
+    };
     JSLabel.prototype.getVerticalTextPosition = function () {
         return this.getData("verticalTextPosition") || JSLabel.CENTER;
     };
@@ -6216,16 +6097,12 @@ var JSLabel = (function (_super) {
 var JSLI = (function (_super) {
     __extends(JSLI, _super);
     function JSLI() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLLIElement) ? document.createElement("li") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLLIElement) ? document.createElement("li") : arguments[0]) || this;
         _this.setUI("JSLI");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
+                if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
@@ -6238,11 +6115,7 @@ var JSLI = (function (_super) {
 var JSMarker = (function (_super) {
     __extends(JSMarker, _super);
     function JSMarker() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGMarkerElement) ? document.createElementNS("http://www.w3.org/2000/svg", "marker") : arguments[0]) || this;
         _this.setUI("JSMarker");
         return _this;
     }
@@ -6251,16 +6124,12 @@ var JSMarker = (function (_super) {
 var JSOList = (function (_super) {
     __extends(JSOList, _super);
     function JSOList() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOListElement) ? document.createElement("ol") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLOListElement) ? document.createElement("ol") : arguments[0]) || this;
         _this.setUI("JSOList");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof Array) {
-                    var items = args[0];
+                if (arguments[0] instanceof Array) {
+                    var items = arguments[0];
                     _this.setItems(items);
                 }
                 break;
@@ -6294,16 +6163,12 @@ var JSOList = (function (_super) {
 var JSOption = (function (_super) {
     __extends(JSOption, _super);
     function JSOption() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLOptionElement) ? document.createElement("option") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLOptionElement) ? document.createElement("option") : arguments[0]) || this;
         _this.setUI("JSOption");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
+                if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                     _this.setValue(text);
                 }
@@ -6329,23 +6194,19 @@ var JSOption = (function (_super) {
 var JSParagraph = (function (_super) {
     __extends(JSParagraph, _super);
     function JSParagraph() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLParagraphElement) ? document.createElement("p") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLParagraphElement) ? document.createElement("p") : arguments[0]) || this;
         _this.setUI("JSParagraph");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
+                if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    var text = args[0];
-                    var horizontalAlignment = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    var text = arguments[0];
+                    var horizontalAlignment = arguments[1];
                     _this.setText(text);
                     _this.setStyle("text-align", horizontalAlignment);
                 }
@@ -6359,16 +6220,12 @@ var JSParagraph = (function (_super) {
 var JSPanel = (function (_super) {
     __extends(JSPanel, _super);
     function JSPanel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSPanel");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSLayout) {
-                    var layout = args[0];
+                if (arguments[0] instanceof JSLayout) {
+                    var layout = arguments[0];
                     _this.setLayout(layout);
                 }
                 break;
@@ -6381,16 +6238,12 @@ var JSPanel = (function (_super) {
 var JSPath = (function (_super) {
     __extends(JSPath, _super);
     function JSPath() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGPathElement) ? document.createElementNS("http://www.w3.org/2000/svg", "path") : arguments[0]) || this;
         _this.setUI("JSPath");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var definition = args[0];
+                if (typeof arguments[0] === "string") {
+                    var definition = arguments[0];
                     _this.setDefinition(definition);
                 }
                 break;
@@ -6409,34 +6262,30 @@ var JSPath = (function (_super) {
 var JSPathIcon = (function (_super) {
     __extends(JSPathIcon, _super);
     function JSPathIcon() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var _this = _super.call(this) || this;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var source = args[0];
+                if (typeof arguments[0] === "string") {
+                    var source = arguments[0];
                     _this.setSource(source);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var iconWidth = args[1];
-                    var iconHeight = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var source = arguments[0];
+                    var iconWidth = arguments[1];
+                    var iconHeight = arguments[2];
                     _this.setSource(source);
                     _this.setIconWidth(iconWidth);
                     _this.setIconHeight(iconHeight);
                 }
                 break;
             case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "string" && typeof args[2] === "number" && typeof args[3] === "number") {
-                    var viewBox = args[0];
-                    var source = args[1];
-                    var iconWidth = args[2];
-                    var iconHeight = args[3];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string" && typeof arguments[2] === "number" && typeof arguments[3] === "number") {
+                    var viewBox = arguments[0];
+                    var source = arguments[1];
+                    var iconWidth = arguments[2];
+                    var iconHeight = arguments[3];
                     _this.setViewBox(viewBox);
                     _this.setSource(source);
                     _this.setIconWidth(iconWidth);
@@ -6506,32 +6355,28 @@ var JSPathIcon = (function (_super) {
 var JSProgressBar = (function (_super) {
     __extends(JSProgressBar, _super);
     function JSProgressBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSProgressBar");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var orientation = args[0];
+                if (typeof arguments[0] === "string") {
+                    var orientation = arguments[0];
                     _this.setOrientation(orientation);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var min = args[0];
-                    var max = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var min = arguments[0];
+                    var max = arguments[1];
                     _this.setMin(min);
                     _this.setMax(max);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var orientation = args[0];
-                    var min = args[1];
-                    var max = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var orientation = arguments[0];
+                    var min = arguments[1];
+                    var max = arguments[2];
                     _this.setOrientation(orientation);
                     _this.setMin(min);
                     _this.setMax(max);
@@ -6583,7 +6428,7 @@ var JSProgressBar = (function (_super) {
     };
     JSProgressBar.prototype.setValue = function (value) {
         var barContainer = this.getBarContainer();
-        var width = barContainer.getWidth();
+        var width = barContainer.getContentWidth();
         var bar = this.getBar();
         var min = this.getMin();
         var max = this.getMax();
@@ -6595,17 +6440,13 @@ var JSProgressBar = (function (_super) {
 var JSRadioButton = (function (_super) {
     __extends(JSRadioButton, _super);
     function JSRadioButton() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]) || this;
         _this.setAttribute("type", "radio");
         _this.setUI("JSRadioButton");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "boolean") {
-                    var selected = args[0];
+                if (typeof arguments[0] === "boolean") {
+                    var selected = arguments[0];
                     _this.setAttribute("checked", "" + selected);
                 }
                 break;
@@ -6618,11 +6459,7 @@ var JSRadioButton = (function (_super) {
 var JSSpan = (function (_super) {
     __extends(JSSpan, _super);
     function JSSpan() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLSpanElement) ? document.createElement("span") : arguments[0]) || this;
         _this.setUI("JSSpan");
         return _this;
     }
@@ -6631,17 +6468,13 @@ var JSSpan = (function (_super) {
 var JSSVG = (function (_super) {
     __extends(JSSVG, _super);
     function JSSVG() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]) || this;
         _this.setUI("JSSVG");
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var width = args[0];
-                    var height = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var width = arguments[0];
+                    var height = arguments[1];
                     _this.setWidth(width);
                     _this.setHeight(height);
                 }
@@ -6668,28 +6501,24 @@ var JSSVG = (function (_super) {
 var JSSVGImage = (function (_super) {
     __extends(JSSVGImage, _super);
     function JSSVGImage() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGImageElement) ? document.createElementNS("http://www.w3.org/2000/svg", "image") : arguments[0]) || this;
         _this.setUI("JSSVGImage");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var source = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var source = arguments[0];
                     _this.setSource(source);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var width = args[1];
-                    var height = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var source = arguments[0];
+                    var width = arguments[1];
+                    var height = arguments[2];
                     _this.setSource(source);
                     _this.setWidth(width);
                     _this.setHeight(height);
@@ -6710,43 +6539,38 @@ var JSSVGImage = (function (_super) {
 var JSTabbedPane = (function (_super) {
     __extends(JSTabbedPane, _super);
     function JSTabbedPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabbedPane");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var tabPlacement = args[0];
+                if (typeof arguments[0] === "string") {
+                    var tabPlacement = arguments[0];
                     _this.setTabPlacement(tabPlacement);
                 }
                 break;
             default:
         }
         _this.setLayout(new JSBorderLayout());
-        var index = 0;
         var tabContainer = _this.getTabContainer();
         var tabPlacement = _this.getTabPlacement();
         switch (tabPlacement) {
             case JSTabbedPane.LEFT:
-                _this.add(tabContainer, JSBorderLayout.WEST, index++);
+                _this.add(tabContainer, JSBorderLayout.WEST);
                 break;
             case JSTabbedPane.RIGHT:
-                _this.add(tabContainer, JSBorderLayout.EAST, index++);
+                _this.add(tabContainer, JSBorderLayout.EAST);
                 break;
             case JSTabbedPane.BOTTOM:
-                _this.add(tabContainer, JSBorderLayout.SOUTH, index++);
+                _this.add(tabContainer, JSBorderLayout.SOUTH);
                 break;
             case JSTabbedPane.TOP:
             default:
-                _this.add(tabContainer, JSBorderLayout.NORTH, index++);
+                _this.add(tabContainer, JSBorderLayout.NORTH);
         }
         var cardContainer = _this.getCardContainer();
-        _this.add(cardContainer, null, index++);
+        _this.add(cardContainer);
         var buttonContainer = _this.getButtonContainer();
-        tabContainer.add(buttonContainer, null, index++);
+        tabContainer.add(buttonContainer);
         return _this;
     }
     JSTabbedPane.prototype.getTabPlacement = function () {
@@ -6756,25 +6580,21 @@ var JSTabbedPane = (function (_super) {
         this.setAttribute("data-tab-placement", tabPlacement);
     };
     JSTabbedPane.prototype.addTab = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var tab;
         var tabContainer = this.getTabContainer();
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSComponent) {
-                    var title = args[0];
-                    var component = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSComponent) {
+                    var title = arguments[0];
+                    var component = arguments[1];
                     tab = tabContainer.addTab(title);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && args[2] instanceof JSComponent) {
-                    var title = args[0];
-                    var icon = args[1];
-                    var component = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && arguments[2] instanceof JSComponent) {
+                    var title = arguments[0];
+                    var icon = arguments[1];
+                    var component = arguments[2];
                     tab = tabContainer.addTab(title, icon);
                 }
                 break;
@@ -6792,25 +6612,21 @@ var JSTabbedPane = (function (_super) {
         return tab;
     };
     JSTabbedPane.prototype.addCloseableTab = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var tab;
         var tabContainer = this.getTabContainer();
-        switch (args.length) {
+        switch (arguments.length) {
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSComponent) {
-                    var title = args[0];
-                    var component = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSComponent) {
+                    var title = arguments[0];
+                    var component = arguments[1];
                     tab = tabContainer.addCloseabeTab(title);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && args[2] instanceof JSComponent) {
-                    var title = args[0];
-                    var icon = args[1];
-                    var component = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && arguments[2] instanceof JSComponent) {
+                    var title = arguments[0];
+                    var icon = arguments[1];
+                    var component = arguments[2];
                     tab = tabContainer.addCloseabeTab(title, icon);
                 }
                 break;
@@ -6933,20 +6749,9 @@ var JSTabbedPane = (function (_super) {
 var JSTable = (function (_super) {
     __extends(JSTable, _super);
     function JSTable() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTable");
-        var index = 0;
         _this.setLayout(new JSTableLayout());
-        var scrollPane = _this.getScrollPane();
-        scrollPane.setVisible(false);
-        _this.add(scrollPane);
-        var scrollPaneView = new JSPanel();
-        scrollPaneView.setStyle("position", "absolute");
-        scrollPane.setViewportView(scrollPaneView);
         var horizontalScrollPane = _this.getHorizontalScrollPane();
         _this.add(horizontalScrollPane);
         var horizontalScrollPaneView = new JSPanel(new JSBorderLayout());
@@ -6964,11 +6769,14 @@ var JSTable = (function (_super) {
         var verticalScrollBar = _this.getVerticalScrollBar();
         verticalScrollBar.setVisible(false);
         _this.add(verticalScrollBar);
-        switch (args.length) {
+        var tableLowerRightCorner = _this.getTableLowerRightCorner();
+        tableLowerRightCorner.setVisible(false);
+        _this.add(tableLowerRightCorner);
+        switch (arguments.length) {
             case 2:
-                if (args[0] instanceof Array && args[1] instanceof Array) {
-                    var rows = args[0];
-                    var columns = args[1];
+                if (arguments[0] instanceof Array && arguments[1] instanceof Array) {
+                    var rows = arguments[0];
+                    var columns = arguments[1];
                     _this.setRows(rows);
                     _this.setColumns(columns);
                 }
@@ -6987,20 +6795,6 @@ var JSTable = (function (_super) {
         });
         return _this;
     }
-    JSTable.prototype.getScrollPane = function () {
-        var scrollPane = this.getData("scrollPane");
-        if (!scrollPane) {
-            var element = this.getChild("JSTableScrollPane");
-            if (element) {
-                scrollPane = new JSTableScrollPane(element);
-            }
-            else {
-                scrollPane = new JSTableScrollPane();
-            }
-            this.setData("scrollPane", scrollPane);
-        }
-        return scrollPane;
-    };
     JSTable.prototype.getHorizontalScrollPane = function () {
         var horizontalScrollPane = this.getData("horizontalScrollPane");
         if (!horizontalScrollPane) {
@@ -7089,6 +6883,20 @@ var JSTable = (function (_super) {
         }
         return verticalScrollBar;
     };
+    JSTable.prototype.getTableLowerRightCorner = function () {
+        var tableLowerRightCorner = this.getData("tableLowerRightCorner");
+        if (!tableLowerRightCorner) {
+            var element = this.getChild("JSTableLowerRightCorner");
+            if (element) {
+                tableLowerRightCorner = new JSTableLowerRightCorner(element);
+            }
+            else {
+                tableLowerRightCorner = new JSTableLowerRightCorner();
+            }
+            this.setData("tableLowerRightCorner", tableLowerRightCorner);
+        }
+        return tableLowerRightCorner;
+    };
     JSTable.prototype.getColumns = function () {
         var tableHeader = this.getTableHeader();
         return tableHeader.getColumns();
@@ -7107,27 +6915,38 @@ var JSTable = (function (_super) {
         var tableContent = this.getTableContent();
         tableContent.setRows(rows);
     };
+    JSTable.prototype.addRow = function (row) {
+        var tableContent = this.getTableContent();
+        tableContent.addRow(row);
+    };
+    JSTable.prototype.removeRow = function (row) {
+        var tableContent = this.getTableContent();
+        tableContent.removeRow(row);
+    };
+    JSTable.prototype.removeAllRows = function () {
+        var tableContent = this.getTableContent();
+        tableContent.removeAllRows();
+    };
+    JSTable.prototype.setEditable = function (editable) {
+        var tableContent = this.getTableContent();
+        tableContent.setEditable(editable);
+    };
     return JSTable;
 }(JSPanel));
 var JSTableContent = (function (_super) {
     __extends(JSTableContent, _super);
     function JSTableContent() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableElement) ? document.createElement("table") : arguments[0]) || this;
         _this.setUI("JSTableContent");
-        var index = 0;
         var tableHeader = _this.getTableHead();
-        _this.add(tableHeader, null, index++);
+        _this.add(tableHeader);
         var tableBody = _this.getTableBody();
-        _this.add(tableBody, null, index++);
-        switch (args.length) {
+        _this.add(tableBody);
+        switch (arguments.length) {
             case 2:
-                if (args[0] instanceof Array && args[1] instanceof Array) {
-                    var rows = args[0];
-                    var columns = args[1];
+                if (arguments[0] instanceof Array && arguments[1] instanceof Array) {
+                    var rows = arguments[0];
+                    var columns = arguments[1];
                     _this.setRows(rows);
                     _this.setColumns(columns);
                 }
@@ -7180,18 +6999,29 @@ var JSTableContent = (function (_super) {
         var tableBody = this.getTableBody();
         tableBody.setRows(rows);
     };
+    JSTableContent.prototype.addRow = function (row) {
+        var tableBody = this.getTableBody();
+        tableBody.addRow(row);
+    };
+    JSTableContent.prototype.removeRow = function (row) {
+        var tableBody = this.getTableBody();
+        tableBody.remove(row);
+    };
+    JSTableContent.prototype.removeAllRows = function () {
+        var tableBody = this.getTableBody();
+        tableBody.removeAll();
+    };
+    JSTableContent.prototype.setEditable = function (editable) {
+        var tableBody = this.getTableBody();
+        tableBody.setEditable(editable);
+    };
     return JSTableContent;
 }(JSHTMLComponent));
 var JSTableBody = (function (_super) {
     __extends(JSTableBody, _super);
     function JSTableBody() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableSectionElement) ? document.createElement("tbody") : arguments[0]) || this;
         _this.setUI("JSTableBody");
-        _this.setEditable(true);
         return _this;
     }
     JSTableBody.prototype.getRows = function () {
@@ -7210,21 +7040,21 @@ var JSTableBody = (function (_super) {
             this.add(tableRow);
         }
     };
+    JSTableBody.prototype.addRow = function (row) {
+        var tableRow = new JSTableRow(row);
+        this.add(tableRow);
+    };
     return JSTableBody;
 }(JSHTMLComponent));
 var JSTableCell = (function (_super) {
     __extends(JSTableCell, _super);
     function JSTableCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("td") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableCellElement) ? document.createElement("td") : arguments[0]) || this;
         _this.setUI("JSTableCell");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (!(args[0] instanceof HTMLTableCellElement)) {
-                    var value = args[0];
+                if (!(arguments[0] instanceof HTMLTableCellElement)) {
+                    var value = arguments[0];
                     _this.setValue(value);
                 }
                 break;
@@ -7249,15 +7079,10 @@ var JSTableCell = (function (_super) {
 var JSTableHead = (function (_super) {
     __extends(JSTableHead, _super);
     function JSTableHead() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableSectionElement) ? document.createElement("thead") : arguments[0]) || this;
         _this.setUI("JSTableHead");
-        var index = 0;
         var tableHeadRow = _this.getTableHeadRow();
-        _this.add(tableHeadRow, null, index++);
+        _this.add(tableHeadRow);
         return _this;
     }
     JSTableHead.prototype.getTableHeadRow = function () {
@@ -7287,19 +7112,14 @@ var JSTableHead = (function (_super) {
 var JSTableHeadCell = (function (_super) {
     __extends(JSTableHeadCell, _super);
     function JSTableHeadCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableCellElement) ? document.createElement("th") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableCellElement) ? document.createElement("th") : arguments[0]) || this;
         _this.setUI("JSTableHeadCell");
-        var index = 0;
         var container = _this.getContainer();
-        _this.add(container, null, index++);
-        switch (args.length) {
+        _this.add(container);
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
+                if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
@@ -7334,16 +7154,12 @@ var JSTableHeadCell = (function (_super) {
 var JSTableHeadRow = (function (_super) {
     __extends(JSTableHeadRow, _super);
     function JSTableHeadRow() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : arguments[0]) || this;
         _this.setUI("JSTableHeadRow");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof Array) {
-                    var columns = args[0];
+                if (arguments[0] instanceof Array) {
+                    var columns = arguments[0];
                     _this.setColumns(columns);
                 }
                 break;
@@ -7372,16 +7188,12 @@ var JSTableHeadRow = (function (_super) {
 var JSTableRow = (function (_super) {
     __extends(JSTableRow, _super);
     function JSTableRow() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableRowElement) ? document.createElement("tr") : arguments[0]) || this;
         _this.setUI("JSTableRow");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof Array) {
-                    var values = args[0];
+                if (arguments[0] instanceof Array) {
+                    var values = arguments[0];
                     _this.setValues(values);
                 }
                 break;
@@ -7410,34 +7222,30 @@ var JSTableRow = (function (_super) {
 var JSTextArea = (function (_super) {
     __extends(JSTextArea, _super);
     function JSTextArea() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : arguments[0]) || this;
         _this.setUI("JSTextArea");
-        switch (args.length) {
+        switch (arguments.length) {
             case 0:
                 break;
             case 1:
-                if (typeof args[0] === "string") {
-                    var text = args[0];
+                if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "number" && typeof args[1] === "number") {
-                    var rows = args[0];
-                    var columns = args[1];
+                if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var rows = arguments[0];
+                    var columns = arguments[1];
                     _this.setRows(rows);
                     _this.setColumns(columns);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var text = args[0];
-                    var rows = args[1];
-                    var columns = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var text = arguments[0];
+                    var rows = arguments[1];
+                    var columns = arguments[2];
                     _this.setText(text);
                     _this.setRows(rows);
                     _this.setColumns(columns);
@@ -7470,28 +7278,24 @@ var JSTextArea = (function (_super) {
 var JSTextField = (function (_super) {
     __extends(JSTextField, _super);
     function JSTextField() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]) || this;
         _this.setAttribute("type", "text");
         _this.setUI("JSTextField");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "number") {
-                    var columns = args[0];
+                if (typeof arguments[0] === "number") {
+                    var columns = arguments[0];
                     _this.setColumns(columns);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "number") {
-                    var text = args[0];
-                    var columns = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+                    var text = arguments[0];
+                    var columns = arguments[1];
                     _this.setText(text);
                     _this.setColumns(columns);
                 }
@@ -7517,28 +7321,23 @@ var JSTextField = (function (_super) {
 var JSTreeCell = (function (_super) {
     __extends(JSTreeCell, _super);
     function JSTreeCell() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTreeCell");
-        var index = 0;
         var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics, null, index++);
+        _super.prototype.add.call(_this, graphics);
         var label = _this.getLabel();
-        _this.add(label, null, index++);
-        switch (args.length) {
+        _this.add(label);
+        switch (arguments.length) {
             case 1:
-                if (!(args[0] instanceof HTMLDivElement)) {
-                    var value = args[0];
+                if (!(arguments[0] instanceof HTMLDivElement)) {
+                    var value = arguments[0];
                     _this.setValue(value);
                 }
                 break;
             case 2:
-                if (args[1] instanceof JSIcon) {
-                    var value = args[0];
-                    var icon = args[1];
+                if (arguments[1] instanceof JSIcon) {
+                    var value = arguments[0];
+                    var icon = arguments[1];
                     _this.setValue(value);
                     _this.setIcon(icon);
                 }
@@ -7710,11 +7509,7 @@ var JSTreeCell = (function (_super) {
 var JSBodyDefsContainer = (function (_super) {
     __extends(JSBodyDefsContainer, _super);
     function JSBodyDefsContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]) || this;
         _this.setUI("JSBodyDefsContainer");
         return _this;
     }
@@ -7723,11 +7518,7 @@ var JSBodyDefsContainer = (function (_super) {
 var JSBodyDialogContainer = (function (_super) {
     __extends(JSBodyDialogContainer, _super);
     function JSBodyDialogContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDialogContainer");
         return _this;
     }
@@ -7736,11 +7527,7 @@ var JSBodyDialogContainer = (function (_super) {
 var JSBodyDragContainer = (function (_super) {
     __extends(JSBodyDragContainer, _super);
     function JSBodyDragContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDragContainer");
         _this.setLayer(JSLayeredPane.DRAG_LAYER);
         return _this;
@@ -7750,11 +7537,7 @@ var JSBodyDragContainer = (function (_super) {
 var JSBodyGlassPane = (function (_super) {
     __extends(JSBodyGlassPane, _super);
     function JSBodyGlassPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyGlassPane");
         _this.setStyle("display", "none");
         return _this;
@@ -7764,11 +7547,7 @@ var JSBodyGlassPane = (function (_super) {
 var JSBodyModal = (function (_super) {
     __extends(JSBodyModal, _super);
     function JSBodyModal() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyModal");
         _this.setStyle("display", "none");
         return _this;
@@ -7778,11 +7557,7 @@ var JSBodyModal = (function (_super) {
 var JSBodyPopupMenuContainer = (function (_super) {
     __extends(JSBodyPopupMenuContainer, _super);
     function JSBodyPopupMenuContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyPopupMenuContainer");
         return _this;
     }
@@ -7791,12 +7566,10 @@ var JSBodyPopupMenuContainer = (function (_super) {
 var JSButtonText = (function (_super) {
     __extends(JSButtonText, _super);
     function JSButtonText() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLSpanElement) ? document.createElement("span") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLSpanElement) ? document.createElement("span") : arguments[0]) || this;
         _this.setUI("JSButtonText");
+        _this.setAlign(JSLayout.CENTER);
+        _this.setStyle("display", "none");
         return _this;
     }
     return JSButtonText;
@@ -7804,11 +7577,7 @@ var JSButtonText = (function (_super) {
 var JSCheckBoxLabel = (function (_super) {
     __extends(JSCheckBoxLabel, _super);
     function JSCheckBoxLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSCheckBoxLabel");
         return _this;
     }
@@ -7817,39 +7586,34 @@ var JSCheckBoxLabel = (function (_super) {
 var JSDialog = (function (_super) {
     __extends(JSDialog, _super);
     function JSDialog() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSDialog");
         _this.setVisible(false);
         _super.prototype.setLayout.call(_this, new JSBorderLayout());
-        var index = 0;
         var titlePanel = _this.getTitlePanel();
-        _super.prototype.add.call(_this, titlePanel, JSLayout.NORTH, index++);
+        _super.prototype.add.call(_this, titlePanel, JSLayout.NORTH);
         var titleLabel = _this.getTitleLabel();
         titlePanel.add(titleLabel);
         titleLabel.setAlign(JSLayout.LEFT_RIGHT);
         var closeButton = _this.getCloseButton();
         titlePanel.add(closeButton, JSLayout.EAST);
         var contentPane = _this.getContentPane();
-        _super.prototype.add.call(_this, contentPane, JSLayout.CENTER, index++);
-        switch (args.length) {
+        _super.prototype.add.call(_this, contentPane, JSLayout.CENTER);
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "boolean") {
-                    var modal = args[0];
+                if (typeof arguments[0] === "boolean") {
+                    var modal = arguments[0];
                     _this.setModal(modal);
                 }
-                else if (typeof args[0] === "string") {
-                    var title = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var title = arguments[0];
                     _this.setTitle(title);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                    var title = args[0];
-                    var modal = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean") {
+                    var title = arguments[0];
+                    var modal = arguments[1];
                     _this.setTitle(title);
                     _this.setModal(modal);
                 }
@@ -7965,11 +7729,7 @@ var JSDialog = (function (_super) {
 var JSDialogContentPane = (function (_super) {
     __extends(JSDialogContentPane, _super);
     function JSDialogContentPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSDialogContentPane");
         return _this;
     }
@@ -7978,11 +7738,7 @@ var JSDialogContentPane = (function (_super) {
 var JSDialogCloseButton = (function (_super) {
     __extends(JSDialogCloseButton, _super);
     function JSDialogCloseButton() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLButtonElement) ? document.createElement("button") : arguments[0]) || this;
         _this.setUI("JSDialogCloseButton");
         _this.setIcon(JSDialogCloseButton.CLOSE_ICON);
         return _this;
@@ -7993,11 +7749,7 @@ var JSDialogCloseButton = (function (_super) {
 var JSDialogTitleLabel = (function (_super) {
     __extends(JSDialogTitleLabel, _super);
     function JSDialogTitleLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSDialogTitleLabel");
         return _this;
     }
@@ -8006,11 +7758,7 @@ var JSDialogTitleLabel = (function (_super) {
 var JSDialogTitlePanel = (function (_super) {
     __extends(JSDialogTitlePanel, _super);
     function JSDialogTitlePanel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSDialogTitlePanel");
         _this.setLayout(new JSBorderLayout());
         return _this;
@@ -8020,11 +7768,7 @@ var JSDialogTitlePanel = (function (_super) {
 var JSFrameContentPane = (function (_super) {
     __extends(JSFrameContentPane, _super);
     function JSFrameContentPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSFrameContentPane");
         _this.setLayout(new JSBorderLayout());
         return _this;
@@ -8034,11 +7778,7 @@ var JSFrameContentPane = (function (_super) {
 var JSFrameMenuBarContainer = (function (_super) {
     __extends(JSFrameMenuBarContainer, _super);
     function JSFrameMenuBarContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSFrameMenuBarContainer");
         return _this;
     }
@@ -8047,11 +7787,7 @@ var JSFrameMenuBarContainer = (function (_super) {
 var JSFrameTitleLabel = (function (_super) {
     __extends(JSFrameTitleLabel, _super);
     function JSFrameTitleLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSFrameTitleLabel");
         return _this;
     }
@@ -8060,11 +7796,7 @@ var JSFrameTitleLabel = (function (_super) {
 var JSGraphics = (function (_super) {
     __extends(JSGraphics, _super);
     function JSGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSGraphics");
         return _this;
     }
@@ -8073,11 +7805,7 @@ var JSGraphics = (function (_super) {
 var JSHorizontalScrollBar = (function (_super) {
     __extends(JSHorizontalScrollBar, _super);
     function JSHorizontalScrollBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSHorizontalScrollBar");
         _this.setHsbPolicy(JSHorizontalScrollBar.HORIZONTAL_SCROLLBAR_ALWAYS);
         _this.setVsbPolicy(JSHorizontalScrollBar.VERTICAL_SCROLLBAR_NEVER);
@@ -8142,16 +7870,12 @@ var JSHorizontalScrollBar = (function (_super) {
 var JSLayeredPane = (function (_super) {
     __extends(JSLayeredPane, _super);
     function JSLayeredPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLayeredPane");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSLayout) {
-                    var layout = args[0];
+                if (arguments[0] instanceof JSLayout) {
+                    var layout = arguments[0];
                     _this.setLayout(layout);
                 }
                 break;
@@ -8164,15 +7888,10 @@ var JSLayeredPane = (function (_super) {
 var JSMenuBar = (function (_super) {
     __extends(JSMenuBar, _super);
     function JSMenuBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSMenuBar");
-        var index = 0;
         var menuContainer = _this.getMenuContainer();
-        _super.prototype.add.call(_this, menuContainer, null, index++);
+        _super.prototype.add.call(_this, menuContainer);
         return _this;
     }
     JSMenuBar.prototype.add = function (menu) {
@@ -8198,11 +7917,7 @@ var JSMenuBar = (function (_super) {
 var JSMenuContainer = (function (_super) {
     __extends(JSMenuContainer, _super);
     function JSMenuContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSMenuContainer");
         JSBody.getInstance().addMouseListener({
             mousePressed: function (mouseEvent, menuContainer) {
@@ -8257,34 +7972,29 @@ var JSMenuContainer = (function (_super) {
 var JSMenuItem = (function (_super) {
     __extends(JSMenuItem, _super);
     function JSMenuItem() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSMenuItem");
-        var index = 0;
         var label = _this.getLabel();
-        _this.add(label, null, index++);
-        switch (args.length) {
+        _this.add(label);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
+                if (arguments[0] instanceof JSAction) {
+                    var action = arguments[0];
                     _this.setAction(action);
                 }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                else if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
@@ -8364,11 +8074,7 @@ var JSMenuItem = (function (_super) {
 var JSMenuItemLabel = (function (_super) {
     __extends(JSMenuItemLabel, _super);
     function JSMenuItemLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSMenuItemLabel");
         return _this;
     }
@@ -8377,31 +8083,26 @@ var JSMenuItemLabel = (function (_super) {
 var JSPathImage = (function (_super) {
     __extends(JSPathImage, _super);
     function JSPathImage() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]) || this;
         _this.setUI("JSPathImage");
-        var index = 0;
         var path = _this.getPath();
-        _this.add(path, null, index++);
-        switch (args.length) {
+        _this.add(path);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSPathIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSPathIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var source = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var source = arguments[0];
                     _this.setSource(source);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                    var source = args[0];
-                    var width = args[1];
-                    var height = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                    var source = arguments[0];
+                    var width = arguments[1];
+                    var height = arguments[2];
                     _this.setSource(source);
                     _this.setWidth(width);
                     _this.setHeight(height);
@@ -8462,11 +8163,7 @@ var JSPathImage = (function (_super) {
 var JSPopupMenu = (function (_super) {
     __extends(JSPopupMenu, _super);
     function JSPopupMenu() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSPopupMenu");
         _this.setVisible(false);
         JSBody.getInstance().addMouseListener({
@@ -8546,11 +8243,7 @@ var JSPopupMenu = (function (_super) {
 var JSPopupMenuContainer = (function (_super) {
     __extends(JSPopupMenuContainer, _super);
     function JSPopupMenuContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSPopupMenuContainer");
         return _this;
     }
@@ -8559,20 +8252,15 @@ var JSPopupMenuContainer = (function (_super) {
 var JSScrollBar = (function (_super) {
     __extends(JSScrollBar, _super);
     function JSScrollBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSScrollBar");
-        var index = 0;
         var view = _this.getView();
         _this.setViewportView(view);
         var orientation;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    orientation = args[0];
+                if (typeof arguments[0] === "string") {
+                    orientation = arguments[0];
                     _this.setOrientation(orientation);
                 }
                 break;
@@ -8676,33 +8364,29 @@ var JSScrollBar = (function (_super) {
 var JSScrollPane = (function (_super) {
     __extends(JSScrollPane, _super);
     function JSScrollPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSScrollPane");
         _this.setLayout(new JSScrollPaneLayout());
         var view;
         var vsbPolicy = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
         var hsbPolicy = JSScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSComponent) {
-                    view = args[0];
+                if (arguments[0] instanceof JSComponent) {
+                    view = arguments[0];
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && typeof args[1] === "string") {
-                    vsbPolicy = args[0];
-                    hsbPolicy = args[1];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                    vsbPolicy = arguments[0];
+                    hsbPolicy = arguments[1];
                 }
                 break;
             case 3:
-                if (args[0] instanceof JSComponent && typeof args[1] === "string" && typeof args[2] === "string") {
-                    view = args[0];
-                    vsbPolicy = args[1];
-                    hsbPolicy = args[2];
+                if (arguments[0] instanceof JSComponent && typeof arguments[1] === "string" && typeof arguments[2] === "string") {
+                    view = arguments[0];
+                    vsbPolicy = arguments[1];
+                    hsbPolicy = arguments[2];
                     _this.setViewportView(view);
                 }
                 break;
@@ -8737,16 +8421,15 @@ var JSScrollPane = (function (_super) {
             this.add(viewportView);
         }
     };
+    JSScrollPane.prototype.isValidateRoot = function () {
+        return true;
+    };
     return JSScrollPane;
 }(JSPanel));
 var JSTableHeader = (function (_super) {
     __extends(JSTableHeader, _super);
     function JSTableHeader() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLTableElement) ? document.createElement("table") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLTableElement) ? document.createElement("table") : arguments[0]) || this;
         _this.setUI("JSTableHeader");
         return _this;
     }
@@ -8755,22 +8438,18 @@ var JSTableHeader = (function (_super) {
 var JSSeparator = (function (_super) {
     __extends(JSSeparator, _super);
     function JSSeparator() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSeparator");
-        switch (args.length) {
+        switch (arguments.length) {
             case 0:
                 _this.setOrientation(JSComponent.HORIZONTAL);
                 break;
             case 1:
-                if (args[0] instanceof HTMLElement) {
+                if (arguments[0] instanceof HTMLElement) {
                     _this.setOrientation(JSComponent.HORIZONTAL);
                 }
-                else if (typeof args[0] === "string") {
-                    var orientation = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var orientation = arguments[0];
                     _this.setOrientation(orientation);
                 }
                 break;
@@ -8791,14 +8470,13 @@ var JSSeparator = (function (_super) {
     };
     JSSeparator.prototype.setOrientation = function (orientation) {
         this.setAttribute("data-orientation", orientation);
+        this.removeAll();
         if (orientation === JSComponent.VERTICAL) {
             var verticalLine = this.getVerticalLine();
-            this.removeAll();
             this.add(verticalLine);
         }
         else {
             var horizontalLine = this.getHorizontalLine();
-            this.removeAll();
             this.add(horizontalLine);
         }
     };
@@ -8835,11 +8513,7 @@ var JSSeparator = (function (_super) {
 var JSSeparatorHorizontalLine = (function (_super) {
     __extends(JSSeparatorHorizontalLine, _super);
     function JSSeparatorHorizontalLine() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSeparatorHorizontalLine");
         return _this;
     }
@@ -8848,11 +8522,7 @@ var JSSeparatorHorizontalLine = (function (_super) {
 var JSSeparatorVerticalLine = (function (_super) {
     __extends(JSSeparatorVerticalLine, _super);
     function JSSeparatorVerticalLine() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSeparatorVerticalLine");
         return _this;
     }
@@ -8861,29 +8531,24 @@ var JSSeparatorVerticalLine = (function (_super) {
 var JSSplitPane = (function (_super) {
     __extends(JSSplitPane, _super);
     function JSSplitPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSplitPane");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var orientation = args[0];
+                if (typeof arguments[0] === "string") {
+                    var orientation = arguments[0];
                     _this.setOrientation(orientation);
                 }
                 break;
             default:
         }
         _this.setLayout(new JSSplitPaneLayout());
-        var index = 0;
         var leftContainer = _this.getLeftContainer();
-        _this.add(leftContainer, null, index++);
+        _this.add(leftContainer);
         var rightContainer = _this.getRightContainer();
-        _this.add(rightContainer, null, index++);
+        _this.add(rightContainer);
         var divider = _this.getDivider();
-        _this.add(divider, null, index++);
+        _this.add(divider);
         _this.setDividerProportionalLocation(.5);
         return _this;
     }
@@ -9052,11 +8717,7 @@ var JSSplitPane = (function (_super) {
 var JSSplitPaneDivider = (function (_super) {
     __extends(JSSplitPaneDivider, _super);
     function JSSplitPaneDivider() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSplitPaneDivider");
         return _this;
     }
@@ -9065,11 +8726,7 @@ var JSSplitPaneDivider = (function (_super) {
 var JSSplitPaneDividerPanel = (function (_super) {
     __extends(JSSplitPaneDividerPanel, _super);
     function JSSplitPaneDividerPanel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSplitPaneDividerPanel");
         return _this;
     }
@@ -9078,11 +8735,7 @@ var JSSplitPaneDividerPanel = (function (_super) {
 var JSSplitPaneLeftContainer = (function (_super) {
     __extends(JSSplitPaneLeftContainer, _super);
     function JSSplitPaneLeftContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSplitPaneLeftContainer");
         _this.setLayout(new JSBorderLayout());
         return _this;
@@ -9092,11 +8745,7 @@ var JSSplitPaneLeftContainer = (function (_super) {
 var JSSplitPaneRightContainer = (function (_super) {
     __extends(JSSplitPaneRightContainer, _super);
     function JSSplitPaneRightContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSSplitPaneRightContainer");
         _this.setLayout(new JSBorderLayout());
         return _this;
@@ -9106,36 +8755,31 @@ var JSSplitPaneRightContainer = (function (_super) {
 var JSTab = (function (_super) {
     __extends(JSTab, _super);
     function JSTab() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTab");
-        var index = 0;
         var graphics = _this.getGraphics();
-        _this.add(graphics, null, index++);
+        _this.add(graphics);
         var label = _this.getLabel();
-        _this.add(label, null, index++);
+        _this.add(label);
         var tabCloseButton = _this.getCloseButton();
-        _this.add(tabCloseButton, null, index++);
-        switch (args.length) {
+        _this.add(tabCloseButton);
+        switch (arguments.length) {
             case 3:
-                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string") {
-                    var tabPlacement = args[0];
-                    var closeable = args[1];
-                    var text = args[2];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean" && typeof arguments[2] === "string") {
+                    var tabPlacement = arguments[0];
+                    var closeable = arguments[1];
+                    var text = arguments[2];
                     _this.setTabPlacement(tabPlacement);
                     _this.setCloseable(closeable);
                     _this.setText(text);
                 }
                 break;
             case 4:
-                if (typeof args[0] === "string" && typeof args[1] === "boolean" && typeof args[2] === "string" && args[3] instanceof JSIcon) {
-                    var tabPlacement = args[0];
-                    var closeable = args[1];
-                    var text = args[2];
-                    var icon = args[3];
+                if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean" && typeof arguments[2] === "string" && arguments[3] instanceof JSIcon) {
+                    var tabPlacement = arguments[0];
+                    var closeable = arguments[1];
+                    var text = arguments[2];
+                    var icon = arguments[3];
                     _this.setTabPlacement(tabPlacement);
                     _this.setCloseable(closeable);
                     _this.setText(text);
@@ -9269,11 +8913,7 @@ var JSTab = (function (_super) {
 var JSTabCloseButton = (function (_super) {
     __extends(JSTabCloseButton, _super);
     function JSTabCloseButton() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLButtonElement) ? document.createElement("button") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLButtonElement) ? document.createElement("button") : arguments[0]) || this;
         _this.setUI("JSTabCloseButton");
         _this.setIcon(JSTabCloseButton.CLOSE_ICON);
         return _this;
@@ -9284,11 +8924,7 @@ var JSTabCloseButton = (function (_super) {
 var JSTabLabel = (function (_super) {
     __extends(JSTabLabel, _super);
     function JSTabLabel() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabLabel");
         return _this;
     }
@@ -9297,16 +8933,12 @@ var JSTabLabel = (function (_super) {
 var JSTabbedPaneButtonContainer = (function (_super) {
     __extends(JSTabbedPaneButtonContainer, _super);
     function JSTabbedPaneButtonContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabbedPaneButtonContainer");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var tabPlacement = args[0];
+                if (typeof arguments[0] === "string") {
+                    var tabPlacement = arguments[0];
                     _this.setTabPlacement(tabPlacement);
                 }
                 break;
@@ -9348,11 +8980,7 @@ var JSTabbedPaneButtonContainer = (function (_super) {
 var JSTabbedPaneCardContainer = (function (_super) {
     __extends(JSTabbedPaneCardContainer, _super);
     function JSTabbedPaneCardContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabbedPaneCardContainer");
         _this.setLayout(new JSCardLayout());
         return _this;
@@ -9362,16 +8990,12 @@ var JSTabbedPaneCardContainer = (function (_super) {
 var JSTabbedPaneTabContainer = (function (_super) {
     __extends(JSTabbedPaneTabContainer, _super);
     function JSTabbedPaneTabContainer() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabbedPaneTabContainer");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var tabPlacement = args[0];
+                if (typeof arguments[0] === "string") {
+                    var tabPlacement = arguments[0];
                     _this.setTabPlacement(tabPlacement);
                 }
                 break;
@@ -9406,23 +9030,19 @@ var JSTabbedPaneTabContainer = (function (_super) {
         this.setAttribute("data-tab-placement", tabPlacement);
     };
     JSTabbedPaneTabContainer.prototype.addTab = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var tabPlacement = this.getTabPlacement();
         var tab;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var title = args[0];
+                if (typeof arguments[0] === "string") {
+                    var title = arguments[0];
                     tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, false, title);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var title = args[0];
-                    var icon = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var title = arguments[0];
+                    var icon = arguments[1];
                     tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, false, title, icon);
                 }
                 break;
@@ -9455,25 +9075,21 @@ var JSTabbedPaneTabContainer = (function (_super) {
         return tab;
     };
     JSTabbedPaneTabContainer.prototype.addCloseabeTab = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var tabPlacement = this.getTabPlacement();
         var tab;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (typeof args[0] === "string") {
-                    var title = args[0];
-                    var closeable = args[1];
+                if (typeof arguments[0] === "string") {
+                    var title = arguments[0];
+                    var closeable = arguments[1];
                     tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, true, title);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var title = args[0];
-                    var icon = args[1];
-                    var closeable = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var title = arguments[0];
+                    var icon = arguments[1];
+                    var closeable = arguments[2];
                     tab = new JSTab(tabPlacement || JSTabbedPaneTabContainer.TOP, true, title, icon);
                 }
                 break;
@@ -9520,18 +9136,14 @@ var JSTabbedPaneTabContainer = (function (_super) {
         this.add(button);
     };
     JSTabbedPaneTabContainer.prototype.remove = function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
         var component;
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSComponent) {
-                    component = args[0];
+                if (arguments[0] instanceof JSComponent) {
+                    component = arguments[0];
                 }
-                else if (typeof args[0] === "number") {
-                    var index = args[0];
+                else if (typeof arguments[0] === "number") {
+                    var index = arguments[0];
                     var components = this.getComponents();
                     component = components[index];
                 }
@@ -9595,15 +9207,13 @@ var JSTabbedPaneTabContainer = (function (_super) {
 var JSToolBar = (function (_super) {
     __extends(JSToolBar, _super);
     function JSToolBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSToolBar");
-        _this.setLayout(new JSBorderLayout());
         return _this;
     }
+    JSToolBar.prototype.init = function () {
+        this.setLayout(new JSBorderLayout());
+    };
     JSToolBar.prototype.addSeparator = function () {
         var separator = new JSPanel();
         separator.setWidth(8);
@@ -9626,16 +9236,12 @@ var JSToolBar = (function (_super) {
 var JSTree = (function (_super) {
     __extends(JSTree, _super);
     function JSTree() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTree");
-        switch (args.length) {
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSTreeNode) {
-                    var root = args[0];
+                if (arguments[0] instanceof JSTreeNode) {
+                    var root = arguments[0];
                     _this.setRoot(root);
                 }
                 break;
@@ -9806,7 +9412,7 @@ var JSTree = (function (_super) {
         }
     };
     return JSTree;
-}(JSPanel));
+}(JSDiv));
 var JSTreeCellButton = (function (_super) {
     __extends(JSTreeCellButton, _super);
     function JSTreeCellButton(icon) {
@@ -9819,11 +9425,7 @@ var JSTreeCellButton = (function (_super) {
 var JSVerticalScrollBar = (function (_super) {
     __extends(JSVerticalScrollBar, _super);
     function JSVerticalScrollBar() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSVerticalScrollBar");
         _this.setVsbPolicy(JSVerticalScrollBar.VERTICAL_SCROLLBAR_ALWAYS);
         _this.setHsbPolicy(JSVerticalScrollBar.HORIZONTAL_SCROLLBAR_NEVER);
@@ -9885,15 +9487,36 @@ var JSVerticalScrollBar = (function (_super) {
     };
     return JSVerticalScrollBar;
 }(JSPanel));
+var JSTableLowerRightCorner = (function (_super) {
+    __extends(JSTableLowerRightCorner, _super);
+    function JSTableLowerRightCorner() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
+        _this.setUI("JSTableLowerRightCorner");
+        _this.setVsbPolicy(JSTableLowerRightCorner.VERTICAL_SCROLLBAR_ALWAYS);
+        _this.setHsbPolicy(JSTableLowerRightCorner.HORIZONTAL_SCROLLBAR_ALWAYS);
+        return _this;
+    }
+    JSTableLowerRightCorner.prototype.getVsbPolicy = function () {
+        return this.getStyle("overflow-y");
+    };
+    JSTableLowerRightCorner.prototype.setVsbPolicy = function (vsbPolicy) {
+        this.setStyle("overflow-y", vsbPolicy);
+    };
+    JSTableLowerRightCorner.prototype.getHsbPolicy = function () {
+        return this.getStyle("overflow-x");
+    };
+    JSTableLowerRightCorner.prototype.setHsbPolicy = function (hsbPolicy) {
+        this.setStyle("overflow-x", hsbPolicy);
+    };
+    return JSTableLowerRightCorner;
+}(JSPanel));
 var JSButtonGraphics = (function (_super) {
     __extends(JSButtonGraphics, _super);
     function JSButtonGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSButtonGraphics");
+        _this.setAlign(JSLayout.CENTER);
+        _this.setStyle("display", "none");
         return _this;
     }
     return JSButtonGraphics;
@@ -9901,55 +9524,50 @@ var JSButtonGraphics = (function (_super) {
 var JSCheckBoxMenuItem = (function (_super) {
     __extends(JSCheckBoxMenuItem, _super);
     function JSCheckBoxMenuItem() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSCheckBoxMenuItem");
-        var index = 0;
         var input = _this.getInput();
-        _this.add(input, null, index++);
-        switch (args.length) {
+        _this.add(input);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSAction) {
-                    var action = args[0];
+                if (arguments[0] instanceof JSAction) {
+                    var action = arguments[0];
                     _this.setAction(action);
                 }
-                else if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                else if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (args[0] instanceof JSIcon && typeof args[1] === "boolean") {
-                    var icon = args[0];
-                    var selected = args[1];
+                if (arguments[0] instanceof JSIcon && typeof arguments[1] === "boolean") {
+                    var icon = arguments[0];
+                    var selected = arguments[1];
                     _this.setIcon(icon);
                     _this.setSelected(selected);
                 }
-                else if (typeof args[0] === "string" && typeof args[1] === "boolean") {
-                    var text = args[0];
-                    var selected = args[1];
+                else if (typeof arguments[0] === "string" && typeof arguments[1] === "boolean") {
+                    var text = arguments[0];
+                    var selected = arguments[1];
                     _this.setText(text);
                     _this.setSelected(selected);
                 }
-                else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
                 break;
             case 3:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "boolean") {
-                    var text = args[0];
-                    var icon = args[1];
-                    var selected = args[2];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "boolean") {
+                    var text = arguments[0];
+                    var icon = arguments[1];
+                    var selected = arguments[2];
                     _this.setText(text);
                     _this.setIcon(icon);
                     _this.setSelected(selected);
@@ -9987,11 +9605,7 @@ var JSCheckBoxMenuItem = (function (_super) {
 var JSLabelGraphics = (function (_super) {
     __extends(JSLabelGraphics, _super);
     function JSLabelGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLabelGraphics");
         return _this;
     }
@@ -10000,34 +9614,28 @@ var JSLabelGraphics = (function (_super) {
 var JSMenu = (function (_super) {
     __extends(JSMenu, _super);
     function JSMenu() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.delay = JSMenu.DELAY;
         _this.setUI("JSMenu");
-        var index = 0;
-        index++;
         var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics, null, index++);
+        _super.prototype.add.call(_this, graphics);
         var popupMenuContainer = _this.getPopupMenuContainer();
-        _super.prototype.add.call(_this, popupMenuContainer, null, index++);
-        switch (args.length) {
+        _super.prototype.add.call(_this, popupMenuContainer);
+        switch (arguments.length) {
             case 1:
-                if (args[0] instanceof JSIcon) {
-                    var icon = args[0];
+                if (arguments[0] instanceof JSIcon) {
+                    var icon = arguments[0];
                     _this.setIcon(icon);
                 }
-                else if (typeof args[0] === "string") {
-                    var text = args[0];
+                else if (typeof arguments[0] === "string") {
+                    var text = arguments[0];
                     _this.setText(text);
                 }
                 break;
             case 2:
-                if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                    var text = args[0];
-                    var icon = args[1];
+                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                    var text = arguments[0];
+                    var icon = arguments[1];
                     _this.setText(text);
                     _this.setIcon(icon);
                 }
@@ -10242,11 +9850,7 @@ var JSMenu = (function (_super) {
 var JSMenuGraphics = (function (_super) {
     __extends(JSMenuGraphics, _super);
     function JSMenuGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSMenuGraphics");
         return _this;
     }
@@ -10255,11 +9859,7 @@ var JSMenuGraphics = (function (_super) {
 var JSTabGraphics = (function (_super) {
     __extends(JSTabGraphics, _super);
     function JSTabGraphics() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTabGraphics");
         return _this;
     }
@@ -10268,11 +9868,7 @@ var JSTabGraphics = (function (_super) {
 var JSTableScrollPane = (function (_super) {
     __extends(JSTableScrollPane, _super);
     function JSTableScrollPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTableScrollPane");
         return _this;
     }
@@ -10281,11 +9877,7 @@ var JSTableScrollPane = (function (_super) {
 var JSTableHorizontalScrollPane = (function (_super) {
     __extends(JSTableHorizontalScrollPane, _super);
     function JSTableHorizontalScrollPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTableHorizontalScrollPane");
         _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
         _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -10296,11 +9888,7 @@ var JSTableHorizontalScrollPane = (function (_super) {
 var JSTableVerticalScrollPane = (function (_super) {
     __extends(JSTableVerticalScrollPane, _super);
     function JSTableVerticalScrollPane() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var _this = _super.call(this, args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]) || this;
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTableVerticalScrollPane");
         _this.setVsbPolicy(JSScrollPane.VERTICAL_SCROLLBAR_NEVER);
         _this.setHsbPolicy(JSScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

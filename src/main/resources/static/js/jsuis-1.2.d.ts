@@ -1,5 +1,5 @@
 interface ActionListener {
-    actionPerformed(mouseEvent: MouseEvent, ...parameters: any[]): void;
+    actionPerformed(event: Event, ...parameters: any[]): void;
 }
 interface AdjustmentListener {
     adjustmentValueChanged(event: Event, ...parameters: any[]): void;
@@ -67,7 +67,7 @@ declare class JSAction implements ActionListener {
     toString(): string;
 }
 declare class JSActionListener implements ActionListener {
-    actionPerformed: (mouseEvent: MouseEvent, ...parameters: any[]) => void;
+    actionPerformed: (event: Event, ...parameters: any[]) => void;
     parameters: any[];
     constructor(actionListener: ActionListener);
     getParameters(): any[];
@@ -157,6 +157,10 @@ declare class JSComponent {
     height: number;
     getHeight(): number;
     setHeight(height: number): void;
+    getContentWidth(): number;
+    setContentWidth(contentWidth: number): void;
+    getContentHeight(): number;
+    setContentHeight(contentHeight: number): void;
     getOuterWidth(): number;
     setOuterWidth(outerWidth: number): void;
     getOuterHeight(): number;
@@ -201,9 +205,6 @@ declare class JSComponent {
     invalidate(): void;
     invalidateHorizontally(): void;
     invalidateVertically(): void;
-    invalidateChildren(): void;
-    invalidateChildrenHorizontally(): void;
-    invalidateChildrenVertically(): void;
     isValidateRoot(): boolean;
     invalidateParent(): void;
     invalidateParentHorizontally(): void;
@@ -211,8 +212,6 @@ declare class JSComponent {
     validate(): void;
     validateHorizontally(): void;
     validateVertically(): void;
-    validateChildrenHorizontally(): void;
-    validateChildrenVertically(): void;
     revalidate(): void;
     revalidateHorizontally(): void;
     revalidateVertically(): void;
@@ -274,7 +273,7 @@ declare class JSComponent {
     getJSActionListeners(): JSActionListener[];
     addActionListener(actionListener: ActionListener, useCapture?: boolean): JSActionListener;
     removeActionListener(actionListener: ActionListener): void;
-    fireActionPerformed(mouseEvent: MouseEvent): void;
+    fireActionPerformed(event: Event): void;
     getMouseDraggedListeners(): MouseDraggedListener[];
     getJSMouseDraggedListeners(): JSMouseDraggedListener[];
     addMouseDraggedListener(mouseDraggedListener: MouseDraggedListener, useCapture?: boolean): JSMouseDraggedListener;
@@ -411,6 +410,12 @@ declare class JSLayout {
     static getContainers(): JSComponent[];
     static validateLater(container: JSComponent): void;
     static validateContainers(): void;
+    hgap: number;
+    vgap: number;
+    getHgap(): number;
+    setHgap(hgap: number): void;
+    getVgap(): number;
+    setVgap(vgap: number): void;
     addLayoutComponent(component: JSComponent): void;
     removeLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(container: JSComponent): number;
@@ -423,6 +428,7 @@ declare class JSLineBorder implements Border {
     color: string;
     thickness: number;
     radius: number;
+    constructor();
     constructor(color: string);
     constructor(color: string, thickness: number);
     constructor(color: string, thickness: number, radius: number);
@@ -641,14 +647,8 @@ declare class JSTreeSelectionListener implements TreeSelectionListener {
     withParameters(...parameters: any[]): this;
 }
 declare class JSBorderLayout extends JSLayout {
-    hgap: number;
-    vgap: number;
     constructor();
     constructor(hgap: number, vgap: number);
-    getHgap(): number;
-    setHgap(hgap: number): void;
-    getVgap(): number;
-    setVgap(vgap: number): void;
     addLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(container: JSComponent): number;
     preferredLayoutHeight(container: JSComponent): number;
@@ -676,17 +676,11 @@ declare class JSCardLayout extends JSLayout {
 declare class JSFlowLayout extends JSLayout {
     border: string;
     align: string;
-    hgap: number;
-    vgap: number;
     constructor();
     constructor(align: string);
     constructor(border: string, align: string);
     constructor(align: string, hgap: number, vgap: number);
     constructor(border: string, align: string, hgap: number, vgap: number);
-    getHgap(): number;
-    setHgap(hgap: number): void;
-    getVgap(): number;
-    setVgap(vgap: number): void;
     getAlign(): string;
     setAlign(align: string): void;
     getBorder(): string;
@@ -704,6 +698,8 @@ declare class JSHTMLComponent extends JSComponent {
     constructor(element: HTMLElement);
     getWidth(): number;
     getHeight(): number;
+    getContentWidth(): number;
+    getContentHeight(): number;
     getOuterWidth(): number;
     getOuterHeight(): number;
     setX(x: number): void;
@@ -875,7 +871,9 @@ declare class JSComboBox extends JSHTMLComponent {
     getItems(): Array<any>;
     setItems(items: Array<any>): void;
     getSelectedIndex(): number;
+    setSelectedIndex(selectedIndex: number): void;
     getSelectedItem(): any;
+    addActionListener(actionListener: ActionListener, useCapture?: boolean): JSActionListener;
 }
 declare class JSDefs extends JSSVGComponent {
     constructor();
@@ -884,6 +882,7 @@ declare class JSDefs extends JSSVGComponent {
 declare class JSDiv extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
+    setWidth(width: number): void;
 }
 declare class JSFileChooser extends JSHTMLComponent {
     selectedFiles: FileList;
@@ -940,14 +939,8 @@ declare class JSFrame extends JSHTMLComponent {
     setVisible(visible: boolean): void;
 }
 declare class JSGridBagLayout extends JSLayout {
-    hgap: number;
-    vgap: number;
     constructor();
     constructor(hgap: number, vgap: number);
-    getHgap(): number;
-    setHgap(hgap: number): void;
-    getVgap(): number;
-    setVgap(vgap: number): void;
     addLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(container: JSComponent): number;
     preferredLayoutHeight(container: JSComponent): number;
@@ -1008,6 +1001,8 @@ declare class JSLabel extends JSHTMLComponent {
     setText(text: string): void;
     getIconTextGap(): number;
     setIconTextGap(iconTextGap: number): void;
+    getHorizontalAlignment(): string;
+    setHorizontalAlignment(horizontalAlignment: string): void;
     getVerticalTextPosition(): string;
     setVerticalTextPosition(verticalTextPosition: string): void;
 }
@@ -1149,17 +1144,21 @@ declare class JSTable extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
     constructor(rows: any[][], columns: string[]);
-    getScrollPane(): JSTableScrollPane;
     getHorizontalScrollPane(): JSTableHorizontalScrollPane;
     getVerticalScrollPane(): JSTableVerticalScrollPane;
     getTableHeader(): JSTableHeader;
     getTableContent(): JSTableContent;
     getHorizontalScrollBar(): JSHorizontalScrollBar;
     getVerticalScrollBar(): JSVerticalScrollBar;
+    getTableLowerRightCorner(): JSTableLowerRightCorner;
     getColumns(): string[];
     setColumns(columns: string[]): void;
     getRows(): any[][];
     setRows(rows: any[][]): void;
+    addRow(row: any[]): void;
+    removeRow(row: number): void;
+    removeAllRows(): void;
+    setEditable(editable: boolean): void;
 }
 declare class JSTableContent extends JSHTMLComponent {
     constructor();
@@ -1171,12 +1170,17 @@ declare class JSTableContent extends JSHTMLComponent {
     setColumns(columns: string[]): void;
     getRows(): any[][];
     setRows(rows: any[][]): void;
+    addRow(row: any[]): void;
+    removeRow(row: number): void;
+    removeAllRows(): void;
+    setEditable(editable: boolean): void;
 }
 declare class JSTableBody extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
     getRows(): any[][];
     setRows(rows: any[][]): void;
+    addRow(row: any[]): void;
 }
 declare class JSTableCell extends JSHTMLComponent {
     constructor();
@@ -1469,6 +1473,7 @@ declare class JSScrollPane extends JSPanel {
     setHsbPolicy(hsbPolicy: string): void;
     getViewportView(): JSComponent;
     setViewportView(viewportView: JSComponent): void;
+    isValidateRoot(): boolean;
 }
 declare class JSTableHeader extends JSTableContent {
     constructor();
@@ -1598,6 +1603,7 @@ declare class JSTabbedPaneTabContainer extends JSPanel {
 declare class JSToolBar extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
+    init(): void;
     addSeparator(): void;
     add(component: JSComponent): void;
     add(component: JSComponent, constraints: number | string | {
@@ -1607,7 +1613,7 @@ declare class JSToolBar extends JSPanel {
         [key: string]: number | string;
     }, index: number): void;
 }
-declare class JSTree extends JSPanel {
+declare class JSTree extends JSDiv {
     selectionTreeNode: JSTreeNode;
     constructor();
     constructor(element: HTMLElement);
@@ -1653,6 +1659,14 @@ declare class JSVerticalScrollBar extends JSPanel {
     getMaximum(): number;
     setMaximum(maximum: number): void;
     getPreferredWidth(): number;
+}
+declare class JSTableLowerRightCorner extends JSPanel {
+    constructor();
+    constructor(element: HTMLElement);
+    getVsbPolicy(): string;
+    setVsbPolicy(vsbPolicy: string): void;
+    getHsbPolicy(): string;
+    setHsbPolicy(hsbPolicy: string): void;
 }
 declare class JSButtonGraphics extends JSGraphics {
     constructor();

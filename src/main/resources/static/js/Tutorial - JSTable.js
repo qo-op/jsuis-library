@@ -23,9 +23,9 @@ var data = [
 ];
 
 var table = new JSTable(data, columnNames);
-// table.setAlign(JSLayout.CENTER);
-// table.setPreferredWidth(200);
-// table.setPreferredHeight(150);
+table.setAlign(JSLayout.CENTER);
+table.setPreferredWidth(200);
+table.setPreferredHeight(150);
 
 // var scrollPane = new JSScrollPane(table);
 // scrollPane.setAlign(JSLayout.CENTER);

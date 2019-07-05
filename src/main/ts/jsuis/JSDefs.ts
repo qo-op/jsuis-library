@@ -9,8 +9,8 @@ class JSDefs extends JSSVGComponent {
     constructor();
     constructor(element: SVGDefsElement);
     // overload
-    constructor(...args: any[]) {
-        super(args.length === 0 || !(args[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : args[0]);
+    constructor() {
+        super(arguments.length === 0 || !(arguments[0] instanceof SVGDefsElement) ? document.createElementNS("http://www.w3.org/2000/svg", "defs") : arguments[0]);
         this.setUI("JSDefs");
     }
 }

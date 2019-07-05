@@ -10,21 +10,25 @@ class JSLineBorder implements Border {
     thickness: number = 1;
     radius: number = 0;
     
+    constructor();
     constructor(color: string);
     constructor(color: string, thickness: number);
     constructor(color: string, thickness: number, radius: number);
     // overload
     constructor() {
-        // constructor(color: string);
-        // constructor(color: string, thickness: number);
         switch (arguments.length) {
+        case 0:
+            // constructor();
+            break;
         case 1:
+            // constructor(color: string);
             if (typeof arguments[0] === "string") {
                 var color: string = arguments[0];
                 this.setColor(color);
             }
             break;
         case 2:
+            // constructor(color: string, thickness: number);
             if (typeof arguments[0] === "string" && typeof arguments[1] === "number") {
                 var color: string = arguments[0];
                 var thickness: number = arguments[1];
@@ -33,6 +37,7 @@ class JSLineBorder implements Border {
             }
             break;
         case 3:
+            // constructor(color: string, thickness: number, radius: number);
             if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
                 var color: string = arguments[0];
                 var thickness: number = arguments[1];

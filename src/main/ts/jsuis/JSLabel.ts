@@ -15,29 +15,27 @@ class JSLabel extends JSHTMLComponent {
     constructor(text: string, icon: JSIcon);
     constructor(text: string, icon: JSIcon, horizontalAlignment: string);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLDivElement) ? document.createElement("div") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSLabel");
         
-        var index: number = 0;
-        
         var graphics: JSLabelGraphics = this.getGraphics();
-        this.add(graphics, null, index++);
+        this.add(graphics);
         
         var textComponent: JSLabelText = this.getTextComponent();
-        this.add(textComponent, null, index++);
+        this.add(textComponent);
         
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(icon: JSIcon);
             // constructor(text: string);
-            if (args[0] instanceof JSIcon) {
-                var icon: JSIcon = args[0];
+            if (arguments[0] instanceof JSIcon) {
+                var icon: JSIcon = arguments[0];
                 this.setIcon(icon);
-            } else if (typeof args[0] === "string") {
-                var text: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
@@ -45,32 +43,32 @@ class JSLabel extends JSHTMLComponent {
             // constructor(icon: JSIcon, horizontalAlignment: string);
             // constructor(text: string, horizontalAlignment: string);
             // constructor(text: string, icon: JSIcon);
-            if (args[0] instanceof JSIcon && typeof args[1] === "string") {
-                var icon: JSIcon = args[0];
-                var horizontalAlignment: string = args[1];
+            if (arguments[0] instanceof JSIcon && typeof arguments[1] === "string") {
+                var icon: JSIcon = arguments[0];
+                var horizontalAlignment: string = arguments[1];
                 this.setIcon(icon);
-                this.setStyle("text-align", horizontalAlignment);
-            } else if (typeof args[0] === "string" && typeof args[1] === "string") {
-                var text: string = args[0];
-                var horizontalAlignment: string = args[1];
+                this.setHorizontalAlignment(horizontalAlignment);
+            } else if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                var text: string = arguments[0];
+                var horizontalAlignment: string = arguments[1];
                 this.setText(text);
-                this.setStyle("text-align", horizontalAlignment);
-            } else if (typeof args[0] === "string" && args[1] instanceof JSIcon) {
-                var text: string = args[0];
-                var icon: JSIcon = args[1];
+                this.setHorizontalAlignment(horizontalAlignment);
+            } else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
+                var text: string = arguments[0];
+                var icon: JSIcon = arguments[1];
                 this.setText(text);
                 this.setIcon(icon);
             }
             break;
         case 3:
             // constructor(text: string, icon: JSIcon, horizontalAlignment: string);
-            if (typeof args[0] === "string" && args[1] instanceof JSIcon && typeof args[2] === "string") {
-                var text: string = args[0];
-                var icon: JSIcon = args[1];
-                var horizontalAlignment: string = args[2];
+            if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "string") {
+                var text: string = arguments[0];
+                var icon: JSIcon = arguments[1];
+                var horizontalAlignment: string = arguments[2];
                 this.setText(text);
                 this.setIcon(icon);
-                this.setStyle("text-align", horizontalAlignment);
+                this.setHorizontalAlignment(horizontalAlignment);
             }
             break;
         default:
@@ -174,6 +172,13 @@ class JSLabel extends JSHTMLComponent {
                 }
             }
         }
+    }
+    getHorizontalAlignment(): string {
+        return this.getData("horizontalAlignment");
+    }
+    setHorizontalAlignment(horizontalAlignment: string) {
+        this.setData("horizontalAlignment", horizontalAlignment);
+        this.setStyle("text-align", horizontalAlignment);
     }
     getVerticalTextPosition(): string {
         return this.getData("verticalTextPosition") || JSLabel.CENTER;

@@ -12,29 +12,29 @@ class JSTextField extends JSHTMLComponent {
     constructor(text: string);
     constructor(text: string, columns: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLInputElement) ? document.createElement("input") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLInputElement) ? document.createElement("input") : arguments[0]);
         this.setAttribute("type", "text");
         this.setUI("JSTextField");
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(columns: number);
             // constructor(text: string);
-            if (typeof args[0] === "number") {
-                var columns: number = args[0];
+            if (typeof arguments[0] === "number") {
+                var columns: number = arguments[0];
                 this.setColumns(columns);
-            } else if (typeof args[0] === "string") {
-                var text: string = args[0];
+            } else if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
         case 2:
             // constructor(text: string, columns: number);
-            if (typeof args[0] === "string" && typeof args[1] === "number") {
-                var text: string = args[0];
-                var columns: number = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number") {
+                var text: string = arguments[0];
+                var columns: number = arguments[1];
                 this.setText(text);
                 this.setColumns(columns);
             }

@@ -12,36 +12,36 @@ class JSTextArea extends JSHTMLComponent {
     constructor(rows: number, columns: number);
     constructor(text: string, rows: number, columns: number);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
         // constructor(element: HTMLElement);
-        super(args.length === 0 || !(args[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : args[0]);
+        super(arguments.length === 0 || !(arguments[0] instanceof HTMLTextAreaElement) ? document.createElement("textarea") : arguments[0]);
         this.setUI("JSTextArea");
-        switch (args.length) {
+        switch (arguments.length) {
         case 0:
             break;
         case 1:
             // constructor(text: string);
-            if (typeof args[0] === "string") {
-                var text: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var text: string = arguments[0];
                 this.setText(text);
             }
             break;
         case 2:
             // constructor(rows: number, columns: number);
-            if (typeof args[0] === "number" && typeof args[1] === "number") {
-                var rows: number = args[0];
-                var columns: number = args[1];
+            if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var rows: number = arguments[0];
+                var columns: number = arguments[1];
                 this.setRows(rows);
                 this.setColumns(columns);
             }
             break;
         case 3:
             // constructor(text: string, rows: number, columns: number);
-            if (typeof args[0] === "string" && typeof args[1] === "number" && typeof args[2] === "number") {
-                var text: string = args[0];
-                var rows: number = args[1];
-                var columns: number = args[2];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
+                var text: string = arguments[0];
+                var rows: number = arguments[1];
+                var columns: number = arguments[2];
                 this.setText(text);
                 this.setRows(rows);
                 this.setColumns(columns);

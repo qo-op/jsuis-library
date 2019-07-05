@@ -14,12 +14,12 @@ class JSTreeNode {
     constructor();
     constructor(userObject: any);
     // overload
-    constructor(...args: any[]) {
+    constructor() {
         // constructor();
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // constructor(userObject: any);
-            var userObject: any = args[0];
+            var userObject: any = arguments[0];
             this.setUserObject(userObject);
             break;
         default:

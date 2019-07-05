@@ -21,21 +21,21 @@ class JSProperties {
     getProperty(key: string): string;
     getProperty(key: string, defaultValue: string): string;
     // overload
-    getProperty(...args: any[]): string {
+    getProperty(): string {
         var value: string;
         var properties = this.getProperties();
-        switch (args.length) {
+        switch (arguments.length) {
         case 1:
             // getProperty(key: string): string;
-            if (typeof args[0] === "string") {
-                var key: string = args[0];
+            if (typeof arguments[0] === "string") {
+                var key: string = arguments[0];
                 value = properties[key];
             }
         case 2:
             // getProperty(key: string, defaultValue: string): string;
-            if (typeof args[0] === "string" && typeof args[1] === "string") {
-                var key: string = args[0];
-                var defaultValue: string = args[1];
+            if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
+                var key: string = arguments[0];
+                var defaultValue: string = arguments[1];
                 value = properties[key];
                 if (value === undefined) {
                     value = defaultValue;
@@ -51,6 +51,5 @@ class JSProperties {
         properties[key] = value;
     }
     load() {
-        
     }
 }

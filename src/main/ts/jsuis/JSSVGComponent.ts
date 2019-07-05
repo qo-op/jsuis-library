@@ -21,14 +21,14 @@ class JSSVGComponent extends JSComponent {
     }
     
     getWidth(): number {
-        var width = super.getWidth();
+        var width: number = super.getWidth();
         if (width !== undefined) {
             return width;
         }
         return this.element.getBoundingClientRect().width;
     }
     getHeight(): number {
-        var height = super.getHeight();
+        var height: number = super.getHeight();
         if (height !== undefined) {
             return height;
         }
@@ -45,7 +45,7 @@ class JSSVGComponent extends JSComponent {
     }
     
     setWidth(width: number): void {
-        this.setAttribute("width", width + "px");
+        this.setAttribute("width", width + "");
         super.setWidth(width);
     }
     setOuterWidth(outerWidth: number): void {
@@ -53,7 +53,7 @@ class JSSVGComponent extends JSComponent {
                 this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight());
     }
     setHeight(height: number): void {
-        this.setAttribute("height", height + "px");
+        this.setAttribute("height", height + "");
         super.setHeight(height);
     }
     setOuterHeight(outerHeight: number): void {
