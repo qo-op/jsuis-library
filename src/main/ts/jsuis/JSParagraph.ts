@@ -36,4 +36,23 @@ class JSParagraph extends JSHTMLComponent {
         default:
         }
     }
+    getPreferredWidth(): number {
+        var whiteSpace = this.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        
+        var preferredWidth: number = super.getPreferredWidth();
+        
+        if (whiteSpace) {
+            this.setStyle("white-space", whiteSpace);
+        } else {
+            this.removeStyle("white-space");
+        }
+        return preferredWidth;
+    }
+    getPreferredHeight(): number {
+        if (!this.isValidHorizontally()) {
+            return null;
+        }
+        return super.getPreferredHeight();
+    }
 }

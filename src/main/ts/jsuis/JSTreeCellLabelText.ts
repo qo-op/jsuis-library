@@ -1,10 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSLabelText
+ * JSTreeCellLabelText
  * 
  * @author Yassuo Toda
  */
-class JSLabelText extends JSHTMLComponent {
+class JSTreeCellLabelText extends JSHTMLComponent {
     
     constructor();
     constructor(element: HTMLElement);
@@ -13,7 +13,6 @@ class JSLabelText extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLLabelElement) ? document.createElement("label") : arguments[0]);
-        this.setUI("JSLabelText");
-        this.setStyle("display", "none");
+        this.setUI("JSTreeCellLabelText");
     }
 }

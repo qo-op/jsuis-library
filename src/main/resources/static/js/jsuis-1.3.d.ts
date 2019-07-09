@@ -202,19 +202,19 @@ declare class JSComponent {
     validVertically: boolean;
     isValidVertically(): boolean;
     setValidVertically(validVertically: boolean): void;
-    invalidate(): void;
-    invalidateHorizontally(): void;
-    invalidateVertically(): void;
+    invalidate(container?: JSComponent): void;
+    invalidateHorizontally(container?: JSComponent): void;
+    invalidateVertically(container?: JSComponent): void;
     isValidateRoot(): boolean;
-    invalidateParent(): void;
-    invalidateParentHorizontally(): void;
-    invalidateParentVertically(): void;
+    invalidateParent(container?: JSComponent): void;
+    invalidateParentHorizontally(container?: JSComponent): void;
+    invalidateParentVertically(container?: JSComponent): void;
     validate(): void;
     validateHorizontally(): void;
     validateVertically(): void;
-    revalidate(): void;
-    revalidateHorizontally(): void;
-    revalidateVertically(): void;
+    revalidate(container?: JSComponent): void;
+    revalidateHorizontally(container?: JSComponent): void;
+    revalidateVertically(container?: JSComponent): void;
     isVisible(): boolean;
     setVisible(visible: boolean): void;
     clone(): JSComponent;
@@ -242,6 +242,12 @@ declare class JSComponent {
     align: string;
     getAlign(): string;
     setAlign(align: string): void;
+    horizontalAlign: string;
+    getHorizontalAlign(): string;
+    setHorizontalAlign(horizontalAlign: string): void;
+    verticalAlign: string;
+    getVerticalAlign(): string;
+    setVerticalAlignment(verticalAlign: string): void;
     getText(): string;
     setText(text: string): void;
     getBorder(): Border;
@@ -397,8 +403,9 @@ declare class JSLayout {
     static LEFT: string;
     static BOTTOM: string;
     static RIGHT: string;
-    static JUSTIFY: string;
     static LEFT_RIGHT: string;
+    static TOP_BOTTOM: string;
+    static JUSTIFY: string;
     static HORIZONTAL: string;
     static VERTICAL: string;
     static BOTH: string;
@@ -888,6 +895,7 @@ declare class JSDefs extends JSSVGComponent {
 declare class JSDiv extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
+    getWidth(): number;
     setWidth(width: number): void;
 }
 declare class JSFileChooser extends JSHTMLComponent {
@@ -1011,6 +1019,8 @@ declare class JSLabel extends JSHTMLComponent {
     setHorizontalAlignment(horizontalAlignment: string): void;
     getVerticalTextPosition(): string;
     setVerticalTextPosition(verticalTextPosition: string): void;
+    getPreferredWidth(): number;
+    getPreferredHeight(): number;
 }
 declare class JSLI extends JSHTMLComponent {
     constructor();
@@ -1045,6 +1055,8 @@ declare class JSParagraph extends JSHTMLComponent {
     constructor(element: HTMLElement);
     constructor(text: string);
     constructor(text: string, horizontalAlignment: string);
+    getPreferredWidth(): number;
+    getPreferredHeight(): number;
 }
 declare class JSPanel extends JSHTMLComponent {
     constructor();
@@ -1248,9 +1260,7 @@ declare class JSTextField extends JSHTMLComponent {
     getText(): string;
     setText(text: string): void;
 }
-declare class JSTreeCell extends JSHTMLComponent {
-    static COLLAPSED_PATH_DEFINITION: string;
-    static EXPANDED_PATH_DEFINITION: string;
+declare class JSTreeCell extends JSDiv {
     static COLLAPSED_PATH_ICON: JSPathIcon;
     static EXPANDED_PATH_ICON: JSPathIcon;
     constructor();
@@ -1264,10 +1274,7 @@ declare class JSTreeCell extends JSHTMLComponent {
     getOpenIcon(): JSIcon;
     setOpenIcon(icon: JSIcon): void;
     getGraphics(): JSGraphics;
-    getPreferredWidth(): number;
-    getButton(): JSButton;
-    setButton(button: JSButton): void;
-    getLabel(): JSTreeCellLabel;
+    getLabel(): JSLabel;
     getIcon(): JSIcon;
     setIcon(icon: JSIcon): void;
     getText(): string;
@@ -1550,13 +1557,14 @@ declare class JSTab extends JSPanel {
     constructor(element: HTMLElement);
     constructor(tabPlacement: string, closeable: boolean, text: string);
     constructor(tabPlacement: string, closeable: boolean, text: string, icon: JSIcon);
-    getGraphics(): JSTabGraphics;
     getLabel(): JSTabLabel;
     getCloseButton(): JSTabCloseButton;
     getTabPlacement(): string;
     setTabPlacement(tabPlacement: string): void;
     isCloseable(): boolean;
     setCloseable(closeable: boolean): void;
+    getIcon(): JSIcon;
+    setIcon(icon: JSIcon): void;
     getText(): string;
     setText(text: string): void;
     setSelected(selected: boolean): void;
@@ -1668,27 +1676,7 @@ declare class JSTableLowerRightCorner extends JSPanel {
     getHsbPolicy(): string;
     setHsbPolicy(hsbPolicy: string): void;
 }
-declare class JSTreeCellLabel extends JSHTMLComponent {
-    constructor();
-    constructor(element: HTMLElement);
-    constructor(icon: JSIcon);
-    constructor(text: string);
-    constructor(icon: JSIcon, horizontalAlignment: string);
-    constructor(text: string, horizontalAlignment: string);
-    constructor(text: string, icon: JSIcon);
-    constructor(text: string, icon: JSIcon, horizontalAlignment: string);
-    getGraphics(): JSTreeCellLabelGraphics;
-    getTextComponent(): JSTreeCellLabelText;
-    setIcon(icon: JSIcon): void;
-    getText(): string;
-    setText(text: string): void;
-    getIconTextGap(): number;
-    setIconTextGap(iconTextGap: number): void;
-    getHorizontalAlignment(): string;
-    setHorizontalAlignment(horizontalAlignment: string): void;
-    getVerticalTextPosition(): string;
-    setVerticalTextPosition(verticalTextPosition: string): void;
-    getPreferredWidth(): number;
+declare class JSTreeCellLabel extends JSLabel {
 }
 declare class JSTreeCellLabelGraphics extends JSGraphics {
     constructor();
@@ -1698,11 +1686,11 @@ declare class JSTreeCellLabelText extends JSHTMLComponent {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSMenuItemLabel extends JSTreeCellLabel {
+declare class JSMenuItemLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
 }
-declare class JSTabLabel extends JSTreeCellLabel {
+declare class JSTabLabel extends JSLabel {
     constructor();
     constructor(element: HTMLElement);
 }

@@ -14,7 +14,7 @@ class JSButtonText extends JSSpan {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLSpanElement) ? document.createElement("span") : arguments[0]);
         this.setUI("JSButtonText");
-        this.setAlign(JSLayout.CENTER);
+        this.setAlign(JSBorderLayout.CENTER);
         this.setStyle("display", "none");
     }
 }

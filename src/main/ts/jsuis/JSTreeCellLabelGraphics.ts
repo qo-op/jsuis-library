@@ -1,11 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSTabLabel
+ * JSTreeCellLabelGraphics
  * 
  * @author Yassuo Toda
  */
-// class JSTabLabel extends JSTreeCellLabel {
-class JSTabLabel extends JSLabel { 
+class JSTreeCellLabelGraphics extends JSGraphics {
     
     constructor();
     constructor(element: HTMLElement);
@@ -14,6 +13,6 @@ class JSTabLabel extends JSLabel {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
-        this.setUI("JSTabLabel");
+        this.setUI("JSTreeCellLabelGraphics");
     }
 }

@@ -6,24 +6,24 @@
  */
 class JSProperties {
 
-    properties: { [ key: string ]: string };
+    keyValuePairs: { [ key: string ]: string };
     
     constructor() {
-        this.setProperties({});
+        this.setKeyValuePairs({});
     }
     
-    getProperties() {
-        return this.properties;
+    getKeyValuePairs() {
+        return this.keyValuePairs;
     }
-    setProperties(properties: { [ key: string ]: string }) {
-        this.properties = properties;
+    setKeyValuePairs(keyValuePairs: { [ key: string ]: string }) {
+        this.keyValuePairs = keyValuePairs;
     }
     getProperty(key: string): string;
     getProperty(key: string, defaultValue: string): string;
     // overload
     getProperty(): string {
         var value: string;
-        var properties = this.getProperties();
+        var properties = this.getKeyValuePairs();
         switch (arguments.length) {
         case 1:
             // getProperty(key: string): string;
@@ -47,9 +47,13 @@ class JSProperties {
         return value;
     }
     setProperty(key: string, value: string) {
-        var properties = this.getProperties();
+        var properties = this.getKeyValuePairs();
         properties[key] = value;
     }
-    load() {
+    load(properties: JSProperties) {
+        var keyValuePairs: { [ key: string ]: string } = properties.getKeyValuePairs();
+        for (var key in keyValuePairs) {
+            this.setProperty(key, keyValuePairs[key]);
+        }
     }
 }

@@ -21,10 +21,13 @@ class JSLabel extends JSHTMLComponent {
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSLabel");
         
+        this.setLayout(new JSBorderLayout(4, 4));
+        
         var graphics: JSLabelGraphics = this.getGraphics();
-        this.add(graphics);
+        this.add(graphics, JSBorderLayout.WEST);
         
         var textComponent: JSLabelText = this.getTextComponent();
+        // textComponent.setAlign(JSBorderLayout.LEFT_RIGHT);
         this.add(textComponent);
         
         switch (arguments.length) {
@@ -102,22 +105,10 @@ class JSLabel extends JSHTMLComponent {
     }
     setIcon(icon: JSIcon) {
         super.setIcon(icon);
-        var text: string = this.getText();
         var graphics: JSLabelGraphics = this.getGraphics();
-        var verticalTextPosition: string = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-        case JSLabel.TOP:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-            break;
-        case JSLabel.BOTTOM:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-            break;
-        case JSLabel.CENTER:
-        default:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        graphics.setStyle("display", icon ? "": "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     }
     getText(): string {
@@ -127,86 +118,69 @@ class JSLabel extends JSHTMLComponent {
     setText(text: string) {
         var textComponent: JSLabelText = this.getTextComponent();
         textComponent.setText(text);
-        var icon = this.getIcon();
-        var graphics: JSLabelGraphics = this.getGraphics();
-        var verticalTextPosition: string = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-        case JSLabel.TOP:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-            break;
-        case JSLabel.BOTTOM:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-            break;
-        case JSLabel.CENTER:
-        default:
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        textComponent.setStyle("display", text ? "": "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     }
     getIconTextGap(): number {
-        return this.getData("iconTextGap") || 4;
+        var layout: JSLayout = this.getLayout();
+        return layout.getHgap() || layout.getVgap();
     }
     setIconTextGap(iconTextGap: number) {
-        this.setData("iconTextGap", iconTextGap);
-        var icon = this.getIcon();
-        if (icon) {
-            var text: string = this.getText();
-            if (text) {
-                var graphics: JSLabelGraphics = this.getGraphics();
-                var verticalTextPosition: string = this.getVerticalTextPosition();
-                switch (verticalTextPosition) {
-                case JSLabel.TOP:
-                    graphics.setStyle("margin", "0");
-                    graphics.setStyle("margin-top", this.getIconTextGap() + "px");
-                    break;
-                case JSLabel.BOTTOM:
-                    graphics.setStyle("margin", "0");
-                    graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
-                    break;
-                case JSLabel.CENTER:
-                default:
-                    graphics.setStyle("margin", "0");
-                    graphics.setStyle("margin-right", this.getIconTextGap() + "px");
-                }
-            }
+        var layout: JSLayout = this.getLayout();
+        layout.setHgap(iconTextGap);
+        layout.setVgap(iconTextGap);
+        if (this.isValid()) {
+            this.revalidate();
         }
     }
     getHorizontalAlignment(): string {
-        return this.getData("horizontalAlignment");
+        var textComponent: JSLabelText = this.getTextComponent();
+        return textComponent.getHorizontalAlign();
     }
     setHorizontalAlignment(horizontalAlignment: string) {
-        this.setData("horizontalAlignment", horizontalAlignment);
-        this.setStyle("text-align", horizontalAlignment);
+        var textComponent: JSLabelText = this.getTextComponent();
+        textComponent.setHorizontalAlign(horizontalAlignment);
     }
     getVerticalTextPosition(): string {
         return this.getData("verticalTextPosition") || JSLabel.CENTER;
     }
     setVerticalTextPosition(verticalTextPosition: string) {
         this.setData("verticalTextPosition", verticalTextPosition);
-        var text: string = this.getText();
-        var icon = this.getIcon();
         var graphics: JSLabelGraphics = this.getGraphics();
         switch (verticalTextPosition) {
         case JSLabel.TOP:
-            graphics.removeClass("top");
-            graphics.addClass("bottom");
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+            graphics.setConstraints(JSBorderLayout.SOUTH);
             break;
         case JSLabel.BOTTOM:
-            graphics.removeClass("bottom");
-            graphics.addClass("top");
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+            graphics.setConstraints(JSBorderLayout.NORTH);
             break;
         case JSLabel.CENTER:
         default:
-            graphics.removeClass("top");
-            graphics.removeClass("bottom");
-            graphics.setStyle("margin", "0");
-            graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+            graphics.setConstraints(JSBorderLayout.WEST);
         }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getPreferredWidth(): number {
+        var whiteSpace = this.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        
+        var preferredWidth: number = super.getPreferredWidth();
+        
+        if (whiteSpace) {
+            this.setStyle("white-space", whiteSpace);
+        } else {
+            this.removeStyle("white-space");
+        }
+        return preferredWidth;
+    }
+    getPreferredHeight(): number {
+        if (!this.isValidHorizontally()) {
+            return null;
+        }
+        return super.getPreferredHeight();
     }
 }

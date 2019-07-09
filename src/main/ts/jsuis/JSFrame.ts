@@ -16,9 +16,8 @@ class JSFrame extends JSHTMLComponent {
         this.setUI("JSFrame");
         
         this.setVisible(false);
-        
         var body: JSBody = JSBody.getInstance();
-        body.setFrame(this);
+        body.addFrame(this);
         
         super.setLayout(new JSBorderLayout());
         
@@ -123,6 +122,7 @@ class JSFrame extends JSHTMLComponent {
     setVisible(visible: boolean) {
         if (visible) {
             var body: JSBody = JSBody.getInstance();
+            body.setFrame(this);
             body.revalidate();
         }
         super.setVisible(visible);

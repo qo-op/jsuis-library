@@ -92,11 +92,12 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         if (popupMenu) {
             var oldPopupMenu: JSPopupMenu = this.getPopupMenu();
             if (oldPopupMenu !== popupMenu) {
-                var popupMenuContainer: JSComponent = this.getPopupMenuContainer();
+                var popupMenuContainer: JSPopupMenuContainer = this.getPopupMenuContainer();
                 if (oldPopupMenu) {
                     popupMenuContainer.remove(oldPopupMenu);
                 }
                 if (popupMenu) {
+                    /*
                     popupMenuContainer.add(popupMenu, null, 0);
                     var popupMenuLayout: JSLayout = popupMenu.getLayout();
                     if (popupMenuLayout) {
@@ -104,6 +105,9 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
                         popupMenu.setHeight(popupMenu.getPreferredHeight());
                         popupMenu.revalidate();
                     }
+                    */
+                    popupMenuContainer.add(popupMenu);
+                    popupMenu.revalidate(popupMenuContainer);
                 }
             }
         }

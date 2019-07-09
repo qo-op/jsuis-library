@@ -11,6 +11,7 @@ class JSFlowLayout extends JSLayout {
     
     constructor();
     constructor(align: string);
+    constructor(hgap: number, vgap: number);
     constructor(border: string, align: string);
     constructor(align: string, hgap: number, vgap: number);
     constructor(border: string, align: string, hgap: number, vgap: number);
@@ -35,6 +36,11 @@ class JSFlowLayout extends JSLayout {
                 var align: string = arguments[1];
                 this.setBorder(border);
                 this.setAlign(align);
+            } else if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                var hgap: number = arguments[0];
+                var vgap: number = arguments[1];
+                this.setHgap(hgap);
+                this.setVgap(vgap);
             }
             break;
         case 3:
@@ -486,6 +492,9 @@ class JSFlowLayout extends JSLayout {
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
                     continue;
@@ -502,6 +511,9 @@ class JSFlowLayout extends JSLayout {
             }
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
                     continue;
@@ -531,6 +543,9 @@ class JSFlowLayout extends JSLayout {
         } else {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
                     continue;
@@ -571,6 +586,9 @@ class JSFlowLayout extends JSLayout {
                 var extraHorizontalSpace: number = width - rowWidth;
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentAlign: string = component.getAlign();
                     if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                         continue;
@@ -583,6 +601,9 @@ class JSFlowLayout extends JSLayout {
             } else {
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentAlign: string = component.getAlign();
                     if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                         continue;
@@ -604,6 +625,9 @@ class JSFlowLayout extends JSLayout {
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
                     continue;
@@ -640,6 +664,9 @@ class JSFlowLayout extends JSLayout {
             }
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
                     continue;
@@ -662,6 +689,9 @@ class JSFlowLayout extends JSLayout {
         } else {
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
                     continue;
@@ -678,6 +708,9 @@ class JSFlowLayout extends JSLayout {
             }
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign: string = component.getAlign();
                 if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                     continue;

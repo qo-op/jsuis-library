@@ -78,9 +78,9 @@ class JSScrollPane extends JSPanel {
             this.add(viewportView);
         }
     }
-    isValidateRoot(): boolean {
-        return true;
-    }
+    // isValidateRoot(): boolean {
+        // return true;
+    // }
     /*
     getPreferredWidth(): number {
         var preferredWidth: string = this.getAttribute("data-preferred-width");

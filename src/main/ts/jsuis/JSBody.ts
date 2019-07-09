@@ -47,35 +47,44 @@ class JSBody extends JSHTMLComponent {
         var modal: JSBodyModal = this.getModal();
         dialogContainer.add(modal);
         
+        var frameContainer: JSBodyFrameContainer = this.getFrameContainer();
+        this.add(frameContainer);
+        
         this.addMouseListener(new JSBodyMouseListener(), true);
         
         window.addEventListener("resize", function() {
             JSBody.getInstance().revalidate();
         });
     }
-    getFrame(): JSFrame {
-        var frame: JSFrame = this.getData("frame");
-        if (!frame) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSFrame");
+    getFrameContainer(): JSBodyFrameContainer {
+        var frameContainer: JSBodyFrameContainer = this.getData("frameContainer");
+        if (!frameContainer) {
+            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyFrameContainer");
             if (element) {
-                frame = new JSFrame(element);
-                this.setData("frame", frame);
+                frameContainer = new JSBodyFrameContainer(element);
+            } else {
+                frameContainer = new JSBodyFrameContainer();
             }
+            this.setData("frameContainer", frameContainer);
         }
-        return frame;
+        return frameContainer;
+    }
+    getFrame(): JSFrame {
+        return this.getData("frame");
     }
     setFrame(frame: JSFrame) {
-        var oldFrame: JSFrame = this.getData("frame");
-        if (oldFrame === frame) {
-            return;
-        }
-        if (oldFrame) {
-            this.remove(oldFrame);
-        }
+        var frameContainer: JSBodyFrameContainer = this.getFrameContainer();
+        frameContainer.removeAll();
         if (frame) {
-            this.add(frame);
+            frameContainer.add(frame);
         }
         this.setData("frame", frame);
+    }
+    addFrame(frame: JSFrame) {
+        var frameContainer: JSBodyFrameContainer = this.getFrameContainer();
+        if (frame) {
+            frameContainer.add(frame);
+        }
     }
     getDragContainer(): JSBodyDragContainer {
         var dragContainer: JSBodyDragContainer = this.getData("dragContainer");
@@ -150,6 +159,8 @@ class JSBody extends JSHTMLComponent {
             }
             if (popupMenu) {
                 popupMenuContainer.add(popupMenu);
+                popupMenu.revalidate(popupMenuContainer);
+                /*
                 var popupMenuLayout: JSLayout = popupMenu.getLayout();
                 if (popupMenuLayout) {
                     popupMenu.setWidth(this.getWidth());
@@ -159,6 +170,7 @@ class JSBody extends JSHTMLComponent {
                 popupMenu.setWidth(popupMenu.getPreferredWidth());
                 popupMenu.setHeight(popupMenu.getPreferredHeight());
                 popupMenu.revalidate();
+                */
             }
         }
         this.popupMenu = popupMenu;
@@ -206,6 +218,7 @@ class JSBody extends JSHTMLComponent {
                     this.getModal().setStyle("display", "");
                 }
                 dialogContainer.add(dialog);
+                /*
                 var dialogLayout: JSLayout = dialog.getLayout();
                 if (dialogLayout) {
                     dialog.setWidth(this.getWidth());
@@ -214,7 +227,11 @@ class JSBody extends JSHTMLComponent {
                 }
                 dialog.setWidth(dialog.getPreferredWidth());
                 dialog.setHeight(dialog.getPreferredHeight());
-                dialog.revalidate();
+                */
+                dialog.revalidate(dialogContainer);
+                
+                console.log("dialog.getWidth():" + dialog.getWidth());
+                
                 dialog.setX(dialog.getX() || (this.getWidth() - dialog.getWidth()) / 2);
                 dialog.setY(dialog.getY() || (this.getHeight() - dialog.getHeight()) / 2);
             }

@@ -17,8 +17,8 @@ class JSTab extends JSPanel {
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTab");
         
-        var graphics: JSTabGraphics = this.getGraphics();
-        this.add(graphics);
+        // var graphics: JSTabGraphics = this.getGraphics();
+        // this.add(graphics);
         
         var label: JSLabel = this.getLabel();
         this.add(label);
@@ -86,6 +86,7 @@ class JSTab extends JSPanel {
         }));
         */
     }
+    /*
     getGraphics(): JSTabGraphics {
         var graphics: JSTabGraphics = this.getData("graphics");
         if (!graphics) {
@@ -99,6 +100,7 @@ class JSTab extends JSPanel {
         }
         return graphics;
     }
+    */
     getLabel(): JSTabLabel {
         var label: JSTabLabel = this.getData("label");
         if (!label) {
@@ -149,17 +151,23 @@ class JSTab extends JSPanel {
         var label: JSLabel = this.getLabel();
         var tabCloseButton: JSButton = this.getCloseButton();
         if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
+            label.setVerticalTextPosition(JSLayout.BOTTOM);
+            /*
             graphics.setStyle("display", "block");
             graphics.setStyle("margin", "4px auto 0");
             label.setStyle("display", "block");
             label.setStyle("margin", "4px 0");
+            */
             label.setStyle("text-align", "center");
             tabCloseButton.setStyle("margin", "0 auto 4px");
         } else {
+            label.setVerticalTextPosition(JSLayout.CENTER);
+            /*
             graphics.setStyle("margin-left", "4px");
             graphics.setStyle("vertical-align", "middle");
             label.setStyle("margin", "0 4px");
             label.setStyle("vertical-align", "middle");
+            */
             tabCloseButton.setStyle("margin-right", "4px");
             tabCloseButton.setStyle("vertical-align", "middle");
         }
@@ -171,6 +179,14 @@ class JSTab extends JSPanel {
     setCloseable(closeable: boolean) {
         var tabCloseButton: JSButton = this.getCloseButton();
         tabCloseButton.setStyle("display", closeable ? "" : "none");
+    }
+    getIcon(): JSIcon {
+        var label: JSCheckBoxLabel = this.getLabel();
+        return label.getIcon();
+    }
+    setIcon(icon: JSIcon) {
+        var label: JSCheckBoxLabel = this.getLabel();
+        label.setIcon(icon);
     }
     getText(): string {
         return this.getData("text");

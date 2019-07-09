@@ -9,13 +9,23 @@ class JSTableLayout extends JSBorderLayout {
     preferredLayoutWidth(container: JSComponent): number {
         var table: JSTable = <JSTable> container;
         var tableContent: JSTableContent = table.getTableContent();
-        return tableContent.getPreferredOuterWidth();
+        var verticalScrollBar: JSVerticalScrollBar = table.getVerticalScrollBar();
+        if (verticalScrollBar.isVisible()) {
+            return tableContent.getPreferredOuterWidth() + verticalScrollBar.getPreferredOuterWidth();
+        } else {
+            return tableContent.getPreferredOuterWidth();
+        }
     }
     
     preferredLayoutHeight(container: JSComponent): number {
         var table: JSTable = <JSTable> container;
         var tableContent: JSTableContent = table.getTableContent();
-        return tableContent.getPreferredOuterHeight();
+        var horizontalScrollBar: JSHorizontalScrollBar = table.getHorizontalScrollBar();
+        if (horizontalScrollBar.isVisible()) {
+            return tableContent.getPreferredOuterHeight() + horizontalScrollBar.getPreferredOuterHeight();
+        } else {
+            return tableContent.getPreferredOuterHeight();
+        }
     }
     
     layoutContainerHorizontally(container: JSComponent): void {

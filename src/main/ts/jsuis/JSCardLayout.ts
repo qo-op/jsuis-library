@@ -93,14 +93,20 @@ class JSCardLayout extends JSLayout {
         }
         if (selected) {
             selected.setVisible(false);
+            selected.setStyle("display", "none");
         } else {
             var components: JSComponent[] = container.getComponents();
             for (var i: number = 0; i < components.length; i++) {
                 components[i].setVisible(false);
+                components[i].setStyle("display", "none");
             }
         }
         if (component) {
             component.setVisible(true);
+            component.setStyle("display", "");
+            if (container.isValid()) {
+                component.revalidate();
+            }
         }
         this.selected = component;
     }
@@ -130,6 +136,7 @@ class JSCardLayout extends JSLayout {
     }
     show(container: JSComponent, index: number): void;
     show(container: JSComponent, constraints: string): void;
+    show(container: JSComponent, component: JSComponent): void;
     // overload
     show() {
     // show(container: JSComponent, indexOrConstraints: number | string): void {
@@ -153,6 +160,10 @@ class JSCardLayout extends JSLayout {
                         break;
                     }
                 }
+            } else if (arguments[0] instanceof JSComponent && arguments[1] instanceof JSComponent) {
+                var container: JSComponent = arguments[0];
+                var component: JSComponent = arguments[1];
+                this.setSelected(container, component);
             }
             break;
         default:

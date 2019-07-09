@@ -217,7 +217,7 @@ namespace jstutorial {
             tree_Tutorials.expand(treeNode_ComponentTutorials);
             tree_Examples.expand(treeNode_ContainerExamples);
             tree_Examples.expand(treeNode_ComponentExamples);
-
+            
             splitPane_Left.setDividerLocation(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
             
             var element = document.getElementById("tutorial");
@@ -235,6 +235,8 @@ namespace jstutorial {
             if (args) {
                 this.setArgs(args);
             }
+
+            console.log(splitPane_Left.getLeftContainer().getPreferredOuterWidth());
         }
         
         setArgs(args: { [ key: string ]: any }) {

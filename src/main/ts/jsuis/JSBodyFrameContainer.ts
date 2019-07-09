@@ -1,11 +1,10 @@
 /// <reference path = "../jsuis.ts"/>
 /**
- * JSTabLabel
+ * JSBodyFrameContainer
  * 
  * @author Yassuo Toda
  */
-// class JSTabLabel extends JSTreeCellLabel {
-class JSTabLabel extends JSLabel { 
+class JSBodyFrameContainer extends JSPanel {
     
     constructor();
     constructor(element: HTMLElement);
@@ -14,6 +13,7 @@ class JSTabLabel extends JSLabel {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
-        this.setUI("JSTabLabel");
+        this.setUI("JSBodyFrameContainer");
+        this.setLayout(new JSBorderLayout());
     }
 }

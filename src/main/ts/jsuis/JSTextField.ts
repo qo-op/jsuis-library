@@ -43,16 +43,15 @@ class JSTextField extends JSHTMLComponent {
         }
     }
     getColumns(): number {
-        return +this.getAttribute("size");
+        return (<HTMLInputElement> this.element).size;
     }
     setColumns(columns: number) {
-        this.setAttribute("size", "" + columns);
+        (<HTMLInputElement> this.element).size = columns;
     }
     getText(): string {
-        return this.getAttribute("value");
+        return (<HTMLInputElement> this.element).value;
     }
     setText(text: string) {
-        this.setAttribute("value", text);
+        (<HTMLInputElement> this.element).value = text;
     }
-    
 }

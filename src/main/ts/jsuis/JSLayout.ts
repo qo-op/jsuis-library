@@ -22,8 +22,9 @@ class JSLayout {
     static LEFT: string = "left";
     static BOTTOM: string = "bottom";
     static RIGHT: string = "right";
-    static JUSTIFY: string = "justify";
     static LEFT_RIGHT: string = "left_right";
+    static TOP_BOTTOM: string = "top_bottom";
+    static JUSTIFY: string = "justify";
     // static CENTER: string = "center";
     
     /*
@@ -65,6 +66,9 @@ class JSLayout {
             var layout: JSLayout = container.getLayout();
             if (layout) {
                 layout.layoutContainer(container);
+            } else {
+                container.validateHorizontally();
+                container.validateVertically();
             }
         }
         while (container = containers.shift()) {
@@ -136,9 +140,19 @@ class JSLayout {
             if (!component.isDisplayable()) {
                 continue;
             }
-            var layout: JSLayout = component.getLayout();
-            if (layout) {
-                component.setWidth(layout.preferredLayoutWidth(component));
+            component.setValidHorizontally(false);
+        }
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentLayout: JSLayout = component.getLayout();
+            if (componentLayout) {
+                component.setOuterWidth(component.getPreferredOuterWidth());
+                component.setStyle("position", "relative");
+            } else {
+                component.validateHorizontally();
             }
         }
         container.setValidHorizontally(true);
@@ -154,9 +168,19 @@ class JSLayout {
             if (!component.isDisplayable()) {
                 continue;
             }
-            var layout: JSLayout = component.getLayout();
-            if (layout) {
-                component.setHeight(layout.preferredLayoutHeight(component));
+            component.setValidVertically(false);
+        }
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentLayout: JSLayout = component.getLayout();
+            if (componentLayout) {
+                component.setOuterHeight(component.getPreferredOuterHeight());
+                component.setStyle("position", "relative");
+            } else {
+                component.validateVertically();
             }
         }
         container.setValidVertically(true);

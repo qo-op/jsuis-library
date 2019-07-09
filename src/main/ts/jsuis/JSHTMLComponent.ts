@@ -143,6 +143,8 @@ class JSHTMLComponent extends JSComponent {
         if (layout) {
             return layout.preferredLayoutWidth(this);
         }
+        this.validateHorizontally();
+        
         var cssWidth: string = this.getStyle("width");
         if (cssWidth) {
             this.removeStyle("width");
@@ -164,6 +166,8 @@ class JSHTMLComponent extends JSComponent {
         if (layout) {
             return layout.preferredLayoutHeight(this);
         }
+        this.validateVertically();
+        
         var cssHeight: string = this.getStyle("height");
         if (cssHeight) {
             this.removeStyle("height");
@@ -277,11 +281,17 @@ class JSHTMLComponent extends JSComponent {
     }
     setHTML(html: string) {
         this.element.innerHTML = html;
+        if (this.isValid()) {
+            this.revalidate();
+        }
     }
     getCursor(): string {
         return this.getStyle("cursor");
     }
     setCursor(cursor: string) {
         this.setStyle("cursor", cursor);
+    }
+    requestFocus(): void {
+        (<HTMLElement> this.element).focus();
     }
 }

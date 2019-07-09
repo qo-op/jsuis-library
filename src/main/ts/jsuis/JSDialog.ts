@@ -28,8 +28,8 @@ class JSDialog extends JSPanel {
         super.add(titlePanel, JSLayout.NORTH);
         
         var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
+        titleLabel.setAlign(JSBorderLayout.LEFT_RIGHT);
         titlePanel.add(titleLabel);
-        titleLabel.setAlign(JSLayout.LEFT_RIGHT);
         
         var closeButton: JSDialogCloseButton = this.getCloseButton();
         titlePanel.add(closeButton, JSLayout.EAST);
@@ -60,13 +60,17 @@ class JSDialog extends JSPanel {
             break;
         default:
         }
+        titleLabel.addMouseListener(new JSDialogMouseListener(this));
+        closeButton.addActionListener(new JSDialogActionListener(this));
     }
+    /*
     init() {
         var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
         titleLabel.addMouseListener(new JSDialogMouseListener(this));
         var closeButton: JSDialogCloseButton = this.getCloseButton();
         closeButton.addActionListener(new JSDialogActionListener(this));
     }
+    */
     getTitlePanel(): JSDialogTitlePanel {
         var titlePanel: JSDialogTitlePanel = this.getData("dialogTitlePanel");
         if (!titlePanel) {

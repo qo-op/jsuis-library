@@ -2,6 +2,7 @@ package jsuis.jsuislibrary;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -34,5 +35,9 @@ public class Test {
 		frame.invalidate();
 		
 		new JPanel().isValidateRoot();
+		
+		new JLabel().setText("Hello, World!");
+		
+		new JPanel().getPreferredSize();
 	}
 }

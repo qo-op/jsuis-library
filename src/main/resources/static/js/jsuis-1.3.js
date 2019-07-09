@@ -338,6 +338,7 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setUI = function (ui) {
         this.setClass(ui);
+        this.addClass(this.constructor.name);
     };
     JSComponent.prototype.getX = function () {
         return this.x;
@@ -533,42 +534,48 @@ var JSComponent = (function () {
     JSComponent.prototype.setValidVertically = function (validVertically) {
         this.validVertically = validVertically;
     };
-    JSComponent.prototype.invalidate = function () {
+    JSComponent.prototype.invalidate = function (container) {
         this.setValid(false);
-        this.invalidateParent();
+        if (this !== container) {
+            this.invalidateParent.apply(this, arguments);
+        }
     };
-    JSComponent.prototype.invalidateHorizontally = function () {
+    JSComponent.prototype.invalidateHorizontally = function (container) {
         this.setValidHorizontally(false);
-        this.invalidateParentHorizontally();
+        if (this !== container) {
+            this.invalidateParentHorizontally.apply(this, arguments);
+        }
     };
-    JSComponent.prototype.invalidateVertically = function () {
+    JSComponent.prototype.invalidateVertically = function (container) {
         this.setValidVertically(false);
-        this.invalidateParentVertically();
+        if (this !== container) {
+            this.invalidateParentVertically.apply(this, arguments);
+        }
     };
     JSComponent.prototype.isValidateRoot = function () {
         return false;
     };
-    JSComponent.prototype.invalidateParent = function () {
+    JSComponent.prototype.invalidateParent = function (container) {
         if (!this.isValidateRoot()) {
             var parent = this.getParent();
             if (parent) {
-                parent.invalidate();
+                parent.invalidate.apply(parent, arguments);
             }
         }
     };
-    JSComponent.prototype.invalidateParentHorizontally = function () {
+    JSComponent.prototype.invalidateParentHorizontally = function (container) {
         if (!this.isValidateRoot()) {
             var parent = this.getParent();
             if (parent) {
-                parent.invalidateHorizontally();
+                parent.invalidateHorizontally.apply(parent, arguments);
             }
         }
     };
-    JSComponent.prototype.invalidateParentVertically = function () {
+    JSComponent.prototype.invalidateParentVertically = function (container) {
         if (!this.isValidateRoot()) {
             var parent = this.getParent();
             if (parent) {
-                parent.invalidateVertically();
+                parent.invalidateVertically.apply(parent, arguments);
             }
         }
     };
@@ -579,6 +586,14 @@ var JSComponent = (function () {
     JSComponent.prototype.validateHorizontally = function () {
         var validHorizontally = this.isValidHorizontally();
         if (!validHorizontally) {
+            var components = this.getComponents();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                component.setValidHorizontally(false);
+            }
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerHorizontally(this);
@@ -586,28 +601,45 @@ var JSComponent = (function () {
                 if (!validHorizontally) {
                     JSLayout.validateLater(this);
                 }
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    component.validateHorizontally();
+                }
             }
             else {
-                this.setValidHorizontally(true);
                 var components = this.getComponents();
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentLayout = component.getLayout();
                     if (componentLayout) {
                         component.setOuterWidth(component.getPreferredOuterWidth());
                         component.setStyle("position", "relative");
                     }
                     else {
-                        component.setValidHorizontally(false);
                         component.validateHorizontally();
                     }
                 }
+                this.setValidHorizontally(true);
             }
         }
     };
     JSComponent.prototype.validateVertically = function () {
         var validVertically = this.isValidVertically();
         if (!validVertically) {
+            var components = this.getComponents();
+            for (var i = 0; i < components.length; i++) {
+                var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                component.setValidVertically(false);
+            }
             var layout = this.getLayout();
             if (layout) {
                 layout.layoutContainerVertically(this);
@@ -615,71 +647,95 @@ var JSComponent = (function () {
                 if (!validVertically) {
                     JSLayout.validateLater(this);
                 }
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    component.validateVertically();
+                }
             }
             else {
-                this.setValidVertically(true);
                 var components = this.getComponents();
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentLayout = component.getLayout();
                     if (componentLayout) {
                         component.setOuterHeight(component.getPreferredOuterHeight());
                         component.setStyle("position", "relative");
                     }
                     else {
-                        component.setValidVertically(false);
                         component.validateVertically();
                     }
                 }
+                this.setValidVertically(true);
             }
         }
     };
-    JSComponent.prototype.revalidate = function () {
-        this.invalidate();
-        var parent = this.getParent();
-        if (!parent) {
+    JSComponent.prototype.revalidate = function (container) {
+        this.invalidate.apply(this, arguments);
+        if (this === container) {
             this.validate();
         }
         else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
-                }
-                parent = parent.getParent();
+            var parent = this.getParent();
+            if (!parent) {
+                this.validate();
             }
-            parent.validate();
+            else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+                parent.validate();
+            }
         }
     };
-    JSComponent.prototype.revalidateHorizontally = function () {
-        this.invalidateHorizontally();
-        var parent = this.getParent();
-        if (!parent) {
-            this.validateHorizontally();
+    JSComponent.prototype.revalidateHorizontally = function (container) {
+        this.invalidateHorizontally.apply(this, arguments);
+        if (this === container) {
+            this.validate();
         }
         else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
-                }
-                parent = parent.getParent();
+            var parent = this.getParent();
+            if (!parent) {
+                this.validateHorizontally();
             }
-            parent.validateHorizontally();
+            else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+                parent.validateHorizontally();
+            }
         }
     };
-    JSComponent.prototype.revalidateVertically = function () {
-        this.invalidateVertically();
-        var parent = this.getParent();
-        if (!parent) {
-            this.validateVertically();
+    JSComponent.prototype.revalidateVertically = function (container) {
+        this.invalidateVertically.apply(this, arguments);
+        if (this === container) {
+            this.validate();
         }
         else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
-                }
-                parent = parent.getParent();
+            var parent = this.getParent();
+            if (!parent) {
+                this.validateVertically();
             }
-            parent.validateVertically();
+            else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+                parent.validateVertically();
+            }
         }
     };
     JSComponent.prototype.isVisible = function () {
@@ -767,6 +823,38 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setAlign = function (align) {
         this.align = align;
+    };
+    JSComponent.prototype.getHorizontalAlign = function () {
+        if (this.horizontalAlign) {
+            return this.horizontalAlign;
+        }
+        var align = this.getAlign();
+        if (!align || align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.CENTER || align === JSLayout.LEFT_RIGHT || align === JSLayout.JUSTIFY) {
+            return align;
+        }
+        if (align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.TOP_BOTTOM) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    };
+    JSComponent.prototype.setHorizontalAlign = function (horizontalAlign) {
+        this.horizontalAlign = horizontalAlign;
+    };
+    JSComponent.prototype.getVerticalAlign = function () {
+        if (this.verticalAlign) {
+            return this.verticalAlign;
+        }
+        var align = this.getAlign();
+        if (!align || align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.CENTER || align === JSLayout.TOP_BOTTOM) {
+            return align;
+        }
+        if (align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.LEFT_RIGHT) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    };
+    JSComponent.prototype.setVerticalAlignment = function (verticalAlign) {
+        this.verticalAlign = verticalAlign;
     };
     JSComponent.prototype.getText = function () {
         return "";
@@ -866,6 +954,8 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setEditable = function (contenteditable) {
         this.setAttribute("contenteditable", "" + contenteditable);
+    };
+    JSComponent.prototype.requestFocus = function () {
     };
     JSComponent.prototype.addEventListener = function (event, listener, useCapture) {
         this.element.addEventListener(event, listener, !!useCapture);
@@ -1663,6 +1753,10 @@ var JSLayout = (function () {
             if (layout) {
                 layout.layoutContainer(container);
             }
+            else {
+                container.validateHorizontally();
+                container.validateVertically();
+            }
         }
         while (container = containers.shift()) {
             var validHorizontally = container.isValidHorizontally();
@@ -1723,9 +1817,20 @@ var JSLayout = (function () {
             if (!component.isDisplayable()) {
                 continue;
             }
-            var layout = component.getLayout();
-            if (layout) {
-                component.setWidth(layout.preferredLayoutWidth(component));
+            component.setValidHorizontally(false);
+        }
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentLayout = component.getLayout();
+            if (componentLayout) {
+                component.setOuterWidth(component.getPreferredOuterWidth());
+                component.setStyle("position", "relative");
+            }
+            else {
+                component.validateHorizontally();
             }
         }
         container.setValidHorizontally(true);
@@ -1740,9 +1845,20 @@ var JSLayout = (function () {
             if (!component.isDisplayable()) {
                 continue;
             }
-            var layout = component.getLayout();
-            if (layout) {
-                component.setHeight(layout.preferredLayoutHeight(component));
+            component.setValidVertically(false);
+        }
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            var componentLayout = component.getLayout();
+            if (componentLayout) {
+                component.setOuterHeight(component.getPreferredOuterHeight());
+                component.setStyle("position", "relative");
+            }
+            else {
+                component.validateVertically();
             }
         }
         container.setValidVertically(true);
@@ -1756,8 +1872,9 @@ var JSLayout = (function () {
     JSLayout.LEFT = "left";
     JSLayout.BOTTOM = "bottom";
     JSLayout.RIGHT = "right";
-    JSLayout.JUSTIFY = "justify";
     JSLayout.LEFT_RIGHT = "left_right";
+    JSLayout.TOP_BOTTOM = "top_bottom";
+    JSLayout.JUSTIFY = "justify";
     JSLayout.HORIZONTAL = "horizontal";
     JSLayout.VERTICAL = "vertical";
     JSLayout.BOTH = "both";
@@ -1999,17 +2116,17 @@ var JSMouseListener = (function () {
 }());
 var JSProperties = (function () {
     function JSProperties() {
-        this.setProperties({});
+        this.setKeyValuePairs({});
     }
-    JSProperties.prototype.getProperties = function () {
-        return this.properties;
+    JSProperties.prototype.getKeyValuePairs = function () {
+        return this.keyValuePairs;
     };
-    JSProperties.prototype.setProperties = function (properties) {
-        this.properties = properties;
+    JSProperties.prototype.setKeyValuePairs = function (keyValuePairs) {
+        this.keyValuePairs = keyValuePairs;
     };
     JSProperties.prototype.getProperty = function () {
         var value;
-        var properties = this.getProperties();
+        var properties = this.getKeyValuePairs();
         switch (arguments.length) {
             case 1:
                 if (typeof arguments[0] === "string") {
@@ -2031,10 +2148,14 @@ var JSProperties = (function () {
         return value;
     };
     JSProperties.prototype.setProperty = function (key, value) {
-        var properties = this.getProperties();
+        var properties = this.getKeyValuePairs();
         properties[key] = value;
     };
-    JSProperties.prototype.load = function () {
+    JSProperties.prototype.load = function (properties) {
+        var keyValuePairs = properties.getKeyValuePairs();
+        for (var key in keyValuePairs) {
+            this.setProperty(key, keyValuePairs[key]);
+        }
     };
     return JSProperties;
 }());
@@ -2643,16 +2764,17 @@ var JSBorderLayout = (function (_super) {
             if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
-            var align = component.getAlign();
             switch (constraints) {
                 case JSBorderLayout.NORTH:
                 case JSBorderLayout.SOUTH:
-                    switch (align) {
+                    var horizontalAlign = component.getHorizontalAlign();
+                    switch (horizontalAlign) {
                         case JSLayout.LEFT:
                             var componentOuterWidth = component.getPreferredOuterWidth();
                             if (componentOuterWidth === null) {
                                 return;
                             }
+                            componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                             component.setOuterWidth(componentOuterWidth);
                             component.setX(x);
                             break;
@@ -2661,6 +2783,7 @@ var JSBorderLayout = (function (_super) {
                             if (componentOuterWidth === null) {
                                 return;
                             }
+                            componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                             component.setOuterWidth(componentOuterWidth);
                             component.setX(x + width - componentOuterWidth);
                             break;
@@ -2669,6 +2792,7 @@ var JSBorderLayout = (function (_super) {
                             if (componentOuterWidth === null) {
                                 return;
                             }
+                            componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                             component.setOuterWidth(componentOuterWidth);
                             component.setX(x + (width - componentOuterWidth) / 2);
                             break;
@@ -2682,6 +2806,7 @@ var JSBorderLayout = (function (_super) {
                     if (componentOuterWidth === null) {
                         return;
                     }
+                    componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                     component.setOuterWidth(componentOuterWidth);
                     component.setX(x);
                     width -= componentOuterWidth + hgap;
@@ -2692,6 +2817,7 @@ var JSBorderLayout = (function (_super) {
                     if (componentOuterWidth === null) {
                         return;
                     }
+                    componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                     component.setOuterWidth(componentOuterWidth);
                     component.setX(x + width - componentOuterWidth);
                     width -= componentOuterWidth + hgap;
@@ -2706,32 +2832,14 @@ var JSBorderLayout = (function (_super) {
             }
             var constraints = component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
-                var align = component.getAlign();
-                switch (align) {
-                    case JSLayout.TOP:
-                        var componentOuterWidth = component.getPreferredOuterWidth();
-                        if (componentOuterWidth === null) {
-                            return;
-                        }
-                        componentOuterWidth = Math.min(componentOuterWidth, width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        break;
-                    case JSLayout.BOTTOM:
-                        var componentOuterWidth = component.getPreferredOuterWidth();
-                        if (componentOuterWidth === null) {
-                            return;
-                        }
-                        componentOuterWidth = Math.min(componentOuterWidth, width);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        break;
+                var horizontalAlign = component.getHorizontalAlign();
+                switch (horizontalAlign) {
                     case JSLayout.LEFT:
                         var componentOuterWidth = component.getPreferredOuterWidth();
                         if (componentOuterWidth === null) {
                             return;
                         }
-                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                         component.setOuterWidth(componentOuterWidth);
                         component.setX(x);
                         break;
@@ -2740,22 +2848,21 @@ var JSBorderLayout = (function (_super) {
                         if (componentOuterWidth === null) {
                             return;
                         }
-                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                         component.setOuterWidth(componentOuterWidth);
                         component.setX(x + width - componentOuterWidth);
                         break;
                     case JSLayout.CENTER:
+                    case JSLayout.TOP:
+                    case JSLayout.BOTTOM:
+                    case JSLayout.TOP_BOTTOM:
                         var componentOuterWidth = component.getPreferredOuterWidth();
                         if (componentOuterWidth === null) {
                             return;
                         }
-                        componentOuterWidth = Math.min(componentOuterWidth, width);
+                        componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
                         component.setOuterWidth(componentOuterWidth);
                         component.setX(x + (width - componentOuterWidth) / 2);
-                        break;
-                    case JSLayout.LEFT_RIGHT:
-                        component.setOuterWidth(width);
-                        component.setX(x);
                         break;
                     default:
                         component.setOuterWidth(width);
@@ -2782,13 +2889,13 @@ var JSBorderLayout = (function (_super) {
             if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
-            var align = component.getAlign();
             switch (constraints) {
                 case JSBorderLayout.NORTH:
                     var componentOuterHeight = component.getPreferredOuterHeight();
                     if (componentOuterHeight === null) {
                         return;
                     }
+                    componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                     component.setOuterHeight(componentOuterHeight);
                     component.setY(y);
                     height -= componentOuterHeight + vgap;
@@ -2799,18 +2906,21 @@ var JSBorderLayout = (function (_super) {
                     if (componentOuterHeight === null) {
                         return;
                     }
+                    componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                     component.setOuterHeight(componentOuterHeight);
                     component.setY(y + height - componentOuterHeight);
                     height -= componentOuterHeight + vgap;
                     break;
                 case JSBorderLayout.WEST:
                 case JSBorderLayout.EAST:
-                    switch (align) {
+                    var verticalAlignment = component.getVerticalAlign();
+                    switch (verticalAlignment) {
                         case JSLayout.TOP:
                             var componentOuterHeight = component.getPreferredOuterHeight();
                             if (componentOuterHeight === null) {
                                 return;
                             }
+                            componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                             component.setOuterHeight(componentOuterHeight);
                             component.setY(y);
                             break;
@@ -2819,6 +2929,7 @@ var JSBorderLayout = (function (_super) {
                             if (componentOuterHeight === null) {
                                 return;
                             }
+                            componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                             component.setOuterHeight(componentOuterHeight);
                             component.setY(y + height - componentOuterHeight);
                             break;
@@ -2827,6 +2938,7 @@ var JSBorderLayout = (function (_super) {
                             if (componentOuterHeight === null) {
                                 return;
                             }
+                            componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                             component.setOuterHeight(componentOuterHeight);
                             component.setY(y + (height - componentOuterHeight) / 2);
                             break;
@@ -2845,14 +2957,14 @@ var JSBorderLayout = (function (_super) {
             }
             var constraints = component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
-                var align = component.getAlign();
-                switch (align) {
+                var verticalAlignment = component.getVerticalAlign();
+                switch (verticalAlignment) {
                     case JSLayout.TOP:
                         var componentOuterHeight = component.getPreferredOuterHeight();
                         if (componentOuterHeight === null) {
                             return;
                         }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                         component.setOuterHeight(componentOuterHeight);
                         component.setY(y);
                         break;
@@ -2861,43 +2973,19 @@ var JSBorderLayout = (function (_super) {
                         if (componentOuterHeight === null) {
                             return;
                         }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                         component.setOuterHeight(componentOuterHeight);
                         component.setY(y + height - componentOuterHeight);
                         break;
-                    case JSLayout.LEFT:
-                        var componentOuterHeight = component.getPreferredOuterHeight();
-                        if (componentOuterHeight === null) {
-                            return;
-                        }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    case JSLayout.RIGHT:
-                        var componentOuterHeight = component.getPreferredOuterHeight();
-                        if (componentOuterHeight === null) {
-                            return;
-                        }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
                     case JSLayout.CENTER:
-                        var componentOuterHeight = component.getPreferredOuterHeight();
-                        if (componentOuterHeight === null) {
-                            return;
-                        }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
+                    case JSLayout.LEFT:
+                    case JSLayout.RIGHT:
                     case JSLayout.LEFT_RIGHT:
                         var componentOuterHeight = component.getPreferredOuterHeight();
                         if (componentOuterHeight === null) {
                             return;
                         }
-                        componentOuterHeight = Math.min(componentOuterHeight, height);
+                        componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
                         component.setOuterHeight(componentOuterHeight);
                         component.setY(y + (height - componentOuterHeight) / 2);
                         break;
@@ -2998,15 +3086,21 @@ var JSCardLayout = (function (_super) {
         }
         if (selected) {
             selected.setVisible(false);
+            selected.setStyle("display", "none");
         }
         else {
             var components = container.getComponents();
             for (var i = 0; i < components.length; i++) {
                 components[i].setVisible(false);
+                components[i].setStyle("display", "none");
             }
         }
         if (component) {
             component.setVisible(true);
+            component.setStyle("display", "");
+            if (container.isValid()) {
+                component.revalidate();
+            }
         }
         this.selected = component;
     };
@@ -3054,6 +3148,11 @@ var JSCardLayout = (function (_super) {
                         }
                     }
                 }
+                else if (arguments[0] instanceof JSComponent && arguments[1] instanceof JSComponent) {
+                    var container = arguments[0];
+                    var component = arguments[1];
+                    this.setSelected(container, component);
+                }
                 break;
             default:
         }
@@ -3081,6 +3180,12 @@ var JSFlowLayout = (function (_super) {
                     var align = arguments[1];
                     _this.setBorder(border);
                     _this.setAlign(align);
+                }
+                else if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
+                    var hgap = arguments[0];
+                    var vgap = arguments[1];
+                    _this.setHgap(hgap);
+                    _this.setVgap(vgap);
                 }
                 break;
             case 3:
@@ -3533,6 +3638,9 @@ var JSFlowLayout = (function (_super) {
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
                     continue;
@@ -3550,6 +3658,9 @@ var JSFlowLayout = (function (_super) {
             }
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
                     continue;
@@ -3580,6 +3691,9 @@ var JSFlowLayout = (function (_super) {
         else {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
                     continue;
@@ -3623,6 +3737,9 @@ var JSFlowLayout = (function (_super) {
                 var extraHorizontalSpace = width - rowWidth;
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentAlign = component.getAlign();
                     if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                         continue;
@@ -3636,6 +3753,9 @@ var JSFlowLayout = (function (_super) {
             else {
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentAlign = component.getAlign();
                     if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                         continue;
@@ -3656,6 +3776,9 @@ var JSFlowLayout = (function (_super) {
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign !== JSFlowLayout.TOP && componentAlign !== JSFlowLayout.BOTTOM) {
                     continue;
@@ -3695,6 +3818,9 @@ var JSFlowLayout = (function (_super) {
             }
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
                     continue;
@@ -3718,6 +3844,9 @@ var JSFlowLayout = (function (_super) {
         else {
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign !== JSFlowLayout.LEFT && componentAlign !== JSFlowLayout.RIGHT) {
                     continue;
@@ -3735,6 +3864,9 @@ var JSFlowLayout = (function (_super) {
             }
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
                 var componentAlign = component.getAlign();
                 if (componentAlign === JSFlowLayout.LEFT || componentAlign === JSFlowLayout.RIGHT) {
                     continue;
@@ -3907,6 +4039,7 @@ var JSHTMLComponent = (function (_super) {
         if (layout) {
             return layout.preferredLayoutWidth(this);
         }
+        this.validateHorizontally();
         var cssWidth = this.getStyle("width");
         if (cssWidth) {
             this.removeStyle("width");
@@ -3926,6 +4059,7 @@ var JSHTMLComponent = (function (_super) {
         if (layout) {
             return layout.preferredLayoutHeight(this);
         }
+        this.validateVertically();
         var cssHeight = this.getStyle("height");
         if (cssHeight) {
             this.removeStyle("height");
@@ -4036,12 +4170,18 @@ var JSHTMLComponent = (function (_super) {
     };
     JSHTMLComponent.prototype.setHTML = function (html) {
         this.element.innerHTML = html;
+        if (this.isValid()) {
+            this.revalidate();
+        }
     };
     JSHTMLComponent.prototype.getCursor = function () {
         return this.getStyle("cursor");
     };
     JSHTMLComponent.prototype.setCursor = function (cursor) {
         this.setStyle("cursor", cursor);
+    };
+    JSHTMLComponent.prototype.requestFocus = function () {
+        this.element.focus();
     };
     return JSHTMLComponent;
 }(JSComponent));
@@ -4188,8 +4328,7 @@ var JSScrollPaneLayout = (function (_super) {
         }
         var view = container.getViewportView();
         if (view) {
-            var width = container.element.clientWidth;
-            view.setWidth(view.getPreferredWidth());
+            view.setOuterWidth(view.getPreferredOuterWidth());
         }
         container.setValidHorizontally(true);
     };
@@ -4199,8 +4338,7 @@ var JSScrollPaneLayout = (function (_super) {
         }
         var view = container.getViewportView();
         if (view) {
-            var height = container.element.clientHeight;
-            view.setHeight(view.getPreferredHeight());
+            view.setOuterHeight(view.getPreferredOuterHeight());
         }
         container.setValidVertically(true);
     };
@@ -4328,12 +4466,24 @@ var JSTableLayout = (function (_super) {
     JSTableLayout.prototype.preferredLayoutWidth = function (container) {
         var table = container;
         var tableContent = table.getTableContent();
-        return tableContent.getPreferredOuterWidth();
+        var verticalScrollBar = table.getVerticalScrollBar();
+        if (verticalScrollBar.isVisible()) {
+            return tableContent.getPreferredOuterWidth() + verticalScrollBar.getPreferredOuterWidth();
+        }
+        else {
+            return tableContent.getPreferredOuterWidth();
+        }
     };
     JSTableLayout.prototype.preferredLayoutHeight = function (container) {
         var table = container;
         var tableContent = table.getTableContent();
-        return tableContent.getPreferredOuterHeight();
+        var horizontalScrollBar = table.getHorizontalScrollBar();
+        if (horizontalScrollBar.isVisible()) {
+            return tableContent.getPreferredOuterHeight() + horizontalScrollBar.getPreferredOuterHeight();
+        }
+        else {
+            return tableContent.getPreferredOuterHeight();
+        }
     };
     JSTableLayout.prototype.layoutContainerHorizontally = function (container) {
         if (container.isValidHorizontally()) {
@@ -4483,7 +4633,7 @@ var JSTreeLayout = (function (_super) {
         var treeCells = tree.getTreeCells();
         for (var treePath in treeCells) {
             var treeCell = treeCells[treePath];
-            var treeCellPreferredWidth = treeCell.getPreferredWidth();
+            var treeCellPreferredWidth = treeCell.getPreferredOuterWidth();
             if (treeCellPreferredWidth === null) {
                 return null;
             }
@@ -4520,6 +4670,8 @@ var JSBody = (function (_super) {
         _this.add(dialogContainer, JSBorderLayout.NORTH);
         var modal = _this.getModal();
         dialogContainer.add(modal);
+        var frameContainer = _this.getFrameContainer();
+        _this.add(frameContainer);
         _this.addMouseListener(new JSBodyMouseListener(), true);
         window.addEventListener("resize", function () {
             JSBody.getInstance().revalidate();
@@ -4532,29 +4684,36 @@ var JSBody = (function (_super) {
         }
         return JSBody.instance;
     };
-    JSBody.prototype.getFrame = function () {
-        var frame = this.getData("frame");
-        if (!frame) {
-            var element = this.getChild("JSFrame");
+    JSBody.prototype.getFrameContainer = function () {
+        var frameContainer = this.getData("frameContainer");
+        if (!frameContainer) {
+            var element = this.getChild("JSBodyFrameContainer");
             if (element) {
-                frame = new JSFrame(element);
-                this.setData("frame", frame);
+                frameContainer = new JSBodyFrameContainer(element);
             }
+            else {
+                frameContainer = new JSBodyFrameContainer();
+            }
+            this.setData("frameContainer", frameContainer);
         }
-        return frame;
+        return frameContainer;
+    };
+    JSBody.prototype.getFrame = function () {
+        return this.getData("frame");
     };
     JSBody.prototype.setFrame = function (frame) {
-        var oldFrame = this.getData("frame");
-        if (oldFrame === frame) {
-            return;
-        }
-        if (oldFrame) {
-            this.remove(oldFrame);
-        }
+        var frameContainer = this.getFrameContainer();
+        frameContainer.removeAll();
         if (frame) {
-            this.add(frame);
+            frameContainer.add(frame);
         }
         this.setData("frame", frame);
+    };
+    JSBody.prototype.addFrame = function (frame) {
+        var frameContainer = this.getFrameContainer();
+        if (frame) {
+            frameContainer.add(frame);
+        }
     };
     JSBody.prototype.getDragContainer = function () {
         var dragContainer = this.getData("dragContainer");
@@ -4633,15 +4792,7 @@ var JSBody = (function (_super) {
             }
             if (popupMenu) {
                 popupMenuContainer.add(popupMenu);
-                var popupMenuLayout = popupMenu.getLayout();
-                if (popupMenuLayout) {
-                    popupMenu.setWidth(this.getWidth());
-                    popupMenu.setHeight(this.getHeight());
-                    popupMenu.revalidate();
-                }
-                popupMenu.setWidth(popupMenu.getPreferredWidth());
-                popupMenu.setHeight(popupMenu.getPreferredHeight());
-                popupMenu.revalidate();
+                popupMenu.revalidate(popupMenuContainer);
             }
         }
         this.popupMenu = popupMenu;
@@ -4691,15 +4842,8 @@ var JSBody = (function (_super) {
                     this.getModal().setStyle("display", "");
                 }
                 dialogContainer.add(dialog);
-                var dialogLayout = dialog.getLayout();
-                if (dialogLayout) {
-                    dialog.setWidth(this.getWidth());
-                    dialog.setHeight(this.getHeight());
-                    dialog.revalidate();
-                }
-                dialog.setWidth(dialog.getPreferredWidth());
-                dialog.setHeight(dialog.getPreferredHeight());
-                dialog.revalidate();
+                dialog.revalidate(dialogContainer);
+                console.log("dialog.getWidth():" + dialog.getWidth());
                 dialog.setX(dialog.getX() || (this.getWidth() - dialog.getWidth()) / 2);
                 dialog.setY(dialog.getY() || (this.getHeight() - dialog.getHeight()) / 2);
             }
@@ -4830,6 +4974,9 @@ var JSButton = (function (_super) {
         var layout = this.getLayout();
         layout.setHgap(iconTextGap);
         layout.setVgap(iconTextGap);
+        if (this.isValid()) {
+            this.revalidate();
+        }
     };
     JSButton.prototype.getVerticalTextPosition = function () {
         return this.getData("verticalTextPosition") || JSButton.CENTER;
@@ -4847,6 +4994,9 @@ var JSButton = (function (_super) {
             case JSButton.CENTER:
             default:
                 graphics.setConstraints(JSBorderLayout.WEST);
+        }
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSButton.prototype.isUndecorated = function () {
@@ -5087,6 +5237,20 @@ var JSDiv = (function (_super) {
         _this.setUI("JSDiv");
         return _this;
     }
+    JSDiv.prototype.getWidth = function () {
+        var parent = this.getParent();
+        if (parent) {
+            var boxSizing = this.getComputedStyle("box-sizing");
+            if (boxSizing === "border-box") {
+                return parent.getWidth();
+            }
+            else {
+                return parent.getWidth() - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
+                    this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight();
+            }
+        }
+        return _super.prototype.getWidth.call(this);
+    };
     JSDiv.prototype.setWidth = function (width) {
         this.setValidHorizontally(false);
         this.validateHorizontally();
@@ -5190,7 +5354,7 @@ var JSFrame = (function (_super) {
         _this.setUI("JSFrame");
         _this.setVisible(false);
         var body = JSBody.getInstance();
-        body.setFrame(_this);
+        body.addFrame(_this);
         _super.prototype.setLayout.call(_this, new JSBorderLayout());
         var contentPane = _this.getContentPane();
         _super.prototype.add.call(_this, contentPane);
@@ -5290,6 +5454,7 @@ var JSFrame = (function (_super) {
     JSFrame.prototype.setVisible = function (visible) {
         if (visible) {
             var body = JSBody.getInstance();
+            body.setFrame(this);
             body.revalidate();
         }
         _super.prototype.setVisible.call(this, visible);
@@ -5898,6 +6063,7 @@ var JSLabelText = (function (_super) {
     function JSLabelText() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLLabelElement) ? document.createElement("label") : arguments[0]) || this;
         _this.setUI("JSLabelText");
+        _this.setStyle("display", "none");
         return _this;
     }
     return JSLabelText;
@@ -5907,8 +6073,9 @@ var JSLabel = (function (_super) {
     function JSLabel() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLabel");
+        _this.setLayout(new JSBorderLayout(4, 4));
         var graphics = _this.getGraphics();
-        _this.add(graphics);
+        _this.add(graphics, JSBorderLayout.WEST);
         var textComponent = _this.getTextComponent();
         _this.add(textComponent);
         switch (arguments.length) {
@@ -5986,22 +6153,10 @@ var JSLabel = (function (_super) {
     };
     JSLabel.prototype.setIcon = function (icon) {
         _super.prototype.setIcon.call(this, icon);
-        var text = this.getText();
         var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSLabel.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSLabel.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSLabel.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        graphics.setStyle("display", icon ? "" : "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSLabel.prototype.getText = function () {
@@ -6011,87 +6166,69 @@ var JSLabel = (function (_super) {
     JSLabel.prototype.setText = function (text) {
         var textComponent = this.getTextComponent();
         textComponent.setText(text);
-        var icon = this.getIcon();
-        var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSLabel.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSLabel.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSLabel.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+        textComponent.setStyle("display", text ? "" : "none");
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSLabel.prototype.getIconTextGap = function () {
-        return this.getData("iconTextGap") || 4;
+        var layout = this.getLayout();
+        return layout.getHgap() || layout.getVgap();
     };
     JSLabel.prototype.setIconTextGap = function (iconTextGap) {
-        this.setData("iconTextGap", iconTextGap);
-        var icon = this.getIcon();
-        if (icon) {
-            var text = this.getText();
-            if (text) {
-                var graphics = this.getGraphics();
-                var verticalTextPosition = this.getVerticalTextPosition();
-                switch (verticalTextPosition) {
-                    case JSLabel.TOP:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-top", this.getIconTextGap() + "px");
-                        break;
-                    case JSLabel.BOTTOM:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
-                        break;
-                    case JSLabel.CENTER:
-                    default:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-right", this.getIconTextGap() + "px");
-                }
-            }
+        var layout = this.getLayout();
+        layout.setHgap(iconTextGap);
+        layout.setVgap(iconTextGap);
+        if (this.isValid()) {
+            this.revalidate();
         }
     };
     JSLabel.prototype.getHorizontalAlignment = function () {
-        return this.getData("horizontalAlignment");
+        var textComponent = this.getTextComponent();
+        return textComponent.getHorizontalAlign();
     };
     JSLabel.prototype.setHorizontalAlignment = function (horizontalAlignment) {
-        this.setData("horizontalAlignment", horizontalAlignment);
-        this.setStyle("text-align", horizontalAlignment);
+        var textComponent = this.getTextComponent();
+        textComponent.setHorizontalAlign(horizontalAlignment);
     };
     JSLabel.prototype.getVerticalTextPosition = function () {
         return this.getData("verticalTextPosition") || JSLabel.CENTER;
     };
     JSLabel.prototype.setVerticalTextPosition = function (verticalTextPosition) {
         this.setData("verticalTextPosition", verticalTextPosition);
-        var text = this.getText();
-        var icon = this.getIcon();
         var graphics = this.getGraphics();
         switch (verticalTextPosition) {
             case JSLabel.TOP:
-                graphics.removeClass("top");
-                graphics.addClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.SOUTH);
                 break;
             case JSLabel.BOTTOM:
-                graphics.removeClass("bottom");
-                graphics.addClass("top");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.NORTH);
                 break;
             case JSLabel.CENTER:
             default:
-                graphics.removeClass("top");
-                graphics.removeClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
+                graphics.setConstraints(JSBorderLayout.WEST);
         }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    };
+    JSLabel.prototype.getPreferredWidth = function () {
+        var whiteSpace = this.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
+        if (whiteSpace) {
+            this.setStyle("white-space", whiteSpace);
+        }
+        else {
+            this.removeStyle("white-space");
+        }
+        return preferredWidth;
+    };
+    JSLabel.prototype.getPreferredHeight = function () {
+        if (!this.isValidHorizontally()) {
+            return null;
+        }
+        return _super.prototype.getPreferredHeight.call(this);
     };
     return JSLabel;
 }(JSHTMLComponent));
@@ -6216,6 +6353,24 @@ var JSParagraph = (function (_super) {
         }
         return _this;
     }
+    JSParagraph.prototype.getPreferredWidth = function () {
+        var whiteSpace = this.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
+        if (whiteSpace) {
+            this.setStyle("white-space", whiteSpace);
+        }
+        else {
+            this.removeStyle("white-space");
+        }
+        return preferredWidth;
+    };
+    JSParagraph.prototype.getPreferredHeight = function () {
+        if (!this.isValidHorizontally()) {
+            return null;
+        }
+        return _super.prototype.getPreferredHeight.call(this);
+    };
     return JSParagraph;
 }(JSHTMLComponent));
 var JSPanel = (function (_super) {
@@ -7306,16 +7461,16 @@ var JSTextField = (function (_super) {
         return _this;
     }
     JSTextField.prototype.getColumns = function () {
-        return +this.getAttribute("size");
+        return this.element.size;
     };
     JSTextField.prototype.setColumns = function (columns) {
-        this.setAttribute("size", "" + columns);
+        this.element.size = columns;
     };
     JSTextField.prototype.getText = function () {
-        return this.getAttribute("value");
+        return this.element.value;
     };
     JSTextField.prototype.setText = function (text) {
-        this.setAttribute("value", text);
+        this.element.value = text;
     };
     return JSTextField;
 }(JSHTMLComponent));
@@ -7324,8 +7479,9 @@ var JSTreeCell = (function (_super) {
     function JSTreeCell() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTreeCell");
+        _this.setLayout(new JSBorderLayout());
         var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics);
+        _super.prototype.add.call(_this, graphics, JSBorderLayout.WEST);
         var label = _this.getLabel();
         _this.add(label);
         switch (arguments.length) {
@@ -7373,6 +7529,7 @@ var JSTreeCell = (function (_super) {
                             treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
                             container.setStyle("display", "");
                         }
+                        treeCell.revalidate();
                         mouseEvent.stopPropagation();
                     }
                 }).withParameters(this);
@@ -7397,7 +7554,6 @@ var JSTreeCell = (function (_super) {
         }
         if (icon) {
             var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
             label.setX(-icon.getIconWidth());
         }
     };
@@ -7418,7 +7574,6 @@ var JSTreeCell = (function (_super) {
         }
         if (icon) {
             var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
             label.setX(-icon.getIconWidth());
         }
     };
@@ -7435,33 +7590,6 @@ var JSTreeCell = (function (_super) {
             this.setData("graphics", graphics);
         }
         return graphics;
-    };
-    JSTreeCell.prototype.getPreferredWidth = function () {
-        var label = this.getLabel();
-        var closedIcon = this.getClosedIcon();
-        var openIcon = this.getOpenIcon();
-        if (closedIcon) {
-            return label.getPreferredOuterWidth() + closedIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else if (openIcon) {
-            return label.getPreferredOuterWidth() + openIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else {
-            return label.getPreferredOuterWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-    };
-    JSTreeCell.prototype.getButton = function () {
-        return this.getData("button");
-    };
-    JSTreeCell.prototype.setButton = function (button) {
-        var oldButton = this.getData("button");
-        if (oldButton) {
-            this.remove(oldButton);
-        }
-        if (button) {
-            this.add(button, null, 0);
-        }
-        this.setData("button", button);
     };
     JSTreeCell.prototype.getLabel = function () {
         var label = this.getData("label");
@@ -7501,12 +7629,10 @@ var JSTreeCell = (function (_super) {
     JSTreeCell.prototype.setContainer = function (container) {
         this.setData("container", container);
     };
-    JSTreeCell.COLLAPSED_PATH_DEFINITION = "M4.17,2.34L9.83,8L4.17,13.66Z";
-    JSTreeCell.EXPANDED_PATH_DEFINITION = "M10,4L10,12L2,12Z";
-    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16).withFill("gray");
-    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withFill("gray");
+    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon("M4.17,2.34L9.83,8L4.17,13.66Z", 16, 16).withFill("gray");
+    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon("M10,4L10,12L2,12Z", 16, 16).withFill("gray");
     return JSTreeCell;
-}(JSHTMLComponent));
+}(JSDiv));
 var JSBodyDefsContainer = (function (_super) {
     __extends(JSBodyDefsContainer, _super);
     function JSBodyDefsContainer() {
@@ -7534,6 +7660,16 @@ var JSBodyDragContainer = (function (_super) {
         return _this;
     }
     return JSBodyDragContainer;
+}(JSPanel));
+var JSBodyFrameContainer = (function (_super) {
+    __extends(JSBodyFrameContainer, _super);
+    function JSBodyFrameContainer() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
+        _this.setUI("JSBodyFrameContainer");
+        _this.setLayout(new JSBorderLayout());
+        return _this;
+    }
+    return JSBodyFrameContainer;
 }(JSPanel));
 var JSBodyGlassPane = (function (_super) {
     __extends(JSBodyGlassPane, _super);
@@ -7569,7 +7705,7 @@ var JSButtonText = (function (_super) {
     function JSButtonText() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLSpanElement) ? document.createElement("span") : arguments[0]) || this;
         _this.setUI("JSButtonText");
-        _this.setAlign(JSLayout.CENTER);
+        _this.setAlign(JSBorderLayout.CENTER);
         _this.setStyle("display", "none");
         return _this;
     }
@@ -7594,8 +7730,8 @@ var JSDialog = (function (_super) {
         var titlePanel = _this.getTitlePanel();
         _super.prototype.add.call(_this, titlePanel, JSLayout.NORTH);
         var titleLabel = _this.getTitleLabel();
+        titleLabel.setAlign(JSBorderLayout.LEFT_RIGHT);
         titlePanel.add(titleLabel);
-        titleLabel.setAlign(JSLayout.LEFT_RIGHT);
         var closeButton = _this.getCloseButton();
         titlePanel.add(closeButton, JSLayout.EAST);
         var contentPane = _this.getContentPane();
@@ -7621,14 +7757,10 @@ var JSDialog = (function (_super) {
                 break;
             default:
         }
+        titleLabel.addMouseListener(new JSDialogMouseListener(_this));
+        closeButton.addActionListener(new JSDialogActionListener(_this));
         return _this;
     }
-    JSDialog.prototype.init = function () {
-        var titleLabel = this.getTitleLabel();
-        titleLabel.addMouseListener(new JSDialogMouseListener(this));
-        var closeButton = this.getCloseButton();
-        closeButton.addActionListener(new JSDialogActionListener(this));
-    };
     JSDialog.prototype.getTitlePanel = function () {
         var titlePanel = this.getData("dialogTitlePanel");
         if (!titlePanel) {
@@ -8072,15 +8204,6 @@ var JSMenuItem = (function (_super) {
     };
     return JSMenuItem;
 }(JSPanel));
-var JSMenuItemLabel = (function (_super) {
-    __extends(JSMenuItemLabel, _super);
-    function JSMenuItemLabel() {
-        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
-        _this.setUI("JSMenuItemLabel");
-        return _this;
-    }
-    return JSMenuItemLabel;
-}(JSLabel));
 var JSPathImage = (function (_super) {
     __extends(JSPathImage, _super);
     function JSPathImage() {
@@ -8422,9 +8545,6 @@ var JSScrollPane = (function (_super) {
             this.add(viewportView);
         }
     };
-    JSScrollPane.prototype.isValidateRoot = function () {
-        return true;
-    };
     return JSScrollPane;
 }(JSPanel));
 var JSTableHeader = (function (_super) {
@@ -8758,8 +8878,6 @@ var JSTab = (function (_super) {
     function JSTab() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTab");
-        var graphics = _this.getGraphics();
-        _this.add(graphics);
         var label = _this.getLabel();
         _this.add(label);
         var tabCloseButton = _this.getCloseButton();
@@ -8791,20 +8909,6 @@ var JSTab = (function (_super) {
         }
         return _this;
     }
-    JSTab.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            var element = this.getChild("JSTabGraphics");
-            if (element) {
-                graphics = new JSTabGraphics(element);
-            }
-            else {
-                graphics = new JSTabGraphics();
-            }
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
     JSTab.prototype.getLabel = function () {
         var label = this.getData("label");
         if (!label) {
@@ -8857,18 +8961,12 @@ var JSTab = (function (_super) {
         var label = this.getLabel();
         var tabCloseButton = this.getCloseButton();
         if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {
-            graphics.setStyle("display", "block");
-            graphics.setStyle("margin", "4px auto 0");
-            label.setStyle("display", "block");
-            label.setStyle("margin", "4px 0");
+            label.setVerticalTextPosition(JSLayout.BOTTOM);
             label.setStyle("text-align", "center");
             tabCloseButton.setStyle("margin", "0 auto 4px");
         }
         else {
-            graphics.setStyle("margin-left", "4px");
-            graphics.setStyle("vertical-align", "middle");
-            label.setStyle("margin", "0 4px");
-            label.setStyle("vertical-align", "middle");
+            label.setVerticalTextPosition(JSLayout.CENTER);
             tabCloseButton.setStyle("margin-right", "4px");
             tabCloseButton.setStyle("vertical-align", "middle");
         }
@@ -8880,6 +8978,14 @@ var JSTab = (function (_super) {
     JSTab.prototype.setCloseable = function (closeable) {
         var tabCloseButton = this.getCloseButton();
         tabCloseButton.setStyle("display", closeable ? "" : "none");
+    };
+    JSTab.prototype.getIcon = function () {
+        var label = this.getLabel();
+        return label.getIcon();
+    };
+    JSTab.prototype.setIcon = function (icon) {
+        var label = this.getLabel();
+        label.setIcon(icon);
     };
     JSTab.prototype.getText = function () {
         return this.getData("text");
@@ -8922,15 +9028,6 @@ var JSTabCloseButton = (function (_super) {
     JSTabCloseButton.CLOSE_ICON = new JSPathIcon("M0,0L8,8M8,0L0,8", 8, 8).withStroke("red");
     return JSTabCloseButton;
 }(JSButton));
-var JSTabLabel = (function (_super) {
-    __extends(JSTabLabel, _super);
-    function JSTabLabel() {
-        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
-        _this.setUI("JSTabLabel");
-        return _this;
-    }
-    return JSTabLabel;
-}(JSLabel));
 var JSTabbedPaneButtonContainer = (function (_super) {
     __extends(JSTabbedPaneButtonContainer, _super);
     function JSTabbedPaneButtonContainer() {
@@ -9511,12 +9608,55 @@ var JSTableLowerRightCorner = (function (_super) {
     };
     return JSTableLowerRightCorner;
 }(JSPanel));
+var JSTreeCellLabel = (function (_super) {
+    __extends(JSTreeCellLabel, _super);
+    function JSTreeCellLabel() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return JSTreeCellLabel;
+}(JSLabel));
+var JSTreeCellLabelGraphics = (function (_super) {
+    __extends(JSTreeCellLabelGraphics, _super);
+    function JSTreeCellLabelGraphics() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
+        _this.setUI("JSTreeCellLabelGraphics");
+        return _this;
+    }
+    return JSTreeCellLabelGraphics;
+}(JSGraphics));
+var JSTreeCellLabelText = (function (_super) {
+    __extends(JSTreeCellLabelText, _super);
+    function JSTreeCellLabelText() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLLabelElement) ? document.createElement("label") : arguments[0]) || this;
+        _this.setUI("JSTreeCellLabelText");
+        return _this;
+    }
+    return JSTreeCellLabelText;
+}(JSHTMLComponent));
+var JSMenuItemLabel = (function (_super) {
+    __extends(JSMenuItemLabel, _super);
+    function JSMenuItemLabel() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
+        _this.setUI("JSMenuItemLabel");
+        return _this;
+    }
+    return JSMenuItemLabel;
+}(JSLabel));
+var JSTabLabel = (function (_super) {
+    __extends(JSTabLabel, _super);
+    function JSTabLabel() {
+        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
+        _this.setUI("JSTabLabel");
+        return _this;
+    }
+    return JSTabLabel;
+}(JSLabel));
 var JSButtonGraphics = (function (_super) {
     __extends(JSButtonGraphics, _super);
     function JSButtonGraphics() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSButtonGraphics");
-        _this.setAlign(JSLayout.CENTER);
+        _this.setAlign(JSBorderLayout.CENTER);
         _this.setStyle("display", "none");
         return _this;
     }
@@ -9608,6 +9748,8 @@ var JSLabelGraphics = (function (_super) {
     function JSLabelGraphics() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLabelGraphics");
+        _this.setAlign(JSBorderLayout.CENTER);
+        _this.setStyle("display", "none");
         return _this;
     }
     return JSLabelGraphics;
@@ -9689,13 +9831,8 @@ var JSMenu = (function (_super) {
                     popupMenuContainer.remove(oldPopupMenu);
                 }
                 if (popupMenu) {
-                    popupMenuContainer.add(popupMenu, null, 0);
-                    var popupMenuLayout = popupMenu.getLayout();
-                    if (popupMenuLayout) {
-                        popupMenu.setWidth(popupMenu.getPreferredWidth());
-                        popupMenu.setHeight(popupMenu.getPreferredHeight());
-                        popupMenu.revalidate();
-                    }
+                    popupMenuContainer.add(popupMenu);
+                    popupMenu.revalidate(popupMenuContainer);
                 }
             }
         }

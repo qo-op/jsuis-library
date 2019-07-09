@@ -182,6 +182,7 @@ class JSComponent {
     }
     setUI(ui: string) {
         this.setClass(ui);
+        this.addClass((<any> this.constructor).name);
     }
     x: number;
     getX(): number {
@@ -390,42 +391,48 @@ class JSComponent {
     setValidVertically(validVertically: boolean) {
         this.validVertically = validVertically;
     }
-    invalidate(): void {
+    invalidate(container?: JSComponent): void {
         this.setValid(false);
-        this.invalidateParent();
+        if (this !== container) {
+            this.invalidateParent.apply(this, arguments);
+        }
     }
-    invalidateHorizontally(): void {
+    invalidateHorizontally(container?: JSComponent): void {
         this.setValidHorizontally(false);
-        this.invalidateParentHorizontally();
+        if (this !== container) {
+            this.invalidateParentHorizontally.apply(this, arguments);
+        }
     }
-    invalidateVertically(): void {
+    invalidateVertically(container?: JSComponent): void {
         this.setValidVertically(false);
-        this.invalidateParentVertically();
+        if (this !== container) {
+            this.invalidateParentVertically.apply(this, arguments);
+        }
     }
     isValidateRoot(): boolean {
         return false;
     }
-    invalidateParent(): void {
+    invalidateParent(container?: JSComponent): void {
         if (!this.isValidateRoot()) {
             var parent: JSComponent = this.getParent();
             if (parent) {
-                parent.invalidate();
+                parent.invalidate.apply(parent, arguments);
             }
         }
     }
-    invalidateParentHorizontally(): void {
+    invalidateParentHorizontally(container?: JSComponent): void {
         if (!this.isValidateRoot()) {
             var parent: JSComponent = this.getParent();
             if (parent) {
-                parent.invalidateHorizontally();
+                parent.invalidateHorizontally.apply(parent, arguments);
             }
         }
     }
-    invalidateParentVertically(): void {
+    invalidateParentVertically(container?: JSComponent): void {
         if (!this.isValidateRoot()) {
             var parent: JSComponent = this.getParent();
             if (parent) {
-                parent.invalidateVertically();
+                parent.invalidateVertically.apply(parent, arguments);
             }
         }
     }
@@ -436,6 +443,14 @@ class JSComponent {
     validateHorizontally(): void {
         var validHorizontally: boolean = this.isValidHorizontally();
         if (!validHorizontally) {
+            var components: JSComponent[] = this.getComponents();
+            for (var i: number = 0; i < components.length; i++) {
+                var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                component.setValidHorizontally(false);
+            }
             var layout: JSLayout = this.getLayout();
             if (layout) {
                 layout.layoutContainerHorizontally(this);
@@ -443,26 +458,43 @@ class JSComponent {
                 if (!validHorizontally) {
                     JSLayout.validateLater(this);
                 }
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    component.validateHorizontally();
+                }
             } else {
-                this.setValidHorizontally(true);
                 var components: JSComponent[] = this.getComponents();
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentLayout: JSLayout = component.getLayout();
                     if (componentLayout) {
                         component.setOuterWidth(component.getPreferredOuterWidth());
                         component.setStyle("position", "relative");
                     } else {
-                        component.setValidHorizontally(false);
                         component.validateHorizontally();
                     }
                 }
+                this.setValidHorizontally(true);
             }
         }
     }
     validateVertically(): void {
         var validVertically: boolean = this.isValidVertically();
         if (!validVertically) {
+            var components: JSComponent[] = this.getComponents();
+            for (var i: number = 0; i < components.length; i++) {
+                var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
+                }
+                component.setValidVertically(false);
+            }
             var layout: JSLayout = this.getLayout();
             if (layout) {
                 layout.layoutContainerVertically(this);
@@ -470,65 +502,87 @@ class JSComponent {
                 if (!validVertically) {
                     JSLayout.validateLater(this);
                 }
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    component.validateVertically();
+                }
             } else {
-                this.setValidVertically(true);
                 var components: JSComponent[] = this.getComponents();
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
                     var componentLayout: JSLayout = component.getLayout();
                     if (componentLayout) {
                         component.setOuterHeight(component.getPreferredOuterHeight());
+                        component.setStyle("position", "relative");
                     } else {
-                        component.setValidVertically(false);
                         component.validateVertically();
                     }
                 }
+                this.setValidVertically(true);
             }
         }
     }
-    revalidate(): void {
-        this.invalidate();
-        var parent: JSComponent = this.getParent();
-        if (!parent) {
+    revalidate(container?: JSComponent): void {
+        this.invalidate.apply(this, arguments);
+        if (this === container) {
             this.validate();
         } else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
+            var parent: JSComponent = this.getParent();
+            if (!parent) {
+                this.validate();
+            } else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
                 }
-                parent = parent.getParent();
+                parent.validate();
             }
-            parent.validate();
         }
     }
-    revalidateHorizontally(): void {
-        this.invalidateHorizontally();
-        var parent: JSComponent = this.getParent();
-        if (!parent) {
-            this.validateHorizontally();
+    revalidateHorizontally(container?: JSComponent): void {
+        this.invalidateHorizontally.apply(this, arguments);
+        if (this === container) {
+            this.validate();
         } else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
+            var parent: JSComponent = this.getParent();
+            if (!parent) {
+                this.validateHorizontally();
+            } else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
                 }
-                parent = parent.getParent();
+                parent.validateHorizontally();
             }
-            parent.validateHorizontally();
         }
     }
-    revalidateVertically(): void {
-        this.invalidateVertically();
-        var parent: JSComponent = this.getParent();
-        if (!parent) {
-            this.validateVertically();
+    revalidateVertically(container?: JSComponent): void {
+        this.invalidateVertically.apply(this, arguments);
+        if (this === container) {
+            this.validate();
         } else {
-            while (!parent.isValidateRoot()) {
-                if (!parent.getParent()) {
-                    break;
+            var parent: JSComponent = this.getParent();
+            if (!parent) {
+                this.validateVertically();
+            } else {
+                while (parent !== container && !parent.isValidateRoot()) {
+                    if (!parent.getParent()) {
+                        break;
+                    }
+                    parent = parent.getParent();
                 }
-                parent = parent.getParent();
+                parent.validateVertically();
             }
-            parent.validateVertically();
         }
     }
     
@@ -619,6 +673,43 @@ class JSComponent {
     setAlign(align: string) {
         this.align = align;
     }
+    
+    horizontalAlign: string;
+    getHorizontalAlign(): string {
+        if (this.horizontalAlign) {
+            return this.horizontalAlign;
+        }
+        var align: string = this.getAlign();
+        if (!align || align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.CENTER || align === JSLayout.LEFT_RIGHT || align === JSLayout.JUSTIFY) {
+            return align;
+        }
+        if (align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.TOP_BOTTOM) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    }
+    setHorizontalAlign(horizontalAlign: string) {
+        this.horizontalAlign = horizontalAlign;
+    }
+    
+    verticalAlign: string;
+    getVerticalAlign(): string {
+        if (this.verticalAlign) {
+            return this.verticalAlign;
+        }
+        var align: string = this.getAlign();
+        if (!align || align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.CENTER || align === JSLayout.TOP_BOTTOM) {
+            return align;
+        }
+        if (align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.LEFT_RIGHT) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    }
+    setVerticalAlignment(verticalAlign: string) {
+        this.verticalAlign = verticalAlign;
+    }
+    
     /*
     getBackground(): string {
         return "";
@@ -727,6 +818,8 @@ class JSComponent {
     }
     setEditable(contenteditable: boolean) {
         this.setAttribute("contenteditable", "" + contenteditable);
+    }
+    requestFocus(): void {
     }
     addEventListener(event: string, listener: (event: Event) => void, useCapture?: boolean): void {
         this.element.addEventListener(event, listener, !!useCapture);
