@@ -105,7 +105,7 @@ class JSCardLayout extends JSLayout {
             component.setVisible(true);
             component.setStyle("display", "");
             if (container.isValid()) {
-                component.revalidate();
+                component.revalidate(container);
             }
         }
         this.selected = component;

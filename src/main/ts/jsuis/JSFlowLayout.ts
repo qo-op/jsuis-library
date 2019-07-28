@@ -82,6 +82,60 @@ class JSFlowLayout extends JSLayout {
     setBorder(region: string) {
         this.border = region;
     }
+    isHorizontal(): boolean {
+        var border = this.getBorder();
+        return (border !== JSFlowLayout.WEST && border !== JSFlowLayout.EAST);
+    }
+    invalidateLayoutHorizontally(container: JSComponent): void {
+            /*
+        container.setValidHorizontally(false);
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidHorizontally(false);
+        }
+        if (this.isHorizontal()) {
+            var containerParent: JSComponent = container.getParent();
+            if (containerParent) {
+                var containerParentLayout: JSLayout = containerParent.getLayout();
+                if (containerParentLayout) {
+                    if (containerParentLayout.isHorizontal()) {
+                        this.invalidateLayoutVertically(container);
+                        JSLayout.validateLater(container);
+                    }
+                }
+            }
+        }
+            */
+    }
+    invalidateLayoutVertically(container: JSComponent): void {
+            /*
+        container.setValidVertically(false);
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidVertically(false);
+        }
+        if (!this.isHorizontal()) {
+            var containerParent: JSComponent = container.getParent();
+            if (containerParent) {
+                var containerParentLayout: JSLayout = containerParent.getLayout();
+                if (containerParentLayout) {
+                    if (!containerParentLayout.isHorizontal()) {
+                        this.invalidateLayoutHorizontally(container);
+                        JSLayout.validateLater(container);
+                    }
+                }
+            }
+        }
+            */
+    }
     
     addLayoutComponent(component: JSComponent): void {
         component.setStyle("position", "absolute");
@@ -541,6 +595,9 @@ class JSFlowLayout extends JSLayout {
                 }
             }
         } else {
+            var xmin: number = x;
+            var xmax: number = x + width;
+            var extraHorizontalSpace: number = width - rowWidth;
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
                 if (!component.isDisplayable()) {
@@ -553,37 +610,29 @@ class JSFlowLayout extends JSLayout {
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
                 if (componentAlign === JSFlowLayout.LEFT) {
-                    component.setX(x);
-                    x += componentPreferredOuterWidth + hgap;
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    } else {
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    component.setX(xmin);
+                    xmin += componentPreferredOuterWidth + hgap;
                 } else {
-                    component.setX(x + width - componentPreferredOuterWidth); // 100%
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    } else {
-                        x += componentPreferredOuterWidth + hgap;
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    xmax -= componentPreferredOuterWidth;
+                    component.setX(xmax); // 100%
+                    xmax -= hgap;
                 }
+                rowWidth -= componentPreferredOuterWidth + hgap;
             }
             switch (align) {
             case JSFlowLayout.LEFT:
             case JSFlowLayout.LEFT_RIGHT:
             case JSFlowLayout.JUSTIFY:
+                x = xmin;
                 break;
             case JSFlowLayout.RIGHT:
-                x += width - rowWidth;
+                x = xmax - rowWidth;
                 break;
             case JSFlowLayout.CENTER:
             default:
-                x += (width - rowWidth) / 2;
+                x = Math.min(Math.max(x + (width - rowWidth) / 2, xmin), xmax - rowWidth);
             }
             if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
-                var extraHorizontalSpace: number = width - rowWidth;
                 for (var i: number = 0; i < components.length; i++) {
                     var component: JSComponent = components[i];
                     if (!component.isDisplayable()) {
@@ -623,6 +672,9 @@ class JSFlowLayout extends JSLayout {
         var vgap: number = this.getVgap();
         var height: number = container.getContentHeight();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            var ymin: number = y;
+            var ymax: number = y + height;
+            var extraVerticalSpace: number = height - rowHeight;
             for (var i: number = 0; i < components.length; i++) {
                 var component: JSComponent = components[i];
                 if (!component.isDisplayable()) {
@@ -635,56 +687,56 @@ class JSFlowLayout extends JSLayout {
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
                 if (componentAlign === JSFlowLayout.TOP) {
-                    component.setY(y);
-                    y += componentPreferredOuterHeight + vgap;
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    } else {
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    component.setY(ymin);
+                    ymin += componentPreferredOuterHeight + vgap;
                 } else {
-                    component.setY(y + height - componentPreferredOuterHeight); // 100%
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    } else {
-                        y += componentPreferredOuterHeight + vgap;
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    ymax -= componentPreferredOuterHeight;
+                    component.setY(ymax); // 100%
+                    ymax -= vgap;
                 }
+                rowHeight -= componentPreferredOuterHeight + vgap;
             }
             switch (align) {
             case JSFlowLayout.TOP:
+                y = ymin;
                 break;
             case JSFlowLayout.BOTTOM:
-                y += height - rowHeight;
+                y = ymax - rowHeight;
                 break;
             case JSFlowLayout.CENTER:
             default:
-                y += (height - rowHeight) / 2;
+                y = Math.min(Math.max(y + (height - rowHeight) / 2, ymin), ymax - rowHeight);
             }
-            for (var i: number = 0; i < components.length; i++) {
-                var component: JSComponent = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign: string = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight + extraVerticalSpace / components.length);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + extraVerticalSpace / components.length + vgap;
                 }
-                var componentAlign: string = component.getAlign();
-                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
-                    continue;
+            } else {
+                for (var i: number = 0; i < components.length; i++) {
+                    var component: JSComponent = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign: string = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + vgap;
                 }
-                var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-                component.setOuterHeight(componentPreferredOuterHeight);
-                switch (componentAlign) {
-                case JSFlowLayout.BOTH:
-                    break;
-                case JSFlowLayout.LEFT:
-                    break;
-                case JSFlowLayout.RIGHT:
-                    break;
-                case JSFlowLayout.CENTER:
-                default:
-                }
-                component.setY(y);
-                y += componentPreferredOuterHeight + vgap;
             }
         } else {
             for (var i: number = 0; i < components.length; i++) {

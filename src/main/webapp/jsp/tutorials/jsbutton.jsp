@@ -3,11 +3,12 @@
 <html>
 <head>
 	<meta charset="ISO-8859-1">
+	<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 	<title>How to use JS Button</title>
 	<link rel="stylesheet" href="/css/jsuis-${version}.css${build}">
 	<script src="/js/jsuis-${version}.js${build}"></script>
-	<link rel="stylesheet" href="/css/jstutorial-${version}.css${build}">
-	<script src="/js/jstutorial-${version}.js${build}"></script>
+	<link rel="stylesheet" href="/css/jsuistutorial-${version}.css${build}">
+	<script src="/js/jsuistutorial-${version}.js${build}"></script>
 </head>
 <body>
 	<div style="display: none">
@@ -94,7 +95,9 @@ Click the middle button and nothing happens.</p>
 		frame.add(buttonDemo);
 	</script>
 	<script>
-		new jstutorial.JSFrame_JSTutorial(${args}).setVisible(true);
+		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+		tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
+		tutorial.getFrame().setVisible(true);
 	</script>
 </body>
 </html>

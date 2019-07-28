@@ -53,16 +53,15 @@ class JSLayout {
         return JSLayout.containers;
     }
     static validateLater(container: JSComponent): void {
+        // console.log((<any> container.constructor).name);
         var containers: JSComponent[] = JSLayout.getContainers();
-        if (containers.indexOf(container) === -1) {
-            containers.push(container);
-        }
+        containers.push(container);
     }
     static validateContainers(): void {
         var containers: JSComponent[] = JSLayout.getContainers();
-        var container: JSComponent = containers.shift();
-        var valid: boolean = container.isValid();
-        if (!valid) {
+        while (containers.length) {
+            var container: JSComponent = containers[0];
+            container.setValid(false);
             var layout: JSLayout = container.getLayout();
             if (layout) {
                 layout.layoutContainer(container);
@@ -70,20 +69,11 @@ class JSLayout {
                 container.validateHorizontally();
                 container.validateVertically();
             }
-        }
-        while (container = containers.shift()) {
-            var validHorizontally: boolean = container.isValidHorizontally();
-            var validVertically: boolean = container.isValidVertically();
-            if (!validHorizontally && !validVertically) {
-                console.log("WARNING: Incompatible layout types!");
-                continue;
+            var valid: boolean = container.isValid();
+            if (!valid) {
+                JSLayout.validateLater(container);
             }
-            if (!validHorizontally || !validVertically) {
-                var layout: JSLayout = container.getLayout();
-                if (layout) {
-                    layout.layoutContainer(container);
-                }
-            }
+            containers.shift();
         }
     }
     
@@ -101,6 +91,58 @@ class JSLayout {
     }
     setVgap(vgap: number) {
         this.vgap = vgap;
+    }
+    
+    isHorizontal(): boolean {
+        return true;
+    }
+    /*
+    invalidateLayout(container: JSComponent): void {
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValid(false);
+        }
+    }
+    */
+    invalidateLayoutHorizontally(container: JSComponent): void {
+        /*
+        container.setValidHorizontally(false);
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidHorizontally(false);
+        }
+        var containerParent: JSComponent = container.getParent();
+        if (containerParent) {
+            var containerParentLayout: JSLayout = containerParent.getLayout();
+            if (containerParentLayout) {
+                if (containerParentLayout.isHorizontal()) {
+                    this.invalidateLayoutVertically(container);
+                    JSLayout.validateLater(container);
+                }
+            }
+        }
+        */
+    }
+    invalidateLayoutVertically(container: JSComponent): void {
+        /*
+        container.setValidVertically(false);
+        var components: JSComponent[] = container.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidVertically(false);
+        }
+        */
     }
     
     addLayoutComponent(component: JSComponent): void {

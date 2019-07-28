@@ -89,6 +89,10 @@ class JSTabbedPane extends JSPanel {
                 mouseEvent.stopPropagation();
             }
         }).withParameters(tab, this);
+        var tabContainerParent: JSComponent = tabContainer.getParent();
+        if (this.isValid()) {
+            tabContainerParent.revalidate(tabContainerParent);
+        }
         return tab;
     }
     addCloseableTab(title: string, component: JSComponent): JSTab;
@@ -138,6 +142,10 @@ class JSTabbedPane extends JSPanel {
                 }
             }
         }).withParameters(tab, this);
+        var tabContainerParent: JSComponent = tabContainer.getParent();
+        if (this.isValid()) {
+            tabContainerParent.revalidate(tabContainerParent);
+        }
         return tab;
     }
     getTabContainer(): JSTabbedPaneTabContainer {
@@ -226,4 +234,15 @@ class JSTabbedPane extends JSPanel {
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
         return tabContainer.getTabComponentAt(index);
     }
+    /*
+    revalidate(): void {
+        var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
+        var tabContainerParent: JSComponent = tabContainer.getParent();
+        if (this.isValid()) {
+            tabContainerParent.revalidate(tabContainerParent);
+        }
+        var cardContainer: JSPanel = this.getCardContainer();
+        cardContainer.revalidate(cardContainer);
+    }
+    */
 }

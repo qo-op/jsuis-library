@@ -180,8 +180,12 @@ class JSComponent {
     getUI(): string {
         return this.getClass();
     }
-    setUI(ui: string) {
-        this.setClass(ui);
+    setUI(ui: string | UI) {
+        if (typeof ui === "string") {
+            this.setClass(ui);
+        } else {
+            ui.installUI(this);
+        }
         this.addClass((<any> this.constructor).name);
     }
     x: number;
@@ -436,6 +440,17 @@ class JSComponent {
             }
         }
     }
+    invalidateChildren(): void {
+        var components: JSComponent[] = this.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValid(false);
+            component.invalidateChildren();
+        }
+    }
     validate(): void {
         JSLayout.validateLater(this);
         JSLayout.validateContainers();
@@ -443,28 +458,31 @@ class JSComponent {
     validateHorizontally(): void {
         var validHorizontally: boolean = this.isValidHorizontally();
         if (!validHorizontally) {
-            var components: JSComponent[] = this.getComponents();
-            for (var i: number = 0; i < components.length; i++) {
-                var component: JSComponent = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                component.setValidHorizontally(false);
-            }
             var layout: JSLayout = this.getLayout();
             if (layout) {
+                layout.invalidateLayoutHorizontally(this);
                 layout.layoutContainerHorizontally(this);
                 validHorizontally = this.isValidHorizontally();
                 if (!validHorizontally) {
                     JSLayout.validateLater(this);
+                    var container: JSComponent = JSLayout.getContainers()[0];
+                    JSLayout.validateLater(container);
                 }
-                for (var i: number = 0; i < components.length; i++) {
-                    var component: JSComponent = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
+                /*
+                validHorizontally = this.isValidHorizontally();
+                if (!validHorizontally) {
+                    console.log("validateHorizontally(): " + (<any> this.constructor).name);
+                    JSLayout.validateLater(this);
+                    var components: JSComponent[] = this.getComponents();
+                    for (var i: number = 0; i < components.length; i++) {
+                        var component: JSComponent = components[i];
+                        if (!component.isDisplayable()) {
+                            continue;
+                        }
+                        component.validateHorizontally();
                     }
-                    component.validateHorizontally();
                 }
+                */
             } else {
                 var components: JSComponent[] = this.getComponents();
                 for (var i: number = 0; i < components.length; i++) {
@@ -474,41 +492,51 @@ class JSComponent {
                     }
                     var componentLayout: JSLayout = component.getLayout();
                     if (componentLayout) {
-                        component.setOuterWidth(component.getPreferredOuterWidth());
-                        component.setStyle("position", "relative");
+                        var preferredOuterWidth: number = component.getPreferredOuterWidth();
+                        if (preferredOuterWidth !== null) {
+                            component.setStyle("position", "relative");
+                            component.setOuterWidth(preferredOuterWidth);
+                        } else {
+                            JSLayout.validateLater(component);
+                        }
                     } else {
+                        component.setValidHorizontally(false);
                         component.validateHorizontally();
                     }
                 }
-                this.setValidHorizontally(true);
+                if (i === components.length) {
+                    this.setValidHorizontally(true);
+                }
             }
         }
     }
     validateVertically(): void {
         var validVertically: boolean = this.isValidVertically();
         if (!validVertically) {
-            var components: JSComponent[] = this.getComponents();
-            for (var i: number = 0; i < components.length; i++) {
-                var component: JSComponent = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                component.setValidVertically(false);
-            }
             var layout: JSLayout = this.getLayout();
             if (layout) {
+                layout.invalidateLayoutVertically(this);
                 layout.layoutContainerVertically(this);
                 validVertically = this.isValidVertically();
                 if (!validVertically) {
                     JSLayout.validateLater(this);
+                    var container: JSComponent = JSLayout.getContainers()[0];
+                    JSLayout.validateLater(container);
                 }
-                for (var i: number = 0; i < components.length; i++) {
-                    var component: JSComponent = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
+                /*
+                validVertically = this.isValidVertically();
+                if (!validVertically) {
+                    JSLayout.validateLater(this);
+                    var components: JSComponent[] = this.getComponents();
+                    for (var i: number = 0; i < components.length; i++) {
+                        var component: JSComponent = components[i];
+                        if (!component.isDisplayable()) {
+                            continue;
+                        }
+                        component.validateVertically();
                     }
-                    component.validateVertically();
                 }
+                */
             } else {
                 var components: JSComponent[] = this.getComponents();
                 for (var i: number = 0; i < components.length; i++) {
@@ -518,13 +546,21 @@ class JSComponent {
                     }
                     var componentLayout: JSLayout = component.getLayout();
                     if (componentLayout) {
-                        component.setOuterHeight(component.getPreferredOuterHeight());
-                        component.setStyle("position", "relative");
+                        var preferredOuterHeight: number = component.getPreferredOuterHeight();
+                        if (preferredOuterHeight !== null) {
+                            component.setStyle("position", "relative");
+                            component.setOuterHeight(preferredOuterHeight);
+                        } else {
+                            JSLayout.validateLater(component);
+                        }
                     } else {
+                        component.setValidVertically(false);
                         component.validateVertically();
                     }
                 }
-                this.setValidVertically(true);
+                if (i === components.length) {
+                    this.setValidVertically(true);
+                }
             }
         }
     }
@@ -547,10 +583,11 @@ class JSComponent {
             }
         }
     }
+    /*
     revalidateHorizontally(container?: JSComponent): void {
         this.invalidateHorizontally.apply(this, arguments);
         if (this === container) {
-            this.validate();
+            this.validateHorizontally();
         } else {
             var parent: JSComponent = this.getParent();
             if (!parent) {
@@ -569,7 +606,7 @@ class JSComponent {
     revalidateVertically(container?: JSComponent): void {
         this.invalidateVertically.apply(this, arguments);
         if (this === container) {
-            this.validate();
+            this.validateVertically();
         } else {
             var parent: JSComponent = this.getParent();
             if (!parent) {
@@ -585,7 +622,7 @@ class JSComponent {
             }
         }
     }
-    
+    */
     isVisible(): boolean {
         return this.getStyle("visibility") !== "hidden";
     }

@@ -111,7 +111,7 @@ class JSSplitPane extends JSPanel {
         leftContainer.removeAll();
         leftContainer.add(leftComponent);
         if (this.isValid()) {
-            leftContainer.revalidate();
+            leftComponent.revalidate(leftContainer);
         }
     }
     getRightComponent(): JSComponent {
@@ -127,7 +127,7 @@ class JSSplitPane extends JSPanel {
         rightContainer.removeAll();
         rightContainer.add(rightComponent);
         if (this.isValid()) {
-            rightContainer.revalidate();
+            rightComponent.revalidate(rightContainer);
         }
     }
     getTopComponent(): JSComponent {
@@ -168,7 +168,7 @@ class JSSplitPane extends JSPanel {
         this.dividerLocation = dividerLocation;
         this.dividerProportionalLocation = dividerProportionalLocation;
         if (this.isValid()) {
-            this.revalidate();
+            this.revalidate(this);
         }
     }
     dividerProportionalLocation: number
@@ -179,7 +179,7 @@ class JSSplitPane extends JSPanel {
         this.dividerProportionalLocation = dividerProportionalLocation;
         this.dividerLocation = 0;
         if (this.isValid()) {
-            this.revalidate();
+            this.revalidate(this);
         }
     }
     getMinimumDividerLocation(): number {

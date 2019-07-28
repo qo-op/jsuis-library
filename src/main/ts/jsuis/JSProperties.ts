@@ -30,6 +30,9 @@ class JSProperties {
             if (typeof arguments[0] === "string") {
                 var key: string = arguments[0];
                 value = properties[key];
+                if (value === undefined) {
+                    value = null;
+                }
             }
         case 2:
             // getProperty(key: string, defaultValue: string): string;

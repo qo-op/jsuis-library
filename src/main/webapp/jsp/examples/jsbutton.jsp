@@ -3,11 +3,12 @@
 <html>
 <head>
 	<meta charset="ISO-8859-1">
+	<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 	<title>JS Button example(s)</title>
 	<link rel="stylesheet" href="/css/jsuis-${version}.css${build}">
 	<script src="/js/jsuis-${version}.js${build}"></script>
-	<link rel="stylesheet" href="/css/jstutorial-${version}.css${build}">
-	<script src="/js/jstutorial-${version}.js${build}"></script>
+	<link rel="stylesheet" href="/css/jsuistutorial-${version}.css${build}">
+	<script src="/js/jsuistutorial-${version}.js${build}"></script>
 </head>
 <body>
 	<div style="display: none">
@@ -56,21 +57,25 @@
 		</div>
 	</div>
 	<script>
-	    var tabbedPane_Example = jstutorial.JSTabbedPane_Example.getInstance();
-        var icon_Example = new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24);
-        var panel_Example = new jstutorial.JSPanel_Example();
-        tabbedPane_Example.addTab("ButtonDemo.html", icon_Example, panel_Example).addClass("example");
+		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+	    var tabbedPane_Example = tutorial.getExampleTabbedPane();
+        var icon = new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24);
+        var example = new jsuistutorial.JSUIS_Example();
+        var panel = example.getPanel();
+        tabbedPane_Example.addTab("ButtonDemo.html", icon, panel).addClass("example");
         
         var element = document.getElementById("example1");
         var example1 = new JSTextArea(element);
-        panel_Example.getSplitPane().setLeftComponent(example1);
+        example.getSplitPane().setLeftComponent(example1);
         
 		addEventListener("load", function() {
-	        panel_Example.getRunButton().getAction().actionPerformed(null);
+			example.getRunAction().actionPerformed(null);
 		});
 	</script>
 	<script>
-		new jstutorial.JSFrame_JSTutorial(${args}).setVisible(true);
+		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+		tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
+		tutorial.getFrame().setVisible(true);
 	</script>
 </body>
 </html>

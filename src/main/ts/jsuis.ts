@@ -13,6 +13,9 @@
 /// <reference path = "jsuis/PropertyChangeListener.ts"/>
 /// <reference path = "jsuis/Runnable.ts"/>
 /// <reference path = "jsuis/TreeSelectionListener.ts"/>
+/// <reference path = "jsuis/UI.ts"/>
+
+/// <reference path = "jsuis/JSButtonUI.ts"/>
 
 /// <reference path = "jsuis/JSAction.ts"/>
 /// <reference path = "jsuis/JSActionListener.ts"/>
@@ -123,7 +126,6 @@
             /// <reference path = "jsuis/JSPathImage.ts"/>
             /// <reference path = "jsuis/JSPopupMenu.ts"/>
             /// <reference path = "jsuis/JSPopupMenuContainer.ts"/>
-            /// <reference path = "jsuis/JSScrollBar.ts"/>
             /// <reference path = "jsuis/JSScrollPane.ts"/>
             /// <reference path = "jsuis/JSTableHeader.ts"/>
             /// <reference path = "jsuis/JSSeparator.ts"/>

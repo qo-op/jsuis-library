@@ -28,16 +28,10 @@ public class Test {
 		red.setBackground(Color.red);
 		cards.add(red);
 		
+		frame.setGlassPane(new JPanel());
+		
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
-		frame.invalidate();
-		
-		new JPanel().isValidateRoot();
-		
-		new JLabel().setText("Hello, World!");
-		
-		new JPanel().getPreferredSize();
 	}
 }

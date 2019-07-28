@@ -50,9 +50,11 @@ class JSParagraph extends JSHTMLComponent {
         return preferredWidth;
     }
     getPreferredHeight(): number {
+        /*
         if (!this.isValidHorizontally()) {
             return null;
         }
+        */
         return super.getPreferredHeight();
     }
 }

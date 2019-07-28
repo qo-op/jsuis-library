@@ -4,13 +4,28 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var JSButtonUI = (function () {
+    function JSButtonUI() {
+    }
+    JSButtonUI.getInstance = function () {
+        if (JSButtonUI.instance === undefined) {
+            JSButtonUI.instance = new JSButtonUI();
+        }
+        return JSButtonUI.instance;
+    };
+    JSButtonUI.prototype.installUI = function (component) {
+        component.setClass("JSButton");
+        component.setStyle("white-space", "nowrap");
+    };
+    return JSButtonUI;
+}());
 var JSAction = (function () {
     function JSAction() {
         switch (arguments.length) {
@@ -149,7 +164,6 @@ var JSBodyMouseListener = (function () {
         if (dragSource) {
             var dragStart = dragSource.getData("dragStart");
             if (!dragStart) {
-                body.getGlassPane().setStyle("display", "");
                 dragSource.fireDragStart(mouseEvent);
                 dragSource.setData("dragStart", true);
             }
@@ -169,7 +183,6 @@ var JSBodyMouseListener = (function () {
                     if (dragStart) {
                         dragSource.fireDragEnd(mouseEvent);
                         dragSource.setData("dragStart", false);
-                        body.getGlassPane().setStyle("display", "none");
                     }
                     body.setDragSource(null);
                 }
@@ -337,7 +350,12 @@ var JSComponent = (function () {
         return this.getClass();
     };
     JSComponent.prototype.setUI = function (ui) {
-        this.setClass(ui);
+        if (typeof ui === "string") {
+            this.setClass(ui);
+        }
+        else {
+            ui.installUI(this);
+        }
         this.addClass(this.constructor.name);
     };
     JSComponent.prototype.getX = function () {
@@ -586,27 +604,13 @@ var JSComponent = (function () {
     JSComponent.prototype.validateHorizontally = function () {
         var validHorizontally = this.isValidHorizontally();
         if (!validHorizontally) {
-            var components = this.getComponents();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                component.setValidHorizontally(false);
-            }
             var layout = this.getLayout();
             if (layout) {
+                layout.invalidateLayoutHorizontally(this);
                 layout.layoutContainerHorizontally(this);
                 validHorizontally = this.isValidHorizontally();
                 if (!validHorizontally) {
                     JSLayout.validateLater(this);
-                }
-                for (var i = 0; i < components.length; i++) {
-                    var component = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
-                    }
-                    component.validateHorizontally();
                 }
             }
             else {
@@ -622,6 +626,7 @@ var JSComponent = (function () {
                         component.setStyle("position", "relative");
                     }
                     else {
+                        component.setValidHorizontally(false);
                         component.validateHorizontally();
                     }
                 }
@@ -632,27 +637,13 @@ var JSComponent = (function () {
     JSComponent.prototype.validateVertically = function () {
         var validVertically = this.isValidVertically();
         if (!validVertically) {
-            var components = this.getComponents();
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
-                }
-                component.setValidVertically(false);
-            }
             var layout = this.getLayout();
             if (layout) {
+                layout.invalidateLayoutVertically(this);
                 layout.layoutContainerVertically(this);
                 validVertically = this.isValidVertically();
                 if (!validVertically) {
                     JSLayout.validateLater(this);
-                }
-                for (var i = 0; i < components.length; i++) {
-                    var component = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
-                    }
-                    component.validateVertically();
                 }
             }
             else {
@@ -668,6 +659,7 @@ var JSComponent = (function () {
                         component.setStyle("position", "relative");
                     }
                     else {
+                        component.setValidVertically(false);
                         component.validateVertically();
                     }
                 }
@@ -693,48 +685,6 @@ var JSComponent = (function () {
                     parent = parent.getParent();
                 }
                 parent.validate();
-            }
-        }
-    };
-    JSComponent.prototype.revalidateHorizontally = function (container) {
-        this.invalidateHorizontally.apply(this, arguments);
-        if (this === container) {
-            this.validate();
-        }
-        else {
-            var parent = this.getParent();
-            if (!parent) {
-                this.validateHorizontally();
-            }
-            else {
-                while (parent !== container && !parent.isValidateRoot()) {
-                    if (!parent.getParent()) {
-                        break;
-                    }
-                    parent = parent.getParent();
-                }
-                parent.validateHorizontally();
-            }
-        }
-    };
-    JSComponent.prototype.revalidateVertically = function (container) {
-        this.invalidateVertically.apply(this, arguments);
-        if (this === container) {
-            this.validate();
-        }
-        else {
-            var parent = this.getParent();
-            if (!parent) {
-                this.validateVertically();
-            }
-            else {
-                while (parent !== container && !parent.isValidateRoot()) {
-                    if (!parent.getParent()) {
-                        break;
-                    }
-                    parent = parent.getParent();
-                }
-                parent.validateVertically();
             }
         }
     };
@@ -823,6 +773,38 @@ var JSComponent = (function () {
     };
     JSComponent.prototype.setAlign = function (align) {
         this.align = align;
+    };
+    JSComponent.prototype.getHorizontalAlign = function () {
+        if (this.horizontalAlign) {
+            return this.horizontalAlign;
+        }
+        var align = this.getAlign();
+        if (!align || align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.CENTER || align === JSLayout.LEFT_RIGHT || align === JSLayout.JUSTIFY) {
+            return align;
+        }
+        if (align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.TOP_BOTTOM) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    };
+    JSComponent.prototype.setHorizontalAlign = function (horizontalAlign) {
+        this.horizontalAlign = horizontalAlign;
+    };
+    JSComponent.prototype.getVerticalAlign = function () {
+        if (this.verticalAlign) {
+            return this.verticalAlign;
+        }
+        var align = this.getAlign();
+        if (!align || align === JSLayout.TOP || align === JSLayout.BOTTOM || align === JSLayout.CENTER || align === JSLayout.TOP_BOTTOM) {
+            return align;
+        }
+        if (align === JSLayout.LEFT || align === JSLayout.RIGHT || align === JSLayout.LEFT_RIGHT) {
+            return JSLayout.CENTER;
+        }
+        return undefined;
+    };
+    JSComponent.prototype.setVerticalAlignment = function (verticalAlign) {
+        this.verticalAlign = verticalAlign;
     };
     JSComponent.prototype.getText = function () {
         return "";
@@ -1753,6 +1735,40 @@ var JSLayout = (function () {
     JSLayout.prototype.setVgap = function (vgap) {
         this.vgap = vgap;
     };
+    JSLayout.prototype.invalidateLayout = function (container) {
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValid(false);
+        }
+    };
+    JSLayout.prototype.invalidateLayoutHorizontally = function (container) {
+        container.setValidHorizontally(false);
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidHorizontally(false);
+        }
+        this.invalidateLayoutVertically(container);
+        JSLayout.validateLater(container);
+    };
+    JSLayout.prototype.invalidateLayoutVertically = function (container) {
+        container.setValidVertically(false);
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidVertically(false);
+        }
+    };
     JSLayout.prototype.addLayoutComponent = function (component) {
     };
     JSLayout.prototype.removeLayoutComponent = function (component) {
@@ -1840,9 +1856,9 @@ var JSLayout = (function () {
     JSLayout.LEFT = "left";
     JSLayout.BOTTOM = "bottom";
     JSLayout.RIGHT = "right";
-    JSLayout.JUSTIFY = "justify";
     JSLayout.LEFT_RIGHT = "left_right";
     JSLayout.TOP_BOTTOM = "top_bottom";
+    JSLayout.JUSTIFY = "justify";
     JSLayout.HORIZONTAL = "horizontal";
     JSLayout.VERTICAL = "vertical";
     JSLayout.BOTH = "both";
@@ -2100,6 +2116,9 @@ var JSProperties = (function () {
                 if (typeof arguments[0] === "string") {
                     var key = arguments[0];
                     value = properties[key];
+                    if (value === undefined) {
+                        value = null;
+                    }
                 }
             case 2:
                 if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
@@ -2722,7 +2741,7 @@ var JSBorderLayout = (function (_super) {
         var hgap = this.getHgap();
         var width = container.getContentWidth();
         var x = container.getInsetLeft();
-        var components = container.getComponents().slice();
+        var components = container.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
             if (!component.isDisplayable()) {
@@ -2732,11 +2751,11 @@ var JSBorderLayout = (function (_super) {
             if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
-            var align = component.getAlign();
             switch (constraints) {
                 case JSBorderLayout.NORTH:
                 case JSBorderLayout.SOUTH:
-                    switch (align) {
+                    var horizontalAlign = component.getHorizontalAlign();
+                    switch (horizontalAlign) {
                         case JSLayout.LEFT:
                             var componentOuterWidth = component.getPreferredOuterWidth();
                             if (componentOuterWidth === null) {
@@ -2800,18 +2819,8 @@ var JSBorderLayout = (function (_super) {
             }
             var constraints = component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
-                var align = component.getAlign();
-                switch (align) {
-                    case JSLayout.TOP:
-                    case JSLayout.BOTTOM:
-                        var componentOuterWidth = component.getPreferredOuterWidth();
-                        if (componentOuterWidth === null) {
-                            return;
-                        }
-                        componentOuterWidth = Math.max(Math.min(componentOuterWidth, width), 0);
-                        component.setOuterWidth(componentOuterWidth);
-                        component.setX(x + (width - componentOuterWidth) / 2);
-                        break;
+                var horizontalAlign = component.getHorizontalAlign();
+                switch (horizontalAlign) {
                     case JSLayout.LEFT:
                         var componentOuterWidth = component.getPreferredOuterWidth();
                         if (componentOuterWidth === null) {
@@ -2831,6 +2840,8 @@ var JSBorderLayout = (function (_super) {
                         component.setX(x + width - componentOuterWidth);
                         break;
                     case JSLayout.CENTER:
+                    case JSLayout.TOP:
+                    case JSLayout.BOTTOM:
                     case JSLayout.TOP_BOTTOM:
                         var componentOuterWidth = component.getPreferredOuterWidth();
                         if (componentOuterWidth === null) {
@@ -2855,7 +2866,7 @@ var JSBorderLayout = (function (_super) {
         var vgap = this.getVgap();
         var height = container.getContentHeight();
         var y = container.getInsetTop();
-        var components = container.getComponents().slice();
+        var components = container.getComponents();
         for (var i = 0; i < components.length; i++) {
             var component = components[i];
             if (!component.isDisplayable()) {
@@ -2865,7 +2876,6 @@ var JSBorderLayout = (function (_super) {
             if (!constraints || constraints === JSLayout.CENTER) {
                 continue;
             }
-            var align = component.getAlign();
             switch (constraints) {
                 case JSBorderLayout.NORTH:
                     var componentOuterHeight = component.getPreferredOuterHeight();
@@ -2890,7 +2900,8 @@ var JSBorderLayout = (function (_super) {
                     break;
                 case JSBorderLayout.WEST:
                 case JSBorderLayout.EAST:
-                    switch (align) {
+                    var verticalAlignment = component.getVerticalAlign();
+                    switch (verticalAlignment) {
                         case JSLayout.TOP:
                             var componentOuterHeight = component.getPreferredOuterHeight();
                             if (componentOuterHeight === null) {
@@ -2933,8 +2944,8 @@ var JSBorderLayout = (function (_super) {
             }
             var constraints = component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
-                var align = component.getAlign();
-                switch (align) {
+                var verticalAlignment = component.getVerticalAlign();
+                switch (verticalAlignment) {
                     case JSLayout.TOP:
                         var componentOuterHeight = component.getPreferredOuterHeight();
                         if (componentOuterHeight === null) {
@@ -2953,17 +2964,9 @@ var JSBorderLayout = (function (_super) {
                         component.setOuterHeight(componentOuterHeight);
                         component.setY(y + height - componentOuterHeight);
                         break;
+                    case JSLayout.CENTER:
                     case JSLayout.LEFT:
                     case JSLayout.RIGHT:
-                        var componentOuterHeight = component.getPreferredOuterHeight();
-                        if (componentOuterHeight === null) {
-                            return;
-                        }
-                        componentOuterHeight = Math.max(Math.min(componentOuterHeight, height), 0);
-                        component.setOuterHeight(componentOuterHeight);
-                        component.setY(y + (height - componentOuterHeight) / 2);
-                        break;
-                    case JSLayout.CENTER:
                     case JSLayout.LEFT_RIGHT:
                         var componentOuterHeight = component.getPreferredOuterHeight();
                         if (componentOuterHeight === null) {
@@ -3209,6 +3212,38 @@ var JSFlowLayout = (function (_super) {
     };
     JSFlowLayout.prototype.setBorder = function (region) {
         this.border = region;
+    };
+    JSFlowLayout.prototype.invalidateLayoutHorizontally = function (container) {
+        container.setValidHorizontally(false);
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidHorizontally(false);
+        }
+        var border = this.getBorder();
+        if (border !== JSFlowLayout.WEST && border !== JSFlowLayout.EAST) {
+            this.invalidateLayoutVertically(container);
+            JSLayout.validateLater(container);
+        }
+    };
+    JSFlowLayout.prototype.invalidateLayoutVertically = function (container) {
+        container.setValidVertically(false);
+        var components = container.getComponents();
+        for (var i = 0; i < components.length; i++) {
+            var component = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setValidVertically(false);
+        }
+        var border = this.getBorder();
+        if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            this.invalidateLayoutHorizontally(container);
+            JSLayout.validateLater(container);
+        }
     };
     JSFlowLayout.prototype.addLayoutComponent = function (component) {
         component.setStyle("position", "absolute");
@@ -3673,6 +3708,9 @@ var JSFlowLayout = (function (_super) {
             }
         }
         else {
+            var xmin = x;
+            var xmax = x + width;
+            var extraHorizontalSpace = width - rowWidth;
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
                 if (!component.isDisplayable()) {
@@ -3685,40 +3723,30 @@ var JSFlowLayout = (function (_super) {
                 var componentPreferredOuterWidth = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
                 if (componentAlign === JSFlowLayout.LEFT) {
-                    component.setX(x);
-                    x += componentPreferredOuterWidth + hgap;
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    component.setX(xmin);
+                    xmin += componentPreferredOuterWidth + hgap;
                 }
                 else {
-                    component.setX(x + width - componentPreferredOuterWidth);
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        x += componentPreferredOuterWidth + hgap;
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    xmax -= componentPreferredOuterWidth;
+                    component.setX(xmax);
+                    xmax -= hgap;
                 }
+                rowWidth -= componentPreferredOuterWidth + hgap;
             }
             switch (align) {
                 case JSFlowLayout.LEFT:
                 case JSFlowLayout.LEFT_RIGHT:
                 case JSFlowLayout.JUSTIFY:
+                    x = xmin;
                     break;
                 case JSFlowLayout.RIGHT:
-                    x += width - rowWidth;
+                    x = xmax - rowWidth;
                     break;
                 case JSFlowLayout.CENTER:
                 default:
-                    x += (width - rowWidth) / 2;
+                    x = Math.min(Math.max(x + (width - rowWidth) / 2, xmin), xmax - rowWidth);
             }
             if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
-                var extraHorizontalSpace = width - rowWidth;
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
                     if (!component.isDisplayable()) {
@@ -3758,6 +3786,9 @@ var JSFlowLayout = (function (_super) {
         var vgap = this.getVgap();
         var height = container.getContentHeight();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            var ymin = y;
+            var ymax = y + height;
+            var extraVerticalSpace = height - rowHeight;
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
                 if (!component.isDisplayable()) {
@@ -3770,59 +3801,58 @@ var JSFlowLayout = (function (_super) {
                 var componentPreferredOuterHeight = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
                 if (componentAlign === JSFlowLayout.TOP) {
-                    component.setY(y);
-                    y += componentPreferredOuterHeight + vgap;
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    component.setY(ymin);
+                    ymin += componentPreferredOuterHeight + vgap;
                 }
                 else {
-                    component.setY(y + height - componentPreferredOuterHeight);
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        y += componentPreferredOuterHeight + vgap;
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    ymax -= componentPreferredOuterHeight;
+                    component.setY(ymax);
+                    ymax -= vgap;
                 }
+                rowHeight -= componentPreferredOuterHeight + vgap;
             }
             switch (align) {
                 case JSFlowLayout.TOP:
+                    y = ymin;
                     break;
                 case JSFlowLayout.BOTTOM:
-                    y += height - rowHeight;
+                    y = ymax - rowHeight;
                     break;
                 case JSFlowLayout.CENTER:
                 default:
-                    y += (height - rowHeight) / 2;
+                    y = Math.min(Math.max(y + (height - rowHeight) / 2, ymin), ymax - rowHeight);
             }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight + extraVerticalSpace / components.length);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + extraVerticalSpace / components.length + vgap;
                 }
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
-                    continue;
+            }
+            else {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + vgap;
                 }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                component.setOuterHeight(componentPreferredOuterHeight);
-                switch (componentAlign) {
-                    case JSFlowLayout.BOTH:
-                        break;
-                    case JSFlowLayout.LEFT:
-                        break;
-                    case JSFlowLayout.RIGHT:
-                        break;
-                    case JSFlowLayout.CENTER:
-                    default:
-                }
-                component.setY(y);
-                y += componentPreferredOuterHeight + vgap;
             }
         }
         else {
@@ -4617,7 +4647,7 @@ var JSTreeLayout = (function (_super) {
         var treeCells = tree.getTreeCells();
         for (var treePath in treeCells) {
             var treeCell = treeCells[treePath];
-            var treeCellPreferredWidth = treeCell.getPreferredWidth();
+            var treeCellPreferredWidth = treeCell.getPreferredOuterWidth();
             if (treeCellPreferredWidth === null) {
                 return null;
             }
@@ -4639,6 +4669,16 @@ var JSBody = (function (_super) {
     function JSBody() {
         var _this = _super.call(this, document.body) || this;
         _this.setUI("JSBody");
+        document.documentElement.style.height = "100%";
+        _this.setStyle("border", "0");
+        _this.setStyle("padding", "0");
+        _this.setStyle("margin", "0");
+        _this.setStyle("height", "100%");
+        _this.setStyle("overflow", "hidden");
+        _this.setStyle("user-select", "none");
+        _this.setStyle("-ms-user-select", "none");
+        _this.setStyle("-moz-user-select", "none");
+        _this.setStyle("-webkit-user-select", "none");
         _this.setLayout(new JSBorderLayout());
         var dragContainer = _this.getDragContainer();
         _this.add(dragContainer, JSBorderLayout.NORTH);
@@ -4869,7 +4909,7 @@ var JSButton = (function (_super) {
     __extends(JSButton, _super);
     function JSButton() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLButtonElement) ? document.createElement("button") : arguments[0]) || this;
-        _this.setUI("JSButton");
+        _this.setUI(JSButtonUI.getInstance());
         _this.setLayout(new JSBorderLayout(4, 4));
         var graphics = _this.getGraphics();
         _this.add(graphics, JSBorderLayout.WEST);
@@ -5221,6 +5261,20 @@ var JSDiv = (function (_super) {
         _this.setUI("JSDiv");
         return _this;
     }
+    JSDiv.prototype.getWidth = function () {
+        var parent = this.getParent();
+        if (parent) {
+            var boxSizing = this.getComputedStyle("box-sizing");
+            if (boxSizing === "border-box") {
+                return parent.getWidth();
+            }
+            else {
+                return parent.getWidth() - this.getMarginLeft() - this.getBorderLeftWidth() - this.getPaddingLeft() -
+                    this.getPaddingRight() - this.getBorderRightWidth() - this.getMarginRight();
+            }
+        }
+        return _super.prototype.getWidth.call(this);
+    };
     JSDiv.prototype.setWidth = function (width) {
         this.setValidHorizontally(false);
         this.validateHorizontally();
@@ -6047,7 +6101,6 @@ var JSLabel = (function (_super) {
         var graphics = _this.getGraphics();
         _this.add(graphics, JSBorderLayout.WEST);
         var textComponent = _this.getTextComponent();
-        textComponent.setAlign(JSLayout.LEFT_RIGHT);
         _this.add(textComponent);
         switch (arguments.length) {
             case 1:
@@ -6155,11 +6208,12 @@ var JSLabel = (function (_super) {
         }
     };
     JSLabel.prototype.getHorizontalAlignment = function () {
-        return this.getData("horizontalAlignment");
+        var textComponent = this.getTextComponent();
+        return textComponent.getHorizontalAlign();
     };
     JSLabel.prototype.setHorizontalAlignment = function (horizontalAlignment) {
-        this.setData("horizontalAlignment", horizontalAlignment);
-        this.setStyle("text-align", horizontalAlignment);
+        var textComponent = this.getTextComponent();
+        textComponent.setHorizontalAlign(horizontalAlignment);
     };
     JSLabel.prototype.getVerticalTextPosition = function () {
         return this.getData("verticalTextPosition") || JSLabel.CENTER;
@@ -6735,6 +6789,8 @@ var JSTabbedPane = (function (_super) {
                 mouseEvent.stopPropagation();
             }
         }).withParameters(tab, this);
+        var tabContainerParent = tabContainer.getParent();
+        tabContainerParent.revalidate(tabContainerParent);
         return tab;
     };
     JSTabbedPane.prototype.addCloseableTab = function () {
@@ -6779,6 +6835,8 @@ var JSTabbedPane = (function (_super) {
                 }
             }
         }).withParameters(tab, this);
+        var tabContainerParent = tabContainer.getParent();
+        tabContainerParent.revalidate(tabContainerParent);
         return tab;
     };
     JSTabbedPane.prototype.getTabContainer = function () {
@@ -6869,6 +6927,13 @@ var JSTabbedPane = (function (_super) {
     JSTabbedPane.prototype.getTabComponentAt = function (index) {
         var tabContainer = this.getTabContainer();
         return tabContainer.getTabComponentAt(index);
+    };
+    JSTabbedPane.prototype.revalidate = function () {
+        var tabContainer = this.getTabContainer();
+        var tabContainerParent = tabContainer.getParent();
+        tabContainerParent.revalidate(tabContainerParent);
+        var cardContainer = this.getCardContainer();
+        cardContainer.revalidate(cardContainer);
     };
     return JSTabbedPane;
 }(JSPanel));
@@ -7449,8 +7514,9 @@ var JSTreeCell = (function (_super) {
     function JSTreeCell() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSTreeCell");
+        _this.setLayout(new JSBorderLayout());
         var graphics = _this.getGraphics();
-        _super.prototype.add.call(_this, graphics);
+        _super.prototype.add.call(_this, graphics, JSBorderLayout.WEST);
         var label = _this.getLabel();
         _this.add(label);
         switch (arguments.length) {
@@ -7523,7 +7589,6 @@ var JSTreeCell = (function (_super) {
         }
         if (icon) {
             var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
             label.setX(-icon.getIconWidth());
         }
     };
@@ -7544,7 +7609,6 @@ var JSTreeCell = (function (_super) {
         }
         if (icon) {
             var label = this.getLabel();
-            label.setStyle("margin-left", icon.getIconWidth() + "px");
             label.setX(-icon.getIconWidth());
         }
     };
@@ -7561,34 +7625,6 @@ var JSTreeCell = (function (_super) {
             this.setData("graphics", graphics);
         }
         return graphics;
-    };
-    JSTreeCell.prototype.getPreferredWidth = function () {
-        var label = this.getLabel();
-        var labelPreferredOuterWidth = label.getPreferredOuterWidth();
-        var closedIcon = this.getClosedIcon();
-        var openIcon = this.getOpenIcon();
-        if (closedIcon) {
-            return labelPreferredOuterWidth + closedIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else if (openIcon) {
-            return labelPreferredOuterWidth + openIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        }
-        else {
-            return labelPreferredOuterWidth + this.getPaddingLeft() + this.getPaddingRight();
-        }
-    };
-    JSTreeCell.prototype.getButton = function () {
-        return this.getData("button");
-    };
-    JSTreeCell.prototype.setButton = function (button) {
-        var oldButton = this.getData("button");
-        if (oldButton) {
-            this.remove(oldButton);
-        }
-        if (button) {
-            this.add(button, null, 0);
-        }
-        this.setData("button", button);
     };
     JSTreeCell.prototype.getLabel = function () {
         var label = this.getData("label");
@@ -7628,17 +7664,16 @@ var JSTreeCell = (function (_super) {
     JSTreeCell.prototype.setContainer = function (container) {
         this.setData("container", container);
     };
-    JSTreeCell.COLLAPSED_PATH_DEFINITION = "M4.17,2.34L9.83,8L4.17,13.66Z";
-    JSTreeCell.EXPANDED_PATH_DEFINITION = "M10,4L10,12L2,12Z";
-    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon(JSTreeCell.COLLAPSED_PATH_DEFINITION, 16, 16).withFill("gray");
-    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon(JSTreeCell.EXPANDED_PATH_DEFINITION, 16, 16).withFill("gray");
+    JSTreeCell.COLLAPSED_PATH_ICON = new JSPathIcon("M4.17,2.34L9.83,8L4.17,13.66Z", 16, 16).withFill("gray");
+    JSTreeCell.EXPANDED_PATH_ICON = new JSPathIcon("M10,4L10,12L2,12Z", 16, 16).withFill("gray");
     return JSTreeCell;
-}(JSHTMLComponent));
+}(JSDiv));
 var JSBodyDefsContainer = (function (_super) {
     __extends(JSBodyDefsContainer, _super);
     function JSBodyDefsContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]) || this;
         _this.setUI("JSBodyDefsContainer");
+        _this.setPreferredHeight(0);
         return _this;
     }
     return JSBodyDefsContainer;
@@ -7648,6 +7683,8 @@ var JSBodyDialogContainer = (function (_super) {
     function JSBodyDialogContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDialogContainer");
+        _this.setPreferredHeight(0);
+        _this.setLayer(JSLayeredPane.MODAL_LAYER);
         return _this;
     }
     return JSBodyDialogContainer;
@@ -7657,6 +7694,7 @@ var JSBodyDragContainer = (function (_super) {
     function JSBodyDragContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDragContainer");
+        _this.setPreferredHeight(0);
         _this.setLayer(JSLayeredPane.DRAG_LAYER);
         return _this;
     }
@@ -7678,6 +7716,11 @@ var JSBodyGlassPane = (function (_super) {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyGlassPane");
         _this.setStyle("display", "none");
+        _this.setStyle("position", "fixed");
+        _this.setX(0);
+        _this.setY(0);
+        _this.setStyle("width", "100%");
+        _this.setStyle("height", "100%");
         return _this;
     }
     return JSBodyGlassPane;
@@ -7688,6 +7731,12 @@ var JSBodyModal = (function (_super) {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyModal");
         _this.setStyle("display", "none");
+        _this.setStyle("position", "fixed");
+        _this.setX(0);
+        _this.setY(0);
+        _this.setStyle("width", "100%");
+        _this.setStyle("height", "100%");
+        _this.setBackground("rgba(0, 0, 0, 0.5)");
         return _this;
     }
     return JSBodyModal;
@@ -7697,6 +7746,8 @@ var JSBodyPopupMenuContainer = (function (_super) {
     function JSBodyPopupMenuContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyPopupMenuContainer");
+        _this.setPreferredHeight(0);
+        _this.setLayer(JSLayeredPane.POPUP_LAYER);
         return _this;
     }
     return JSBodyPopupMenuContainer;
@@ -7706,7 +7757,7 @@ var JSButtonText = (function (_super) {
     function JSButtonText() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLSpanElement) ? document.createElement("span") : arguments[0]) || this;
         _this.setUI("JSButtonText");
-        _this.setAlign(JSLayout.CENTER);
+        _this.setAlign(JSBorderLayout.CENTER);
         _this.setStyle("display", "none");
         return _this;
     }
@@ -7731,8 +7782,8 @@ var JSDialog = (function (_super) {
         var titlePanel = _this.getTitlePanel();
         _super.prototype.add.call(_this, titlePanel, JSLayout.NORTH);
         var titleLabel = _this.getTitleLabel();
+        titleLabel.setAlign(JSBorderLayout.LEFT_RIGHT);
         titlePanel.add(titleLabel);
-        titleLabel.setAlign(JSLayout.LEFT_RIGHT);
         var closeButton = _this.getCloseButton();
         titlePanel.add(closeButton, JSLayout.EAST);
         var contentPane = _this.getContentPane();
@@ -8808,7 +8859,7 @@ var JSSplitPane = (function (_super) {
         this.dividerLocation = dividerLocation;
         this.dividerProportionalLocation = dividerProportionalLocation;
         if (this.isValid()) {
-            this.revalidate();
+            this.revalidate(this);
         }
     };
     JSSplitPane.prototype.getDividerProportionalLocation = function () {
@@ -8818,7 +8869,7 @@ var JSSplitPane = (function (_super) {
         this.dividerProportionalLocation = dividerProportionalLocation;
         this.dividerLocation = 0;
         if (this.isValid()) {
-            this.revalidate();
+            this.revalidate(this);
         }
     };
     JSSplitPane.prototype.getMinimumDividerLocation = function () {
@@ -9612,220 +9663,10 @@ var JSTableLowerRightCorner = (function (_super) {
 var JSTreeCellLabel = (function (_super) {
     __extends(JSTreeCellLabel, _super);
     function JSTreeCellLabel() {
-        var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
-        _this.setUI("JSTreeCellLabel");
-        var graphics = _this.getGraphics();
-        _this.add(graphics);
-        var textComponent = _this.getTextComponent();
-        _this.add(textComponent);
-        switch (arguments.length) {
-            case 1:
-                if (arguments[0] instanceof JSIcon) {
-                    var icon = arguments[0];
-                    _this.setIcon(icon);
-                }
-                else if (typeof arguments[0] === "string") {
-                    var text = arguments[0];
-                    _this.setText(text);
-                }
-                break;
-            case 2:
-                if (arguments[0] instanceof JSIcon && typeof arguments[1] === "string") {
-                    var icon = arguments[0];
-                    var horizontalAlignment = arguments[1];
-                    _this.setIcon(icon);
-                    _this.setHorizontalAlignment(horizontalAlignment);
-                }
-                else if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
-                    var text = arguments[0];
-                    var horizontalAlignment = arguments[1];
-                    _this.setText(text);
-                    _this.setHorizontalAlignment(horizontalAlignment);
-                }
-                else if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon) {
-                    var text = arguments[0];
-                    var icon = arguments[1];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                }
-                break;
-            case 3:
-                if (typeof arguments[0] === "string" && arguments[1] instanceof JSIcon && typeof arguments[2] === "string") {
-                    var text = arguments[0];
-                    var icon = arguments[1];
-                    var horizontalAlignment = arguments[2];
-                    _this.setText(text);
-                    _this.setIcon(icon);
-                    _this.setHorizontalAlignment(horizontalAlignment);
-                }
-                break;
-            default:
-        }
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    JSTreeCellLabel.prototype.getGraphics = function () {
-        var graphics = this.getData("graphics");
-        if (!graphics) {
-            var element = this.getChild("JSTreeCellLabelGraphics");
-            if (element) {
-                graphics = new JSTreeCellLabelGraphics(element);
-            }
-            else {
-                graphics = new JSTreeCellLabelGraphics();
-            }
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    };
-    JSTreeCellLabel.prototype.getTextComponent = function () {
-        var textComponent = this.getData("textComponent");
-        if (!textComponent) {
-            var element = this.getChild("JSTreeCellLabelText");
-            if (element) {
-                textComponent = new JSTreeCellLabelText(element);
-            }
-            else {
-                textComponent = new JSTreeCellLabelText();
-            }
-            this.setData("textComponent", textComponent);
-        }
-        return textComponent;
-    };
-    JSTreeCellLabel.prototype.setIcon = function (icon) {
-        _super.prototype.setIcon.call(this, icon);
-        var text = this.getText();
-        var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSTreeCellLabel.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-        }
-        if (this.isValid()) {
-            this.revalidate();
-        }
-    };
-    JSTreeCellLabel.prototype.getText = function () {
-        var textComponent = this.getTextComponent();
-        return textComponent.getText();
-    };
-    JSTreeCellLabel.prototype.setText = function (text) {
-        var textComponent = this.getTextComponent();
-        textComponent.setText(text);
-        var icon = this.getIcon();
-        var graphics = this.getGraphics();
-        var verticalTextPosition = this.getVerticalTextPosition();
-        switch (verticalTextPosition) {
-            case JSTreeCellLabel.TOP:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.BOTTOM:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.CENTER:
-            default:
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-        }
-        if (this.isValid()) {
-            this.revalidate();
-        }
-    };
-    JSTreeCellLabel.prototype.getIconTextGap = function () {
-        return this.getData("iconTextGap") || 4;
-    };
-    JSTreeCellLabel.prototype.setIconTextGap = function (iconTextGap) {
-        this.setData("iconTextGap", iconTextGap);
-        var icon = this.getIcon();
-        if (icon) {
-            var text = this.getText();
-            if (text) {
-                var graphics = this.getGraphics();
-                var verticalTextPosition = this.getVerticalTextPosition();
-                switch (verticalTextPosition) {
-                    case JSTreeCellLabel.TOP:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-top", this.getIconTextGap() + "px");
-                        break;
-                    case JSTreeCellLabel.BOTTOM:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-bottom", this.getIconTextGap() + "px");
-                        break;
-                    case JSTreeCellLabel.CENTER:
-                    default:
-                        graphics.setStyle("margin", "0");
-                        graphics.setStyle("margin-right", this.getIconTextGap() + "px");
-                }
-            }
-        }
-        if (this.isValid()) {
-            this.revalidate();
-        }
-    };
-    JSTreeCellLabel.prototype.getHorizontalAlignment = function () {
-        return this.getData("horizontalAlignment");
-    };
-    JSTreeCellLabel.prototype.setHorizontalAlignment = function (horizontalAlignment) {
-        this.setData("horizontalAlignment", horizontalAlignment);
-        this.setStyle("text-align", horizontalAlignment);
-    };
-    JSTreeCellLabel.prototype.getVerticalTextPosition = function () {
-        return this.getData("verticalTextPosition") || JSTreeCellLabel.CENTER;
-    };
-    JSTreeCellLabel.prototype.setVerticalTextPosition = function (verticalTextPosition) {
-        this.setData("verticalTextPosition", verticalTextPosition);
-        var text = this.getText();
-        var icon = this.getIcon();
-        var graphics = this.getGraphics();
-        switch (verticalTextPosition) {
-            case JSTreeCellLabel.TOP:
-                graphics.removeClass("top");
-                graphics.addClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-top", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.BOTTOM:
-                graphics.removeClass("bottom");
-                graphics.addClass("top");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-bottom", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-                break;
-            case JSTreeCellLabel.CENTER:
-            default:
-                graphics.removeClass("top");
-                graphics.removeClass("bottom");
-                graphics.setStyle("margin", "0");
-                graphics.setStyle("margin-right", (icon && text) ? (this.getIconTextGap() + "px") : "0");
-        }
-        if (this.isValid()) {
-            this.revalidate();
-        }
-    };
-    JSTreeCellLabel.prototype.getPreferredWidth = function () {
-        var whiteSpace = this.getStyle("whiteSpace");
-        this.setStyle("white-space", "nowrap");
-        var preferredWidth = _super.prototype.getPreferredWidth.call(this);
-        if (whiteSpace) {
-            this.setStyle("white-space", whiteSpace);
-        }
-        else {
-            this.removeStyle("white-space");
-        }
-        return preferredWidth;
-    };
     return JSTreeCellLabel;
-}(JSHTMLComponent));
+}(JSLabel));
 var JSTreeCellLabelGraphics = (function (_super) {
     __extends(JSTreeCellLabelGraphics, _super);
     function JSTreeCellLabelGraphics() {
@@ -9867,7 +9708,7 @@ var JSButtonGraphics = (function (_super) {
     function JSButtonGraphics() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSButtonGraphics");
-        _this.setAlign(JSLayout.CENTER);
+        _this.setAlign(JSBorderLayout.CENTER);
         _this.setStyle("display", "none");
         return _this;
     }
@@ -9959,7 +9800,7 @@ var JSLabelGraphics = (function (_super) {
     function JSLabelGraphics() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSLabelGraphics");
-        _this.setAlign(JSLayout.CENTER);
+        _this.setAlign(JSBorderLayout.CENTER);
         _this.setStyle("display", "none");
         return _this;
     }

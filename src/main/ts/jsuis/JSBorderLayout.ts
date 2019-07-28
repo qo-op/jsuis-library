@@ -135,7 +135,7 @@ class JSBorderLayout extends JSLayout {
         var hgap: number = this.getHgap();
         var width: number = container.getContentWidth();
         var x: number = container.getInsetLeft();
-        var components: JSComponent[] = container.getComponents().slice();
+        var components: JSComponent[] = container.getComponents();
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
             if (!component.isDisplayable()) {
@@ -264,7 +264,7 @@ class JSBorderLayout extends JSLayout {
         var vgap: number = this.getVgap();
         var height: number = container.getContentHeight();
         var y: number = container.getInsetTop();
-        var components: JSComponent[] = container.getComponents().slice();
+        var components: JSComponent[] = container.getComponents();
         for (var i: number = 0; i < components.length; i++) {
             var component: JSComponent = components[i];
             if (!component.isDisplayable()) {

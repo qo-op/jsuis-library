@@ -58,6 +58,7 @@ class JSFrame extends JSHTMLComponent {
         var contentPane: JSComponent = this.getContentPane();
         contentPane.setLayout(layout);
     }
+    /*
     validateHorizontally(): void {
         var validHorizontally: boolean = this.isValidHorizontally();
         if (!validHorizontally) {
@@ -100,6 +101,7 @@ class JSFrame extends JSHTMLComponent {
             }
         }
     }
+    */
     add(component: JSComponent): void;
     add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }): void;
     add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }, index: number): void;

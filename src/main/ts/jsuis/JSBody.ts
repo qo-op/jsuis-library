@@ -24,6 +24,15 @@ class JSBody extends JSHTMLComponent {
         super(document.body);
         this.setUI("JSBody");
         
+        document.documentElement.style.height = "100%";
+        this.setStyle("border", "0"); this.setStyle("padding", "0"); this.setStyle("margin", "0");
+        this.setStyle("height", "100%");
+        this.setStyle("overflow", "hidden");
+        this.setStyle("user-select", "none");
+        this.setStyle("-ms-user-select", "none");
+        this.setStyle("-moz-user-select", "none");
+        this.setStyle("-webkit-user-select", "none");
+        
         this.setLayout(new JSBorderLayout());
         
         var dragContainer: JSBodyDragContainer = this.getDragContainer();
@@ -53,6 +62,7 @@ class JSBody extends JSHTMLComponent {
         this.addMouseListener(new JSBodyMouseListener(), true);
         
         window.addEventListener("resize", function() {
+            JSBody.getInstance().invalidateChildren();
             JSBody.getInstance().revalidate();
         });
     }
@@ -160,17 +170,6 @@ class JSBody extends JSHTMLComponent {
             if (popupMenu) {
                 popupMenuContainer.add(popupMenu);
                 popupMenu.revalidate(popupMenuContainer);
-                /*
-                var popupMenuLayout: JSLayout = popupMenu.getLayout();
-                if (popupMenuLayout) {
-                    popupMenu.setWidth(this.getWidth());
-                    popupMenu.setHeight(this.getHeight());
-                    popupMenu.revalidate();
-                }
-                popupMenu.setWidth(popupMenu.getPreferredWidth());
-                popupMenu.setHeight(popupMenu.getPreferredHeight());
-                popupMenu.revalidate();
-                */
             }
         }
         this.popupMenu = popupMenu;
@@ -218,16 +217,6 @@ class JSBody extends JSHTMLComponent {
                     this.getModal().setStyle("display", "");
                 }
                 dialogContainer.add(dialog);
-                /*
-                var dialogLayout: JSLayout = dialog.getLayout();
-                if (dialogLayout) {
-                    dialog.setWidth(this.getWidth());
-                    dialog.setHeight(this.getHeight());
-                    dialog.revalidate();
-                }
-                dialog.setWidth(dialog.getPreferredWidth());
-                dialog.setHeight(dialog.getPreferredHeight());
-                */
                 dialog.revalidate(dialogContainer);
                 
                 console.log("dialog.getWidth():" + dialog.getWidth());
@@ -251,12 +240,7 @@ class JSBody extends JSHTMLComponent {
             }
             if (dragImage) {
                 dragImageContainer.add(dragImage);
-                var dragImageLayout: JSLayout = dragImage.getLayout();
-                if (dragImageLayout) {
-                    dragImage.setWidth(dragImage.getPreferredWidth());
-                    dragImage.setHeight(dragImage.getPreferredHeight());
-                    dragImage.revalidate();
-                }
+                dragImage.revalidate(dragImageContainer);
             }
         }
         this.dragImage = dragImage;

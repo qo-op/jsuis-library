@@ -43,6 +43,14 @@ interface Runnable {
 interface TreeSelectionListener {
     valueChanged(treeSelectionEvent: JSTreeSelectionEvent, ...parameters: any[]): void;
 }
+interface UI {
+    installUI(component: JSComponent): void;
+}
+declare class JSButtonUI implements UI {
+    private static instance;
+    static getInstance(): JSButtonUI;
+    installUI(component: JSComponent): void;
+}
 declare class JSAction implements ActionListener {
     name: string;
     icon: JSIcon;
@@ -144,7 +152,7 @@ declare class JSComponent {
     addClass(clazz: string): void;
     removeClass(clazz: string): void;
     getUI(): string;
-    setUI(ui: string): void;
+    setUI(ui: string | UI): void;
     x: number;
     getX(): number;
     y: number;
@@ -209,12 +217,11 @@ declare class JSComponent {
     invalidateParent(container?: JSComponent): void;
     invalidateParentHorizontally(container?: JSComponent): void;
     invalidateParentVertically(container?: JSComponent): void;
+    invalidateChildren(): void;
     validate(): void;
     validateHorizontally(): void;
     validateVertically(): void;
     revalidate(container?: JSComponent): void;
-    revalidateHorizontally(container?: JSComponent): void;
-    revalidateVertically(container?: JSComponent): void;
     isVisible(): boolean;
     setVisible(visible: boolean): void;
     clone(): JSComponent;
@@ -424,6 +431,9 @@ declare class JSLayout {
     setHgap(hgap: number): void;
     getVgap(): number;
     setVgap(vgap: number): void;
+    isHorizontal(): boolean;
+    invalidateLayoutHorizontally(container: JSComponent): void;
+    invalidateLayoutVertically(container: JSComponent): void;
     addLayoutComponent(component: JSComponent): void;
     removeLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(container: JSComponent): number;
@@ -695,6 +705,9 @@ declare class JSFlowLayout extends JSLayout {
     setAlign(align: string): void;
     getBorder(): string;
     setBorder(region: string): void;
+    isHorizontal(): boolean;
+    invalidateLayoutHorizontally(container: JSComponent): void;
+    invalidateLayoutVertically(container: JSComponent): void;
     addLayoutComponent(component: JSComponent): void;
     preferredLayoutWidth(container: JSComponent): number;
     preferredLayoutHeight(container: JSComponent): number;
@@ -938,8 +951,6 @@ declare class JSFrame extends JSHTMLComponent {
     setContentPane(contentPane: JSComponent): void;
     getLayout(): JSLayout;
     setLayout(layout: JSLayout): void;
-    validateHorizontally(): void;
-    validateVertically(): void;
     add(component: JSComponent): void;
     add(component: JSComponent, constraints: number | string | {
         [key: string]: number | string;
@@ -1454,24 +1465,6 @@ declare class JSPopupMenu extends JSPanel {
 declare class JSPopupMenuContainer extends JSPanel {
     constructor();
     constructor(element: HTMLElement);
-}
-declare class JSScrollBar extends JSPanel {
-    constructor();
-    constructor(element: HTMLElement);
-    constructor(orientation: string);
-    getOrientation(): string;
-    setOrientation(orientation: string): void;
-    getVsbPolicy(): string;
-    setVsbPolicy(vsbPolicy: string): void;
-    getHsbPolicy(): string;
-    setHsbPolicy(hsbPolicy: string): void;
-    getView(): JSPanel;
-    getViewportView(): JSComponent;
-    setViewportView(viewportView: JSComponent): void;
-    getMaximum(): number;
-    setMaximum(maximum: number): void;
-    getPreferredWidth(): number;
-    getPreferredHeight(): number;
 }
 declare class JSScrollPane extends JSPanel {
     constructor();

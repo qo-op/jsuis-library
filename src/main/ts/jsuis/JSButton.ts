@@ -17,7 +17,7 @@ class JSButton extends JSHTMLComponent {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLButtonElement) ? document.createElement("button") : arguments[0]);
-        this.setUI("JSButton");
+        this.setUI(JSButtonUI.getInstance());
         
         this.setLayout(new JSBorderLayout(4, 4));
         

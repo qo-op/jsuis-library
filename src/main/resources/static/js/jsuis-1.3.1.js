@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -699,7 +699,7 @@ var JSComponent = (function () {
     JSComponent.prototype.revalidateHorizontally = function (container) {
         this.invalidateHorizontally.apply(this, arguments);
         if (this === container) {
-            this.validate();
+            this.validateHorizontally();
         }
         else {
             var parent = this.getParent();
@@ -720,7 +720,7 @@ var JSComponent = (function () {
     JSComponent.prototype.revalidateVertically = function (container) {
         this.invalidateVertically.apply(this, arguments);
         if (this === container) {
-            this.validate();
+            this.validateVertically();
         }
         else {
             var parent = this.getParent();
@@ -2132,6 +2132,9 @@ var JSProperties = (function () {
                 if (typeof arguments[0] === "string") {
                     var key = arguments[0];
                     value = properties[key];
+                    if (value === undefined) {
+                        value = null;
+                    }
                 }
             case 2:
                 if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
@@ -3689,6 +3692,9 @@ var JSFlowLayout = (function (_super) {
             }
         }
         else {
+            var xmin = x;
+            var xmax = x + width;
+            var extraHorizontalSpace = width - rowWidth;
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
                 if (!component.isDisplayable()) {
@@ -3701,40 +3707,30 @@ var JSFlowLayout = (function (_super) {
                 var componentPreferredOuterWidth = component.getPreferredOuterWidth();
                 component.setOuterWidth(componentPreferredOuterWidth);
                 if (componentAlign === JSFlowLayout.LEFT) {
-                    component.setX(x);
-                    x += componentPreferredOuterWidth + hgap;
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    component.setX(xmin);
+                    xmin += componentPreferredOuterWidth + hgap;
                 }
                 else {
-                    component.setX(x + width - componentPreferredOuterWidth);
-                    if (align === JSFlowLayout.LEFT || align === JSFlowLayout.RIGHT) {
-                        rowWidth -= componentPreferredOuterWidth + hgap;
-                    }
-                    else {
-                        x += componentPreferredOuterWidth + hgap;
-                        rowWidth -= 2 * (componentPreferredOuterWidth + hgap);
-                    }
+                    xmax -= componentPreferredOuterWidth;
+                    component.setX(xmax);
+                    xmax -= hgap;
                 }
+                rowWidth -= componentPreferredOuterWidth + hgap;
             }
             switch (align) {
                 case JSFlowLayout.LEFT:
                 case JSFlowLayout.LEFT_RIGHT:
                 case JSFlowLayout.JUSTIFY:
+                    x = xmin;
                     break;
                 case JSFlowLayout.RIGHT:
-                    x += width - rowWidth;
+                    x = xmax - rowWidth;
                     break;
                 case JSFlowLayout.CENTER:
                 default:
-                    x += (width - rowWidth) / 2;
+                    x = Math.min(Math.max(x + (width - rowWidth) / 2, xmin), xmax - rowWidth);
             }
             if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
-                var extraHorizontalSpace = width - rowWidth;
                 for (var i = 0; i < components.length; i++) {
                     var component = components[i];
                     if (!component.isDisplayable()) {
@@ -3774,6 +3770,9 @@ var JSFlowLayout = (function (_super) {
         var vgap = this.getVgap();
         var height = container.getContentHeight();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
+            var ymin = y;
+            var ymax = y + height;
+            var extraVerticalSpace = height - rowHeight;
             for (var i = 0; i < components.length; i++) {
                 var component = components[i];
                 if (!component.isDisplayable()) {
@@ -3786,59 +3785,58 @@ var JSFlowLayout = (function (_super) {
                 var componentPreferredOuterHeight = component.getPreferredOuterHeight();
                 component.setOuterHeight(componentPreferredOuterHeight);
                 if (componentAlign === JSFlowLayout.TOP) {
-                    component.setY(y);
-                    y += componentPreferredOuterHeight + vgap;
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    component.setY(ymin);
+                    ymin += componentPreferredOuterHeight + vgap;
                 }
                 else {
-                    component.setY(y + height - componentPreferredOuterHeight);
-                    if (align === JSFlowLayout.TOP || align === JSFlowLayout.BOTTOM) {
-                        rowHeight -= componentPreferredOuterHeight + vgap;
-                    }
-                    else {
-                        y += componentPreferredOuterHeight + vgap;
-                        rowHeight -= 2 * (componentPreferredOuterHeight + vgap);
-                    }
+                    ymax -= componentPreferredOuterHeight;
+                    component.setY(ymax);
+                    ymax -= vgap;
                 }
+                rowHeight -= componentPreferredOuterHeight + vgap;
             }
             switch (align) {
                 case JSFlowLayout.TOP:
+                    y = ymin;
                     break;
                 case JSFlowLayout.BOTTOM:
-                    y += height - rowHeight;
+                    y = ymax - rowHeight;
                     break;
                 case JSFlowLayout.CENTER:
                 default:
-                    y += (height - rowHeight) / 2;
+                    y = Math.min(Math.max(y + (height - rowHeight) / 2, ymin), ymax - rowHeight);
             }
-            for (var i = 0; i < components.length; i++) {
-                var component = components[i];
-                if (!component.isDisplayable()) {
-                    continue;
+            if (align === JSFlowLayout.LEFT_RIGHT || align === JSFlowLayout.JUSTIFY) {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight + extraVerticalSpace / components.length);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + extraVerticalSpace / components.length + vgap;
                 }
-                var componentAlign = component.getAlign();
-                if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
-                    continue;
+            }
+            else {
+                for (var i = 0; i < components.length; i++) {
+                    var component = components[i];
+                    if (!component.isDisplayable()) {
+                        continue;
+                    }
+                    var componentAlign = component.getAlign();
+                    if (componentAlign === JSFlowLayout.TOP || componentAlign === JSFlowLayout.BOTTOM) {
+                        continue;
+                    }
+                    var componentPreferredOuterHeight = component.getPreferredOuterHeight();
+                    component.setOuterHeight(componentPreferredOuterHeight);
+                    component.setY(y);
+                    y += componentPreferredOuterHeight + vgap;
                 }
-                var componentPreferredOuterHeight = component.getPreferredOuterHeight();
-                component.setOuterHeight(componentPreferredOuterHeight);
-                switch (componentAlign) {
-                    case JSFlowLayout.BOTH:
-                        break;
-                    case JSFlowLayout.LEFT:
-                        break;
-                    case JSFlowLayout.RIGHT:
-                        break;
-                    case JSFlowLayout.CENTER:
-                    default:
-                }
-                component.setY(y);
-                y += componentPreferredOuterHeight + vgap;
             }
         }
         else {
@@ -4655,6 +4653,16 @@ var JSBody = (function (_super) {
     function JSBody() {
         var _this = _super.call(this, document.body) || this;
         _this.setUI("JSBody");
+        document.documentElement.style.height = "100%";
+        _this.setStyle("border", "0");
+        _this.setStyle("padding", "0");
+        _this.setStyle("margin", "0");
+        _this.setStyle("height", "100%");
+        _this.setStyle("overflow", "hidden");
+        _this.setStyle("user-select", "none");
+        _this.setStyle("-ms-user-select", "none");
+        _this.setStyle("-moz-user-select", "none");
+        _this.setStyle("-webkit-user-select", "none");
         _this.setLayout(new JSBorderLayout());
         var dragContainer = _this.getDragContainer();
         _this.add(dragContainer, JSBorderLayout.NORTH);
@@ -7638,6 +7646,7 @@ var JSBodyDefsContainer = (function (_super) {
     function JSBodyDefsContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]) || this;
         _this.setUI("JSBodyDefsContainer");
+        _this.setPreferredHeight(0);
         return _this;
     }
     return JSBodyDefsContainer;
@@ -7647,6 +7656,8 @@ var JSBodyDialogContainer = (function (_super) {
     function JSBodyDialogContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDialogContainer");
+        _this.setPreferredHeight(0);
+        _this.setLayer(JSLayeredPane.MODAL_LAYER);
         return _this;
     }
     return JSBodyDialogContainer;
@@ -7656,6 +7667,7 @@ var JSBodyDragContainer = (function (_super) {
     function JSBodyDragContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyDragContainer");
+        _this.setPreferredHeight(0);
         _this.setLayer(JSLayeredPane.DRAG_LAYER);
         return _this;
     }
@@ -7677,6 +7689,11 @@ var JSBodyGlassPane = (function (_super) {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyGlassPane");
         _this.setStyle("display", "none");
+        _this.setStyle("position", "fixed");
+        _this.setX(0);
+        _this.setY(0);
+        _this.setStyle("width", "100%");
+        _this.setStyle("height", "100%");
         return _this;
     }
     return JSBodyGlassPane;
@@ -7687,6 +7704,12 @@ var JSBodyModal = (function (_super) {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyModal");
         _this.setStyle("display", "none");
+        _this.setStyle("position", "fixed");
+        _this.setX(0);
+        _this.setY(0);
+        _this.setStyle("width", "100%");
+        _this.setStyle("height", "100%");
+        _this.setBackground("rgba(0, 0, 0, 0.5)");
         return _this;
     }
     return JSBodyModal;
@@ -7696,6 +7719,8 @@ var JSBodyPopupMenuContainer = (function (_super) {
     function JSBodyPopupMenuContainer() {
         var _this = _super.call(this, arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]) || this;
         _this.setUI("JSBodyPopupMenuContainer");
+        _this.setPreferredHeight(0);
+        _this.setLayer(JSLayeredPane.POPUP_LAYER);
         return _this;
     }
     return JSBodyPopupMenuContainer;

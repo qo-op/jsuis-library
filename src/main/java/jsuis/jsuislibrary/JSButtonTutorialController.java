@@ -19,9 +19,9 @@ public class JSButtonTutorialController {
 	@Value("${spring.profiles.active}")
 	private String profile;
 	
-    private static final String VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/version.txt").trim();
-	private static final String MINOR_VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/minor_version.txt").trim();
-	private static final String PREVIOUS_VERSION = JSTutorialUtils.getInstance().getResourceAsString("/static/previous_version.txt").trim();
+    private static final String VERSION = JSUISTutorialUtils.getInstance().getResourceAsString("/static/version.txt").trim();
+	private static final String MINOR_VERSION = JSUISTutorialUtils.getInstance().getResourceAsString("/static/minor_version.txt").trim();
+	private static final String PREVIOUS_VERSION = JSUISTutorialUtils.getInstance().getResourceAsString("/static/previous_version.txt").trim();
     
 	@RequestMapping("/tutorials/jsbutton")
 	public void jsbuttontutorial(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
