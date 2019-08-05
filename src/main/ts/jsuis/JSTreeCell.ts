@@ -6,8 +6,8 @@
  */
 class JSTreeCell extends JSDiv {
     
-    static COLLAPSED_PATH_ICON: JSPathIcon = new JSPathIcon("M4.17,2.34L9.83,8L4.17,13.66Z", 16, 16).withFill("gray");
-    static EXPANDED_PATH_ICON: JSPathIcon = new JSPathIcon("M10,4L10,12L2,12Z", 16, 16).withFill("gray");
+    static COLLAPSED_ICON: JSIcon = new JSPathIcon("M4.17,2.34L9.83,8L4.17,13.66Z", 16, 16).withFill("gray");
+    static EXPANDED_ICON: JSIcon = new JSPathIcon("M10,4L10,12L2,12Z", 16, 16).withFill("gray");
     
     constructor();
     constructor(element: HTMLElement);
@@ -19,15 +19,7 @@ class JSTreeCell extends JSDiv {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTreeCell");
-        
-        this.setLayout(new JSBorderLayout());
-        
-        var graphics: JSGraphics = this.getGraphics();
-        super.add(graphics, JSBorderLayout.WEST);
-        
-        var label: JSLabel = this.getLabel();
-        // label.setHorizontalAlignment(JSBorderLayout.LEFT_RIGHT);
-        this.add(label);
+        this.setIconTextGap(4);
         
         switch (arguments.length) {
         case 1:
@@ -49,202 +41,174 @@ class JSTreeCell extends JSDiv {
         default:
         }
     }
+    getHandleSpan(): JSSpan {
+        var span_Handle = this.getData("span_Handle");
+        if (!span_Handle) {
+            span_Handle = new JSSpan();
+            this.setData("span_Handle", span_Handle);
+        }
+        return span_Handle;
+    }
+    getIconSpan(): JSSpan {
+        var span_Icon = this.getData("span_Icon");
+        if (!span_Icon) {
+            span_Icon = new JSSpan();
+            this.setData("span_Icon", span_Icon);
+        }
+        return span_Icon;
+    }
+    getTextSpan(): JSSpan {
+        var span_Text = this.getData("span_Text");
+        if (!span_Text) {
+            span_Text = new JSSpan();
+            span_Text.setStyle("vertical-align", "middle");
+            this.setData("span_Text", span_Text);
+        }
+        return span_Text;
+    }
+    setGraphics(graphics: JSComponent) {
+        this.setData("graphics", graphics);
+    }
+    getGraphics(): JSComponent {
+        return this.getData("graphics");
+    }
+    setHandleIcon(icon: JSIcon) {
+        var span_Handle: JSSpan = this.getHandleSpan();
+        var parent: JSComponent = span_Handle.getParent();
+        if (!icon) {
+            if (parent === this) {
+                this.remove(span_Handle);
+            }
+        } else {
+            if (parent !== this) {
+                this.add(span_Handle, null, 0);
+            }
+            icon.paintIcon(this, span_Handle);
+        }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    setIcon(icon: JSIcon) {
+        var graphics: JSComponent = this.getGraphics();
+        if (!icon) {
+            if (graphics) {
+                this.remove(graphics);
+            }
+        } else {
+            var text: string = this.getText();
+            if (!text) {
+                if (!graphics) {
+                    graphics = this.getIconSpan();
+                    this.add(graphics);
+                    this.setGraphics(graphics);
+                }
+                graphics.setStyle("margin-right", "0");
+            } else {
+                if (!graphics) {
+                    graphics = this.getIconSpan();
+                    this.add(graphics, null, this.getComponents().length - 1);
+                    this.setGraphics(graphics);
+                }
+                var iconTextGap: number = this.getIconTextGap();
+                graphics.setStyle("margin-right", iconTextGap + "px");
+            }
+        }
+        super.setIcon(icon);
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getText(): string {
+        var span_Text: JSSpan = this.getTextSpan();
+        return span_Text.getText();
+    }
+    setText(text: string) {
+        var span_Text: JSSpan = this.getTextSpan();
+        var parent: JSComponent = span_Text.getParent();
+        var icon: JSIcon = this.getIcon();
+        var graphics: JSComponent = this.getGraphics();
+        if (!text) {
+            if (parent === this) {
+                this.remove(span_Text);
+                if (graphics) {
+                    graphics.setStyle("margin-right", "0");
+                }
+            }
+        } else {
+            if (!icon) {
+                if (parent !== this) {
+                    this.add(span_Text);
+                }
+            } else {
+                if (parent !== this) {
+                    this.add(span_Text);
+                }
+                if (graphics) {
+                    var iconTextGap: number = this.getIconTextGap();
+                    graphics.setStyle("margin-right", iconTextGap + "px");
+                }
+            }
+        }
+        span_Text.setText(text);
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getIconTextGap(): number {
+        return +this.getAttribute("data-icon-text-gap");
+    }
+    setIconTextGap(iconTextGap: number) {
+        this.setAttribute("data-icon-text-gap", "" + iconTextGap);
+        var icon: JSIcon = this.getIcon();
+        if (!icon) {
+            return;
+        }
+        var text: string = this.getText();
+        if (!text) {
+            return;
+        }
+        var graphics: JSComponent = this.getGraphics();
+        graphics.setStyle("margin-right", iconTextGap + "px");
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
     getValue(): any {
         return this.getData("value");
     }
     setValue(value: any) {
         this.setData("value", value);
         this.setText("" + value);
-        var children = value.children();
-        if (children.length) {
-            var closedIcon: JSIcon = this.getClosedIcon();
-            var openIcon: JSIcon = this.getOpenIcon();
-            if (!closedIcon && !openIcon) {
-                this.addMouseListener({
-                    mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
-                        var container: JSComponent = treeCell.getContainer();
-                        if (container.isDisplayable()) {
-                            // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-                            var treeNode: JSTreeNode = treeCell.getValue();
-                            treeNode.setExpanded(false);
-                            treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-                            container.setStyle("display", "none");
-                        } else {
-                            // treeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
-                            var treeNode: JSTreeNode = treeCell.getValue();
-                            treeNode.setExpanded(true);
-                            treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
-                            container.setStyle("display", "");
-                        }
-                        treeCell.revalidate();
-                        mouseEvent.stopPropagation();
-                    }
-                }).withParameters(this);
-            }
-            /*
-            var button: JSButton = this.getButton();
-            if (!button) {
-                button = new JSTreeCellButton(JSTreeCell.COLLAPSED_PATH_ICON);
-                this.setButton(button);
-                this.addMouseListener({
-                    mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
-                        var container: JSDiv = treeCell.getContainer();
-                        if (container.isDisplayable()) {
-                            treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-                            container.setStyle("display", "none");
-                        } else {
-                            treeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
-                            container.setStyle("display", "");
-                        }
-                        mouseEvent.stopPropagation();
-                    }
-                }).withParameters(this);
-            }
-            */
-            this.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-        }
-    }
-    getClosedIcon(): JSIcon {
-        return this.getData("closedIcon");
-    }
-    setClosedIcon(icon: JSIcon) {
-        this.setData("closedIcon", icon);
-        var graphics: JSGraphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            } else {
-                graphics.removeAll();
-            }
-            // graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
-            graphics.setStyle("vertical-align", "middle");
-        }
-        if (icon) {
-            var label: JSTreeCellLabel = this.getLabel();
-            // label.setStyle("margin-left", icon.getIconWidth() + "px");
-            label.setX(-icon.getIconWidth());
-        }
-    }
-    getOpenIcon(): JSIcon {
-        return this.getData("openIcon");
-    }
-    setOpenIcon(icon: JSIcon) {
-        this.setData("openIcon", icon);
-        var graphics: JSGraphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            } else {
-                graphics.removeAll();
-            }
-            // graphics.setStyle("top", "calc(50% - " + (icon.getIconHeight() / 2) + "px)");
-            graphics.setStyle("vertical-align", "middle");
-        }
-        if (icon) {
-            var label: JSTreeCellLabel = this.getLabel();
-            // label.setStyle("margin-left", icon.getIconWidth() + "px");
-            label.setX(-icon.getIconWidth());
-        }
-    }
-    getGraphics(): JSGraphics {
-        var graphics: JSGraphics = this.getData("graphics");
-        if (!graphics) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSGraphics");
-            if (element) {
-                graphics = new JSGraphics(element);
-            } else {
-                graphics = new JSGraphics();
-            }
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    }
-    /*
-    getPreferredWidth(): number {
-        var label: JSTreeCellLabel = this.getLabel();
-        var labelPreferredOuterWidth: number = label.getPreferredOuterWidth();
-        var closedIcon: JSIcon = this.getClosedIcon();
-        var openIcon: JSIcon = this.getOpenIcon();
-        if (closedIcon) {
-            return labelPreferredOuterWidth + closedIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        } else if (openIcon) {
-            return labelPreferredOuterWidth + openIcon.getIconWidth() + this.getPaddingLeft() + this.getPaddingRight();
-        } else {
-            return labelPreferredOuterWidth + this.getPaddingLeft() + this.getPaddingRight();
-        }
-    }
-    */
-    
-    
-    /*
-    getButton(): JSButton {
-        return this.getData("button");
-    }
-    setButton(button: JSButton) {
-        var oldButton: JSButton = this.getData("button");
-        if (oldButton) {
-            this.remove(oldButton);
-        }
-        if (button) {
-            this.add(button, null, 0);
-        }
-        this.setData("button", button);
-    }
-    */
-    
-    
-    /*
-    getLabel(): JSTreeCellLabel {
-        var label: JSTreeCellLabel = this.getData("label");
-        if (!label) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSLabel");
-            if (element) {
-                label = new JSTreeCellLabel(element);
-            } else {
-                label = new JSTreeCellLabel();
-            }
-            label.setStyle("position", "relative");
-            label.setStyle("vertical-align", "middle");
-            this.setData("label", label);
-        }
-        return label;
-    }
-    */
-    getLabel(): JSLabel {
-        var label: JSLabel = this.getData("label");
-        if (!label) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSLabel");
-            if (element) {
-                label = new JSLabel(element);
-            } else {
-                label = new JSLabel();
-            }
-            label.setStyle("position", "relative");
-            label.setStyle("vertical-align", "middle");
-            this.setData("label", label);
-        }
-        return label;
-    }
-    getIcon(): JSIcon {
-        var label: JSComponent = this.getLabel();
-        return label.getIcon();
-    }
-    setIcon(icon: JSIcon) {
-        var label: JSComponent = this.getLabel();
-        label.setIcon(icon);
-    }
-    getText(): string {
-        var label: JSComponent = this.getLabel();
-        return label.getText(); 
-    }
-    setText(text: string) {
-        var label: JSTreeCellLabel = this.getLabel();
-        label.setText(text);
     }
     getContainer(): JSComponent {
-        return this.getData("container");
-    }
-    setContainer(container: JSComponent) {
-        this.setData("container", container);
+        var container: JSComponent = this.getData("container");
+        if (!container) {
+            container = new JSDiv();
+            container.setStyle("display", "none");
+            this.getParent().add(container);
+            this.setData("container", container);
+            
+            this.setHandleIcon(JSTreeCell.COLLAPSED_ICON);
+            this.addMouseListener({
+                mouseClicked(mouseEvent: MouseEvent, treeCell: JSTreeCell) {
+                    var container: JSComponent = treeCell.getContainer();
+                    if (container.isDisplayable()) {
+                        var treeNode: JSTreeNode = treeCell.getValue();
+                        treeNode.setExpanded(false);
+                        treeCell.setHandleIcon(JSTreeCell.COLLAPSED_ICON);
+                        container.setStyle("display", "none");
+                    } else {
+                        var treeNode: JSTreeNode = treeCell.getValue();
+                        treeNode.setExpanded(true);
+                        treeCell.setHandleIcon(JSTreeCell.EXPANDED_ICON);
+                        container.setStyle("display", "");
+                    }
+                    treeCell.revalidate();
+                    mouseEvent.stopPropagation();
+                }
+            }).withParameters(this);
+        }
+        return container;
     }
 }

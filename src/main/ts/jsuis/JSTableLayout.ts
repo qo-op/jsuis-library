@@ -60,9 +60,11 @@ class JSTableLayout extends JSBorderLayout {
         var tableContentBody: JSTableBody = tableContent.getTableBody();
         for (var i: number = 0; i < tableContentHeadCells.length; i++) {
             var tableContentHeadCell: JSTableHeadCell = <JSTableHeadCell> tableContentHeadCells[i];
-            var tableContentHeadCellPreferredWidth = tableContentHeadCell.getPreferredWidth();
+            
+            
+            
             var tableHeaderHeadCell: JSTableHeadCell = <JSTableHeadCell> tableHeaderHeadCells[i];
-            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCellPreferredWidth);
+            tableHeaderHeadCell.getContainer().setOuterWidth(tableContentHeadCell.getWidth());
         }
         var tableHeaderPreferredOuterWidth = tableHeader.getPreferredOuterWidth();
         

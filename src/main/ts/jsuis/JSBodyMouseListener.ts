@@ -32,6 +32,7 @@ class JSBodyMouseListener implements MouseListener {
                     if (dragStart) {
                         dragSource.fireDragEnd(mouseEvent);
                         dragSource.setData("dragStart", false);
+                        dragSource.fireMouseReleased(mouseEvent);
                         // body.getGlassPane().setStyle("display", "none");
                     }
                     body.setDragSource(null);

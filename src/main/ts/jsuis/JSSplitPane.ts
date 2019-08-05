@@ -39,8 +39,7 @@ class JSSplitPane extends JSPanel {
         this.add(divider);
         
         this.setDividerProportionalLocation(.5);
-    }
-    init() {
+        
         var divider: JSSplitPaneDivider = this.getDivider();
         divider.addMouseListener(new JSSplitPaneMouseListener(this));
     }

@@ -20,9 +20,6 @@ class JSCardLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-            if (componentPreferredOuterWidth === null) {
-                return null;
-            }
             preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth);
         }
         return preferredLayoutWidth;
@@ -37,9 +34,6 @@ class JSCardLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-            if (componentPreferredOuterHeight === null) {
-                return null;
-            }
             preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight);
         }
         return preferredLayoutHeight;

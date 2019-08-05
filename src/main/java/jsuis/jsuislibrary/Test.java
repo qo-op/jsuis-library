@@ -1,13 +1,11 @@
 package jsuis.jsuislibrary;
 
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JPanel;
 
 public class Test {
 
@@ -15,20 +13,16 @@ public class Test {
 		
 		JFrame frame = new JFrame();
 		
-		System.out.println(frame.getContentPane().getLayout());
+		try {
+			System.out.println(new File(".").getCanonicalPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
-		JPanel cards = new JPanel(new CardLayout());
-		frame.add(cards);
+		ImageIcon image = new ImageIcon("middle.gif");
 		
-		JPanel green = new JPanel();
-		green.setBackground(Color.green);
-		cards.add(green);
-		
-		JPanel red = new JPanel();
-		red.setBackground(Color.red);
-		cards.add(red);
-		
-		frame.setGlassPane(new JPanel());
+		JLabel label = new JLabel("Hello, World!", image, JLabel.RIGHT);
+		frame.add(label);
 		
 		frame.pack();
 		frame.setLocationRelativeTo(null);

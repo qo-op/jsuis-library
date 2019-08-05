@@ -111,7 +111,7 @@
 	-webkit-user-drag: none;
 }
 .JSLabel {
-	display: inline-block;
+	/* display: inline-block; */
 	white-space: normal;
 }
 .JSLabel.undecorated {

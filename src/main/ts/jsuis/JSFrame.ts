@@ -14,26 +14,16 @@ class JSFrame extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSFrame");
-        
+        this.setLayout(new JSBorderLayout());
         this.setVisible(false);
         var body: JSBody = JSBody.getInstance();
         body.addFrame(this);
-        
-        super.setLayout(new JSBorderLayout());
-        
-        var contentPane: JSComponent = this.getContentPane();
-        super.add(contentPane);
     }
     getContentPane(): JSComponent {
-        var contentPane: JSFrameContentPane = this.getData("contentPane");
+        var contentPane: JSComponent = this.getData("contentPane");
         if (!contentPane) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSFrameContentPane");
-            if (element) {
-                contentPane = new JSFrameContentPane(element);
-            } else {
-                contentPane = new JSFrameContentPane();
-            }
-            this.setData("contentPane", contentPane);
+            contentPane = this;
+            this.setContentPane(contentPane);
         }
         return contentPane;
     }
@@ -42,21 +32,29 @@ class JSFrame extends JSHTMLComponent {
         if (oldContentPane === contentPane) {
             return;
         }
-        if (oldContentPane) {
+        if (oldContentPane && oldContentPane !== this) {
             super.remove(oldContentPane);
         }
-        if (contentPane) {
+        if (contentPane && contentPane !== this) {
             super.add(contentPane);
         }
         this.setData("contentPane", contentPane);
     }
     getLayout(): JSLayout {
         var contentPane: JSComponent = this.getContentPane();
-        return contentPane.getLayout();
+        if (contentPane !== this) {
+            return contentPane.getLayout();
+        } else {
+            return super.getLayout();
+        }
     }
     setLayout(layout: JSLayout) {
         var contentPane: JSComponent = this.getContentPane();
-        contentPane.setLayout(layout);
+        if (contentPane !== this) {
+            contentPane.setLayout(layout);
+        } else {
+            super.setLayout(layout);
+        }
     }
     /*
     validateHorizontally(): void {
@@ -108,19 +106,31 @@ class JSFrame extends JSHTMLComponent {
     // overload
     add(): void {
         var contentPane: JSComponent = this.getContentPane();
-        contentPane.add.apply(contentPane, arguments);
+        if (contentPane !== this) {
+            contentPane.add.apply(contentPane, arguments);
+        } else {
+            super.add.apply(this, arguments);
+        }
     }
     remove(index: number): void;
     remove(component: JSComponent): void;
     // overload
-    remove(indexOrComponent: number | JSComponent): void {
+    remove(): void {
         var contentPane: JSComponent = this.getContentPane();
-        contentPane.remove.apply(contentPane, arguments);
+        if (contentPane !== this) {
+            contentPane.remove.apply(contentPane, arguments);
+        } else {
+            super.remove.apply(this, arguments);
+        }
     }
     removeAll() {
         var contentPane: JSComponent = this.getContentPane();
-        contentPane.removeAll.apply(contentPane, arguments);
-    }    
+        if (contentPane !== this) {
+            contentPane.removeAll.apply(contentPane, arguments);
+        } else {
+            super.removeAll.apply(this, arguments);
+        }
+    }
     setVisible(visible: boolean) {
         if (visible) {
             var body: JSBody = JSBody.getInstance();

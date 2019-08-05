@@ -147,7 +147,7 @@ class JSTab extends JSPanel {
         default:
             this.setBorder(new JSMatteBorder(1, 0, 0, 1, "DarkGray"));
         }
-        var graphics: JSGraphics = this.getGraphics();
+        var graphics: JSComponent = this.getGraphics();
         var label: JSLabel = this.getLabel();
         var tabCloseButton: JSButton = this.getCloseButton();
         if (tabPlacement === JSTabbedPane.LEFT || tabPlacement === JSTabbedPane.RIGHT) {

@@ -17,6 +17,8 @@ class JSImage extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLImageElement) ? document.createElement("img") : arguments[0]);
         this.setUI("JSImage");
+        this.setStyle("vertical-align", "middle");
+        
         switch (arguments.length) {
         case 0:
             break;

@@ -53,31 +53,57 @@ class JSScrollPane extends JSPanel {
         if (view) {
             this.setViewportView(view);
         }
-        this.setVsbPolicy(vsbPolicy);
-        this.setHsbPolicy(hsbPolicy);
+        this.setVerticalScrollBarPolicy(vsbPolicy);
+        this.setHorizontalScrollBarPolicy(hsbPolicy);
     }
-    getVsbPolicy(): string {
-        return this.getStyle("overflow-y");
+    getVerticalScrollBarPolicy(): string {
+        return this.getAttribute("data-vertical-scrollbar-policy");
     }
-    setVsbPolicy(vsbPolicy: string) {
-        this.setStyle("overflow-y", vsbPolicy);
-    }
-    getHsbPolicy(): string {
-        return this.getStyle("overflow-x");
-    }
-    setHsbPolicy(hsbPolicy: string) {
-        this.setStyle("overflow-x", hsbPolicy);
-    }
-    getViewportView(): JSComponent {
-        return this.getData("viewportView");
-    }
-    setViewportView(viewportView: JSComponent) {
-        this.setData("viewportView", viewportView);
-        if (viewportView) {
-            this.removeAll();
-            this.add(viewportView);
+    setVerticalScrollBarPolicy(verticalScrollBarPolicy: string) {
+        this.setAttribute("data-vertical-scrollbar-policy", verticalScrollBarPolicy);
+        var view: JSComponent = this.getViewportView();
+        if (view) {
+            view.setStyle("overflow-y", verticalScrollBarPolicy);
         }
     }
+    getHorizontalScrollBarPolicy(): string {
+        return this.getAttribute("data-horizontal-scrollbar-policy");
+    }
+    setHorizontalScrollBarPolicy(horizontalScrollBarPolicy: string) {
+        this.setAttribute("data-horizontal-scrollbar-policy", horizontalScrollBarPolicy);
+        var view: JSComponent = this.getViewportView();
+        if (view) {
+            view.setStyle("overflow-x", horizontalScrollBarPolicy);
+        }
+    }
+    getViewportView(): JSComponent {
+        return this.getData("view");
+    }
+    setViewportView(view: JSComponent) {
+        this.setData("view", view);
+        if (view) {
+            this.removeAll();
+            this.add(view);
+            view.setStyle("overflow-y", this.getVerticalScrollBarPolicy());
+            view.setStyle("overflow-x", this.getHorizontalScrollBarPolicy());
+        }
+    }
+    /*
+    setWidth(width: number) {
+        super.setWidth(width);
+        var view: JSComponent = this.getViewportView();
+        if (view) {
+            view.setWidth(width);
+        }
+    }
+    setHeight(height: number) {
+        super.setHeight(height);
+        var view: JSComponent = this.getViewportView();
+        if (view) {
+            view.setHeight(height);
+        }
+    }
+    */
     // isValidateRoot(): boolean {
         // return true;
     // }

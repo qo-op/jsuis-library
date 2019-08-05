@@ -6,7 +6,9 @@
  */
 class JSSplitPaneMouseListener implements MouseListener {
     
-    splitPane: JSSplitPane;
+    private splitPane: JSSplitPane;
+    private x: number = 0;
+    private y: number = 0;
     
     constructor(splitPane: JSSplitPane) {
         this.setSplitPane(splitPane);
@@ -17,30 +19,44 @@ class JSSplitPaneMouseListener implements MouseListener {
     setSplitPane(splitPane: JSSplitPane) {
         this.splitPane = splitPane;
     }
-    mousePressed(mouseEvent: MouseEvent) {
+    getX(): number {
+        return this.x;
+    }
+    setX(x: number) {
+        this.x = x;
+    }
+    getY(): number {
+        return this.y;
+    }
+    setY(y: number) {
+        this.y = y;
+    }
+    mousePressed(mouseEvent: MouseEvent): void {
         var splitPane: JSSplitPane = this.getSplitPane();
         var orientation = splitPane.getOrientation();
         if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            splitPane.setData("dy", mouseEvent.y - splitPane.getDividerLocation());
+            this.setY(mouseEvent.y - splitPane.getDividerLocation());
         } else {
-            splitPane.setData("dx", mouseEvent.x - splitPane.getDividerLocation());
+            this.setX(mouseEvent.x - splitPane.getDividerLocation());
         }
         mouseEvent.stopPropagation();
     }
-    mouseDragged(mouseEvent: MouseEvent) {
+    mouseDragged(mouseEvent: MouseEvent): void {
+        var body: JSBody = JSBody.getInstance();
+        var glassPane: JSBodyGlassPane = body.getGlassPane();
+        glassPane.setStyle("display", "");
         var splitPane: JSSplitPane = this.getSplitPane();
         var orientation = splitPane.getOrientation();
         if (orientation === JSSplitPane.VERTICAL_SPLIT) {
-            var y = mouseEvent.y;
-            if (y) {
-                splitPane.setDividerLocation(y - splitPane.getData("dy"), splitPane.getDividerProportionalLocation());
-            }
+            splitPane.setDividerLocation(mouseEvent.y - this.getY(), splitPane.getDividerProportionalLocation());
         } else {
-            var x = mouseEvent.x;
-            if (x) {
-                splitPane.setDividerLocation(x - splitPane.getData("dx"), splitPane.getDividerProportionalLocation());
-            }
+            splitPane.setDividerLocation(mouseEvent.x - this.getX(), splitPane.getDividerProportionalLocation());
         }
         mouseEvent.stopPropagation();
+    }
+    mouseReleased(mouseEvent: MouseEvent): void {
+        var body: JSBody = JSBody.getInstance();
+        var glassPane: JSBodyGlassPane = body.getGlassPane();
+        glassPane.setStyle("display", "none");
     }
 }

@@ -29,7 +29,7 @@ class JSDiv extends JSHTMLComponent {
         return super.getWidth();
     }
     setWidth(width: number): void {
-        this.setValidHorizontally(false);
+        // this.setValidHorizontally(false);
         this.validateHorizontally();
     }
 }

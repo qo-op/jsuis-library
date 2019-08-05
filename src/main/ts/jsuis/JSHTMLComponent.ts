@@ -145,6 +145,12 @@ class JSHTMLComponent extends JSComponent {
         }
         this.validateHorizontally();
         
+        var display: string = this.getStyle("display");
+        this.setStyle("display", "inline-block");
+        
+        var whiteSpace: string = this.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        
         var cssWidth: string = this.getStyle("width");
         if (cssWidth) {
             this.removeStyle("width");
@@ -155,6 +161,19 @@ class JSHTMLComponent extends JSComponent {
         if (cssWidth) {
             this.setStyle("width", cssWidth);
         }
+        
+        if (whiteSpace) {
+            this.setStyle("white-space", whiteSpace);
+        } else {
+            this.removeStyle("white-space");
+        }
+        
+        if (display) {
+            this.setStyle("display", display);
+        } else {
+            this.removeStyle("display");
+        }
+        
         return width;
     }
     getPreferredHeight(): number {
@@ -183,23 +202,15 @@ class JSHTMLComponent extends JSComponent {
     
     getPreferredOuterWidth(): number {
         var preferredOuterWidth: number = this.getPreferredWidth();
-        if (preferredOuterWidth === null) {
-            return null;
-        } else {
-            return preferredOuterWidth +
-                this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
-                this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
-        }
+        return preferredOuterWidth +
+            this.getMarginLeft() + this.getBorderLeftWidth() + this.getPaddingLeft() +
+            this.getPaddingRight() + this.getBorderRightWidth() + this.getMarginRight();
     }
     getPreferredOuterHeight(): number {
         var preferredOuterHeight: number = this.getPreferredHeight();
-        if (preferredOuterHeight === null) {
-            return null;
-        } else {
-            return preferredOuterHeight +
-                this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
-                this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
-        }
+        return preferredOuterHeight +
+            this.getMarginTop() + this.getBorderTopWidth() + this.getPaddingTop() +
+            this.getPaddingBottom() + this.getBorderBottomWidth() + this.getMarginBottom();
     }
     getMarginTop(): number {
         return +this.getComputedStyle("margin-top").replace("px", "");

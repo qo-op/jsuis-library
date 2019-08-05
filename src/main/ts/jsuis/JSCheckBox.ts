@@ -82,12 +82,7 @@ class JSCheckBox extends JSHTMLComponent {
     getInput(): JSCheckBoxInput {
         var input: JSCheckBoxInput = this.getData("input");
         if (!input) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxInput");
-            if (element) {
-                input = new JSCheckBoxInput(element);
-            } else {
-                input = new JSCheckBoxInput();
-            }
+            input = new JSCheckBoxInput();
             this.setData("input", input);
         }
         return input;
@@ -95,15 +90,10 @@ class JSCheckBox extends JSHTMLComponent {
     getLabel(): JSCheckBoxLabel {
         var label: JSCheckBoxLabel = this.getData("label");
         if (!label) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxLabel");
-            if (element) {
-                label = new JSCheckBoxLabel(element);
-            } else {
-                label = new JSCheckBoxLabel();
-            }
+            label = new JSCheckBoxLabel();
             this.setData("label", label);
         }
-        return label; 
+        return label;
     }
     getIcon(): JSIcon {
         var label: JSCheckBoxLabel = this.getLabel();

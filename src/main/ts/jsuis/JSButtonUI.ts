@@ -14,7 +14,7 @@ class JSButtonUI implements UI {
         return JSButtonUI.instance;
     }
     
-    installUI(component: JSComponent): void {
+    installUI(component: JSButton): void {
         component.setClass("JSButton");
         component.setStyle("white-space", "nowrap");
     }

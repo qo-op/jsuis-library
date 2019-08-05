@@ -191,8 +191,11 @@ class JSLayout {
             }
             var componentLayout: JSLayout = component.getLayout();
             if (componentLayout) {
+                var position: string = component.getStyle("position");
+                if (!position || (position !== "absolute" && position !== "fixed" && position !== "sticky" && position !== "relative")) {
+                    component.setStyle("position", "relative");
+                } 
                 component.setOuterWidth(component.getPreferredOuterWidth());
-                component.setStyle("position", "relative");
             } else {
                 component.validateHorizontally();
             }
@@ -219,8 +222,11 @@ class JSLayout {
             }
             var componentLayout: JSLayout = component.getLayout();
             if (componentLayout) {
+                var position: string = component.getStyle("position");
+                if (!position || (position !== "absolute" && position !== "fixed" && position !== "sticky" && position !== "relative")) {
+                    component.setStyle("position", "relative");
+                } 
                 component.setOuterHeight(component.getPreferredOuterHeight());
-                component.setStyle("position", "relative");
             } else {
                 component.validateVertically();
             }

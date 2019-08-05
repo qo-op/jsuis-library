@@ -62,7 +62,6 @@ class JSBody extends JSHTMLComponent {
         this.addMouseListener(new JSBodyMouseListener(), true);
         
         window.addEventListener("resize", function() {
-            JSBody.getInstance().invalidateChildren();
             JSBody.getInstance().revalidate();
         });
     }
@@ -112,13 +111,7 @@ class JSBody extends JSHTMLComponent {
     getGlassPane(): JSBodyGlassPane {
         var glassPane: JSBodyGlassPane = this.getData("glassPane");
         if (!glassPane) {
-            var dragContainer: JSBodyDialogContainer = this.getData("dragContainer");
-            var element: HTMLElement = <HTMLElement> dragContainer.getChild("JSBodyGlassPane");
-            if (element) {
-                glassPane = new JSBodyGlassPane(element);
-            } else {
-                glassPane = new JSBodyGlassPane();
-            }
+            glassPane = new JSBodyGlassPane();
             this.setData("glassPane", glassPane);
         }
         return glassPane;
@@ -274,5 +267,21 @@ class JSBody extends JSHTMLComponent {
             this.setData("timer", timer); 
         }
         return timer;
+    }
+    debug(parent: JSComponent = JSBody.getInstance(), debugId: number = 0) {
+        var components: JSComponent[] = parent.getComponents();
+        for (var i: number = 0; i < components.length; i++) {
+            var component: JSComponent = components[i];
+            if (!component.isDisplayable()) {
+                continue;
+            }
+            component.setAttribute("data-jsuis-debug-id", "" + (++debugId));
+            this.setData("" + debugId, component);
+            debugId = this.debug(component, debugId);
+        }
+        return debugId;
+    }
+    getComponentByDebugId(debugId: number): JSComponent {
+        return this.getData("" + debugId);
     }
 }

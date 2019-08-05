@@ -42,9 +42,6 @@ class JSBorderLayout extends JSLayout {
             var constraints: string = <string> component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                if (componentPreferredOuterWidth === null) {
-                    return null;
-                }
                 preferredLayoutWidth = Math.max(preferredLayoutWidth, componentPreferredOuterWidth + hgap);
             }
         }
@@ -58,9 +55,6 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-            if (componentPreferredOuterWidth === null) {
-                return null;
-            }
             switch (constraints) {
             case JSBorderLayout.WEST:
             case JSBorderLayout.EAST:
@@ -91,9 +85,6 @@ class JSBorderLayout extends JSLayout {
             var constraints: string = <string> component.getConstraints();
             if (!constraints || constraints === JSLayout.CENTER) {
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-                if (componentPreferredOuterHeight === null) {
-                    return null;
-                }
                 preferredLayoutHeight = Math.max(preferredLayoutHeight, componentPreferredOuterHeight + vgap);
             }
         }
@@ -107,9 +98,6 @@ class JSBorderLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-            if (componentPreferredOuterHeight === null) {
-                return null;
-            }
             switch (constraints) {
             case JSBorderLayout.NORTH:
             case JSBorderLayout.SOUTH:

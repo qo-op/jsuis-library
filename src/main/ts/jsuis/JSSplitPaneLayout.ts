@@ -14,13 +14,7 @@ class JSSplitPaneLayout extends JSLayout {
         var leftContainer: JSPanel = splitPane.getLeftContainer();
         var rightContainer: JSPanel = splitPane.getRightContainer();
         var leftContainerPreferredOuterWidth: number = leftContainer.getPreferredOuterWidth();
-        if (leftContainerPreferredOuterWidth === null) {
-            return null;
-        }
         var rightContainerPreferredOuterWidth: number = rightContainer.getPreferredOuterWidth();
-        if (rightContainerPreferredOuterWidth === null) {
-            return null;
-        }
         if (orientation === JSSplitPane.VERTICAL_SPLIT) {
             return Math.max(leftContainerPreferredOuterWidth, rightContainer.getPreferredOuterWidth());
         } else {
@@ -33,13 +27,7 @@ class JSSplitPaneLayout extends JSLayout {
         var leftContainer: JSPanel = splitPane.getLeftContainer();
         var rightContainer: JSPanel = splitPane.getRightContainer();
         var leftContainerPreferredOuterHeight: number = leftContainer.getPreferredOuterHeight();
-        if (leftContainerPreferredOuterHeight === null) {
-            return null;
-        }
         var rightContainerPreferredOuterHeight: number = rightContainer.getPreferredOuterHeight();
-        if (rightContainerPreferredOuterHeight === null) {
-            return null;
-        }
         if (orientation === JSSplitPane.VERTICAL_SPLIT) {
             return leftContainerPreferredOuterHeight + splitPane.getDividerSize() + rightContainerPreferredOuterHeight;
         } else {

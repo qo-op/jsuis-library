@@ -64,7 +64,7 @@ class JSDialog extends JSPanel {
         closeButton.addActionListener(new JSDialogActionListener(this));
     }
     /*
-    init() {
+    init(): void {
         var titleLabel: JSDialogTitleLabel = this.getTitleLabel();
         titleLabel.addMouseListener(new JSDialogMouseListener(this));
         var closeButton: JSDialogCloseButton = this.getCloseButton();

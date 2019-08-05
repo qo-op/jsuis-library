@@ -16,9 +16,6 @@ class JSTreeLayout extends JSLayout {
         for (var treePath in treeCells) {
             var treeCell: JSTreeCell = treeCells[treePath];
             var treeCellPreferredWidth: number = treeCell.getPreferredOuterWidth();
-            if (treeCellPreferredWidth === null) {
-                return null;
-            }
             preferredLayoutWidth = Math.max(preferredLayoutWidth, treeCellPreferredWidth);
         }
         return preferredLayoutWidth;

@@ -53,9 +53,6 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-            if (componentPreferredOuterWidth === null) {
-                return null;
-            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridx: number = constraints.gridx || 0;
             var gridwidth: number = constraints.gridwidth || 1;
@@ -116,9 +113,6 @@ class JSGridBagLayout extends JSLayout {
                 continue;
             }
             var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-            if (componentPreferredOuterHeight === null) {
-                return null;
-            }
             var constraints: { gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number } = <{ gridx?: number; gridy?: number; gridwidth?: number; gridheight?: number; fill?: string; anchor?: string; weightx?: number; weighty?: number }> component.getConstraints() || {};
             var gridy: number = constraints.gridy || 0;
             var gridheight: number = constraints.gridheight || 1;

@@ -17,6 +17,7 @@ class JSPathImage extends JSSVG {
         // constructor(element: SVGSVGElement);
         super(arguments.length === 0 || !(arguments[0] instanceof SVGSVGElement) ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : arguments[0]);
         this.setUI("JSPathImage");
+        this.setStyle("vertical-align", "middle");
         
         var path: JSPath = this.getPath();
         this.add(path);

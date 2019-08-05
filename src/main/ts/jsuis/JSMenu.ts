@@ -5,13 +5,20 @@
  * @author Yassuo Toda
  */
 /// <reference path = "../jsuis.ts"/>
-class JSMenu extends JSMenuItem implements MouseListener, Runnable {
+class JSMenu extends JSMenuItem implements Runnable {
     
     static DELAY: number = 200;
     
     static SUBMENU_ICON: JSIcon = new JSPathIcon("M5.17,2.34L10.83,8L5.17,13.66Z", 16, 16).withFill("gray");
     
     delay: number = JSMenu.DELAY;
+    
+    private span_Submenu: JSSpan;
+    private span_Box: JSSpan;
+    private div_PopupMenu: JSDiv;
+    private popupMenu: JSPopupMenu;
+    private mouseListener_Menu: MouseListener;
+    private timer: JSTimer;
     
     constructor();
     constructor(element: HTMLElement);
@@ -24,12 +31,6 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSMenu");
-        
-        var graphics: JSMenuGraphics = this.getGraphics();
-        super.add(graphics);
-        
-        var popupMenuContainer: JSPopupMenuContainer = this.getPopupMenuContainer();
-        super.add(popupMenuContainer);
         
         switch (arguments.length) {
         case 1:
@@ -55,79 +56,66 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         default:
         }
     }
-    getGraphics(): JSMenuGraphics {
-        var graphics: JSMenuGraphics = this.getData("graphics");
-        if (!graphics) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuGraphics");
-            if (element) {
-                graphics = new JSMenuGraphics(element);
-            } else {
-                graphics = new JSMenuGraphics();
-            }
-            graphics.setStyle("position", "absolute");
-            graphics.setStyle("right", "0");
-            this.setData("graphics", graphics);
+    init() {
+        this.addMouseListener(this.getMenuMouseListener());
+    }
+    getSubmenuSpan(): JSSpan {
+        if (!this.span_Submenu) {
+            this.span_Submenu = new JSSpan();
+            this.span_Submenu.setStyle("float", "right");
+            this.span_Submenu.setStyle("right", "0");
+            this.span_Submenu.setStyle("position", "absolute");
         }
-        return graphics;
+        return this.span_Submenu;
     }
-    getPopupMenuContainer(): JSPopupMenuContainer {
-        var popupMenuContainer: JSPopupMenuContainer = this.getData("popupMenuContainer");
-        if (!popupMenuContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSPopupMenuContainer");
-            if (element) {
-                popupMenuContainer = new JSPopupMenuContainer(element);
-            } else {
-                popupMenuContainer = new JSPopupMenuContainer();
-            }
-            popupMenuContainer.setStyle("position", "absolute");
-            popupMenuContainer.setStyle("display", "block");
-            this.setData("popupMenuContainer", popupMenuContainer);
+    getBoxSpan(): JSSpan {
+        if (!this.span_Box) {
+            this.span_Box = new JSSpan();
         }
-        return popupMenuContainer;
-    }
-    getPopupMenu(): JSPopupMenu {
-        return this.getData("popupMenu"); 
-    }
-    setPopupMenu(popupMenu: JSPopupMenu) {
-        if (popupMenu) {
-            var oldPopupMenu: JSPopupMenu = this.getPopupMenu();
-            if (oldPopupMenu !== popupMenu) {
-                var popupMenuContainer: JSPopupMenuContainer = this.getPopupMenuContainer();
-                if (oldPopupMenu) {
-                    popupMenuContainer.remove(oldPopupMenu);
-                }
-                if (popupMenu) {
-                    /*
-                    popupMenuContainer.add(popupMenu, null, 0);
-                    var popupMenuLayout: JSLayout = popupMenu.getLayout();
-                    if (popupMenuLayout) {
-                        popupMenu.setWidth(popupMenu.getPreferredWidth());
-                        popupMenu.setHeight(popupMenu.getPreferredHeight());
-                        popupMenu.revalidate();
-                    }
-                    */
-                    popupMenuContainer.add(popupMenu);
-                    popupMenu.revalidate(popupMenuContainer);
-                }
-            }
-        }
-        this.setData("popupMenu", popupMenu);
-    }
-    getSubmenuIcon(): JSPathIcon {
-        return this.getData("submenuIcon");
+        return this.span_Box;
     }
     setSubmenuIcon(icon: JSIcon) {
-        this.setData("submenuIcon", icon);
-        var graphics: JSMenuGraphics = this.getGraphics();
-        if (graphics) {
-            if (icon) {
-                icon.paintIcon(this, graphics);
-            } else {
-                graphics.removeAll();
+        var span_Submenu: JSSpan = this.getSubmenuSpan();
+        var parent: JSComponent = span_Submenu.getParent();
+        if (!icon) {
+            if (parent === this) {
+                this.remove(span_Submenu);
             }
-            graphics.setStyle("top", "50%");
-            graphics.setStyle("margin-top", -(icon.getIconHeight() / 2) + "px");
+        } else {
+            if (parent !== this) {
+                var span_Box: JSSpan = this.getBoxSpan();
+                span_Box.setPadding(0, icon.getIconWidth(), 0, 0);
+                var div_PopupMenu: JSDiv = this.getPopupMenuDiv();
+                if (div_PopupMenu) {
+                    this.add(span_Box, null, this.getComponents().length - 1);
+                    this.add(span_Submenu, null, this.getComponents().length - 1);
+                } else {
+                    this.add(span_Box);
+                    this.add(span_Submenu);
+                }
+            }
+            icon.paintIcon(this, span_Submenu);
         }
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getPopupMenuDiv(): JSDiv {
+        if (!this.div_PopupMenu) {
+            this.div_PopupMenu = new JSDiv();
+            this.div_PopupMenu.setStyle("position", "absolute");
+            super.add(this.div_PopupMenu);
+        }
+        return this.div_PopupMenu;
+    }
+    getPopupMenu(): JSPopupMenu {
+        if (!this.popupMenu) {
+            this.popupMenu = new JSPopupMenu();
+            var container: JSDiv = this.getPopupMenuDiv();
+            container.add(this.popupMenu);
+            this.popupMenu.revalidate(container);
+        }
+        return this.popupMenu;
     }
     getDelay(): number {
         return this.delay;
@@ -136,29 +124,20 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         this.delay = delay;
     }
     getTimer(): JSTimer {
-        var timer: JSTimer = this.getData("timer");
-        if (!timer) {
-            timer = new JSTimer();
-            this.setData("timer", timer); 
+        if (!this.timer) {
+            this.timer = new JSTimer();
         }
-        return timer;
+        return this.timer;
     }
-    add(component: JSComponent): void {
+    add(component: JSComponent, constraints?: number | Number | string | { [ key: string ]: number | string }, index?: number): void {
         if (component instanceof JSMenu || component instanceof JSMenuItem || component instanceof JSCheckBoxMenuItem || component instanceof JSSeparator) {
             var popupMenu: JSPopupMenu = this.getPopupMenu();
-            if (!popupMenu) {
-                popupMenu = new JSPopupMenu();
-                this.setPopupMenu(popupMenu);
-            }
-            popupMenu.add(component);
+            popupMenu.add.apply(popupMenu, arguments);
             if (component instanceof JSMenu) {
-                component.setStyle("display", "block");
                 component.setSubmenuIcon(JSMenu.SUBMENU_ICON);
-                var label: JSLabel = component.getLabel();
-                label.setStyle("margin-right", JSMenu.SUBMENU_ICON.getIconWidth() + "px");
             }
         } else {
-            super.add(component);
+            super.add.apply(this, arguments);
         }
     }
     addSeparator(): void {
@@ -182,72 +161,17 @@ class JSMenu extends JSMenuItem implements MouseListener, Runnable {
         }
         super.setSelected(selected);
     }
-    mousePressed(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        if (parent instanceof JSPopupMenu) {
-            var parentSelected = parent.isSelected();
-            if (parentSelected) {
-                parent.getSelection().setSelected(this);
-            }
-        } else {
-            this.setData("changed", false);
-            var popupMenu: JSPopupMenu = this.getPopupMenu();
-            if (popupMenu) {
-                var parentSelected = parent.isSelected();
-                if (!parentSelected) {
-                    parent.setSelected(true);
-                    parent.getSelection().setSelected(this);
-                    this.setData("changed", true);
-                }
-            }
-        }
-        mouseEvent.stopPropagation();
-    }
-    mouseReleased(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        if (!(parent instanceof JSPopupMenu)) {
-            var changed = this.getData("changed");
-            if (!changed) {
-                var popupMenu: JSPopupMenu = this.getPopupMenu();
-                if (popupMenu) {
-                    var parentSelected = parent.isSelected();
-                    if (parentSelected) {
-                        parent.setSelected(false);
-                    }
-                }
-            }
-        }
-        mouseEvent.stopPropagation();
-    }
-    mouseClicked(mouseEvent: MouseEvent) {
-        mouseEvent.stopPropagation();
-    }
-    mouseEntered(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        if (parent instanceof JSPopupMenu) {
-            var timer: JSTimer = this.getTimer();
-            timer.cancel();
-            timer.schedule(this, this.getDelay());
-        } else {
-            var parentSelected = parent.isSelected();
-            if (parentSelected) {
-                parent.getSelection().setSelected(this);
-            }
-        }
-        mouseEvent.stopPropagation();
-    }
-    mouseExited(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        if (parent instanceof JSPopupMenu) {
-            var timer: JSTimer = this.getTimer();
-            timer.cancel();
-        }
-    }
     run(): void {
         var parent: JSComponent = this.getParent();
         var parentSelected = parent.isSelected();
         if (parentSelected) {
             parent.getSelection().setSelected(this);
         }
+    }
+    getMenuMouseListener(): MouseListener {
+        if (!this.mouseListener_Menu) {
+            this.mouseListener_Menu = new JSMenuMouseListener(this);
+        }
+        return this.mouseListener_Menu;
     }
 }

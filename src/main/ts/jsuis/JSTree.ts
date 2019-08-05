@@ -83,6 +83,7 @@ class JSTree extends JSDiv {
         if (parentNode) {
             var parentTreeCell: JSTreeCell = this.getTreeCell(parentNode.getTreePath());
             container = parentTreeCell.getContainer();
+            /*
             if (!container) {
                 container = new JSDiv();
                 container.setStyle("display", "none");
@@ -95,6 +96,7 @@ class JSTree extends JSDiv {
                 grandParentContainer.add(container);
                 parentTreeCell.setContainer(container);
             }
+            */
         }
         var treeCellRenderer = this.getTreeCellRenderer();
         var treeCell: JSTreeCell = <JSTreeCell> treeCellRenderer.getTreeCellRendererComponent(this, treeNode);
@@ -130,7 +132,7 @@ class JSTree extends JSDiv {
         container.setStyle("display", "");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         // treeCell.getButton().setIcon(JSTreeCell.EXPANDED_PATH_ICON);
-        treeCell.setOpenIcon(JSTreeCell.EXPANDED_PATH_ICON);
+        treeCell.setHandleIcon(JSTreeCell.EXPANDED_ICON);
     }
     collapse(treeNode: JSTreeNode) {
         treeNode.setExpanded(false);
@@ -144,7 +146,7 @@ class JSTree extends JSDiv {
         container.setStyle("display", "none");
         var treeCell: JSTreeCell = this.getTreeCell(treePath);
         // treeCell.getButton().setIcon(JSTreeCell.COLLAPSED_PATH_ICON);
-        treeCell.setClosedIcon(JSTreeCell.COLLAPSED_PATH_ICON);
+        treeCell.setHandleIcon(JSTreeCell.COLLAPSED_ICON);
     }
     load(): void {
         this.removeAll();

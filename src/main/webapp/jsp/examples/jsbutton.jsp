@@ -22,7 +22,7 @@
 <body>
 <script>
 	var frame = new JSFrame();
-	var buttonDemo = new JSPanel();
+	frame.setLayout(new JSFlowLayout());
 	var leftButtonIcon = new JSImageIcon("/img/right.gif", 20, 22);
 	var middleButtonIcon = new JSImageIcon("/img/middle.gif", 20, 22);
 	var rightButtonIcon = new JSImageIcon("/img/left.gif", 20, 22);
@@ -45,10 +45,9 @@
 			b3.setEnabled(false);
 		}
 	});
-	buttonDemo.add(b1);
-	buttonDemo.add(b2);
-	buttonDemo.add(b3);
-	frame.setContentPane(buttonDemo);
+	frame.add(b1);
+	frame.add(b2);
+	frame.add(b3);
 	frame.setVisible(true);
 </script>
 </body>

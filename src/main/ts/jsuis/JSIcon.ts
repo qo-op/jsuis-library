@@ -40,7 +40,7 @@ class JSIcon {
     setIconHeight(iconHeight: number) {
         this.iconHeight = iconHeight;
     }
-    paintIcon(component: JSComponent, graphics: JSGraphics) {
+    paintIcon(component: JSComponent, graphics: JSComponent) {
     }
     getName(): string {
         return this.name;

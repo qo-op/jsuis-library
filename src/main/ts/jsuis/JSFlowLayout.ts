@@ -148,9 +148,6 @@ class JSFlowLayout extends JSLayout {
         var vgap: number = this.getVgap();
         var components: JSComponent[] = container.getComponents();
         if (border === JSFlowLayout.WEST || border === JSFlowLayout.EAST) {
-            if (!container.isValidVertically()) {
-                return null;
-            }
             var containerHeight: number = container.getHeight();
             var rowHeight: number = 0;
             var rowWidth: number = 0;
@@ -160,13 +157,7 @@ class JSFlowLayout extends JSLayout {
                     continue;
                 }
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-                if (componentPreferredOuterHeight === null) {
-                    return null;
-                }
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                if (componentPreferredOuterWidth === null) {
-                    return null;
-                }
                 if (rowHeight + componentPreferredOuterHeight > containerHeight) {
                     preferredLayoutWidth += rowWidth;
                     rowHeight = 0;
@@ -186,9 +177,6 @@ class JSFlowLayout extends JSLayout {
                     continue;
                 }
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                if (componentPreferredOuterWidth === null) {
-                    return null;
-                }
                 preferredLayoutWidth += componentPreferredOuterWidth + hgap;
             }
             if (preferredLayoutWidth != 0) {
@@ -215,9 +203,6 @@ class JSFlowLayout extends JSLayout {
                     continue;
                 }
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-                if (componentPreferredOuterHeight === null) {
-                    return null;
-                }
                 preferredLayoutHeight += componentPreferredOuterHeight + vgap;
             }
             if (preferredLayoutHeight != 0) {
@@ -228,9 +213,6 @@ class JSFlowLayout extends JSLayout {
                 preferredLayoutHeight = Math.min(preferredLayoutHeight, height);
             }
         } else {
-            if (!container.isValidHorizontally()) {
-                return null;
-            }
             var containerWidth: number = container.getWidth();
             var rowWidth: number = 0;
             var rowHeight: number = 0;
@@ -240,13 +222,7 @@ class JSFlowLayout extends JSLayout {
                     continue;
                 }
                 var componentPreferredOuterWidth: number = component.getPreferredOuterWidth();
-                if (componentPreferredOuterWidth === null) {
-                    return null;
-                }
                 var componentPreferredOuterHeight: number = component.getPreferredOuterHeight();
-                if (componentPreferredOuterHeight === null) {
-                    return null;
-                }
                 if (rowWidth + componentPreferredOuterWidth > containerWidth) {
                     preferredLayoutHeight += rowHeight;
                     rowWidth = 0;

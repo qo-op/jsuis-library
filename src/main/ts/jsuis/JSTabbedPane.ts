@@ -90,7 +90,7 @@ class JSTabbedPane extends JSPanel {
             }
         }).withParameters(tab, this);
         var tabContainerParent: JSComponent = tabContainer.getParent();
-        if (this.isValid()) {
+        if (tabContainerParent.isValid()) {
             tabContainerParent.revalidate(tabContainerParent);
         }
         return tab;
@@ -143,7 +143,7 @@ class JSTabbedPane extends JSPanel {
             }
         }).withParameters(tab, this);
         var tabContainerParent: JSComponent = tabContainer.getParent();
-        if (this.isValid()) {
+        if (tabContainerParent.isValid()) {
             tabContainerParent.revalidate(tabContainerParent);
         }
         return tab;
@@ -238,8 +238,8 @@ class JSTabbedPane extends JSPanel {
     revalidate(): void {
         var tabContainer: JSTabbedPaneTabContainer = this.getTabContainer();
         var tabContainerParent: JSComponent = tabContainer.getParent();
-        if (this.isValid()) {
-            tabContainerParent.revalidate(tabContainerParent);
+        if (tabContainerParent.isValid()) {
+           tabContainerParent.revalidate(tabContainerParent);
         }
         var cardContainer: JSPanel = this.getCardContainer();
         cardContainer.revalidate(cardContainer);

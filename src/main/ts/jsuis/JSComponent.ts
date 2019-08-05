@@ -183,8 +183,10 @@ class JSComponent {
     setUI(ui: string | UI) {
         if (typeof ui === "string") {
             this.setClass(ui);
-        } else {
+        } else if (ui) {
             ui.installUI(this);
+        } else {
+            this.removeAttribute("style");
         }
         this.addClass((<any> this.constructor).name);
     }
@@ -208,7 +210,7 @@ class JSComponent {
     }
     setWidth(width: number): void {
         this.width = width;
-        this.setValidHorizontally(false);
+        // this.setValidHorizontally(false);
         this.validateHorizontally();
     }
     height: number;
@@ -217,7 +219,7 @@ class JSComponent {
     }
     setHeight(height: number): void {
         this.height = height;
-        this.setValidVertically(false);
+        // this.setValidVertically(false);
         this.validateVertically();
     }
     
@@ -267,6 +269,11 @@ class JSComponent {
     }
     setLayout(layout: JSLayout) {
         this.setData("layout", layout);
+        if (layout) {
+            this.setAttribute("data-layout", (<any> layout.constructor).name);
+        } else {
+            this.removeAttribute("data-layout");
+        }
     }
     getConstraints(): string | { [ key: string ]: string } {
         return this.getData("constraints");
@@ -306,13 +313,16 @@ class JSComponent {
         this.setData("parent", parent);
     }
     add(component: JSComponent): void;
-    add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }): void;
-    add(component: JSComponent, constraints: number | string | { [ key: string ]: number | string }, index: number): void;
+    add(component: JSComponent, constraints: number | Number | string | { [ key: string ]: number | string }): void;
+    add(component: JSComponent, constraints: number | Number | string | { [ key: string ]: number | string }, index: number): void;
     // overload
-    add(component: JSComponent, constraints?: number | string | { [ key: string ]: number | string }, index?: number): void {
+    add(component: JSComponent, constraints?: number | Number | string | { [ key: string ]: number | string }, index?: number): void {
         if (constraints !== undefined) {
             if (typeof constraints === "number") {
-                component.setLayer(constraints);
+                throw "TYPE ERROR";
+                // component.setLayer(constraints);
+            } else if (constraints instanceof Number) {
+                component.setLayer(+constraints);
             } else {
                 component.setConstraints(constraints);
             }
@@ -367,11 +377,13 @@ class JSComponent {
             var component: JSComponent = components[i];
             this.remove(component);
         }
+        /*
         var element: Element = this.element;
         var firstChild: Node;
         while (firstChild = element.firstChild) {
             element.removeChild(firstChild);
         }
+        */
     }
     
     isValid(): boolean {
@@ -452,115 +464,85 @@ class JSComponent {
         }
     }
     validate(): void {
+        this.invalidateChildren();
         JSLayout.validateLater(this);
         JSLayout.validateContainers();
     }
     validateHorizontally(): void {
-        var validHorizontally: boolean = this.isValidHorizontally();
-        if (!validHorizontally) {
-            var layout: JSLayout = this.getLayout();
-            if (layout) {
-                layout.invalidateLayoutHorizontally(this);
-                layout.layoutContainerHorizontally(this);
-                validHorizontally = this.isValidHorizontally();
-                if (!validHorizontally) {
-                    JSLayout.validateLater(this);
-                    var container: JSComponent = JSLayout.getContainers()[0];
-                    JSLayout.validateLater(container);
+        this.setValidHorizontally(false);
+        var layout: JSLayout = this.getLayout();
+        if (layout) {
+            layout.invalidateLayoutHorizontally(this);
+            layout.layoutContainerHorizontally(this);
+            if (!this.isValidHorizontally()) {
+                JSLayout.validateLater(this);
+                var container: JSComponent = JSLayout.getContainers()[0];
+                JSLayout.validateLater(container);
+            }
+        } else {
+            var components: JSComponent[] = this.getComponents();
+            for (var i: number = 0; i < components.length; i++) {
+                var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
                 }
-                /*
-                validHorizontally = this.isValidHorizontally();
-                if (!validHorizontally) {
-                    console.log("validateHorizontally(): " + (<any> this.constructor).name);
-                    JSLayout.validateLater(this);
-                    var components: JSComponent[] = this.getComponents();
-                    for (var i: number = 0; i < components.length; i++) {
-                        var component: JSComponent = components[i];
-                        if (!component.isDisplayable()) {
-                            continue;
-                        }
-                        component.validateHorizontally();
-                    }
-                }
-                */
-            } else {
-                var components: JSComponent[] = this.getComponents();
-                for (var i: number = 0; i < components.length; i++) {
-                    var component: JSComponent = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
-                    }
-                    var componentLayout: JSLayout = component.getLayout();
-                    if (componentLayout) {
-                        var preferredOuterWidth: number = component.getPreferredOuterWidth();
-                        if (preferredOuterWidth !== null) {
+                var componentLayout: JSLayout = component.getLayout();
+                if (componentLayout) {
+                    var preferredOuterWidth: number = component.getPreferredOuterWidth();
+                    if (preferredOuterWidth !== null) {
+                        var position: string = component.getStyle("position");
+                        if (!position || (position !== "absolute" && position !== "fixed" && position !== "sticky" && position !== "relative")) {
                             component.setStyle("position", "relative");
-                            component.setOuterWidth(preferredOuterWidth);
-                        } else {
-                            JSLayout.validateLater(component);
-                        }
+                        } 
+                        component.setOuterWidth(preferredOuterWidth);
                     } else {
-                        component.setValidHorizontally(false);
-                        component.validateHorizontally();
+                        JSLayout.validateLater(component);
                     }
+                } else {
+                    component.validateHorizontally();
                 }
-                if (i === components.length) {
-                    this.setValidHorizontally(true);
-                }
+            }
+            if (i === components.length) {
+                this.setValidHorizontally(true);
             }
         }
     }
     validateVertically(): void {
-        var validVertically: boolean = this.isValidVertically();
-        if (!validVertically) {
-            var layout: JSLayout = this.getLayout();
-            if (layout) {
-                layout.invalidateLayoutVertically(this);
-                layout.layoutContainerVertically(this);
-                validVertically = this.isValidVertically();
-                if (!validVertically) {
-                    JSLayout.validateLater(this);
-                    var container: JSComponent = JSLayout.getContainers()[0];
-                    JSLayout.validateLater(container);
+        this.setValidVertically(false);
+        var layout: JSLayout = this.getLayout();
+        if (layout) {
+            layout.invalidateLayoutVertically(this);
+            layout.layoutContainerVertically(this);
+            if (!this.isValidVertically()) {
+                JSLayout.validateLater(this);
+                var container: JSComponent = JSLayout.getContainers()[0];
+                JSLayout.validateLater(container);
+            }
+        } else {
+            var components: JSComponent[] = this.getComponents();
+            for (var i: number = 0; i < components.length; i++) {
+                var component: JSComponent = components[i];
+                if (!component.isDisplayable()) {
+                    continue;
                 }
-                /*
-                validVertically = this.isValidVertically();
-                if (!validVertically) {
-                    JSLayout.validateLater(this);
-                    var components: JSComponent[] = this.getComponents();
-                    for (var i: number = 0; i < components.length; i++) {
-                        var component: JSComponent = components[i];
-                        if (!component.isDisplayable()) {
-                            continue;
-                        }
-                        component.validateVertically();
-                    }
-                }
-                */
-            } else {
-                var components: JSComponent[] = this.getComponents();
-                for (var i: number = 0; i < components.length; i++) {
-                    var component: JSComponent = components[i];
-                    if (!component.isDisplayable()) {
-                        continue;
-                    }
-                    var componentLayout: JSLayout = component.getLayout();
-                    if (componentLayout) {
-                        var preferredOuterHeight: number = component.getPreferredOuterHeight();
-                        if (preferredOuterHeight !== null) {
+                var componentLayout: JSLayout = component.getLayout();
+                if (componentLayout) {
+                    var preferredOuterHeight: number = component.getPreferredOuterHeight();
+                    if (preferredOuterHeight !== null) {
+                        var position: string = component.getStyle("position");
+                        if (!position || (position !== "absolute" && position !== "fixed" && position !== "sticky" && position !== "relative")) {
                             component.setStyle("position", "relative");
-                            component.setOuterHeight(preferredOuterHeight);
-                        } else {
-                            JSLayout.validateLater(component);
-                        }
+                        } 
+                        component.setOuterHeight(preferredOuterHeight);
                     } else {
-                        component.setValidVertically(false);
-                        component.validateVertically();
+                        JSLayout.validateLater(component);
                     }
+                } else {
+                    component.validateVertically();
                 }
-                if (i === components.length) {
-                    this.setValidVertically(true);
-                }
+            }
+            if (i === components.length) {
+                this.setValidVertically(true);
             }
         }
     }
@@ -780,7 +762,7 @@ class JSComponent {
     }
     setCursor(cursor: string) {
     }
-    getGraphics(): JSGraphics {
+    getGraphics(): JSComponent {
         return null;
     }
     getIcon(): JSIcon {
@@ -788,7 +770,7 @@ class JSComponent {
     }
     setIcon(icon: JSIcon) {
         this.setData("icon", icon);
-        var graphics: JSGraphics = this.getGraphics();
+        var graphics: JSComponent = this.getGraphics();
         if (graphics) {
             if (icon) {
                 icon.paintIcon(this, graphics);
@@ -1142,6 +1124,15 @@ class JSComponent {
             var jsDragSourceListener: JSDragSourceListener = jsDragSourceListeners[i];
             if (jsDragSourceListener.dragEnd) {
                 jsDragSourceListener.dragEnd(mouseEvent);
+            }
+        }
+    }
+    fireMouseReleased(mouseEvent: MouseEvent): void {
+        var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
+        for (var i: number = 0; i < jsMouseListeners.length; i++) {
+            var jsMouseListener: JSMouseListener = jsMouseListeners[i];
+            if (jsMouseListener.mouseReleased) {
+                jsMouseListener.mouseReleased(mouseEvent);
             }
         }
     }

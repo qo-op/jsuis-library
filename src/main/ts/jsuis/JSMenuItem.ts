@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSMenuItem extends JSPanel implements MouseListener {
+class JSMenuItem extends JSDiv {
     
     constructor();
     constructor(element: HTMLElement);
@@ -17,11 +17,8 @@ class JSMenuItem extends JSPanel implements MouseListener {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
-        this.setUI("JSMenuItem");
-        
-        var label: JSMenuItemLabel = this.getLabel();
-        this.add(label);
-        
+        this.setUI(JSMenuItemUI.getInstance());
+        this.setIconTextGap(4);
         switch (arguments.length) {
         case 1:
             // constructor(action: JSAction);
@@ -49,68 +46,153 @@ class JSMenuItem extends JSPanel implements MouseListener {
             break;
         default:
         }
-        
-        this.addMouseListener(this);
     }
-    getLabel(): JSMenuItemLabel {
-        var label: JSMenuItemLabel = this.getData("label");
-        if (!label) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuItemLabel");
-            if (element) {
-                label = new JSMenuItemLabel(element);
-            } else {
-                label = new JSMenuItemLabel();
-            }
-            this.setData("label", label);
+    init() {
+        this.addMouseListener(this.getMenuItemMouseListener());
+    }
+    getInputSpan(): JSSpan {
+        var span_Input: JSSpan = this.getData("span_Input");
+        if (!span_Input) {
+            span_Input = new JSSpan();
+            this.setData("span_Input", span_Input);
         }
-        return label; 
+        return span_Input;
     }
-    getIcon(): JSIcon {
-        var label: JSMenuItemLabel = this.getLabel();
-        return label.getIcon();
+    getIconSpan(): JSSpan {
+        var span_Icon: JSSpan = this.getData("span_Icon");
+        if (!span_Icon) {
+            span_Icon = new JSSpan();
+            this.setData("span_Icon", span_Icon);
+        }
+        return span_Icon;
+    }
+    getTextSpan(): JSSpan {
+        var span_Text: JSSpan = this.getData("span_Text");
+        if (!span_Text) {
+            span_Text = new JSSpan();
+            span_Text.setStyle("vertical-align", "middle");
+            this.setData("span_Text", span_Text);
+        }
+        return span_Text;
+    }
+    getInput(): JSComponent {
+        return this.getData("input");
+    }
+    setInput(input: JSComponent) {
+        this.setData("input", input);
+        var span_Input: JSSpan = this.getInputSpan();
+        var parent: JSComponent = span_Input.getParent();
+        if (!input) {
+            if (parent === this) {
+                this.remove(span_Input);
+            }
+        } else {
+            if (parent !== this) {
+                this.add(span_Input, null, 0);
+                span_Input.removeAll();
+                span_Input.add(input);
+            }
+        }
+    }
+    getGraphics(): JSComponent {
+        return this.getData("graphics");
+    }
+    setGraphics(graphics: JSComponent) {
+        this.setData("graphics", graphics);
     }
     setIcon(icon: JSIcon) {
-        var label: JSMenuItemLabel = this.getLabel();
-        label.setIcon(icon);
+        var graphics: JSComponent = this.getGraphics();
+        if (!icon) {
+            if (graphics) {
+                this.remove(graphics);
+            }
+        } else {
+            var input: JSComponent = this.getInput();
+            var text: string = this.getText();
+            if (!text) {
+                if (!graphics) {
+                    graphics = this.getIconSpan();
+                    this.add(graphics, null, input ? 1: 0);
+                    this.setGraphics(graphics);
+                }
+                graphics.setStyle("margin-right", "0");
+            } else {
+                if (!graphics) {
+                    graphics = this.getIconSpan();
+                    this.add(graphics, null, input ? 1: 0);
+                    this.setGraphics(graphics);
+                }
+                var iconTextGap: number = this.getIconTextGap();
+                graphics.setStyle("margin-right", iconTextGap + "px");
+            }
+        }
+        super.setIcon(icon);
+        if (this.isValid()) {
+            this.revalidate();
+        }
     }
     getText(): string {
-        var label: JSMenuItemLabel = this.getLabel();
-        return label.getText(); 
+        var span_Text: JSSpan = this.getTextSpan();
+        return span_Text.getText();
     }
     setText(text: string) {
-        var label: JSMenuItemLabel = this.getLabel();
-        label.setText(text);
-    }
-    mouseEntered(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        var parentSelected = parent.isSelected();
-        if (parentSelected) {
-            parent.getSelection().setSelected(this);
-        }
-        mouseEvent.stopPropagation();
-    }
-    mouseClicked(mouseEvent: MouseEvent) {
-        var parent: JSComponent = this.getParent();
-        if (parent instanceof JSPopupMenu) {
-            var popuMenu: JSPopupMenu = <JSPopupMenu> parent;
-            var invoker: JSComponent = popuMenu.getInvoker();
-            while (invoker) {
-                parent = invoker.getParent();
-                if (parent instanceof JSPopupMenu) {
-                    popuMenu = <JSPopupMenu> parent;
-                    invoker = popuMenu.getInvoker();
-                } else {
-                    break;
+        var span_Text: JSSpan = this.getTextSpan();
+        span_Text.setText(text);
+        var parent: JSComponent = span_Text.getParent();
+        var icon: JSIcon = this.getIcon();
+        var graphics: JSComponent = this.getGraphics();
+        if (!text) {
+            if (parent === this) {
+                this.remove(span_Text);
+                if (graphics) {
+                    graphics.setStyle("margin-right", "0");
                 }
             }
-            if (parent instanceof JSMenuContainer) {
-                parent.setSelected(false);
-            } else if (invoker instanceof JSMenu) {
-                invoker.setSelected(false);
+        } else {
+            var input: JSComponent = this.getInput();
+            if (!icon) {
+                if (parent !== this) {
+                    this.add(span_Text, null, input ? 1 : 0);
+                }
             } else {
-                popuMenu.setSelected(false);
+                if (parent !== this) {
+                    this.add(span_Text, null, input ? 2 : 1);
+                }
+                if (graphics) {
+                    var iconTextGap: number = this.getIconTextGap();
+                    graphics.setStyle("margin-right", iconTextGap + "px");
+                }
             }
         }
-        mouseEvent.stopPropagation();
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getIconTextGap(): number {
+        return +this.getAttribute("data--icon-text-gap");
+    }
+    setIconTextGap(iconTextGap: number) {
+        this.setAttribute("data--icon-text-gap", "" + iconTextGap);
+        var icon: JSIcon = this.getIcon();
+        if (!icon) {
+            return;
+        }
+        var text: string = this.getText();
+        if (!text) {
+            return;
+        }
+        var graphics: JSComponent = this.getGraphics();
+        graphics.setStyle("margin-right", iconTextGap + "px");
+        if (this.isValid()) {
+            this.revalidate();
+        }
+    }
+    getMenuItemMouseListener(): MouseListener {
+        var mouseListener_MenuItem: MouseListener = this.getData("_mouseListener_MenuItem");
+        if (!mouseListener_MenuItem) {
+            mouseListener_MenuItem = new JSMenuItemMouseListener(this);
+            this.setData("_mouseListener_MenuItem", mouseListener_MenuItem);
+        }
+        return mouseListener_MenuItem;
     }
 }

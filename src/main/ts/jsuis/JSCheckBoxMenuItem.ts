@@ -20,13 +20,9 @@ class JSCheckBoxMenuItem extends JSMenuItem {
         // constructor();
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
-        this.setUI("JSCheckBoxMenuItem");
+        this.setUI(JSCheckBoxMenuItemUI.getInstance());
         
-        var input: JSCheckBoxInput = this.getInput();
-        this.add(input);
-        
-        // var label: JSMenuItemLabel = this.getLabel();
-        // this.add(label, null, index++);
+        this.setInput(new JSCheckBoxInput());
         
         switch (arguments.length) {
         case 1:
@@ -78,28 +74,16 @@ class JSCheckBoxMenuItem extends JSMenuItem {
             break;
         default:
         }
-        
-        this.addMouseListener(this);
     }
-    getInput(): JSCheckBoxInput {
-        var input: JSCheckBoxInput = this.getData("input");
-        if (!input) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSCheckBoxInput");
-            if (element) {
-                input = new JSCheckBoxInput(element);
-            } else {
-                input = new JSCheckBoxInput();
-            }
-            this.setData("input", input);
-        }
-        return input;
+    init(): void {
+        super.init();
     }
     isSelected() {
-        var input: JSCheckBoxInput = this.getInput()
+        var input: JSComponent = this.getInput()
         return input.isSelected();
     }
     setSelected(selected: boolean) {
-        var input: JSCheckBoxInput = this.getInput()
+        var input: JSComponent = this.getInput()
         input.setSelected(selected);
     }
 }
