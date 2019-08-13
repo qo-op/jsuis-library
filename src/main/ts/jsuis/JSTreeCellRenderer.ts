@@ -15,26 +15,33 @@ class JSTreeCellRenderer {
     constructor() {
     }
     getTreeCellRendererComponent(tree: JSTree, value: any): JSComponent {
-        var treeNode = <JSTreeNode> value;
-        var treeCell: JSTreeCell = new JSTreeCell(value);
-        var icon: JSIcon = this.getIcon(treeNode);
-        if (icon) {
-            treeCell.setIcon(icon);
-        } else if (treeNode.isLeaf()) {
-            var leafIcon = this.getLeafIcon();
-            if (leafIcon) {
-                treeCell.setIcon(leafIcon);
-            }
-        } else if (treeNode.isExpanded()) {
-            var openIcon = this.getOpenIcon();
-            if (openIcon) {
-                treeCell.setIcon(openIcon);
-            }
+        var treeNode: JSTreeNode = <JSTreeNode> value;
+        var component: JSComponent = null;
+        var userObject: any = treeNode.getUserObject();
+        if (userObject instanceof JSComponent) {
+            component = userObject;
         } else {
-            var closedIcon = this.getClosedIcon();
-            if (closedIcon) {
-                treeCell.setIcon(closedIcon);
+            var treeCell: JSTreeCell = new JSTreeCell(value);
+            var icon: JSIcon = this.getIcon(treeNode);
+            if (icon) {
+                treeCell.setIcon(icon);
+            } else if (treeNode.isLeaf()) {
+                var leafIcon = this.getLeafIcon();
+                if (leafIcon) {
+                    treeCell.setIcon(leafIcon);
+                }
+            } else if (treeNode.isExpanded()) {
+                var openIcon = this.getOpenIcon();
+                if (openIcon) {
+                    treeCell.setIcon(openIcon);
+                }
+            } else {
+                var closedIcon = this.getClosedIcon();
+                if (closedIcon) {
+                    treeCell.setIcon(closedIcon);
+                }
             }
+            component = treeCell;
         }
         var margin: number = 0;
         var root: JSTreeNode = tree.getRoot();
@@ -45,9 +52,12 @@ class JSTreeCellRenderer {
             treeNode = parentNode;
             parentNode = treeNode.getParent();
         }
-        // treeCell.getLabel().setStyle("margin-left", margin + "px");
-        treeCell.setStyle("padding-left", margin + "px");
-        return treeCell;
+        var treeCellComponents = component.getComponents();
+        if (treeCellComponents.length) {
+            var treeCellComponent = treeCellComponents[0];
+            treeCellComponent.setStyle("padding-left", margin + "px");
+        }
+        return component;
     }
     getIcon(treeNode: JSTreeNode): JSIcon {
         var treePath: string = treeNode.getTreePath();

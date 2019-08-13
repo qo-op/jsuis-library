@@ -3,7 +3,7 @@
  * JSTree_Examples
  */
 namespace jsuistutorial {
-    export class JSTree_Examples extends JSTree implements MouseListener {
+    export class JSTree_Examples extends JSTree implements JSMouseListener {
         
         constructor() {
             super();

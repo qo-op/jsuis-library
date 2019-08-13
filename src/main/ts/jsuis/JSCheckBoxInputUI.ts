@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSCheckBoxInputUI implements UI {
+class JSCheckBoxInputUI implements JSUI {
     
     private static instance: JSCheckBoxInputUI;
     static getInstance(): JSCheckBoxInputUI {
@@ -16,6 +16,7 @@ class JSCheckBoxInputUI implements UI {
     
     installUI(component: JSCheckBoxInput): void {
         component.setClass("JSCheckBoxInput");
+        component.setStyle("cursor", "pointer");
         component.setStyle("vertical-align", "middle");
     }
 }

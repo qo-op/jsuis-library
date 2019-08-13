@@ -6,6 +6,9 @@
  */
 class JSComboBox extends JSHTMLComponent {
     
+    private items: Array<any>;
+    private comboBoxActionListenerHandler: JSComboBoxActionListenerHandler;
+    
     constructor();
     constructor(element: HTMLElement);
     constructor(items: Array<string>);
@@ -27,10 +30,10 @@ class JSComboBox extends JSHTMLComponent {
         }
     }
     getItems(): Array<any> {
-        return this.getData("items");
+        return this.items;
     }
     setItems(items: Array<any>) {
-        this.setData("items", items);
+        this.items = items;
         this.removeAll();
         for (var i: number = 0; i < items.length; i++) {
             var item: any = items[i];
@@ -50,27 +53,37 @@ class JSComboBox extends JSHTMLComponent {
         var selectedIndex = this.getSelectedIndex();
         return items[selectedIndex];
     }
-    addActionListener(actionListener: ActionListener, useCapture?: boolean): JSActionListener {
-        var actionListeners: ActionListener[] = this.getActionListeners();
-        var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
+    addActionListener(actionListener: JSActionListener): JSComponentActionListener {
+        var actionListeners: JSActionListener[] = this.getActionListeners();
+        var componentActionListeners: JSComponentActionListener[] = this.getComponentActionListeners();
         var index = actionListeners.indexOf(actionListener);
         if (index !== -1) {
-            return jsActionListeners[index];;
+            return componentActionListeners[index];;
         }
         actionListeners.push(actionListener);
-        var jsActionListener: JSActionListener = new JSActionListener(actionListener);
-        jsActionListeners.push(jsActionListener);
-        var changeListener: ChangeListener = this.getData("changeListener" + !!useCapture);
-        if (!changeListener) {
-            changeListener = {
-                stateChanged(event: Event, source: JSComponent): void {
-                    source.fireActionPerformed(event);
-                    event.stopPropagation();
-                }
-            };
-            this.addChangeListener(changeListener, !!useCapture).withParameters(this);
-            this.setData("changeListener" + !!useCapture, changeListener);
+        var componentActionListener: JSComponentActionListener = new JSComponentActionListener(actionListener);
+        componentActionListeners.push(componentActionListener);
+        var comboBoxActionListenerHandler: JSComboBoxActionListenerHandler = this.getComboBoxActionListenerHandler();
+        if (!comboBoxActionListenerHandler) {
+            comboBoxActionListenerHandler = new JSComboBoxActionListenerHandler(this);
+            this.addChangeListener(comboBoxActionListenerHandler);
+            this.setComboBoxActionListenerHandler(comboBoxActionListenerHandler);
         }
-        return jsActionListener.withParameters(this);
+        return componentActionListener.withParameters(this);
+    }
+    getComboBoxActionListenerHandler(): JSComboBoxActionListenerHandler {
+        return this.comboBoxActionListenerHandler;
+    }
+    setComboBoxActionListenerHandler(comboBoxActionListenerHandler: JSComboBoxActionListenerHandler) {
+        this.comboBoxActionListenerHandler = comboBoxActionListenerHandler;
+    }
+    
+    setAction(action: JSAction) {
+        var oldAction: JSAction = this.getAction();
+        if (oldAction) {
+            this.removeActionListener(oldAction);
+        }
+        this.action = action;
+        this.addActionListener(action);
     }
 }

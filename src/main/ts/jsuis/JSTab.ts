@@ -86,30 +86,10 @@ class JSTab extends JSPanel {
         }));
         */
     }
-    /*
-    getGraphics(): JSTabGraphics {
-        var graphics: JSTabGraphics = this.getData("graphics");
-        if (!graphics) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabGraphics");
-            if (element) {
-                graphics = new JSTabGraphics(element);
-            } else {
-                graphics = new JSTabGraphics();
-            }
-            this.setData("graphics", graphics);
-        }
-        return graphics;
-    }
-    */
     getLabel(): JSTabLabel {
         var label: JSTabLabel = this.getData("label");
         if (!label) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabLabel");
-            if (element) {
-                label = new JSTabLabel(element);
-            } else {
-                label = new JSTabLabel();
-            }
+            label = new JSTabLabel();
             this.setData("label", label);
         }
         return label;
@@ -117,12 +97,7 @@ class JSTab extends JSPanel {
     getCloseButton(): JSTabCloseButton {
         var tabCloseButton: JSTabCloseButton = this.getData("tabCloseButton");
         if (!tabCloseButton) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabCloseButton");
-            if (element) {
-                tabCloseButton = new JSTabCloseButton(element);
-            } else {
-                tabCloseButton = new JSTabCloseButton();
-            }
+            tabCloseButton = new JSTabCloseButton();
             tabCloseButton.setStyle("display", "none");
             this.setData("tabCloseButton", tabCloseButton);
         }

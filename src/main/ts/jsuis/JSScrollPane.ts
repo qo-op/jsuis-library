@@ -6,6 +6,8 @@
  */
 class JSScrollPane extends JSPanel {
     
+    private viewportView: JSComponent;
+    
     constructor();
     constructor(element: HTMLElement);
     constructor(view: JSComponent);
@@ -18,7 +20,7 @@ class JSScrollPane extends JSPanel {
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSScrollPane");
         
-        this.setLayout(new JSScrollPaneLayout());
+        // this.setLayout(new JSScrollPaneLayout());
         
         var view: JSComponent;
         var vsbPolicy: string = JSScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED;
@@ -57,53 +59,27 @@ class JSScrollPane extends JSPanel {
         this.setHorizontalScrollBarPolicy(hsbPolicy);
     }
     getVerticalScrollBarPolicy(): string {
-        return this.getAttribute("data-vertical-scrollbar-policy");
+        return this.getStyle("overflow-y");
     }
-    setVerticalScrollBarPolicy(verticalScrollBarPolicy: string) {
-        this.setAttribute("data-vertical-scrollbar-policy", verticalScrollBarPolicy);
-        var view: JSComponent = this.getViewportView();
-        if (view) {
-            view.setStyle("overflow-y", verticalScrollBarPolicy);
-        }
+    setVerticalScrollBarPolicy(vsbPolicy: string) {
+        this.setStyle("overflow-y", vsbPolicy);
     }
     getHorizontalScrollBarPolicy(): string {
-        return this.getAttribute("data-horizontal-scrollbar-policy");
+        return this.getStyle("overflow-x");
     }
-    setHorizontalScrollBarPolicy(horizontalScrollBarPolicy: string) {
-        this.setAttribute("data-horizontal-scrollbar-policy", horizontalScrollBarPolicy);
-        var view: JSComponent = this.getViewportView();
-        if (view) {
-            view.setStyle("overflow-x", horizontalScrollBarPolicy);
-        }
+    setHorizontalScrollBarPolicy(hsbPolicy: string) {
+        this.setStyle("overflow-x", hsbPolicy);
     }
     getViewportView(): JSComponent {
-        return this.getData("view");
+        return this.viewportView;
     }
-    setViewportView(view: JSComponent) {
-        this.setData("view", view);
-        if (view) {
+    setViewportView(viewportView: JSComponent) {
+        this.viewportView = viewportView;
+        if (viewportView) {
             this.removeAll();
-            this.add(view);
-            view.setStyle("overflow-y", this.getVerticalScrollBarPolicy());
-            view.setStyle("overflow-x", this.getHorizontalScrollBarPolicy());
+            this.add(viewportView);
         }
     }
-    /*
-    setWidth(width: number) {
-        super.setWidth(width);
-        var view: JSComponent = this.getViewportView();
-        if (view) {
-            view.setWidth(width);
-        }
-    }
-    setHeight(height: number) {
-        super.setHeight(height);
-        var view: JSComponent = this.getViewportView();
-        if (view) {
-            view.setHeight(height);
-        }
-    }
-    */
     // isValidateRoot(): boolean {
         // return true;
     // }

@@ -22,7 +22,7 @@ class JSProperties {
     getProperty(key: string, defaultValue: string): string;
     // overload
     getProperty(): string {
-        var value: string;
+        var value: string = null;
         var properties = this.getKeyValuePairs();
         switch (arguments.length) {
         case 1:
@@ -34,6 +34,7 @@ class JSProperties {
                     value = null;
                 }
             }
+            break;
         case 2:
             // getProperty(key: string, defaultValue: string): string;
             if (typeof arguments[0] === "string" && typeof arguments[1] === "string") {
@@ -52,6 +53,10 @@ class JSProperties {
     setProperty(key: string, value: string) {
         var properties = this.getKeyValuePairs();
         properties[key] = value;
+    }
+    remove(key: string) {
+        var properties = this.getKeyValuePairs();
+        delete properties[key];
     }
     load(properties: JSProperties) {
         var keyValuePairs: { [ key: string ]: string } = properties.getKeyValuePairs();

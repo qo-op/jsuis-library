@@ -52,12 +52,7 @@ class JSSplitPane extends JSPanel {
     getLeftContainer(): JSSplitPaneLeftContainer {
         var leftContainer: JSSplitPaneLeftContainer = this.getData("leftContainer");
         if (!leftContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneLeftContainer");
-            if (element) {
-                leftContainer = new JSSplitPaneLeftContainer(element);
-            } else {
-                leftContainer = new JSSplitPaneLeftContainer();
-            }
+            leftContainer = new JSSplitPaneLeftContainer();
             this.setData("leftContainer", leftContainer);
         }
         return leftContainer;
@@ -65,12 +60,7 @@ class JSSplitPane extends JSPanel {
     getRightContainer(): JSSplitPaneRightContainer {
         var rightContainer: JSSplitPaneRightContainer = this.getData("rightContainer");
         if (!rightContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneRightContainer");
-            if (element) {
-                rightContainer = new JSSplitPaneRightContainer(element);
-            } else {
-                rightContainer = new JSSplitPaneRightContainer();
-            }
+            rightContainer = new JSSplitPaneRightContainer();
             this.setData("rightContainer", rightContainer);
         }
         return rightContainer;
@@ -78,12 +68,7 @@ class JSSplitPane extends JSPanel {
     getDivider(): JSSplitPaneDivider {
         var divider: JSSplitPaneDivider = this.getData("divider");
         if (!divider) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSplitPaneDivider");
-            if (element) {
-                divider = new JSSplitPaneDivider(element);
-            } else {
-                divider = new JSSplitPaneDivider();
-            }
+            divider = new JSSplitPaneDivider();
             var orientation: string = this.getOrientation();
             if (orientation === JSComponent.VERTICAL_SPLIT) {
                 divider.removeClass("horizontal");

@@ -33,12 +33,7 @@ class JSTableHeadCell extends JSHTMLComponent {
     getContainer(): JSPanel {
         var container = this.getData("container");
         if (!container) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSPanel");
-            if (element) {
-                container = new JSPanel(element);
-            } else {
-                container = new JSPanel();
-            }
+            container = new JSPanel();
             this.setData("container", container);
         }
         return container;

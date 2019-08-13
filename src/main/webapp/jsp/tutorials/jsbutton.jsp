@@ -62,13 +62,16 @@ Click the middle button and nothing happens.</p>
 		</div>
 	</div>
 	<script>
-    	var tutorial = new JSDiv(document.getElementById("tutorial"));
-		var frame = new JSDiv(document.getElementById("example1"));
+	</script>
+	<script>
+		var jsuis_Tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+		jsuis_Tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
+		var div_Tutorial = jsuis_Tutorial.getDiv_Tutorial();
+    	var frame = new JSDiv(document.getElementById("example1"));
 		frame.setPreferredHeight(100);
-		tutorial.getComponents().push(frame);
-		frame.setParent(tutorial);
+		div_Tutorial.getComponents().push(frame);
+		frame.setParent(div_Tutorial);
 		frame.setLayout(new JSBorderLayout());
-		
 		var buttonDemo = new JSPanel();
 		var b1 = new JSButton("Disable middle button");
 		var b2 = new JSButton("Middle button");
@@ -91,13 +94,8 @@ Click the middle button and nothing happens.</p>
 		buttonDemo.add(b1);
 		buttonDemo.add(b2);
 		buttonDemo.add(b3);
-		
 		frame.add(buttonDemo);
-	</script>
-	<script>
-		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
-		tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
-		tutorial.getFrame().setVisible(true);
+		jsuis_Tutorial.getFrame().setVisible(true);
 	</script>
 </body>
 </html>

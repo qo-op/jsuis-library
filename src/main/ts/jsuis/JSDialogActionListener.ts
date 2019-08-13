@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSDialogActionListener implements ActionListener {
+class JSDialogActionListener implements JSActionListener {
     
     dialog: JSDialog;
     

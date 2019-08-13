@@ -58,12 +58,7 @@ class JSSeparator extends JSPanel {
     getHorizontalLine(): JSSeparatorHorizontalLine {
         var horizontalLine: JSSeparatorHorizontalLine = this.getData("horizontalLine");
         if (!horizontalLine) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSeparatorHorizontalLine");
-            if (element) {
-                horizontalLine = new JSSeparatorHorizontalLine(element);
-            } else {
-                horizontalLine = new JSSeparatorHorizontalLine();
-            }
+            horizontalLine = new JSSeparatorHorizontalLine();
             this.setData("horizontalLine", horizontalLine);
         }
         return horizontalLine;
@@ -71,12 +66,7 @@ class JSSeparator extends JSPanel {
     getVerticalLine(): JSSeparatorVerticalLine {
         var verticalLine: JSSeparatorVerticalLine = this.getData("verticalLine");
         if (!verticalLine) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSSeparatorVerticalLine");
-            if (element) {
-                verticalLine = new JSSeparatorVerticalLine(element);
-            } else {
-                verticalLine = new JSSeparatorVerticalLine();
-            }
+            verticalLine = new JSSeparatorVerticalLine();
             this.setData("verticalLine", verticalLine);
         }
         return verticalLine;

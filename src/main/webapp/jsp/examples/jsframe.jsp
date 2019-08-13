@@ -32,8 +32,8 @@
 		</div>
 	</div>
 	<script>
-		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
-	    var tabbedPane_Example = tutorial.getExampleTabbedPane();
+		var jsuis_Tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+	    var tabbedPane_Example = jsuis_Tutorial.getExampleTabbedPane();
         var icon = new JSImageIcon("/img/baseline-playlist_play-24px-Green.svg", 24, 24);
         var example = new jsuistutorial.JSUIS_Example();
         var panel = example.getPanel();
@@ -48,9 +48,10 @@
 		});
 	</script>
 	<script>
-		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
-		tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
-		tutorial.getFrame().setVisible(true);
+		var jsuis_Tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+		jsuis_Tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
+		
+		jsuis_Tutorial.getFrame().setVisible(true);
 	</script>
 </body>
 </html>

@@ -4,17 +4,17 @@
  * 
  * @author Yassuo Toda
  */
-class JSBodyMouseListener implements MouseListener {
+class JSBodyMouseListener implements JSMouseListener {
     
     mouseMoved(mouseEvent: MouseEvent) {
         var body: JSBody = JSBody.getInstance();
         var dragSource: JSComponent = body.getDragSource();
         if (dragSource) {
-            var dragStart = dragSource.getData("dragStart");
-            if (!dragStart) {
+            var dragging: boolean = dragSource.isDragging();
+            if (!dragging) {
                 // body.getGlassPane().setStyle("display", "");
                 dragSource.fireDragStart(mouseEvent);
-                dragSource.setData("dragStart", true);
+                dragSource.setDragging(true);
             }
             dragSource.fireDrag(mouseEvent);
             dragSource.fireMouseDragged(mouseEvent);
@@ -28,10 +28,10 @@ class JSBodyMouseListener implements MouseListener {
             timer.schedule({
                 run() {
                     var body: JSBody = JSBody.getInstance();
-                    var dragStart = dragSource.getData("dragStart");
-                    if (dragStart) {
+                    var dragging = dragSource.isDragging();
+                    if (dragging) {
                         dragSource.fireDragEnd(mouseEvent);
-                        dragSource.setData("dragStart", false);
+                        dragSource.setDragging(false);
                         dragSource.fireMouseReleased(mouseEvent);
                         // body.getGlassPane().setStyle("display", "none");
                     }

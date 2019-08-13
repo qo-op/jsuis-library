@@ -9,6 +9,10 @@ class JSTreeCell extends JSDiv {
     static COLLAPSED_ICON: JSIcon = new JSPathIcon("M4.17,2.34L9.83,8L4.17,13.66Z", 16, 16).withFill("gray");
     static EXPANDED_ICON: JSIcon = new JSPathIcon("M10,4L10,12L2,12Z", 16, 16).withFill("gray");
     
+    private span_Handle: JSSpan;
+    private span_Icon: JSSpan;
+    private span_Text: JSSpan;
+    
     constructor();
     constructor(element: HTMLElement);
     constructor(value: any);
@@ -19,6 +23,7 @@ class JSTreeCell extends JSDiv {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSTreeCell");
+        this.setStyle("white-space", "nowrap");
         this.setIconTextGap(4);
         
         switch (arguments.length) {
@@ -42,35 +47,35 @@ class JSTreeCell extends JSDiv {
         }
     }
     getHandleSpan(): JSSpan {
-        var span_Handle = this.getData("span_Handle");
-        if (!span_Handle) {
-            span_Handle = new JSSpan();
-            this.setData("span_Handle", span_Handle);
+        if (!this.span_Handle) {
+            this.span_Handle = new JSSpan();
         }
-        return span_Handle;
+        return this.span_Handle;
     }
     getIconSpan(): JSSpan {
-        var span_Icon = this.getData("span_Icon");
-        if (!span_Icon) {
-            span_Icon = new JSSpan();
-            this.setData("span_Icon", span_Icon);
+        if (!this.span_Icon) {
+            this.span_Icon = new JSSpan();
         }
-        return span_Icon;
+        return this.span_Icon;
     }
     getTextSpan(): JSSpan {
-        var span_Text = this.getData("span_Text");
-        if (!span_Text) {
-            span_Text = new JSSpan();
-            span_Text.setStyle("vertical-align", "middle");
-            this.setData("span_Text", span_Text);
+        if (!this.span_Text) {
+            this.span_Text = new JSSpan();
+            this.span_Text.setStyle("vertical-align", "middle");
+            this.span_Text.setStyle("white-space", "normal");
         }
-        return span_Text;
+        return this.span_Text;
     }
+    /*
     setGraphics(graphics: JSComponent) {
         this.setData("graphics", graphics);
     }
     getGraphics(): JSComponent {
         return this.getData("graphics");
+    }
+    */
+    getGraphics(): JSComponent {
+        return this.getIconSpan();
     }
     setHandleIcon(icon: JSIcon) {
         var span_Handle: JSSpan = this.getHandleSpan();
@@ -91,24 +96,21 @@ class JSTreeCell extends JSDiv {
     }
     setIcon(icon: JSIcon) {
         var graphics: JSComponent = this.getGraphics();
+        var parent: JSComponent = graphics.getParent();
         if (!icon) {
-            if (graphics) {
+            if (parent === this) {
                 this.remove(graphics);
             }
         } else {
             var text: string = this.getText();
             if (!text) {
-                if (!graphics) {
-                    graphics = this.getIconSpan();
+                if (parent !== this) {
                     this.add(graphics);
-                    this.setGraphics(graphics);
                 }
                 graphics.setStyle("margin-right", "0");
             } else {
-                if (!graphics) {
-                    graphics = this.getIconSpan();
+                if (parent !== this) {
                     this.add(graphics, null, this.getComponents().length - 1);
-                    this.setGraphics(graphics);
                 }
                 var iconTextGap: number = this.getIconTextGap();
                 graphics.setStyle("margin-right", iconTextGap + "px");
@@ -211,4 +213,18 @@ class JSTreeCell extends JSDiv {
         }
         return container;
     }
+    /*
+    getPreferredWidth(): number {
+        var span_Text: JSSpan = this.getTextSpan();
+        var whiteSpace: string = span_Text.getStyle("whiteSpace");
+        this.setStyle("white-space", "nowrap");
+        var width: number = super.getPreferredWidth();
+        if (whiteSpace) {
+            span_Text.setStyle("white-space", whiteSpace);
+        } else {
+            span_Text.removeStyle("white-space");
+        }
+        return width;
+    }
+    */
 }

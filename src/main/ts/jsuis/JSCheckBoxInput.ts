@@ -21,7 +21,7 @@ class JSCheckBoxInput extends JSHTMLComponent {
             // constructor(selected: boolean);
             if (typeof arguments[0] === "boolean") {
                 var selected: boolean = arguments[0];
-                this.setAttribute("checked", "" + selected);
+                this.setSelected(selected);
             }
             break;
         default:

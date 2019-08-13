@@ -20,11 +20,14 @@ namespace jsuistutorial {
         private action_JSButtonTutorial: JSAction_JSButtonTutorial;
         private action_JSFrameExample: JSAction_JSFrameExample;
         private action_JSFrameTutorial: JSAction_JSFrameTutorial;
+        private action_JSProgressBarExample: JSAction_JSProgressBarExample;
         private action_JSTableExample: JSAction_JSTableExample;
+        private action_JSTextFieldExample: JSAction_JSTextFieldExample;
         private action_JSUISTutorial: JSAction_JSUISTutorial;
         private button_Collapse: JSButton_Collapse;
         private button_Expand: JSButton_Expand;
         private dialog_About: JSDialog_About;
+        private div_Tutorial: JSDiv;
         private frame: JSFrame_Tutorial;
         private icon_Closed: JSIcon_Closed;
         private icon_Leaf: JSIcon_Leaf;
@@ -108,12 +111,26 @@ namespace jsuistutorial {
             }
             return this.action_JSFrameTutorial;
         }
+        getJSProgressBarExampleAction(): JSAction_JSProgressBarExample {
+            if (!this.action_JSProgressBarExample) {
+                this.action_JSProgressBarExample = new JSAction_JSProgressBarExample();
+                this.action_JSProgressBarExample.setIcon(this.getLeafIcon());
+            }
+            return this.action_JSProgressBarExample;
+        }
         getJSTableExampleAction(): JSAction_JSTableExample {
             if (!this.action_JSTableExample) {
                 this.action_JSTableExample = new JSAction_JSTableExample();
                 this.action_JSTableExample.setIcon(this.getLeafIcon());
             }
             return this.action_JSTableExample;
+        }
+        getJSTextFieldExampleAction(): JSAction_JSTextFieldExample {
+            if (!this.action_JSTextFieldExample) {
+                this.action_JSTextFieldExample = new JSAction_JSTextFieldExample();
+                this.action_JSTextFieldExample.setIcon(this.getLeafIcon());
+            }
+            return this.action_JSTextFieldExample;
         }
         getJSUISTutorialAction(): JSAction_JSUISTutorial {
             if (!this.action_JSUISTutorial) {
@@ -184,6 +201,15 @@ namespace jsuistutorial {
                 
                 splitPane.setDividerLocation(splitPane.getLeftContainer().getPreferredOuterWidth());
                 
+                var div_Tutorial: JSDiv = this.getDiv_Tutorial();
+                if (div_Tutorial) {
+                    splitPane.setRightComponent(new JSScrollPane(div_Tutorial));
+                } else {
+                    var tabbedPane_Example: JSTabbedPane_Example = this.getExampleTabbedPane();
+                    splitPane.setRightComponent(tabbedPane_Example);
+                }
+                
+                /*
                 var element = document.getElementById("tutorial");
                 if (element) {
                     var div_Tutorial: JSDiv = new JSDiv(element);
@@ -195,6 +221,7 @@ namespace jsuistutorial {
                         splitPane.setRightComponent(tabbedPane_Example);
                     }
                 }
+                */
                 
                 var properties: JSProperties_Tutorial = this.getProperties();
                 var panel_ToggleButton_first: boolean = JSON.parse(properties.getProperty("panel_ToggleButton_first"));
@@ -220,6 +247,15 @@ namespace jsuistutorial {
                 this.icon_Closed = new JSIcon_Closed();
             }
             return this.icon_Closed;
+        }
+        getDiv_Tutorial(): JSDiv {
+            if (!this.div_Tutorial) {
+                var element = document.getElementById("tutorial");
+                if (element) {
+                    this.div_Tutorial = new JSDiv(element);
+                }
+            }
+            return this.div_Tutorial;
         }
         getLeafIcon(): JSIcon_Leaf {
             if (!this.icon_Leaf) {
@@ -439,6 +475,10 @@ namespace jsuistutorial {
                 treeNode_ExamplesRoot.add(treeNode_ComponentExamples);
                 var treeNode_JSButtonExample = new JSTreeNode(this.getJSButtonExampleAction());
                 treeNode_ComponentExamples.add(treeNode_JSButtonExample);
+                var treeNode_JSProgressBarExample = new JSTreeNode(this.getJSProgressBarExampleAction());
+                treeNode_ComponentExamples.add(treeNode_JSProgressBarExample);
+                var treeNode_JSTextFieldExample = new JSTreeNode(this.getJSTextFieldExampleAction());
+                treeNode_ComponentExamples.add(treeNode_JSTextFieldExample);
                 
                 var properties: JSProperties_Tutorial = this.getProperties();
                 

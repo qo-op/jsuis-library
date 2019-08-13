@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSEmptyBorder implements Border {
+class JSEmptyBorder implements JSBorder {
     
     top: number;
     left: number;

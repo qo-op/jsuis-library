@@ -22,6 +22,7 @@ class JSText extends JSHTMLComponent {
     getIconDiv(): JSDiv {
         if (!this.div_Icon) {
             this.div_Icon = new JSDiv();
+            this.div_Icon.setStyle("font-size", "0");
         }
         return this.div_Icon;
     }
@@ -38,67 +39,55 @@ class JSText extends JSHTMLComponent {
         }
         return this.span_Text;
     }
-    setGraphics(graphics: JSComponent) {
-        this.graphics = graphics;
-    }
     getGraphics(): JSComponent {
-        return this.graphics;
+        var text: string = this.getText();
+        if (!text) {
+            return this.getIconDiv();
+        } else {
+            var verticalTextPosition: string = this.getVerticalTextPosition();
+            if (verticalTextPosition === JSLabel.TOP || verticalTextPosition === JSLabel.BOTTOM) {
+                return this.getIconDiv();
+            }
+        }
+        return this.getIconSpan();
     }
     setIcon(icon: JSIcon) {
         var graphics: JSComponent = this.getGraphics();
+        var parent: JSComponent = graphics.getParent();
         if (!icon) {
-            if (graphics) {
+            if (parent === this) {
                 this.remove(graphics);
             }
         } else {
             var text: string = this.getText();
             if (!text) {
-                if (!graphics) {
-                    graphics = this.getIconDiv();
+                if (parent !== this) {
                     this.add(graphics);
-                    this.setGraphics(graphics);
                 }
                 graphics.setStyle("margin", "0");
             } else {
                 var iconTextGap: number = this.getIconTextGap();
                 var verticalTextPosition: string = this.getVerticalTextPosition();
                 if (verticalTextPosition === JSLabel.TOP) {
-                    if (graphics instanceof JSSpan) {
-                        this.remove(graphics);
-                    }
-                    if (graphics instanceof JSSpan || !graphics) {
-                        graphics = this.getIconDiv();
+                    if (parent !== this) {
                         this.add(graphics);
-                        this.setGraphics(graphics);
                     }
                     graphics.setStyle("margin", iconTextGap + "px 0 0");
                 } else if (verticalTextPosition === JSLabel.BOTTOM) {
-                    if (graphics instanceof JSSpan) {
-                        this.remove(graphics);
-                    }
-                    if (graphics instanceof JSSpan || !graphics) {
-                        graphics = this.getIconDiv();
+                    if (parent !== this) {
                         this.add(graphics, null, 0);
-                        this.setGraphics(graphics);
                     }
                     graphics.setStyle("margin", "0 0 " + iconTextGap + "px");
                 } else {
-                    if (graphics instanceof JSDiv) {
-                        this.remove(graphics);
-                    }
                     var horizontalTextPosition: string = this.getHorizontalTextPosition();
                     if (horizontalTextPosition === JSLabel.LEFT) {
-                        if (graphics instanceof JSDiv || !graphics) {
-                            graphics = this.getIconSpan();
+                        if (parent !== this) {
                             this.add(graphics);
-                            this.setGraphics(graphics);
                         }
                         graphics.setStyle("margin", "0 0 0 " + iconTextGap + "px");
                     } else {
-                        if (graphics instanceof JSDiv || !graphics) {
-                            graphics = this.getIconSpan();
+                        if (parent !== this) {
                             this.add(graphics, null, 0);
-                            this.setGraphics(graphics);
                         }
                         graphics.setStyle("margin", "0 " + iconTextGap + "px 0 0");
                     }
@@ -122,9 +111,7 @@ class JSText extends JSHTMLComponent {
         if (!text) {
             if (parent === this) {
                 this.remove(span_Text);
-                if (graphics) {
-                    graphics.setStyle("margin", "0");
-                }
+                graphics.setStyle("margin", "0");
             }
         } else {
             if (!icon) {
@@ -138,40 +125,34 @@ class JSText extends JSHTMLComponent {
                     if (parent !== this) {
                         this.add(span_Text, null, 0);
                     }
-                    if (graphics) {
-                        graphics.setStyle("margin", iconTextGap + "px 0 0");
-                    }
+                    graphics.setStyle("margin", iconTextGap + "px 0 0");
                 } else if (verticalTextPosition === JSLabel.BOTTOM) {
                     if (parent !== this) {
                         this.add(span_Text);
                     }
-                    if (graphics) {
-                        graphics.setStyle("margin", "0 0 " + iconTextGap + "px");
-                    }
+                    graphics.setStyle("margin", "0 0 " + iconTextGap + "px");
                 } else {
                     var horizontalTextPosition: string = this.getHorizontalTextPosition();
                     if (horizontalTextPosition === JSLabel.LEFT) {
                         if (parent !== this) {
                             this.add(span_Text, null, 0);
                         }
-                        if (graphics) {
-                            graphics.setStyle("margin", "0 0 0 " + iconTextGap + "px");
-                        }
+                        graphics.setStyle("margin", "0 0 0 " + iconTextGap + "px");
                     } else {
                         if (parent !== this) {
                             this.add(span_Text);
                         }
-                        if (graphics) {
-                            graphics.setStyle("margin", "0 " + iconTextGap + "px 0 0");
-                        }
+                        graphics.setStyle("margin", "0 " + iconTextGap + "px 0 0");
                     }
                 }
             }
         }
         span_Text.setText(text);
+        /*
         if (this.isValid()) {
             this.revalidate();
         }
+        */
     }
     getIconTextGap(): number {
         return +this.getAttribute("data-icon-text-gap");
@@ -214,6 +195,8 @@ class JSText extends JSHTMLComponent {
         return this.getAttribute("data-vertical-text-position");
     }
     setVerticalTextPosition(verticalTextPosition: string) {
+        var graphics: JSComponent = this.getGraphics();
+        this.remove(graphics);
         var oldVerticalTextPosition: string = this.getVerticalTextPosition();
         if ((oldVerticalTextPosition || JSLabel.CENTER) === (verticalTextPosition || JSLabel.CENTER)) {
             return;
@@ -223,10 +206,6 @@ class JSText extends JSHTMLComponent {
         } else {
             this.removeAttribute("data-vertical-text-position");
         }
-        var graphics: JSComponent = this.getGraphics();
-        if (graphics) {
-            this.remove(graphics);
-        }
         var icon: JSIcon = this.getIcon();
         this.setIcon(icon);
     }
@@ -234,6 +213,8 @@ class JSText extends JSHTMLComponent {
         return this.getAttribute("data-horizontal-text-position");
     }
     setHorizontalTextPosition(horizontalTextPosition: string) {
+        var graphics: JSComponent = this.getGraphics();
+        this.remove(graphics);
         var oldHorizontalTextPosition: string = this.getHorizontalTextPosition();
         if ((oldHorizontalTextPosition || JSLabel.RIGHT) === (horizontalTextPosition || JSLabel.RIGHT)) {
             return;
@@ -244,25 +225,6 @@ class JSText extends JSHTMLComponent {
             this.removeAttribute("data-horizontal-text-position");
         }
         var icon: JSIcon = this.getIcon();
-        this.setIcon(null);
         this.setIcon(icon);
-        if (this.isValid()) {
-            this.revalidate();
-        }
     }
-    /*
-    getPreferredWidth(): number {
-        var whiteSpace = this.getStyle("whiteSpace");
-        this.setStyle("white-space", "nowrap");
-        
-        var preferredWidth: number = super.getPreferredWidth();
-        
-        if (whiteSpace) {
-            this.setStyle("white-space", whiteSpace);
-        } else {
-            this.removeStyle("white-space");
-        }
-        return preferredWidth;
-    }
-    */
 }

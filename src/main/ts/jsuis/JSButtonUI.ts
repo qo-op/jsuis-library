@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSButtonUI implements UI {
+class JSButtonUI implements JSUI {
     
     private static instance: JSButtonUI;
     static getInstance(): JSButtonUI {

@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSMenuItemMouseListener implements MouseListener {
+class JSMenuItemMouseListener implements JSMouseListener {
     
     private menuItem: JSMenuItem;
     
@@ -17,17 +17,6 @@ class JSMenuItemMouseListener implements MouseListener {
     setMenuItem(menuItem: JSMenuItem) {
         this.menuItem = menuItem;
     }
-    /*
-    mouseEntered(mouseEvent: MouseEvent) {
-        var menuItem: JSMenuItem = this.getMenuItem();
-        var parent: JSComponent = menuItem.getParent();
-        var parentSelected = parent.isSelected();
-        if (parentSelected) {
-            parent.getSelection().setSelected(menuItem);
-        }
-        mouseEvent.stopPropagation();
-    }
-    */
     mouseClicked(mouseEvent: MouseEvent) {
         var menuItem: JSMenuItem = this.getMenuItem();
         var parent: JSComponent = menuItem.getParent();

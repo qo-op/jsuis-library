@@ -54,4 +54,12 @@ class JSTextField extends JSHTMLComponent {
     setText(text: string) {
         (<HTMLInputElement> this.element).value = text;
     }
+    setAction(action: JSAction) {
+        var oldAction: JSAction = this.getAction();
+        if (oldAction) {
+            this.removeActionListener(oldAction);
+        }
+        this.action = action;
+        this.addActionListener(action);
+    }
 }

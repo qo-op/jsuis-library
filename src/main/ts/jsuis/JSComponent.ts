@@ -55,6 +55,31 @@ class JSComponent {
     static HORIZONTAL_SCROLLBAR_ALWAYS: string = "scroll";
     
     element: Element;
+    private layout: JSLayout;
+    private constraints: string | { [ key: string ]: number | string };
+    private components: JSComponent[];
+    private parent: JSComponent;
+    private border: JSBorder;
+    private icon: JSIcon;
+    private componentPopupMenu: JSPopupMenu;
+    private selection: JSSelection;
+    private actionListeners: JSActionListener[];
+    private componentActionListeners: JSComponentActionListener[];
+    private componentActionListenerHandler: JSComponentActionListenerHandler;
+    private mouseDraggedListeners: JSMouseDraggedListener[];
+    private componentMouseDraggedListeners: JSComponentMouseDraggedListener[];
+    private componentMouseDraggedListenerHandler: JSComponentMouseDraggedListenerHandler;
+    private dragEnabled: boolean;
+    private dragging: boolean;
+    private dragSourceListeners: JSDragSourceListener[];
+    private componentDragSourceListeners: JSComponentDragSourceListener[];
+    private dropTargetListeners: JSDropTargetListener[];
+    private componentDropTargetListeners: JSComponentDropTargetListener[];
+    private componentDropTargetListenerHandler: JSComponentDropTargetListenerHandler;
+    private adjustmentListeners: JSAdjustmentListener[];
+    private componentAdjustmentListeners: JSComponentAdjustmentListener[];
+    private changeListeners: JSChangeListener[];
+    private componentChangeListeners: JSComponentChangeListener[];
     
     constructor(element: Element) {
         this.element = element;
@@ -180,7 +205,7 @@ class JSComponent {
     getUI(): string {
         return this.getClass();
     }
-    setUI(ui: string | UI) {
+    setUI(ui: string | JSUI) {
         if (typeof ui === "string") {
             this.setClass(ui);
         } else if (ui) {
@@ -265,21 +290,26 @@ class JSComponent {
         return true;
     }
     getLayout(): JSLayout {
-        return this.getData("layout");
+        return this.layout;
     }
     setLayout(layout: JSLayout) {
-        this.setData("layout", layout);
+        this.layout = layout;
         if (layout) {
             this.setAttribute("data-layout", (<any> layout.constructor).name);
         } else {
             this.removeAttribute("data-layout");
         }
     }
-    getConstraints(): string | { [ key: string ]: string } {
-        return this.getData("constraints");
+    getConstraints(): string | { [ key: string ]: number | string } {
+        return this.constraints;
     }
     setConstraints(constraints: string | { [ key: string]: number | string }) {
-        this.setData("constraints", constraints);
+        this.constraints = constraints;
+        if (constraints) {
+            this.setAttribute("data-constraints", typeof constraints === "string" ? constraints : JSON.stringify(constraints));
+        } else {
+            this.removeAttribute("data-constraints");
+        }
     }
     getLayer(): number {
         var layer: number = +this.getStyle("z-index");
@@ -296,21 +326,19 @@ class JSComponent {
         this.setStyle("z-index", "" + layer);
     }
     getComponents(): JSComponent[] {
-        var components: JSComponent[] = this.getData("components");
-        if (components === undefined) {
-            components = [];
-            this.setData("components", components);
+        if (!this.components) {
+            this.components = [];
         }
-        return components;
+        return this.components;
     }
     getComponentCount(): number {
         return this.getComponents().length;    
     }
     getParent(): JSComponent {
-        return this.getData("parent");
+        return this.parent;
     }
     setParent(parent: JSComponent) {
-        this.setData("parent", parent);
+        this.parent = parent;
     }
     add(component: JSComponent): void;
     add(component: JSComponent, constraints: number | Number | string | { [ key: string ]: number | string }): void;
@@ -746,11 +774,11 @@ class JSComponent {
     }
     setText(text: string) {
     }
-    getBorder(): Border {
-        return this.getData("border");
+    getBorder(): JSBorder {
+        return this.border;
     }
-    setBorder(border: Border) {
-        this.setData("border", border);
+    setBorder(border: JSBorder) {
+        this.border = border;
         if (border) {
             border.paintBorder(this);
         } else {
@@ -766,10 +794,10 @@ class JSComponent {
         return null;
     }
     getIcon(): JSIcon {
-        return this.getData("icon");
+        return this.icon;
     }
     setIcon(icon: JSIcon) {
-        this.setData("icon", icon);
+        this.icon = icon;
         var graphics: JSComponent = this.getGraphics();
         if (graphics) {
             if (icon) {
@@ -779,14 +807,22 @@ class JSComponent {
             }
         }
     }
+    
+    action: JSAction;
+    actionPropertyChangeListener: JSPropertyChangeListener;
+    enabled: boolean;
+    
     getAction(): JSAction {
-        return this.getData("action");
+        return this.action;
     }
     setAction(action: JSAction) {
         var oldAction: JSAction = this.getAction();
         if (oldAction) {
             this.removeActionListener(oldAction);
+            var actionPropertyChangeListener = this.getActionPropertyChangeListener();
+            oldAction.removePropertyChangeListener(actionPropertyChangeListener);
         }
+        this.action = action;
         var name = action.getName();
         if (name) {
             this.setText(name);
@@ -795,13 +831,30 @@ class JSComponent {
         if (icon) {
             this.setIcon(icon);
         }
+        this.setEnabled(action.isEnabled());
         this.addActionListener(action);
-        this.setData("action", action);
+        var actionPropertyChangeListener: JSPropertyChangeListener = new JSComponentPropertyChangeListener(this);
+        this.setActionPropertyChangeListener(actionPropertyChangeListener);
+        action.addPropertyChangeListener(actionPropertyChangeListener);
     }
+    getActionPropertyChangeListener(): JSPropertyChangeListener {
+        return this.actionPropertyChangeListener;
+    }
+    setActionPropertyChangeListener(actionPropertyChangeListener: JSPropertyChangeListener) {
+        this.actionPropertyChangeListener = actionPropertyChangeListener;
+    }
+    isEnabled(): boolean {
+        return this.enabled;
+    }
+    setEnabled(enabled: boolean) {
+        this.enabled = enabled;
+    }
+    
     getComponentPopupMenu(): JSPopupMenu {
-        return this.getData("componentPopupMenu"); 
+        return this.componentPopupMenu; 
     }
     setComponentPopupMenu(componentPopupMenu: JSPopupMenu) {
+        this.componentPopupMenu = componentPopupMenu;
         var oldContextmenuListener = this.getData("contextmenuListener");
         if (oldContextmenuListener) {
             this.removeEventListener("contextmenu", oldContextmenuListener, false);
@@ -814,7 +867,6 @@ class JSComponent {
         };
         this.addEventListener("contextmenu", contextmenuListener, false);
         this.setData("contextmenuListener", contextmenuListener);
-        this.setData("componentPopupMenu", componentPopupMenu);
     }
     isSelected(): boolean {
         var selected: string = this.getAttribute("selected");
@@ -827,10 +879,10 @@ class JSComponent {
         this.setAttribute("selected", "" + selected);
     }
     getSelection(): JSSelection {
-        return this.getData("selection"); 
+        return this.selection; 
     }
     setSelection(selection: JSSelection) {
-        this.setData("selection", selection);
+        this.selection = selection;
     }
     isEditable(): boolean {
         return this.getAttribute("contenteditable") === "true";
@@ -846,84 +898,138 @@ class JSComponent {
     removeEventListener(event: string, listener: (event: Event) => void, useCapture?: boolean): void {
         this.element.removeEventListener(event, listener, !!useCapture);
     }
-    getMouseListeners(): MouseListener[] {
-        var mouseListeners: MouseListener[] = this.getData("mouseListeners");
-        if (mouseListeners === undefined) {
-            mouseListeners = [];
-            this.setData("mouseListeners", mouseListeners);
+    
+    private keyListeners: JSKeyListener[];
+    getKeyListeners(): JSKeyListener[] {
+        if (!this.keyListeners) {
+            this.keyListeners = [];
         }
-        return mouseListeners;
+        return this.keyListeners;
     }
-    getJSMouseListeners(): JSMouseListener[] {
-        var jsMouseListeners: JSMouseListener[] = this.getData("jsMouseListeners");
-        if (jsMouseListeners === undefined) {
-            jsMouseListeners = [];
-            this.setData("jsMouseListeners", jsMouseListeners);
+    private componentKeyListeners: JSComponentKeyListener[];
+    getComponentKeyListeners(): JSComponentKeyListener[] {
+        if (!this.componentKeyListeners) {
+            this.componentKeyListeners = [];
         }
-        return jsMouseListeners;
+        return this.componentKeyListeners;
     }
-    addMouseListener(mouseListener: MouseListener, useCapture?: boolean): JSMouseListener {
-        var mouseListeners: MouseListener[] = this.getMouseListeners();
-        var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
+    addKeyListener(keyListener: JSKeyListener, useCapture?: boolean): JSComponentKeyListener {
+        var keyListeners: JSKeyListener[] = this.getKeyListeners();
+        var componentKeyListeners: JSComponentKeyListener[] = this.getComponentKeyListeners();
+        var index: number = keyListeners.indexOf(keyListener);
+        if (index !== -1) {
+            return componentKeyListeners[index];
+        }
+        keyListeners.push(keyListener);
+        var componentKeyListener: JSComponentKeyListener = new JSComponentKeyListener(keyListener);
+        componentKeyListeners.push(componentKeyListener);
+        if (componentKeyListener.keyTyped) {
+            this.element.addEventListener("keypress", componentKeyListener.keyTyped, !!useCapture);
+        }
+        if (componentKeyListener.keyPressed) {
+            this.element.addEventListener("keydown", componentKeyListener.keyPressed, !!useCapture);
+        }
+        if (componentKeyListener.keyReleased) {
+            this.element.addEventListener("keyup", componentKeyListener.keyReleased, !!useCapture);
+        }
+        return componentKeyListener;
+    }
+    removeKeyListener(keyListener: JSKeyListener, useCapture?: boolean): void {
+        var keyListeners: JSKeyListener[] = this.getKeyListeners();
+        var index: number = keyListeners.indexOf(keyListener);
+        if (index !== -1) {
+            var componentKeyListeners: JSComponentKeyListener[] = this.getComponentKeyListeners();
+            var componentKeyListener = componentKeyListeners[index];
+            if (componentKeyListener.keyTyped) {
+                this.element.removeEventListener("keypress", componentKeyListener.keyTyped, !!useCapture);
+            }
+            if (componentKeyListener.keyPressed) {
+                this.element.removeEventListener("keydown", componentKeyListener.keyPressed, !!useCapture);
+            }
+            if (componentKeyListener.keyReleased) {
+                this.element.removeEventListener("keyup", componentKeyListener.keyReleased, !!useCapture);
+            }
+            keyListeners.splice(index, 1);
+            componentKeyListeners.splice(index, 1);
+        }
+    }
+    
+    private mouseListeners: JSMouseListener[];
+    getMouseListeners(): JSMouseListener[] {
+        if (!this.mouseListeners) {
+            this.mouseListeners = [];
+        }
+        return this.mouseListeners;
+    }
+    private componentMouseListeners: JSComponentMouseListener[];
+    getComponentMouseListeners(): JSComponentMouseListener[] {
+        if (!this.componentMouseListeners) {
+            this.componentMouseListeners = [];
+        }
+        return this.componentMouseListeners;
+    }
+    addMouseListener(mouseListener: JSMouseListener, useCapture?: boolean): JSComponentMouseListener {
+        var mouseListeners: JSMouseListener[] = this.getMouseListeners();
+        var componentMouseListeners: JSComponentMouseListener[] = this.getComponentMouseListeners();
         var index: number = mouseListeners.indexOf(mouseListener);
         if (index !== -1) {
-            return jsMouseListeners[index];;
+            return componentMouseListeners[index];
         }
         mouseListeners.push(mouseListener);
-        var jsMouseListener: JSMouseListener = new JSMouseListener(mouseListener);
-        jsMouseListeners.push(jsMouseListener);
-        if (jsMouseListener.mouseClicked) {
-            this.element.addEventListener("click", jsMouseListener.mouseClicked, !!useCapture);
+        var componentMouseListener: JSComponentMouseListener = new JSComponentMouseListener(mouseListener);
+        componentMouseListeners.push(componentMouseListener);
+        if (componentMouseListener.mouseClicked) {
+            this.element.addEventListener("click", componentMouseListener.mouseClicked, !!useCapture);
         }
-        if (jsMouseListener.mousePressed) {
-            this.element.addEventListener("mousedown", jsMouseListener.mousePressed, !!useCapture);
+        if (componentMouseListener.mousePressed) {
+            this.element.addEventListener("mousedown", componentMouseListener.mousePressed, !!useCapture);
         }
-        if (jsMouseListener.mouseReleased) {
-            this.element.addEventListener("mouseup", jsMouseListener.mouseReleased, !!useCapture);
+        if (componentMouseListener.mouseReleased) {
+            this.element.addEventListener("mouseup", componentMouseListener.mouseReleased, !!useCapture);
         }
-        if (jsMouseListener.mouseEntered) {
-            this.element.addEventListener("mouseenter", jsMouseListener.mouseEntered, !!useCapture);
+        if (componentMouseListener.mouseEntered) {
+            this.element.addEventListener("mouseenter", componentMouseListener.mouseEntered, !!useCapture);
         }
-        if (jsMouseListener.mouseExited) {
-            this.element.addEventListener("mouseleave", jsMouseListener.mouseExited, !!useCapture);
+        if (componentMouseListener.mouseExited) {
+            this.element.addEventListener("mouseleave", componentMouseListener.mouseExited, !!useCapture);
         }
-        if (jsMouseListener.mouseMoved) {
-            this.element.addEventListener("mousemove", jsMouseListener.mouseMoved, !!useCapture);
+        if (componentMouseListener.mouseMoved) {
+            this.element.addEventListener("mousemove", componentMouseListener.mouseMoved, !!useCapture);
         }
-        if (jsMouseListener.mouseDragged) {
-            this.addMouseDraggedListener(<MouseDraggedListener> jsMouseListener, !!useCapture);
+        if (componentMouseListener.mouseDragged) {
+            this.addMouseDraggedListener(<JSMouseDraggedListener> componentMouseListener);
         }
-        return jsMouseListener.withParameters(this);
+        return componentMouseListener.withParameters(this);
     }
-    removeMouseListener(mouseListener: MouseListener, useCapture?: boolean): void {
-        var mouseListeners: MouseListener[] = this.getMouseListeners();
+    removeMouseListener(mouseListener: JSMouseListener, useCapture?: boolean): void {
+        var mouseListeners: JSMouseListener[] = this.getMouseListeners();
         var index: number = mouseListeners.indexOf(mouseListener);
         if (index !== -1) {
-            var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
-            var jsMouseListener = jsMouseListeners[index];
-            if (jsMouseListener.mouseClicked) {
-                this.element.removeEventListener("click", jsMouseListener.mouseClicked, !!useCapture);
+            var componentMouseListeners: JSComponentMouseListener[] = this.getComponentMouseListeners();
+            var componentMouseListener = componentMouseListeners[index];
+            if (componentMouseListener.mouseClicked) {
+                this.element.removeEventListener("click", componentMouseListener.mouseClicked, !!useCapture);
             }
-            if (jsMouseListener.mousePressed) {
-                this.element.removeEventListener("mousedown", jsMouseListener.mousePressed, !!useCapture);
+            if (componentMouseListener.mousePressed) {
+                this.element.removeEventListener("mousedown", componentMouseListener.mousePressed, !!useCapture);
             }
-            if (jsMouseListener.mouseReleased) {
-                this.element.removeEventListener("mouseup", jsMouseListener.mouseReleased, !!useCapture);
+            if (componentMouseListener.mouseReleased) {
+                this.element.removeEventListener("mouseup", componentMouseListener.mouseReleased, !!useCapture);
             }
-            if (jsMouseListener.mouseEntered) {
-                this.element.removeEventListener("mouseenter", jsMouseListener.mouseEntered, !!useCapture);
+            if (componentMouseListener.mouseEntered) {
+                this.element.removeEventListener("mouseenter", componentMouseListener.mouseEntered, !!useCapture);
             }
-            if (jsMouseListener.mouseExited) {
-                this.element.removeEventListener("mouseleave", jsMouseListener.mouseExited, !!useCapture);
+            if (componentMouseListener.mouseExited) {
+                this.element.removeEventListener("mouseleave", componentMouseListener.mouseExited, !!useCapture);
             }
-            if (jsMouseListener.mouseMoved) {
-                this.element.removeEventListener("mousemove", jsMouseListener.mouseMoved, !!useCapture);
+            if (componentMouseListener.mouseMoved) {
+                this.element.removeEventListener("mousemove", componentMouseListener.mouseMoved, !!useCapture);
             }
-            if (jsMouseListener.mouseDragged) {
-                this.removeMouseDraggedListener(<MouseDraggedListener> jsMouseListener);
+            if (componentMouseListener.mouseDragged) {
+                this.removeMouseDraggedListener(<JSMouseDraggedListener> componentMouseListener);
             }
             mouseListeners.splice(index, 1);
-            jsMouseListeners.splice(index, 1);
+            componentMouseListeners.splice(index, 1);
         }
     }
     getActionCommand(): string {
@@ -932,408 +1038,352 @@ class JSComponent {
     setActionCommand(actionCommand: string) {
         this.setAttribute("data-action-command", actionCommand);
     }
-    getActionListeners(): ActionListener[] {
-        var actionListeners: ActionListener[] = this.getData("actionListeners");
-        if (actionListeners === undefined) {
-            actionListeners = [];
-            this.setData("actionListeners", actionListeners);
+    getActionListeners(): JSActionListener[] {
+        if (!this.actionListeners) {
+            this.actionListeners = [];
         }
-        return actionListeners;
+        return this.actionListeners;
     }
-    getJSActionListeners(): JSActionListener[] {
-        var jsActionListeners: JSActionListener[] = this.getData("jsActionListeners");
-        if (jsActionListeners === undefined) {
-            jsActionListeners = [];
-            this.setData("jsActionListeners", jsActionListeners);
-        }
-        return jsActionListeners;
-    }
-    addActionListener(actionListener: ActionListener, useCapture?: boolean): JSActionListener {
-        var actionListeners: ActionListener[] = this.getActionListeners();
-        var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
+    addActionListener(actionListener: JSActionListener): JSComponentActionListener {
+        var actionListeners: JSActionListener[] = this.getActionListeners();
+        var componentActionListeners: JSComponentActionListener[] = this.getComponentActionListeners();
         var index = actionListeners.indexOf(actionListener);
         if (index !== -1) {
-            return jsActionListeners[index];;
+            return componentActionListeners[index];;
         }
         actionListeners.push(actionListener);
-        var jsActionListener: JSActionListener = new JSActionListener(actionListener);
-        jsActionListeners.push(jsActionListener);
-        var mouseListener = this.getData("actionListener" + !!useCapture);
-        if (!mouseListener) {
-            mouseListener = {
-                mouseClicked(mouseEvent: MouseEvent, source: JSComponent): void {
-                    source.fireActionPerformed(mouseEvent);
-                    mouseEvent.stopPropagation();
-                }
-            };
-            this.addMouseListener(mouseListener, !!useCapture).withParameters(this);
-            this.setData("actionListener" + !!useCapture, mouseListener);
+        var componentActionListener: JSComponentActionListener = new JSComponentActionListener(actionListener);
+        componentActionListeners.push(componentActionListener);
+        var componentActionListenerHandler: JSComponentActionListenerHandler = this.getComponentActionListenerHandler();
+        if (!componentActionListenerHandler) {
+            componentActionListenerHandler = new JSComponentActionListenerHandler(this);
+            this.addMouseListener(componentActionListenerHandler);
+            this.setComponentActionListenerHandler(componentActionListenerHandler);
         }
-        return jsActionListener.withParameters(this);
+        return componentActionListener.withParameters(this);
     }
-    removeActionListener(actionListener: ActionListener): void {
-        var actionListeners: ActionListener[] = this.getActionListeners();
+    removeActionListener(actionListener: JSActionListener): void {
+        var actionListeners: JSActionListener[] = this.getActionListeners();
         var index = actionListeners.indexOf(actionListener);
         if (index !== -1) {
-            var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
+            var componentActionListeners: JSComponentActionListener[] = this.getComponentActionListeners();
             actionListeners.splice(index, 1);
-            jsActionListeners.splice(index, 1);
+            componentActionListeners.splice(index, 1);
         }
     }
     fireActionPerformed(event: Event): void {
-        var jsActionListeners: JSActionListener[] = this.getJSActionListeners();
-        for (var i: number = 0; i < jsActionListeners.length; i++) {
-            var jsActionListener: JSActionListener = jsActionListeners[i];
-            jsActionListener.actionPerformed(event);
+        var componentActionListeners: JSComponentActionListener[] = this.getComponentActionListeners();
+        for (var i: number = 0; i < componentActionListeners.length; i++) {
+            var componentActionListener: JSComponentActionListener = componentActionListeners[i];
+            componentActionListener.actionPerformed(event);
         }
     }
-    getMouseDraggedListeners(): MouseDraggedListener[] {
-        var mouseDraggedListeners: MouseDraggedListener[] = this.getData("mouseDraggedListeners");
-        if (mouseDraggedListeners === undefined) {
-            mouseDraggedListeners = [];
-            this.setData("mouseDraggedListeners", mouseDraggedListeners);
+    getComponentActionListeners(): JSComponentActionListener[] {
+        if (!this.componentActionListeners) {
+            this.componentActionListeners = [];
         }
-        return mouseDraggedListeners;
+        return this.componentActionListeners;
     }
-    getJSMouseDraggedListeners(): JSMouseDraggedListener[] {
-        var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getData("jsMouseDraggedListeners");
-        if (jsMouseDraggedListeners === undefined) {
-            jsMouseDraggedListeners = [];
-            this.setData("jsMouseDraggedListeners", jsMouseDraggedListeners);
+    getComponentActionListenerHandler(): JSComponentActionListenerHandler {
+        return this.componentActionListenerHandler;
+    }
+    setComponentActionListenerHandler(componentActionListenerHandler: JSComponentActionListenerHandler) {
+        this.componentActionListenerHandler = componentActionListenerHandler;
+    }
+    getMouseDraggedListeners(): JSMouseDraggedListener[] {
+        if (!this.mouseDraggedListeners) {
+            this.mouseDraggedListeners = [];
         }
-        return jsMouseDraggedListeners;
+        return this.mouseDraggedListeners;
     }
-    addMouseDraggedListener(mouseDraggedListener: MouseDraggedListener, useCapture?: boolean): JSMouseDraggedListener {
-        var mouseDraggedListeners: MouseDraggedListener[] = this.getMouseDraggedListeners();
-        var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getJSMouseDraggedListeners();
+    addMouseDraggedListener(mouseDraggedListener: JSMouseDraggedListener): JSComponentMouseDraggedListener {
+        var mouseDraggedListeners: JSMouseDraggedListener[] = this.getMouseDraggedListeners();
+        var componentMouseDraggedListeners: JSComponentMouseDraggedListener[] = this.getComponentMouseDraggedListeners();
         var index = mouseDraggedListeners.indexOf(mouseDraggedListener);
         if (index !== -1) {
-            return jsMouseDraggedListeners[index];
+            return componentMouseDraggedListeners[index];
         }
         mouseDraggedListeners.push(mouseDraggedListener);
-        var jsMouseDraggedListener: JSMouseDraggedListener = new JSMouseDraggedListener(mouseDraggedListener);
-        jsMouseDraggedListeners.push(jsMouseDraggedListener);
-        var mouseListener = this.getData("mouseDraggedListener" + !!useCapture);
-        if (!mouseListener) {
-            mouseListener = {
-                mousePressed(mouseEvent: MouseEvent, source: JSComponent): void {
-                    JSBody.getInstance().setDragSource(source);
-                    mouseEvent.stopPropagation();
-                }
-            };
-            this.addMouseListener(mouseListener, !!useCapture).withParameters(this);
-            this.setData("mouseDraggedListener" + !!useCapture, mouseListener);
+        var componentMouseDraggedListener: JSComponentMouseDraggedListener = new JSComponentMouseDraggedListener(mouseDraggedListener);
+        componentMouseDraggedListeners.push(componentMouseDraggedListener);
+        var componentMouseDraggedListenerHandler: JSComponentMouseDraggedListenerHandler = this.getComponentMouseDraggedListenerHandler();
+        if (!componentMouseDraggedListenerHandler) {
+            componentMouseDraggedListenerHandler = new JSComponentMouseDraggedListenerHandler(this);
+            this.addMouseListener(componentMouseDraggedListenerHandler);
+            this.setComponentMouseDraggedListenerHandler(componentMouseDraggedListenerHandler);
         }
-        return jsMouseDraggedListener.withParameters(this);
+        return componentMouseDraggedListener.withParameters(this);
     }
-    removeMouseDraggedListener(mouseDraggedListener: MouseDraggedListener): void {
-        var mouseDraggedListeners: MouseDraggedListener[] = this.getMouseDraggedListeners();
+    removeMouseDraggedListener(mouseDraggedListener: JSMouseDraggedListener): void {
+        var mouseDraggedListeners: JSMouseDraggedListener[] = this.getMouseDraggedListeners();
         var index = mouseDraggedListeners.indexOf(mouseDraggedListener);
         if (index !== -1) {
-            var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getJSMouseDraggedListeners();
+            var componentMouseDraggedListeners: JSComponentMouseDraggedListener[] = this.getComponentMouseDraggedListeners();
             mouseDraggedListeners.splice(index, 1);
-            jsMouseDraggedListeners.splice(index, 1);
+            componentMouseDraggedListeners.splice(index, 1);
         }
     }
     fireMouseDragged(mouseEvent: MouseEvent): void {
-        var jsMouseDraggedListeners: JSMouseDraggedListener[] = this.getJSMouseDraggedListeners();
-        for (var i: number = 0; i < jsMouseDraggedListeners.length; i++) {
-            var jsMouseDraggedListener: JSMouseDraggedListener = jsMouseDraggedListeners[i];
-            jsMouseDraggedListener.mouseDragged(mouseEvent);
+        var componentMouseDraggedListeners: JSComponentMouseDraggedListener[] = this.getComponentMouseDraggedListeners();
+        for (var i: number = 0; i < componentMouseDraggedListeners.length; i++) {
+            var componentMouseDraggedListener: JSComponentMouseDraggedListener = componentMouseDraggedListeners[i];
+            componentMouseDraggedListener.mouseDragged(mouseEvent);
         }
+    }
+    getComponentMouseDraggedListeners(): JSComponentMouseDraggedListener[] {
+        if (!this.componentMouseDraggedListeners) {
+            this.componentMouseDraggedListeners = [];
+        }
+        return this.componentMouseDraggedListeners;
+    }
+    getComponentMouseDraggedListenerHandler(): JSComponentMouseDraggedListenerHandler {
+        return this.componentMouseDraggedListenerHandler;
+    }
+    setComponentMouseDraggedListenerHandler(componentMouseDraggedListenerHandler: JSComponentMouseDraggedListenerHandler) {
+        this.componentMouseDraggedListenerHandler = componentMouseDraggedListenerHandler;
     }
     isDragEnabled(): boolean {
-        return this.getData("dragEnabled");
+        return this.dragEnabled;
     }
     setDragEnabled(dragEnable: boolean) {
-        this.setData("dragEnabled", dragEnable);
+        this.dragEnabled = dragEnable;
     }
-    getDragSourceListeners(): DragSourceListener[] {
-        var dragSourceListeners: DragSourceListener[] = this.getData("dragSourceListeners");
-        if (dragSourceListeners === undefined) {
-            dragSourceListeners = [];
-            this.setData("dragSourceListeners", dragSourceListeners);
+    isDragging(): boolean {
+        return this.dragging;
+    }
+    setDragging(dragging: boolean) {
+        this.dragging = dragging;
+    }
+    getDragSourceListeners(): JSDragSourceListener[] {
+        if (!this.dragSourceListeners) {
+            this.dragSourceListeners = [];
         }
-        return dragSourceListeners;
+        return this.dragSourceListeners;
     }
-    getJSDragSourceListeners(): JSDragSourceListener[] {
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getData("jsDragSourceListeners");
-        if (jsDragSourceListeners === undefined) {
-            jsDragSourceListeners = [];
-            this.setData("jsDragSourceListeners", jsDragSourceListeners);
-        }
-        return jsDragSourceListeners;
-    }
-    addDragSourceListener(dragSourceListener: DragSourceListener, useCapture?: boolean): JSDragSourceListener {
+    addDragSourceListener(dragSourceListener: JSDragSourceListener): JSComponentDragSourceListener {
         this.setDragEnabled(true);
-        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
+        var dragSourceListeners: JSDragSourceListener[] = this.getDragSourceListeners();
+        var componentDragSourceListeners: JSComponentDragSourceListener[] = this.getComponentDragSourceListeners();
         var index = dragSourceListeners.indexOf(dragSourceListener);
         if (index !== -1) {
-            return jsDragSourceListeners[index];
+            return componentDragSourceListeners[index];
         }
         dragSourceListeners.push(dragSourceListener);
-        var jsDragSourceListener: JSDragSourceListener = new JSDragSourceListener(dragSourceListener);
-        jsDragSourceListeners.push(jsDragSourceListener);
-        var mouseListener = this.getData("dragSourceListener" + !!useCapture);
-        if (!mouseListener) {
-            mouseListener = {
-                mousePressed(mouseEvent: MouseEvent, source: JSComponent): void {
-                    JSBody.getInstance().setDragSource(source);
-                    mouseEvent.stopPropagation();
-                }
-            };
-            this.addMouseListener(mouseListener, !!useCapture).withParameters(this);
-            this.setData("dragSourceListener" + !!useCapture, mouseListener);
+        var componentDragSourceListener: JSComponentDragSourceListener = new JSComponentDragSourceListener(dragSourceListener);
+        componentDragSourceListeners.push(componentDragSourceListener);
+        var componentMouseDraggedListenerHandler: JSComponentMouseDraggedListenerHandler = this.getComponentMouseDraggedListenerHandler();
+        if (!componentMouseDraggedListenerHandler) {
+            componentMouseDraggedListenerHandler = new JSComponentMouseDraggedListenerHandler(this);
+            this.addMouseListener(componentMouseDraggedListenerHandler);
+            this.setComponentMouseDraggedListenerHandler(componentMouseDraggedListenerHandler);
         }
-        return jsDragSourceListener.withParameters(this);
+        return componentDragSourceListener.withParameters(this);
     }
-    removeDragSourceListener(dragSourceListener: DragSourceListener): void {
-        var dragSourceListeners: DragSourceListener[] = this.getDragSourceListeners();
+    removeDragSourceListener(dragSourceListener: JSDragSourceListener): void {
+        var dragSourceListeners: JSDragSourceListener[] = this.getDragSourceListeners();
         var index = dragSourceListeners.indexOf(dragSourceListener);
         if (index !== -1) {
-            var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
+            var componentDragSourceListeners: JSComponentDragSourceListener[] = this.getComponentDragSourceListeners();
             dragSourceListeners.splice(index, 1);
-            jsDragSourceListeners.splice(index, 1);
+            componentDragSourceListeners.splice(index, 1);
         }
         if (!dragSourceListeners.length) {
             this.setDragEnabled(false);
         }
     }
+    getComponentDragSourceListeners(): JSComponentDragSourceListener[] {
+        if (!this.componentDragSourceListeners) {
+            this.componentDragSourceListeners = [];
+        }
+        return this.componentDragSourceListeners;
+    }
     fireDragStart(mouseEvent: MouseEvent): void {
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
-        for (var i: number = 0; i < jsDragSourceListeners.length; i++) {
-            var jsDragSourceListener: JSDragSourceListener = jsDragSourceListeners[i];
-            if (jsDragSourceListener.dragStart) {
-                jsDragSourceListener.dragStart(mouseEvent);
+        var componentDragSourceListeners: JSComponentDragSourceListener[] = this.getComponentDragSourceListeners();
+        for (var i: number = 0; i < componentDragSourceListeners.length; i++) {
+            var componentDragSourceListener: JSComponentDragSourceListener = componentDragSourceListeners[i];
+            if (componentDragSourceListener.dragStart) {
+                componentDragSourceListener.dragStart(mouseEvent);
             }
         }
     }
     fireDrag(mouseEvent: MouseEvent): void {
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
-        for (var i: number = 0; i < jsDragSourceListeners.length; i++) {
-            var jsDragSourceListener: JSDragSourceListener = jsDragSourceListeners[i];
-            if (jsDragSourceListener.drag) {
-                jsDragSourceListener.drag(mouseEvent);
+        var componentDragSourceListeners: JSComponentDragSourceListener[] = this.getComponentDragSourceListeners();
+        for (var i: number = 0; i < componentDragSourceListeners.length; i++) {
+            var componentDragSourceListener: JSComponentDragSourceListener = componentDragSourceListeners[i];
+            if (componentDragSourceListener.drag) {
+                componentDragSourceListener.drag(mouseEvent);
             }
         }
     }
     fireDragEnd(mouseEvent: MouseEvent): void {
-        var jsDragSourceListeners: JSDragSourceListener[] = this.getJSDragSourceListeners();
-        for (var i: number = 0; i < jsDragSourceListeners.length; i++) {
-            var jsDragSourceListener: JSDragSourceListener = jsDragSourceListeners[i];
-            if (jsDragSourceListener.dragEnd) {
-                jsDragSourceListener.dragEnd(mouseEvent);
+        var componentDragSourceListeners: JSComponentDragSourceListener[] = this.getComponentDragSourceListeners();
+        for (var i: number = 0; i < componentDragSourceListeners.length; i++) {
+            var componentDragSourceListener: JSComponentDragSourceListener = componentDragSourceListeners[i];
+            if (componentDragSourceListener.dragEnd) {
+                componentDragSourceListener.dragEnd(mouseEvent);
             }
         }
     }
     fireMouseReleased(mouseEvent: MouseEvent): void {
-        var jsMouseListeners: JSMouseListener[] = this.getJSMouseListeners();
-        for (var i: number = 0; i < jsMouseListeners.length; i++) {
-            var jsMouseListener: JSMouseListener = jsMouseListeners[i];
-            if (jsMouseListener.mouseReleased) {
-                jsMouseListener.mouseReleased(mouseEvent);
+        var componentMouseListeners: JSComponentMouseListener[] = this.getComponentMouseListeners();
+        for (var i: number = 0; i < componentMouseListeners.length; i++) {
+            var componentMouseListener: JSComponentMouseListener = componentMouseListeners[i];
+            if (componentMouseListener.mouseReleased) {
+                componentMouseListener.mouseReleased(mouseEvent);
             }
         }
     }
-    getDropTargetListeners(): DropTargetListener[] {
-        var dropTargetListeners: DropTargetListener[] = this.getData("dropTargetListeners");
-        if (dropTargetListeners === undefined) {
-            dropTargetListeners = [];
-            this.setData("dropTargetListeners", dropTargetListeners);
+    getDropTargetListeners(): JSDropTargetListener[] {
+        if (!this.dropTargetListeners) {
+            this.dropTargetListeners = [];
         }
-        return dropTargetListeners;
+        return this.dropTargetListeners;
     }
-    getJSDropTargetListeners(): JSDropTargetListener[] {
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getData("jsDropTargetListeners");
-        if (jsDropTargetListeners === undefined) {
-            jsDropTargetListeners = [];
-            this.setData("jsDropTargetListeners", jsDropTargetListeners);
-        }
-        return jsDropTargetListeners;
-    }
-    addDropTargetListener(dropTargetListener: DropTargetListener, useCapture?: boolean): JSDropTargetListener {
-        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
+    addDropTargetListener(dropTargetListener: JSDropTargetListener, useCapture?: boolean): JSComponentDropTargetListener {
+        var dropTargetListeners: JSDropTargetListener[] = this.getDropTargetListeners();
+        var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
         var index = dropTargetListeners.indexOf(dropTargetListener);
         if (index !== -1) {
-            return jsDropTargetListeners[index];
+            return componentDropTargetListeners[index];
         }
         dropTargetListeners.push(dropTargetListener);
-        var jsDropTargetListener: JSDropTargetListener = new JSDropTargetListener(dropTargetListener);
-        jsDropTargetListeners.push(jsDropTargetListener);
-        var mouseListener = this.getData("dropTargetListener" + !!useCapture);
-        if (!mouseListener) {
-            mouseListener = {
-                mouseEntered(mouseEvent: MouseEvent, source: JSComponent): void {
-                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
-                    if (dragSource && dragSource.isDragEnabled()) {
-                        var dragStart = dragSource.getData("dragStart");
-                        if (dragStart) {
-                            source.fireDragEnter(mouseEvent);
-                        }
-                    }
-                    mouseEvent.stopPropagation();
-                },
-                mouseMoved(mouseEvent: MouseEvent, source: JSComponent): void {
-                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
-                    if (dragSource && dragSource.isDragEnabled()) {
-                        var dragStart = dragSource.getData("dragStart");
-                        if (dragStart) {
-                            source.fireDragOver(mouseEvent);
-                        }
-                    }
-                    mouseEvent.stopPropagation();
-                },
-                mouseExited(mouseEvent: MouseEvent, source: JSComponent): void {
-                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
-                    if (dragSource && dragSource.isDragEnabled()) {
-                        var dragStart = dragSource.getData("dragStart");
-                        if (dragStart) {
-                            source.fireDragLeave(mouseEvent);
-                        }
-                    }
-                    mouseEvent.stopPropagation();
-                },
-                mouseReleased(mouseEvent: MouseEvent, source: JSComponent): void {
-                    var dragSource: JSComponent = JSBody.getInstance().getDragSource();
-                    if (dragSource && dragSource.isDragEnabled()) {
-                        var dragStart = dragSource.getData("dragStart");
-                        if (dragStart) {
-                            source.fireDrop(mouseEvent);
-                        }
-                    }
-                    mouseEvent.stopPropagation();
-                }
-            };
-            this.addMouseListener(mouseListener, !!useCapture).withParameters(this);
-            this.setData("dropTargetListener" + !!useCapture, mouseListener);
+        var componentDropTargetListener: JSComponentDropTargetListener = new JSComponentDropTargetListener(dropTargetListener);
+        componentDropTargetListeners.push(componentDropTargetListener);
+        var componentDropTargetListenerHandler: JSComponentDropTargetListenerHandler = this.getComponentDropTargetListenerHandler();
+        if (!componentDropTargetListenerHandler) {
+            componentDropTargetListenerHandler = new JSComponentDropTargetListenerHandler(this);
+            this.addMouseListener(componentDropTargetListenerHandler);
+            this.setComponentDropTargetListenerHandler(componentDropTargetListenerHandler);
         }
-        return jsDropTargetListener.withParameters(this);
+        return componentDropTargetListener.withParameters(this);
     }
-    removeDropTargetListener(dropTargetListener: DropTargetListener): void {
-        var dropTargetListeners: DropTargetListener[] = this.getDropTargetListeners();
+    removeDropTargetListener(dropTargetListener: JSDropTargetListener): void {
+        var dropTargetListeners: JSDropTargetListener[] = this.getDropTargetListeners();
         var index = dropTargetListeners.indexOf(dropTargetListener);
         if (index !== -1) {
-            var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
+            var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
             dropTargetListeners.splice(index, 1);
-            jsDropTargetListeners.splice(index, 1);
+            componentDropTargetListeners.splice(index, 1);
         }
     }
     fireDragEnter(mouseEvent: MouseEvent): void {
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
-        for (var i: number = 0; i < jsDropTargetListeners.length; i++) {
-            var jsDropTargetListener = jsDropTargetListeners[i];
-            if (jsDropTargetListener.dragEnter) {
-                jsDropTargetListener.dragEnter(mouseEvent, this);
+        var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
+        for (var i: number = 0; i < componentDropTargetListeners.length; i++) {
+            var componentDropTargetListener = componentDropTargetListeners[i];
+            if (componentDropTargetListener.dragEnter) {
+                componentDropTargetListener.dragEnter(mouseEvent, this);
             }
         }
     }
     fireDragOver(mouseEvent: MouseEvent): void {
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
-        for (var i: number = 0; i < jsDropTargetListeners.length; i++) {
-            var jsDropTargetListener = jsDropTargetListeners[i];
-            if (jsDropTargetListener.dragOver) {
-                jsDropTargetListener.dragOver(mouseEvent, this);
+        var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
+        for (var i: number = 0; i < componentDropTargetListeners.length; i++) {
+            var componentDropTargetListener = componentDropTargetListeners[i];
+            if (componentDropTargetListener.dragOver) {
+                componentDropTargetListener.dragOver(mouseEvent, this);
             }
         }
     }
     fireDragLeave(mouseEvent: MouseEvent): void {
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
-        for (var i: number = 0; i < jsDropTargetListeners.length; i++) {
-            var jsDropTargetListener = jsDropTargetListeners[i];
-            if (jsDropTargetListener.dragLeave) {
-                jsDropTargetListener.dragLeave(mouseEvent, this);
+        var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
+        for (var i: number = 0; i < componentDropTargetListeners.length; i++) {
+            var componentDropTargetListener = componentDropTargetListeners[i];
+            if (componentDropTargetListener.dragLeave) {
+                componentDropTargetListener.dragLeave(mouseEvent, this);
             }
         }
     }
     fireDrop(mouseEvent: MouseEvent): void {
-        var jsDropTargetListeners: JSDropTargetListener[] = this.getJSDropTargetListeners();
-        for (var i: number = 0; i < jsDropTargetListeners.length; i++) {
-            var jsDropTargetListener = jsDropTargetListeners[i];
-            if (jsDropTargetListener.drop) {
-                jsDropTargetListener.drop(mouseEvent, this);
+        var componentDropTargetListeners: JSComponentDropTargetListener[] = this.getComponentDropTargetListeners();
+        for (var i: number = 0; i < componentDropTargetListeners.length; i++) {
+            var componentDropTargetListener = componentDropTargetListeners[i];
+            if (componentDropTargetListener.drop) {
+                componentDropTargetListener.drop(mouseEvent, this);
             }
         }
     }
-    getAdjustmentListeners(): AdjustmentListener[] {
-        var adjustmentListeners: AdjustmentListener[] = this.getData("adjustmentListeners");
-        if (adjustmentListeners === undefined) {
-            adjustmentListeners = [];
-            this.setData("adjustmentListeners", adjustmentListeners);
+    getComponentDropTargetListeners(): JSComponentDropTargetListener[] {
+        if (!this.componentDropTargetListeners) {
+            this.componentDropTargetListeners = [];
         }
-        return adjustmentListeners;
+        return this.componentDropTargetListeners;
     }
-    getJSAdjustmentListeners(): JSAdjustmentListener[] {
-        var jsAdjustmentListeners: JSAdjustmentListener[] = this.getData("jsAdjustmentListeners");
-        if (jsAdjustmentListeners === undefined) {
-            jsAdjustmentListeners = [];
-            this.setData("jsAdjustmentListeners", jsAdjustmentListeners);
+    getComponentDropTargetListenerHandler(): JSComponentDropTargetListenerHandler {
+        return this.componentDropTargetListenerHandler;
+    }
+    setComponentDropTargetListenerHandler(componentDropTargetListenerHandler: JSComponentDropTargetListenerHandler) {
+        this.componentDropTargetListenerHandler = componentDropTargetListenerHandler;
+    }
+    getAdjustmentListeners(): JSAdjustmentListener[] {
+        if (!this.adjustmentListeners) {
+            this.adjustmentListeners = [];
         }
-        return jsAdjustmentListeners;
+        return this.adjustmentListeners;
     }
-    addAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture?: boolean): JSAdjustmentListener {
-        var adjustmentListeners: AdjustmentListener[] = this.getAdjustmentListeners();
-        var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
+    getComponentAdjustmentListeners(): JSComponentAdjustmentListener[] {
+        if (!this.componentAdjustmentListeners) {
+            this.componentAdjustmentListeners = [];
+        }
+        return this.componentAdjustmentListeners;
+    }
+    addAdjustmentListener(adjustmentListener: JSAdjustmentListener, useCapture?: boolean): JSComponentAdjustmentListener {
+        var adjustmentListeners: JSAdjustmentListener[] = this.getAdjustmentListeners();
+        var componentAdjustmentListeners: JSComponentAdjustmentListener[] = this.getComponentAdjustmentListeners();
         var index: number = adjustmentListeners.indexOf(adjustmentListener);
         if (index !== -1) {
-            return jsAdjustmentListeners[index];
+            return componentAdjustmentListeners[index];
         }
         adjustmentListeners.push(adjustmentListener);
-        var jsAdjustmentListener: JSAdjustmentListener = new JSAdjustmentListener(adjustmentListener);
-        jsAdjustmentListeners.push(jsAdjustmentListener);
-        this.element.addEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, !!useCapture);
-        return jsAdjustmentListener.withParameters(this);
+        var componentAdjustmentListener: JSComponentAdjustmentListener = new JSComponentAdjustmentListener(adjustmentListener);
+        componentAdjustmentListeners.push(componentAdjustmentListener);
+        this.element.addEventListener("scroll", componentAdjustmentListener.adjustmentValueChanged, !!useCapture);
+        return componentAdjustmentListener.withParameters(this);
     }
-    removeAdjustmentListener(adjustmentListener: AdjustmentListener, useCapture?: boolean): void {
-        var adjustmentListeners: AdjustmentListener[] = this.getAdjustmentListeners();
+    removeAdjustmentListener(adjustmentListener: JSAdjustmentListener, useCapture?: boolean): void {
+        var adjustmentListeners: JSAdjustmentListener[] = this.getAdjustmentListeners();
         var index: number = adjustmentListeners.indexOf(adjustmentListener);
         if (index !== -1) {
-            var jsAdjustmentListeners: JSAdjustmentListener[] = this.getJSAdjustmentListeners();
-            var jsAdjustmentListener = jsAdjustmentListeners[index];
-            this.element.removeEventListener("scroll", jsAdjustmentListener.adjustmentValueChanged, !!useCapture);
+            var componentAdjustmentListeners: JSComponentAdjustmentListener[] = this.getComponentAdjustmentListeners();
+            var componentAdjustmentListener = componentAdjustmentListeners[index];
+            this.element.removeEventListener("scroll", componentAdjustmentListener.adjustmentValueChanged, !!useCapture);
             adjustmentListeners.splice(index, 1);
-            jsAdjustmentListeners.splice(index, 1);
+            componentAdjustmentListeners.splice(index, 1);
         }
     }
-    getChangeListeners(): ChangeListener[] {
-        var changeListeners: ChangeListener[] = this.getData("changeListeners");
-        if (changeListeners === undefined) {
-            changeListeners = [];
-            this.setData("changeListeners", changeListeners);
+    getChangeListeners(): JSChangeListener[] {
+        if (!this.changeListeners) {
+            this.changeListeners = [];
         }
-        return changeListeners;
+        return this.changeListeners;
     }
-    getJSChangeListeners(): JSChangeListener[] {
-        var jsChangeListeners: JSChangeListener[] = this.getData("jsChangeListeners");
-        if (jsChangeListeners === undefined) {
-            jsChangeListeners = [];
-            this.setData("jsChangeListeners", jsChangeListeners);
+    getComponentChangeListeners(): JSComponentChangeListener[] {
+        if (!this.componentChangeListeners) {
+            this.componentChangeListeners = [];
         }
-        return jsChangeListeners;
+        return this.componentChangeListeners;
     }
-    addChangeListener(changeListener: ChangeListener, useCapture?: boolean): JSChangeListener {
-        var changeListeners: ChangeListener[] = this.getChangeListeners();
-        var jsChangeListeners: JSChangeListener[] = this.getJSChangeListeners();
+    addChangeListener(changeListener: JSChangeListener, useCapture?: boolean): JSComponentChangeListener {
+        var changeListeners: JSChangeListener[] = this.getChangeListeners();
+        var componentChangeListeners: JSComponentChangeListener[] = this.getComponentChangeListeners();
         var index: number = changeListeners.indexOf(changeListener);
         if (index !== -1) {
-            return jsChangeListeners[index];
+            return componentChangeListeners[index];
         }
         changeListeners.push(changeListener);
-        var jsChangeListener: JSChangeListener = new JSChangeListener(changeListener);
-        jsChangeListeners.push(jsChangeListener);
-        this.element.addEventListener("change", jsChangeListener.stateChanged, !!useCapture);
-        return jsChangeListener.withParameters(this);
+        var componentChangeListener: JSComponentChangeListener = new JSComponentChangeListener(changeListener);
+        componentChangeListeners.push(componentChangeListener);
+        this.element.addEventListener("change", componentChangeListener.stateChanged, !!useCapture);
+        return componentChangeListener.withParameters(this);
     }
-    removeChangeListener(changeListener: ChangeListener, useCapture?: boolean): void {
-        var changeListeners: ChangeListener[] = this.getChangeListeners();
+    removeChangeListener(changeListener: JSChangeListener, useCapture?: boolean): void {
+        var changeListeners: JSChangeListener[] = this.getChangeListeners();
         var index: number = changeListeners.indexOf(changeListener);
         if (index !== -1) {
-            var jsChangeListeners: JSChangeListener[] = this.getJSChangeListeners();
-            var jsChangeListener = jsChangeListeners[index];
-            this.element.removeEventListener("change", jsChangeListener.stateChanged, !!useCapture);
+            var componentChangeListeners: JSComponentChangeListener[] = this.getComponentChangeListeners();
+            var componentChangeListener = componentChangeListeners[index];
+            this.element.removeEventListener("change", componentChangeListener.stateChanged, !!useCapture);
             changeListeners.splice(index, 1);
-            jsChangeListeners.splice(index, 1);
+            componentChangeListeners.splice(index, 1);
         }
     }
 }

@@ -39,20 +39,20 @@
 		</div>
 	</div>
 	<script>
-    	var tutorial = new JSDiv(document.getElementById("tutorial"));
-		var frame = new JSDiv(document.getElementById("example1"));
-		frame.setPreferredHeight(100);
-		tutorial.getComponents().push(frame);
-		frame.setParent(tutorial);
-		frame.setLayout(new JSBorderLayout());
-		
-		var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
-		frame.add(label); // Add the label.
 	</script>
 	<script>
-		var tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
-		tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
-		tutorial.getFrame().setVisible(true);
+		var jsuis_Tutorial = jsuistutorial.JSUIS_Tutorial.getInstance();
+		jsuis_Tutorial.getProperties().setProperty("args", JSON.stringify(${args}));
+		var div_Tutorial = jsuis_Tutorial.getDiv_Tutorial();
+		var frame = new JSDiv(document.getElementById("example1"));
+		frame.setPreferredHeight(100);
+		div_Tutorial.getComponents().push(frame);
+		frame.setParent(div_Tutorial);
+		frame.setLayout(new JSBorderLayout());
+		var label = new JSLabel("Hello, World!"); // Create a "Hello, World!" label.
+		frame.add(label); // Add the label.
+		jsuis_Tutorial.getFrame().setVisible(true);
 	</script>
 </body>
 </html>
+

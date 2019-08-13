@@ -5,7 +5,7 @@
  * @author Yassuo Toda
  */
 /// <reference path = "../jsuis.ts"/>
-class JSMenu extends JSMenuItem implements Runnable {
+class JSMenu extends JSMenuItem implements JSRunnable {
     
     static DELAY: number = 200;
     
@@ -17,7 +17,7 @@ class JSMenu extends JSMenuItem implements Runnable {
     private span_Box: JSSpan;
     private div_PopupMenu: JSDiv;
     private popupMenu: JSPopupMenu;
-    private mouseListener_Menu: MouseListener;
+    private mouseListener_Menu: JSMouseListener;
     private timer: JSTimer;
     
     constructor();
@@ -56,9 +56,6 @@ class JSMenu extends JSMenuItem implements Runnable {
         default:
         }
     }
-    init() {
-        this.addMouseListener(this.getMenuMouseListener());
-    }
     getSubmenuSpan(): JSSpan {
         if (!this.span_Submenu) {
             this.span_Submenu = new JSSpan();
@@ -85,7 +82,7 @@ class JSMenu extends JSMenuItem implements Runnable {
             if (parent !== this) {
                 var span_Box: JSSpan = this.getBoxSpan();
                 span_Box.setPadding(0, icon.getIconWidth(), 0, 0);
-                var div_PopupMenu: JSDiv = this.getPopupMenuDiv();
+                var div_PopupMenu: JSDiv = this.getDiv_PopupMenu();
                 if (div_PopupMenu) {
                     this.add(span_Box, null, this.getComponents().length - 1);
                     this.add(span_Submenu, null, this.getComponents().length - 1);
@@ -100,7 +97,7 @@ class JSMenu extends JSMenuItem implements Runnable {
             this.revalidate();
         }
     }
-    getPopupMenuDiv(): JSDiv {
+    getDiv_PopupMenu(): JSDiv {
         if (!this.div_PopupMenu) {
             this.div_PopupMenu = new JSDiv();
             this.div_PopupMenu.setStyle("position", "absolute");
@@ -111,7 +108,7 @@ class JSMenu extends JSMenuItem implements Runnable {
     getPopupMenu(): JSPopupMenu {
         if (!this.popupMenu) {
             this.popupMenu = new JSPopupMenu();
-            var container: JSDiv = this.getPopupMenuDiv();
+            var container: JSDiv = this.getDiv_PopupMenu();
             container.add(this.popupMenu);
             this.popupMenu.revalidate(container);
         }
@@ -168,7 +165,7 @@ class JSMenu extends JSMenuItem implements Runnable {
             parent.getSelection().setSelected(this);
         }
     }
-    getMenuMouseListener(): MouseListener {
+    getMouseListener(): JSMouseListener {
         if (!this.mouseListener_Menu) {
             this.mouseListener_Menu = new JSMenuMouseListener(this);
         }

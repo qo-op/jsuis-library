@@ -4,11 +4,11 @@
  * 
  * @author Yassuo Toda
  */
-class JSAction implements ActionListener {
+class JSAction implements JSActionListener {
     
     name: string;
     icon: JSIcon;
-    enabled: boolean;
+    enabled: boolean = true;
     
     propertyChangeSupport: JSPropertyChangeSupport;
     
@@ -66,7 +66,7 @@ class JSAction implements ActionListener {
             this.firePropertyChange(new JSPropertyChangeEvent(this, "enabled", oldEnabled, enabled));
         }
     }
-    actionPerformed(mouseEvent: MouseEvent): void {
+    actionPerformed(event: Event): void {
     }
     getPropertyChangeSupport(): JSPropertyChangeSupport {
         return this.propertyChangeSupport;
@@ -74,10 +74,10 @@ class JSAction implements ActionListener {
     setPropertyChangeSupport(propertyChangeSupport: JSPropertyChangeSupport) {
         this.propertyChangeSupport = propertyChangeSupport;
     }
-    addPropertyChangeListener(propertyChangeListener: PropertyChangeListener) {
+    addPropertyChangeListener(propertyChangeListener: JSPropertyChangeListener) {
         this.getPropertyChangeSupport().addPropertyChangeListener(propertyChangeListener);
     }
-    removePropertyChangeListener(propertyChangeListener: PropertyChangeListener) {
+    removePropertyChangeListener(propertyChangeListener: JSPropertyChangeListener) {
         this.getPropertyChangeSupport().removePropertyChangeListener(propertyChangeListener);
     }
     firePropertyChange(propertyChangeEvent: JSPropertyChangeEvent): void {

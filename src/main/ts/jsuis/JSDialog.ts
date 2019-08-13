@@ -74,12 +74,7 @@ class JSDialog extends JSPanel {
     getTitlePanel(): JSDialogTitlePanel {
         var titlePanel: JSDialogTitlePanel = this.getData("dialogTitlePanel");
         if (!titlePanel) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogTitlePanel");
-            if (element) {
-                titlePanel = new JSDialogTitlePanel(element);
-            } else {
-                titlePanel = new JSDialogTitlePanel();
-            }
+            titlePanel = new JSDialogTitlePanel();
             this.setData("dialogTitlePanel", titlePanel);
         }
         return titlePanel;
@@ -87,12 +82,7 @@ class JSDialog extends JSPanel {
     getTitleLabel(): JSDialogTitleLabel {
         var titleLabel: JSDialogTitleLabel = this.getData("dialogTitleLabel");
         if (!titleLabel) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogTitleLabel");
-            if (element) {
-                titleLabel = new JSDialogTitleLabel(element);
-            } else {
-                titleLabel = new JSDialogTitleLabel();
-            }
+            titleLabel = new JSDialogTitleLabel();
             titleLabel.setPreferredHeight(0);
             this.setData("dialogTitleLabel", titleLabel);
         }
@@ -101,12 +91,7 @@ class JSDialog extends JSPanel {
     getCloseButton(): JSDialogCloseButton {
         var dialogCloseButton: JSDialogCloseButton = this.getData("dialogCloseButton");
         if (!dialogCloseButton) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogCloseButton");
-            if (element) {
-                dialogCloseButton = new JSDialogCloseButton(element);
-            } else {
-                dialogCloseButton = new JSDialogCloseButton();
-            }
+            dialogCloseButton = new JSDialogCloseButton();
             this.setData("dialogCloseButton", dialogCloseButton);
         }
         return dialogCloseButton;
@@ -114,12 +99,7 @@ class JSDialog extends JSPanel {
     getContentPane(): JSDialogContentPane {
         var contentPane: JSDialogContentPane = this.getData("contentPane");
         if (!contentPane) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSDialogContentPane");
-            if (element) {
-                contentPane = new JSDialogContentPane(element);
-            } else {
-                contentPane = new JSDialogContentPane();
-            }
+            contentPane = new JSDialogContentPane();
             this.setData("contentPane", contentPane);
         }
         return contentPane;

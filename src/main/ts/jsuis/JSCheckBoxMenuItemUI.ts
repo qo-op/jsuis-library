@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSCheckBoxMenuItemUI implements UI {
+class JSCheckBoxMenuItemUI implements JSUI {
     
     private static instance: JSCheckBoxMenuItemUI;
     static getInstance(): JSCheckBoxMenuItemUI {
@@ -16,7 +16,5 @@ class JSCheckBoxMenuItemUI implements UI {
     
     installUI(component: JSCheckBoxMenuItem): void {
         component.setClass("JSCheckBoxMenuItem");
-        component.setStyle("padding", "0 4px");
-        component.setStyle("white-space", "nowrap");
     }
 }

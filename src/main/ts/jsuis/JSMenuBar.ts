@@ -25,12 +25,7 @@ class JSMenuBar extends JSPanel {
     getMenuContainer(): JSMenuContainer {
         var menuContainer: JSMenuContainer = this.getData("menuContainer");
         if (!menuContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSMenuContainer");
-            if (element) {
-                menuContainer = new JSMenuContainer(element);
-            } else {
-                menuContainer = new JSMenuContainer();
-            }
+            menuContainer = new JSMenuContainer();
             this.setData("menuContainer", menuContainer);
         }
         return menuContainer;

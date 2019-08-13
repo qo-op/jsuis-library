@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSMenuItemUI implements UI {
+class JSMenuItemUI implements JSUI {
     
     private static instance: JSMenuItemUI;
     static getInstance(): JSMenuItemUI {

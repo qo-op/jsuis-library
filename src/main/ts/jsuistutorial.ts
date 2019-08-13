@@ -10,7 +10,10 @@
 /// <reference path = "jsuistutorial/JSAction_JSButtonTutorial.ts"/>
 /// <reference path = "jsuistutorial/JSAction_JSFrameExample.ts"/>
 /// <reference path = "jsuistutorial/JSAction_JSFrameTutorial.ts"/>
+/// <reference path = "jsuistutorial/JSAction_JSProgressBarExample.ts"/>
 /// <reference path = "jsuistutorial/JSAction_JSTableExample.ts"/>
+/// <reference path = "jsuistutorial/JSAction_JSTextFieldExample.ts"/>
+/// <reference path = "jsuistutorial/JSAction_JSTableTutorial.ts"/>
 /// <reference path = "jsuistutorial/JSAction_JSUISTutorial.ts"/>
 /// <reference path = "jsuistutorial/JSButton_Collapse.ts"/>
 /// <reference path = "jsuistutorial/JSButton_Expand.ts"/>

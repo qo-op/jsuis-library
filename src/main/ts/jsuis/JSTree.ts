@@ -104,10 +104,10 @@ class JSTree extends JSDiv {
         var treePath: string = treeNode.getTreePath();
         this.setTreeCell(treePath, treeCell);
         treeCell.addMouseListener({
-            mousePressed(mouseEvent: MouseEvent, treeCell: JSTreeCell, tree: JSTree) {
-                tree.setSelectionTreeNode(treeCell.getValue());
+            mousePressed(mouseEvent: MouseEvent, treeNode: JSTreeNode, tree: JSTree) {
+                tree.setSelectionTreeNode(treeNode);
             }
-        }).withParameters(treeCell, this);
+        }).withParameters(treeNode, this);
     }
     getSelectionTreeNode(): JSTreeNode {
         return this.selectionTreeNode;
@@ -178,29 +178,29 @@ class JSTree extends JSDiv {
     }
     */
     
-    treeSelectionListeners: TreeSelectionListener[];
+    treeSelectionListeners: JSTreeSelectionListener[];
     
-    getTreeSelectionListeners(): TreeSelectionListener[] {
-        var treeSelectionListeners: TreeSelectionListener[] = this.treeSelectionListeners;
+    getTreeSelectionListeners(): JSTreeSelectionListener[] {
+        var treeSelectionListeners: JSTreeSelectionListener[] = this.treeSelectionListeners;
         if (treeSelectionListeners === undefined) {
             treeSelectionListeners = [];
             this.treeSelectionListeners = treeSelectionListeners;
         }
         return treeSelectionListeners;
     }
-    addTreeSelectionListener(treeSelectionListener: TreeSelectionListener) {
-        var treeSelectionListeners: TreeSelectionListener[] = this.getTreeSelectionListeners();
+    addTreeSelectionListener(treeSelectionListener: JSTreeSelectionListener) {
+        var treeSelectionListeners: JSTreeSelectionListener[] = this.getTreeSelectionListeners();
         treeSelectionListeners.push(treeSelectionListener);
     }
-    removeTreeSelectionListener(treeSelectionListener: TreeSelectionListener) {
-        var treeSelectionListeners: TreeSelectionListener[] = this.getTreeSelectionListeners();
+    removeTreeSelectionListener(treeSelectionListener: JSTreeSelectionListener) {
+        var treeSelectionListeners: JSTreeSelectionListener[] = this.getTreeSelectionListeners();
         var index = treeSelectionListeners.indexOf(treeSelectionListener);
         if (index !== -1) {
             treeSelectionListeners.splice(index, 1);
         }
     }
     fireValueChanged(treeSelectionEvent: JSTreeSelectionEvent): void {
-        var treeSelectionListeners: TreeSelectionListener[] = this.getTreeSelectionListeners();
+        var treeSelectionListeners: JSTreeSelectionListener[] = this.getTreeSelectionListeners();
         for (var i: number = 0; i < treeSelectionListeners.length; i++) {
             var treeSelectionListener = treeSelectionListeners[i];
             treeSelectionListener.valueChanged(treeSelectionEvent);

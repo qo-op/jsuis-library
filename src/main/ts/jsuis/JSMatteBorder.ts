@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSMatteBorder implements Border {
+class JSMatteBorder implements JSBorder {
     
     top: number;
     left: number;

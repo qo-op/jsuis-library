@@ -10,17 +10,17 @@ class JSTimer {
     getPids(): { [ key: string ]: any } {
         return this.pids;
     }
-    schedule(runnable: Runnable, delay: number): JSRunnable {
-        var jsRunnable: JSRunnable = new JSRunnable(runnable);
+    schedule(runnable: JSRunnable, delay: number): JSComponentRunnable {
+        var componentRunnable: JSComponentRunnable = new JSComponentRunnable(runnable);
         var pids: { [ key: string ]: any } = this.getPids();
         var pid: number = setTimeout(function() {
-            jsRunnable.run();
-            var pid: number = jsRunnable.getPid();
+            componentRunnable.run();
+            var pid: number = componentRunnable.getPid();
             delete pids["" + pid];
         }, delay);
         pids["" + pid] = null;
-        jsRunnable.setPid(pid);
-        return jsRunnable;
+        componentRunnable.setPid(pid);
+        return componentRunnable;
     }
     cancel(): void {
         var pids: { [ key: string ]: any } = this.getPids();

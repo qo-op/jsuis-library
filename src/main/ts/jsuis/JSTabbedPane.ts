@@ -151,13 +151,8 @@ class JSTabbedPane extends JSPanel {
     getTabContainer(): JSTabbedPaneTabContainer {
         var tabContainer: JSTabbedPaneTabContainer = this.getData("tabContainer");
         if (!tabContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneTabContainer");
-            if (element) {
-                tabContainer = new JSTabbedPaneTabContainer(element);
-            } else {
-                var tabPlacement: string = this.getTabPlacement();
-                tabContainer = new JSTabbedPaneTabContainer(tabPlacement);
-            }
+            var tabPlacement: string = this.getTabPlacement();
+            tabContainer = new JSTabbedPaneTabContainer(tabPlacement);
             this.setData("tabContainer", tabContainer);
         }
         return tabContainer;
@@ -165,12 +160,7 @@ class JSTabbedPane extends JSPanel {
     getCardContainer(): JSTabbedPaneCardContainer {
         var cardContainer: JSTabbedPaneCardContainer = this.getData("cardContainer");
         if (!cardContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneCardContainer");
-            if (element) {
-                cardContainer = new JSTabbedPaneCardContainer(element);
-            } else {
-                cardContainer = new JSTabbedPaneCardContainer();
-            }
+            cardContainer = new JSTabbedPaneCardContainer();
             this.setData("cardContainer", cardContainer);
         }
         return cardContainer;
@@ -178,13 +168,8 @@ class JSTabbedPane extends JSPanel {
     getButtonContainer(): JSTabbedPaneButtonContainer {
         var buttonContainer: JSTabbedPaneButtonContainer = this.getData("buttonContainer");
         if (!buttonContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTabbedPaneButtonContainer");
-            if (element) {
-                buttonContainer = new JSTabbedPaneButtonContainer(element);
-            } else {
-                var tabPlacement: string = this.getTabPlacement();
-                buttonContainer = new JSTabbedPaneButtonContainer(tabPlacement);
-            }
+            var tabPlacement: string = this.getTabPlacement();
+            buttonContainer = new JSTabbedPaneButtonContainer(tabPlacement);
             this.setData("buttonContainer", buttonContainer);
         }
         return buttonContainer;

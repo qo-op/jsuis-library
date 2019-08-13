@@ -156,7 +156,7 @@ class JSHTMLComponent extends JSComponent {
             this.removeStyle("width");
         }
         
-        var width = this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
+        var width: number = this.element.getBoundingClientRect().width - this.getBorderLeftWidth() - this.getPaddingLeft() - this.getPaddingRight() - this.getBorderRightWidth();
         
         if (cssWidth) {
             this.setStyle("width", cssWidth);

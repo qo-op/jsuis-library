@@ -6,6 +6,8 @@
  */
 class JSPathImage extends JSSVG {
     
+    private path: JSPath;
+    
     constructor();
     constructor(element: SVGSVGElement);
     // constructor(icon: JSIcon);
@@ -49,17 +51,10 @@ class JSPathImage extends JSSVG {
         }
     }
     getPath(): JSPath {
-        var path = this.getData("path");
-        if (!path) {
-            var element: SVGElement = <SVGElement> this.getChild("JSPath");
-            if (element) {
-                path = new JSPath(element);
-            } else {
-                path = new JSPath();
-            }
-            this.setData("path", path);
+        if (!this.path) {
+            this.path = new JSPath();
         }
-        return path;
+        return this.path;
     }
     getSource(): string {
         var path: JSPath = this.getPath();

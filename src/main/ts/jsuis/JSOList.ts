@@ -6,6 +6,8 @@
  */
 class JSOList extends JSHTMLComponent {
     
+    private items: Array<any>;
+    
     constructor();
     constructor(element: HTMLElement);
     constructor(items: Array<string>);
@@ -27,10 +29,10 @@ class JSOList extends JSHTMLComponent {
         }
     }
     getItems(): Array<any> {
-        return this.getData("item");
+        return this.items;
     }
     setItems(items: Array<any>) {
-        this.setData("items", items);
+        this.items = items;
         for (var i: number = 0; i < items.length; i++) {
             var item: any = items[i];
             var li: JSLI = new JSLI(item);

@@ -4,7 +4,6 @@
  * 
  * @author Yassuo Toda
  */
-// class JSMenuItemLabel extends JSTreeCellLabel {
 class JSMenuItemLabel extends JSLabel {
     
     constructor();

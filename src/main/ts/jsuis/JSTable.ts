@@ -74,12 +74,7 @@ class JSTable extends JSPanel {
     getHorizontalScrollPane(): JSTableHorizontalScrollPane {
         var horizontalScrollPane: JSScrollPane = this.getData("horizontalScrollPane");
         if (!horizontalScrollPane) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableHorizontalScrollPane");
-            if (element) {
-                horizontalScrollPane = new JSTableHorizontalScrollPane(element);
-            } else {
-                horizontalScrollPane = new JSTableHorizontalScrollPane();
-            }
+            horizontalScrollPane = new JSTableHorizontalScrollPane();
             this.setData("horizontalScrollPane", horizontalScrollPane);
         }
         return horizontalScrollPane;
@@ -88,12 +83,7 @@ class JSTable extends JSPanel {
         var verticalScrollPane: JSScrollPane = this.getData("verticalScrollPane");
         if (!verticalScrollPane) {
             var horizontalScrollPane: JSTableHorizontalScrollPane = this.getHorizontalScrollPane();
-            var element: HTMLElement = <HTMLElement> horizontalScrollPane.getChild("JSTableVerticalScrollPane");
-            if (element) {
-                verticalScrollPane = new JSTableVerticalScrollPane(element);
-            } else {
-                verticalScrollPane = new JSTableVerticalScrollPane();
-            }
+            verticalScrollPane = new JSTableVerticalScrollPane();
             this.setData("verticalScrollPane", verticalScrollPane);
         }
         return verticalScrollPane;
@@ -103,12 +93,7 @@ class JSTable extends JSPanel {
         if (!tableHeader) {
             var horizontalScrollPane: JSTableHorizontalScrollPane = this.getHorizontalScrollPane();
             var horizontalScrollPaneView: JSComponent = horizontalScrollPane.getViewportView();
-            var element: HTMLElement = <HTMLElement> horizontalScrollPaneView.getChild("JSTableHeader");
-            if (element) {
-                tableHeader = new JSTableHeader(element);
-            } else {
-                tableHeader = new JSTableHeader();
-            }
+            tableHeader = new JSTableHeader();
             this.setData("tableHeader", tableHeader);
         }
         return tableHeader;
@@ -117,12 +102,7 @@ class JSTable extends JSPanel {
         var tableContent: JSTableContent = this.getData("tableContent");
         if (!tableContent) {
             var verticalScrollPane: JSTableVerticalScrollPane = this.getVerticalScrollPane();
-            var element: HTMLElement = <HTMLElement> verticalScrollPane.getChild("JSTableContent");
-            if (element) {
-                tableContent = new JSTableContent(element);
-            } else {
-                tableContent = new JSTableContent();
-            }
+            tableContent = new JSTableContent();
             this.setData("tableContent", tableContent);
         }
         return tableContent;
@@ -130,12 +110,7 @@ class JSTable extends JSPanel {
     getHorizontalScrollBar(): JSHorizontalScrollBar {
         var horizontalScrollBar: JSHorizontalScrollBar = this.getData("horizontalScrollBar");
         if (!horizontalScrollBar) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSHorizontalScrollBar");
-            if (element) {
-                horizontalScrollBar = new JSHorizontalScrollBar(element);
-            } else {
-                horizontalScrollBar = new JSHorizontalScrollBar();
-            }
+            horizontalScrollBar = new JSHorizontalScrollBar();
             this.setData("horizontalScrollBar", horizontalScrollBar);
         }
         return horizontalScrollBar;
@@ -143,12 +118,7 @@ class JSTable extends JSPanel {
     getVerticalScrollBar(): JSVerticalScrollBar {
         var verticalScrollBar: JSVerticalScrollBar = this.getData("verticalScrollBar");
         if (!verticalScrollBar) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSVerticalScrollBar");
-            if (element) {
-                verticalScrollBar = new JSVerticalScrollBar(element);
-            } else {
-                verticalScrollBar = new JSVerticalScrollBar();
-            }
+            verticalScrollBar = new JSVerticalScrollBar();
             this.setData("verticalScrollBar", verticalScrollBar);
         }
         return verticalScrollBar;
@@ -156,12 +126,7 @@ class JSTable extends JSPanel {
     getTableLowerRightCorner(): JSTableLowerRightCorner {
         var tableLowerRightCorner: JSTableLowerRightCorner = this.getData("tableLowerRightCorner");
         if (!tableLowerRightCorner) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableLowerRightCorner");
-            if (element) {
-                tableLowerRightCorner = new JSTableLowerRightCorner(element);
-            } else {
-                tableLowerRightCorner = new JSTableLowerRightCorner();
-            }
+            tableLowerRightCorner = new JSTableLowerRightCorner();
             this.setData("tableLowerRightCorner", tableLowerRightCorner);
         }
         return tableLowerRightCorner;

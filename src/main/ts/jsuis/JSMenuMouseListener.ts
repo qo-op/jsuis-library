@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSMenuMouseListener implements MouseListener {
+class JSMenuMouseListener implements JSMouseListener {
     
     private menu: JSMenu;
     
@@ -17,7 +17,7 @@ class JSMenuMouseListener implements MouseListener {
     setMenu(menu: JSMenu) {
         this.menu = menu;
     }
-    mousePressed(mouseEvent: MouseEvent) {
+    mousePressed(mouseEvent: MouseEvent): void {
         var menu: JSMenu = this.getMenu();
         var parent: JSComponent = menu.getParent();
         if (parent instanceof JSPopupMenu) {
@@ -39,7 +39,7 @@ class JSMenuMouseListener implements MouseListener {
         }
         mouseEvent.stopPropagation();
     }
-    mouseReleased(mouseEvent: MouseEvent) {
+    mouseReleased(mouseEvent: MouseEvent): void {
         var menu: JSMenu = this.getMenu();
         var parent: JSComponent = menu.getParent();
         if (!(parent instanceof JSPopupMenu)) {
@@ -56,10 +56,10 @@ class JSMenuMouseListener implements MouseListener {
         }
         mouseEvent.stopPropagation();
     }
-    mouseClicked(mouseEvent: MouseEvent) {
+    mouseClicked(mouseEvent: MouseEvent): void {
         mouseEvent.stopPropagation();
     }
-    mouseEntered(mouseEvent: MouseEvent) {
+    mouseEntered(mouseEvent: MouseEvent): void {
         var menu: JSMenu = this.getMenu();
         var parent: JSComponent = menu.getParent();
         if (parent instanceof JSPopupMenu) {
@@ -74,7 +74,7 @@ class JSMenuMouseListener implements MouseListener {
         }
         mouseEvent.stopPropagation();
     }
-    mouseExited(mouseEvent: MouseEvent) {
+    mouseExited(mouseEvent: MouseEvent): void {
         var menu: JSMenu = this.getMenu();
         var parent: JSComponent = menu.getParent();
         if (parent instanceof JSPopupMenu) {

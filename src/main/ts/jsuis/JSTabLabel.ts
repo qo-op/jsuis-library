@@ -4,7 +4,6 @@
  * 
  * @author Yassuo Toda
  */
-// class JSTabLabel extends JSTreeCellLabel {
 class JSTabLabel extends JSLabel { 
     
     constructor();

@@ -5,6 +5,9 @@
  * @author Yassuo Toda
  */
 class JSCheckBox extends JSHTMLComponent {
+
+    private input: JSCheckBoxInput;
+    private label: JSCheckBoxLabel;
     
     constructor();
     constructor(element: HTMLElement);
@@ -80,20 +83,16 @@ class JSCheckBox extends JSHTMLComponent {
         }
     }
     getInput(): JSCheckBoxInput {
-        var input: JSCheckBoxInput = this.getData("input");
-        if (!input) {
-            input = new JSCheckBoxInput();
-            this.setData("input", input);
+        if (!this.input) {
+            this.input = new JSCheckBoxInput();
         }
-        return input;
+        return this.input;
     }
     getLabel(): JSCheckBoxLabel {
-        var label: JSCheckBoxLabel = this.getData("label");
-        if (!label) {
-            label = new JSCheckBoxLabel();
-            this.setData("label", label);
+        if (!this.label) {
+            this.label = new JSCheckBoxLabel();
         }
-        return label;
+        return this.label;
     }
     getIcon(): JSIcon {
         var label: JSCheckBoxLabel = this.getLabel();

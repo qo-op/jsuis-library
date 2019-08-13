@@ -68,12 +68,7 @@ class JSBody extends JSHTMLComponent {
     getFrameContainer(): JSBodyFrameContainer {
         var frameContainer: JSBodyFrameContainer = this.getData("frameContainer");
         if (!frameContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyFrameContainer");
-            if (element) {
-                frameContainer = new JSBodyFrameContainer(element);
-            } else {
-                frameContainer = new JSBodyFrameContainer();
-            }
+            frameContainer = new JSBodyFrameContainer();
             this.setData("frameContainer", frameContainer);
         }
         return frameContainer;
@@ -98,12 +93,7 @@ class JSBody extends JSHTMLComponent {
     getDragContainer(): JSBodyDragContainer {
         var dragContainer: JSBodyDragContainer = this.getData("dragContainer");
         if (!dragContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDragContainer");
-            if (element) {
-                dragContainer = new JSBodyDragContainer(element);
-            } else {
-                dragContainer = new JSBodyDragContainer();
-            }
+            dragContainer = new JSBodyDragContainer();
             this.setData("dragContainer", dragContainer);
         }
         return dragContainer;
@@ -119,12 +109,7 @@ class JSBody extends JSHTMLComponent {
     getDefsContainer(): JSBodyDefsContainer {
         var defsContainer: JSBodyDefsContainer = this.getData("defsContainer");
         if (!defsContainer) {
-            var element: SVGElement = <SVGElement> this.getChild("JSBodyDefsContainer");
-            if (element) {
-                defsContainer = new JSBodyDefsContainer(element);
-            } else {
-                defsContainer = new JSBodyDefsContainer();
-            }
+            defsContainer = new JSBodyDefsContainer();
             this.setData("defsContainer", defsContainer);
         }
         return defsContainer;
@@ -140,12 +125,7 @@ class JSBody extends JSHTMLComponent {
     getPopupMenuContainer(): JSBodyPopupMenuContainer {
         var popupMenuContainer: JSBodyPopupMenuContainer = this.getData("popupMenuContainer");
         if (!popupMenuContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyPopupMenuContainer");
-            if (element) {
-                popupMenuContainer = new JSBodyPopupMenuContainer(element);
-            } else {
-                popupMenuContainer = new JSBodyPopupMenuContainer();
-            }
+            popupMenuContainer = new JSBodyPopupMenuContainer();
             this.setData("popupMenuContainer", popupMenuContainer);
         }
         return popupMenuContainer;
@@ -170,12 +150,7 @@ class JSBody extends JSHTMLComponent {
     getDialogContainer(): JSBodyDialogContainer {
         var dialogContainer: JSBodyDialogContainer = this.getData("dialogContainer");
         if (!dialogContainer) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSBodyDialogContainer");
-            if (element) {
-                dialogContainer = new JSBodyDialogContainer(element);
-            } else {
-                dialogContainer = new JSBodyDialogContainer();
-            }
+            dialogContainer = new JSBodyDialogContainer();
             this.setData("dialogContainer", dialogContainer);
         }
         return dialogContainer;
@@ -184,12 +159,7 @@ class JSBody extends JSHTMLComponent {
         var modal: JSBodyModal = this.getData("modal");
         if (!modal) {
             var dialogContainer: JSBodyDialogContainer = this.getData("dialogContainer");
-            var element: HTMLElement = <HTMLElement> dialogContainer.getChild("JSBodyModal");
-            if (element) {
-                modal = new JSBodyModal(element);
-            } else {
-                modal = new JSBodyModal();
-            }
+            modal = new JSBodyModal();
             this.setData("modal", modal);
         }
         return modal;

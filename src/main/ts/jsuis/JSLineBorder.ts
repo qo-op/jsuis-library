@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSLineBorder implements Border {
+class JSLineBorder implements JSBorder {
     
     color: string = "Black";
     thickness: number = 1;

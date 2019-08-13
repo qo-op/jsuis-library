@@ -21,12 +21,7 @@ class JSTableHead extends JSHTMLComponent {
     getTableHeadRow(): JSTableHeadRow {
         var tableHeadRow: JSTableHeadRow = this.getData("tableHeadRow");
         if (!tableHeadRow) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableRow");
-            if (element) {
-                tableHeadRow = new JSTableHeadRow(element);
-            } else {
-                tableHeadRow = new JSTableHeadRow();
-            }
+            tableHeadRow = new JSTableHeadRow();
             this.setData("tableHeadRow", tableHeadRow);
         }
         return tableHeadRow;

@@ -36,12 +36,7 @@ class JSHorizontalScrollBar extends JSPanel {
     getView(): JSPanel {
         var view: JSPanel = this.getData("view");
         if (!view) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSPanel");
-            if (element) {
-                view = new JSPanel(element);
-            } else {
-                view = new JSPanel();
-            }
+            view = new JSPanel();
             this.setData("view", view);
         }
         return view;

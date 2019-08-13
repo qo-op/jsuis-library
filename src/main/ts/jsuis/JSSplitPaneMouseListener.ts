@@ -4,7 +4,7 @@
  * 
  * @author Yassuo Toda
  */
-class JSSplitPaneMouseListener implements MouseListener {
+class JSSplitPaneMouseListener implements JSMouseListener {
     
     private splitPane: JSSplitPane;
     private x: number = 0;

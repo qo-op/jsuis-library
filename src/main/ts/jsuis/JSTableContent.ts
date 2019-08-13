@@ -38,12 +38,7 @@ class JSTableContent extends JSHTMLComponent {
     getTableHead(): JSTableHead {
         var tableHead: JSTableHead = this.getData("tableHead");
         if (!tableHead) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableHead");
-            if (element) {
-                tableHead = new JSTableHead(element);
-            } else {
-                tableHead = new JSTableHead();
-            }
+            tableHead = new JSTableHead();
             this.setData("tableHead", tableHead);
         }
         return tableHead;
@@ -51,12 +46,7 @@ class JSTableContent extends JSHTMLComponent {
     getTableBody(): JSTableBody {
         var tableBody: JSTableBody = this.getData("tableBody");
         if (!tableBody) {
-            var element: HTMLElement = <HTMLElement> this.getChild("JSTableBody");
-            if (element) {
-                tableBody = new JSTableBody(element);
-            } else {
-                tableBody = new JSTableBody();
-            }
+            tableBody = new JSTableBody();
             this.setData("tableBody", tableBody);
         }
         return tableBody;

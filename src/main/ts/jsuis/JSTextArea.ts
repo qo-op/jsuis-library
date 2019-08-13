@@ -68,4 +68,7 @@ class JSTextArea extends JSHTMLComponent {
     setText(text: string) {
         (<HTMLTextAreaElement> this.element).value = text;
     }
+    append(text: string): void {
+        this.setText(this.getText() + text);
+    }
 }

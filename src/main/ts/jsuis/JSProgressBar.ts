@@ -6,7 +6,8 @@
  */
 class JSProgressBar extends JSHTMLComponent {
     
-    value: number;
+    private value: number;
+    private bar: JSPanel;
     
     constructor();
     constructor(element: HTMLElement);
@@ -19,39 +20,40 @@ class JSProgressBar extends JSHTMLComponent {
         // constructor(element: HTMLElement);
         super(arguments.length === 0 || !(arguments[0] instanceof HTMLDivElement) ? document.createElement("div") : arguments[0]);
         this.setUI("JSProgressBar");
+        var orientation: string = JSComponent.HORIZONTAL;
+        var min: number = 0;
+        var max: number = 100;
         switch (arguments.length) {
         case 1:
             // constructor(orientation: string);
             if (typeof arguments[0] === "string") {
-                var orientation: string = arguments[0];
-                this.setOrientation(orientation);
+                orientation = arguments[0];
             }
             break;
         case 2:
             // constructor(min: number, max: number);
             if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
-                var min: number = arguments[0];
-                var max: number = arguments[1];
-                this.setMin(min);
-                this.setMax(max);
+                min = arguments[0];
+                max = arguments[1];
             }
             break;
         case 3:
             // constructor(orientation: string, min: number, max: number);
             if (typeof arguments[0] === "string" && typeof arguments[1] === "number" && typeof arguments[2] === "number") {
-                var orientation: string = arguments[0];
-                var min: number = arguments[1];
-                var max: number = arguments[2];
-                this.setOrientation(orientation);
-                this.setMin(min);
-                this.setMax(max);
+                orientation = arguments[0];
+                min = arguments[1];
+                max = arguments[2];
             }
             break;
         default:
         }
+        this.setOrientation(orientation);
+        this.setMin(min);
+        this.setMax(max);
         var bar: JSPanel = this.getBar();
         this.add(bar);
-        this.setHeight(14);
+        this.setPreferredWidth(100);
+        this.setPreferredHeight(14);
     }
     getOrientation(): string {
         return this.getAttribute("data-orientation");
@@ -71,32 +73,38 @@ class JSProgressBar extends JSHTMLComponent {
     setMax(max: number) {
         this.setAttribute("data-max", "" + max);
     }
-    getBarContainer(): JSDiv {
-        return this.getData("barContainer"); 
-    }
-    setBarContainer(barContainer: JSDiv) {
-        this.setData("barContainer", barContainer);
-    }
     getBar(): JSPanel {
-        var bar: JSPanel = this.getData("bar");
-        if (!bar) {
-            bar = new JSPanel();
-            bar.setBackground("gray");
-            bar.setHeight(12);
-            this.setData("bar", bar);
+        if (!this.bar) {
+            this.bar = new JSPanel();
+            this.bar.setBackground("gray");
         }
-        return bar;
+        return this.bar;
     }
     getValue(): number {
         return this.value;
     }
     setValue(value: number) {
-        var barContainer: JSDiv = this.getBarContainer();
-        var width: number = barContainer.getContentWidth();
-        var bar: JSPanel = this.getBar();
+        this.value = value;
+        if (this.isValid()) {
+            this.revalidate(this);
+        }
+    }
+    validateHorizontally() {
+        this.setValidHorizontally(false);
+        var width: number = this.getContentWidth();
         var min: number = this.getMin();
         var max: number = this.getMax();
-        bar.setWidth(width * (value - min) / (max - min));
-        this.value = value;
+        var value: number = this.getValue();
+        width = width * (value - min) / (max - min);
+        var bar: JSPanel = this.getBar();
+        bar.setWidth(width);
+        this.setValidHorizontally(true);
+    }
+    validateVertically() {
+        this.setValidVertically(false);
+        var height: number = this.getContentHeight();
+        var bar: JSPanel = this.getBar();
+        bar.setHeight(height);
+        this.setValidVertically(true);
     }
 }
