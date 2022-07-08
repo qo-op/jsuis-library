@@ -1,0 +1,16 @@
+minute hour dayOfMonth month dayOfWeek year? command
+0 0 L 1 * msg * Hi!
+0 0 LW 7 * msg * Hi!
+0 0 5W 2 * msg * Hi!
+0 0 5WD+0 2 * msg * Hi!
+0 0 * 2 0L msg * Hi!
+0 0 * 2 5#3 msg * Hi!
+0 12 * 8 0#2 msg * Hi!
+0 12 * 8 0#2WD-5 msg * Hi!
+0 9 LW,LWD-1 6,12 * msg * Hi!
+0 9 11,4 8 * msg * Hi!
+0 9 7,7D-7 5 * msg * Hi!
+0 9 15WD+0D-7 * * msg * Hi!
+# comments
+@reboot msg * Hi!
+@hourly msg * Hi!

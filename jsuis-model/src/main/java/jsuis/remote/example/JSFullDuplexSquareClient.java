@@ -1,0 +1,57 @@
+package jsuis.remote.example;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.lang.ProcessBuilder.Redirect;
+import java.util.ArrayList;
+import java.util.List;
+
+import jsuis.io.JSFileUtils;
+import jsuis.remote.JSFullDuplex;
+
+/**
+ * Full duplex square client example
+ * 
+ * @author Yassuo Toda
+ */
+public class JSFullDuplexSquareClient extends JSFullDuplex {
+
+	public JSFullDuplexSquareClient(InputStream inputStream, PrintStream printStream) {
+		super(inputStream, printStream);
+	}
+
+	public static void main(String[] args) throws Exception {
+		
+		List<File> fileList = JSFileUtils.dir(System.getProperty("java.home"), "javaw.exe", true);
+		File javaw = fileList.get(0);
+		File jar = new File(JSFullDuplexSquareServer.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+		List<String> commandList = new ArrayList<String>();
+		commandList.add("cmd");
+		commandList.add("/c");
+		commandList.add("" + javaw);
+		commandList.add("-cp");
+		commandList.add(jar.getAbsolutePath());
+		commandList.add(JSFullDuplexSquareServer.class.getName());
+		System.out.println(commandList);
+		ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+		processBuilder.redirectError(Redirect.INHERIT);
+		Process process = processBuilder.start();
+		InputStream inputStream = process.getInputStream();
+		PrintStream printStream = new PrintStream(process.getOutputStream());
+		JSFullDuplexSquareClient client = new JSFullDuplexSquareClient(inputStream, printStream);
+		new Thread(new Runnable() {
+			public void run() {
+				client.listen();
+			}
+		}).start();
+		System.out.println(client.request("3"));
+		System.out.println(client.request(""));
+		System.exit(0);
+	}
+
+	@Override
+	public String respond(String request) {
+		return null;
+	}
+}
