@@ -18,29 +18,34 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 /**
- * FileUtils
+ * File utils
  * 
  * @author Yassuo Toda
  */
 public class JSFileUtils extends FileUtils {
 
-	public static File toFile(String pathname) {
-		if (pathname == null) {
+	public static File translate(File file) {
+		if (file == null) {
 			return null;
 		}
-		pathname = pathname.trim();
-		if (pathname.isEmpty()) {
-			return null;
+		if (!file.isAbsolute()) {
+			String path = file.getPath();
+			if (path.startsWith("~")) {
+				if (path.length() == 1) {
+					file = new File(System.getProperty("user.home"));
+				} else {
+					String shortcut = "~" + File.separator;
+					if (path.startsWith(shortcut)) {
+						file = new File(System.getProperty("user.home"), path.substring(shortcut.length()));
+					}
+				}
+			}
 		}
-		if (pathname.startsWith("~\\") || pathname.startsWith("~/")) {
-			return new File(System.getProperty("user.home"), pathname.substring(2));
-		} else {
-			return new File(pathname);
-		}
+		return file;
 	}
 	
     public static void copyURLToFile(URL url, File file) throws IOException {
-		FileUtils.forceDelete(file);
+		delete(file);
 		File temp = temp(file);
 		FileUtils.copyURLToFile(url, temp);
 		temp.renameTo(file);
@@ -60,7 +65,7 @@ public class JSFileUtils extends FileUtils {
     }
     
 	public static void zipFiles(Iterable<File> fileIterable, File zip) throws IOException {
-		FileUtils.forceDelete(zip);
+		delete(zip);
 		File temp = temp(zip);
 		try (ZipOutputStream zipOutputStream = zipOutputStream(temp)) {
 			for (File file : fileIterable) {
@@ -71,7 +76,7 @@ public class JSFileUtils extends FileUtils {
 	}
     
 	public static void zipFiles(File[] files, File zip) throws IOException {
-		FileUtils.forceDelete(zip);
+		delete(zip);
 		File temp = temp(zip);
 		try (ZipOutputStream zipOutputStream = zipOutputStream(temp)) {
 			for (File file : files) {
@@ -82,7 +87,7 @@ public class JSFileUtils extends FileUtils {
 	}
 	
 	public static void zipFile(File file, File zip) throws IOException {
-		FileUtils.forceDelete(zip);
+		delete(zip);
 		File temp = temp(zip);
 		try (ZipOutputStream zipOutputStream = zipOutputStream(temp)) {
 			zip(file, zipOutputStream);
@@ -103,6 +108,12 @@ public class JSFileUtils extends FileUtils {
 	
 	private static ZipOutputStream zipOutputStream(File zip) throws FileNotFoundException {
 		return new ZipOutputStream(new FileOutputStream(zip));
+	}
+	
+	public static void delete(File file) throws IOException {
+		if (file.exists()) {
+			FileUtils.forceDelete(file);
+		}
 	}
     
 	public static List<File> dir(String directory, String wildcard) {

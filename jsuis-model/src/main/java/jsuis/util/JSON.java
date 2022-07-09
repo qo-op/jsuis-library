@@ -10,26 +10,24 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Yassuo Toda
  */
 public class JSON {
+	
+	public static String stringify(Object value) throws IOException {
+		return getObjectMapper().writeValueAsString(value);
+	}
+	
+	public static <T> T parse(String text, Class<T> type) throws IOException {
+		if (text == null || text.isEmpty()) {
+			return null;
+		}
+		return getObjectMapper().readValue(text, type);
+	}
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static ObjectMapper objectMapper;
 	
-	public static String stringify(Object value) {
-		try {
-			return OBJECT_MAPPER.writeValueAsString(value);
-		} catch (IOException e) {
-			return null;
+	private static ObjectMapper getObjectMapper() {
+		if (objectMapper == null) {
+			objectMapper = new ObjectMapper();
 		}
-	}
-	
-	public static Object parse(String text) {
-		return parse(text, Object.class);
-	}
-	
-	public static <T> T parse(String text, Class<T> type) {
-		try {
-			return OBJECT_MAPPER.readValue(text, type);
-		} catch (IOException e) {
-			return null;
-		}
+		return objectMapper;
 	}
 }

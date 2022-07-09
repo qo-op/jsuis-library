@@ -10,10 +10,11 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import jsuis.parser.JSStatement;
-import jsuis.parser.cron.JSCronParser;
-import jsuis.scanner.JSToken;
-import jsuis.scanner.cron.JSCronScanner;
+import jsuis.cron.parser.JSCronParser;
+import jsuis.cron.scanner.JSCronScanner;
+import jsuis.cron.visitor.JSCronDateCalculator;
+import jsuis.interpreter.parser.statement.JSStatement;
+import jsuis.interpreter.scanner.JSToken;
 import jsuis.util.JSCalendarUtils;
 
 class JSCronDateCalculatorTests {

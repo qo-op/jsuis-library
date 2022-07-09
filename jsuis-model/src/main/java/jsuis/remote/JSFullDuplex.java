@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
-import jsuis.lang.BreakException;
+import jsuis.lang.JSBreakException;
 
 /**
  * Full duplex
@@ -54,7 +54,7 @@ public abstract class JSFullDuplex {
 					redirect(packet);
 				}
 			}
-		} catch (BreakException e) {
+		} catch (JSBreakException e) {
 		}
 	}
 	
@@ -68,14 +68,14 @@ public abstract class JSFullDuplex {
 	private String output;
 	private String error;
 	
-	public boolean handle(String[] data) throws BreakException {
+	public boolean handle(String[] data) throws JSBreakException {
 		String channel = data[0];
 		if ("1".equals(channel)) {
 			String id = data[1];
 			String segment = data[3];
 			if (ETX.equals(segment)) {
 				if (input.isEmpty()) {
-					throw new BreakException();
+					throw new JSBreakException();
 				}
 				String request = input;
 				new Thread(new Runnable() {

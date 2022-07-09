@@ -5,10 +5,13 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import jsuis.parser.JSStatement;
-import jsuis.parser.cron.JSCronParser;
-import jsuis.scanner.JSToken;
-import jsuis.scanner.cron.JSCronScanner;
+import jsuis.cron.parser.JSCronParser;
+import jsuis.cron.parser.statement.JSCronStatement;
+import jsuis.cron.scanner.JSCronScanner;
+import jsuis.cron.visitor.JSCronPrinter;
+import jsuis.cron.visitor.JSCronSplitter;
+import jsuis.interpreter.parser.statement.JSStatement;
+import jsuis.interpreter.scanner.JSToken;
 
 class JSCronSplitterTests {
 
@@ -27,7 +30,7 @@ class JSCronSplitterTests {
 		List<JSToken> tokenList = cronScanner.scan();
 		JSCronParser cronParser = new JSCronParser(tokenList);
 		List<JSStatement> statementList = cronParser.parse();
-		List<String> stringList = CRON_SPLITTER.visitStatement(statementList.get(0));
+		List<String> stringList = CRON_SPLITTER.visitStatement((JSCronStatement) statementList.get(0), 0, Long.MAX_VALUE, 0);
 		System.out.println(stringList);
 	}
 }

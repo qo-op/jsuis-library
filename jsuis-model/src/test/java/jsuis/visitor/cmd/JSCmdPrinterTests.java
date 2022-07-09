@@ -6,10 +6,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import jsuis.parser.JSStatement;
-import jsuis.parser.cmd.JSCmdParser;
-import jsuis.scanner.JSToken;
-import jsuis.scanner.cmd.JSCmdScanner;
+import jsuis.cmd.parser.JSCmdParser;
+import jsuis.cmd.scanner.JSCmdScanner;
+import jsuis.cmd.visitor.JSCmdPrinter;
+import jsuis.interpreter.parser.statement.JSStatement;
+import jsuis.interpreter.scanner.JSToken;
 
 class JSCmdPrinterTests {
 

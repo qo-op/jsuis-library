@@ -7,10 +7,12 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import jsuis.parser.JSStatement;
-import jsuis.parser.cron.JSCronParser;
-import jsuis.scanner.JSToken;
-import jsuis.scanner.cron.JSCronScanner;
+import jsuis.cron.parser.JSCronParser;
+import jsuis.cron.parser.statement.JSCronStatement;
+import jsuis.cron.scanner.JSCronScanner;
+import jsuis.cron.visitor.JSCronPrinter;
+import jsuis.interpreter.parser.statement.JSStatement;
+import jsuis.interpreter.scanner.JSToken;
 
 class JSCronPrinterTests {
 
@@ -30,7 +32,7 @@ class JSCronPrinterTests {
 		JSCronParser cronParser = new JSCronParser(tokenList);
 		List<JSStatement> statementList = cronParser.parse();
 		String expected = source;
-		String actual = CRON_PRINTER.visitStatement(statementList.get(0));
+		String actual = CRON_PRINTER.visitStatement((JSCronStatement) statementList.get(0), 0, Long.MAX_VALUE, 0);
 		assertEquals(expected, actual);
 	}
 }
