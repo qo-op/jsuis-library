@@ -14,17 +14,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  * @author Yassuo Toda
  */
 public class JSThrowTask extends JSTerminalTask {
-	
-	public JSThrowTask() {
-	}
-	
-	public JSThrowTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 
 	@JSParameter(name = "name", value = "throw")
 	@JSParameter(name = "exception")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {

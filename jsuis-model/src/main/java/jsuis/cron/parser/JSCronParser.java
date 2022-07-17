@@ -68,7 +68,7 @@ public class JSCronParser extends JSParser {
 			statement = new JSCronScheduledJobStatement(expression(), command());
 		}
 		if (!isAtEnd()) {
-			consume(JSCronTokenType.LINE_FEED, "Expected '\n' after statement.");
+			consume(JSCronTokenType.LINE_FEED, "Expected '\\n' after statement.");
 		}
 		return statement;
 	}

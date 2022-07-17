@@ -14,11 +14,11 @@ public class JSSetTaskTests {
 	@Test
 	public void test() throws Exception {
 		JSBlock block = new JSBlock(Arrays.asList(
-				new JSDeclareTask(JSMap.toMap(
+				new JSDeclareTask().with(JSMap.toMap(
 						"variable", "x", "type", "Integer", "value", "2")), // let x = (Integer) 2;
-				new JSDeclareTask(JSMap.toMap(
+				new JSDeclareTask().with(JSMap.toMap(
 						"variable", "y", "type", "Integer", "value", "3")), // let y = (Integer) 3;
-				new JSSetTask(JSMap.toMap(
+				new JSSetTask().with(JSMap.toMap(
 						"variable", "x", "type", "Integer", "value", "x + y")) // x = (Integer) (x + y);
 				));
 		block.execute();

@@ -142,7 +142,7 @@ public abstract class JSFullDuplex {
 				printStream.println(packet(1, id, line));
 			}
 			printStream.println(packet(1, id, ETX));
-			printStream.flush();
+			// printStream.flush();
 		}
 		while (!outputMap.containsKey(id) && !errorMap.containsKey(id)) {
 			wait();
@@ -177,7 +177,7 @@ public abstract class JSFullDuplex {
 				printStream.println(packet(2, id, line));
 			}
 			printStream.println(packet(2, id, ETX));
-			printStream.flush();
+			// printStream.flush();
 		}
 	}
 	
@@ -191,7 +191,7 @@ public abstract class JSFullDuplex {
 				printStream.println(packet(3, id, line));
 			}
 			printStream.println(packet(3, id, ETX));
-			printStream.flush();
+			// printStream.flush();
 		}
 	}
 	

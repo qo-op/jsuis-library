@@ -1,52 +1,61 @@
 package jsuis.script.task.general;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
 import jsuis.script.block.JSWorkBlock;
+import jsuis.script.task.JSTask;
+import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Work task
  * 
+ * var variable = work(file);
+ * var variable = work(file, arguments);
+ * 
+ * work(file);
+ * work(file, { argument : value, argument : value, .... });
+ * 
  * @author Yassuo Toda
  */
-public class JSWorkTask extends JSCallTask {
-
-	public JSWorkTask() {
-	}
-	
-	public JSWorkTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
+public class JSWorkTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "work")
 	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
-	@JSParameter(type = Map.class, name = "values")
-	private Map<String, Object> valueMap;
+	@JSParameter(type = Map.class, name = "arguments")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "argument")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		
 		String variable = getString("variable");
 		File file = getFile("file");
-		Map<String, Object> valueMap = getMap("values");
+		Map<String, Object> argumentMap = getMap("arguments", String.class, "argument", "value");
 		
 		JSWorkBlock workBlock = getWorkBlock(file);
 		if (workBlock == null) {
 			throw new Exception(String.format("Work '%' not found.", file));
 		}
 		
-		Object result = workBlock.execute(valueMap);
+		Object result = workBlock.execute(argumentMap);
 		
-		if (!variable.isEmpty()) {
-			getBlock().set(variable, result);
+		if (variable != null && !variable.isEmpty()) {
+			getBlock().var(variable, result);
 		}
 	}
 
 	public JSWorkBlock getWorkBlock(File file) {
 		// TODO
 		return null;
+	}
+
+	@Override
+	public <T> T accept(JSTaskVisitor<T> visitor) {
+		return visitor.visitWorkTask(this);
 	}
 }

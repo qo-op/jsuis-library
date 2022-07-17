@@ -25,11 +25,12 @@ public class WorkMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		
 		JSWorkBlock workBlock = new JSWorkBlock();
+		workBlock.let("workMojo", this);
 		workBlock.setTaskList(taskList);
 		try {
 			workBlock.execute();
 		} catch (Exception e) {
-			throw new MojoExecutionException(String.format("An exception ocurred while executing work."), e);
+			throw new MojoExecutionException("An exception ocurred while executing work.", e);
 		}
 	}
 }

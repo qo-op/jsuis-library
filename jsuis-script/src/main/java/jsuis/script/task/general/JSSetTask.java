@@ -3,28 +3,22 @@ package jsuis.script.task.general;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
-import jsuis.script.block.JSBlock;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Set task
  * 
  * variable = (type) value;
+ * variable = (type) listValue;
+ * variable = (type) mapValue;
  * 
  * @author Yassuo Toda
  */
 public class JSSetTask extends JSAbstractSetTask {
-
-	public JSSetTask() {
-	}
-	
-	public JSSetTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "set")
 	@JSParameter(name = "variable", value = "x")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
@@ -32,8 +26,7 @@ public class JSSetTask extends JSAbstractSetTask {
 		String variable = getString("variable");
 		Object value = getValue();
 		
-		JSBlock block = getBlock();
-		block.set(variable, value);
+		getBlock().set(variable, value);
 	}
 
 	@Override

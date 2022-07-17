@@ -1,8 +1,6 @@
 package jsuis.script.task.general;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,72 +15,71 @@ import jsuis.script.task.JSTask;
  * @author Yassuo Toda
  */
 public abstract class JSAbstractSetTask extends JSTask {
+	
+	@JSParameter(name = "type", value = "String")
+	
+	@JSParameter(type = Void.class, parent = "type", name = "stringType", value = "String")
+	@JSParameter(type = Void.class, parent = "type", name = "booleanType", value = "Boolean")
+	@JSParameter(type = Void.class, parent = "type", name = "dateType", value = "Date")
+	@JSParameter(type = Void.class, parent = "type", name = "decimalType", value = "Decimal")
+	@JSParameter(type = Void.class, parent = "type", name = "doubleType", value = "Double")
+	@JSParameter(type = Void.class, parent = "type", name = "fileType", value = "File")
+	@JSParameter(type = Void.class, parent = "type", name = "imageType", value = "Image")
+	@JSParameter(type = Void.class, parent = "type", name = "integerType", value = "Integer")
+	@JSParameter(type = Void.class, parent = "type", name = "objectType", value = "Object")
 
-	public JSAbstractSetTask() {
-	}
+	@JSParameter(type = Void.class, parent = "type", name = "stringListType", value = "StringList")
+	@JSParameter(type = Void.class, parent = "type", name = "booleanListType", value = "BooleanList")
+	@JSParameter(type = Void.class, parent = "type", name = "dateListType", value = "DateList")
+	@JSParameter(type = Void.class, parent = "type", name = "decimalListType", value = "DecimalList")
+	@JSParameter(type = Void.class, parent = "type", name = "doubleListType", value = "DoubleList")
+	@JSParameter(type = Void.class, parent = "type", name = "fileListType", value = "FileList")
+	@JSParameter(type = Void.class, parent = "type", name = "imageListType", value = "ImageList")
+	@JSParameter(type = Void.class, parent = "type", name = "integerListType", value = "IntegerList")
+	@JSParameter(type = Void.class, parent = "type", name = "objectListType", value = "ObjectList")
 	
-	public JSAbstractSetTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
+	@JSParameter(type = Void.class, parent = "type", name = "stringMapType", value = "StringMap")
+	@JSParameter(type = Void.class, parent = "type", name = "booleanMapType", value = "BooleanMap")
+	@JSParameter(type = Void.class, parent = "type", name = "dateMapType", value = "DateMap")
+	@JSParameter(type = Void.class, parent = "type", name = "decimalMapType", value = "DecimalMap")
+	@JSParameter(type = Void.class, parent = "type", name = "doubleMapType", value = "DoubleMap")
+	@JSParameter(type = Void.class, parent = "type", name = "fileMapType", value = "FileMap")
+	@JSParameter(type = Void.class, parent = "type", name = "imageMapType", value = "ImageMap")
+	@JSParameter(type = Void.class, parent = "type", name = "integerMapType", value = "IntegerMap")
+	@JSParameter(type = Void.class, parent = "type", name = "objectMapType", value = "ObjectMap")
 	
-	@JSParameter(name = "type", value = "Text")
-	@JSParameter(type = Void.class, name = "textType", value = "Text", parent = "type")
-	@JSParameter(type = Void.class, name = "booleanType", value = "Boolean", parent = "type")
-	@JSParameter(type = Void.class, name = "dateType", value = "Date", parent = "type")
-	@JSParameter(type = Void.class, name = "decimalType", value = "Decimal", parent = "type")
-	@JSParameter(type = Void.class, name = "doubleType", value = "Double", parent = "type")
-	@JSParameter(type = Void.class, name = "fileType", value = "File", parent = "type")
-	@JSParameter(type = Void.class, name = "imageType", value = "Image", parent = "type")
-	@JSParameter(type = Void.class, name = "integerType", value = "Integer", parent = "type")
-	@JSParameter(type = Void.class, name = "listType", value = "List", parent = "type")
-	@JSParameter(type = List.class, name = "listValue", parent = "listType")
-	@JSParameter(type = List.class, name = "listItemType", parent = "listValue")
-	@JSParameter(type = List.class, name = "listItemValue", parent = "listValue")
-	@JSParameter(type = List.class, name = "listItemFormat", parent = "listValue")
-	@JSParameter(type = Void.class, name = "mapType", value = "Map", parent = "type")
-	@JSParameter(type = Map.class, name = "mapValue", parent = "mapType")
-	@JSParameter(type = List.class, name = "mapEntryKey", parent = "mapValue")
-	@JSParameter(type = List.class, name = "mapEntryType", parent = "mapValue")
-	@JSParameter(type = List.class, name = "mapEntryValue", parent = "mapValue")
-	@JSParameter(type = List.class, name = "mapEntryFormat", parent = "mapValue")
-	@JSParameter(type = Void.class, name = "objectType", value = "Object", parent = "type")
-	@JSParameter(name = "value")
-	private Map<String, Object> valueMap;
+	@JSParameter(type = Void.class, parent = "type", name = "tableType", value = "Table")
+	
+	@JSParameter(name = "value", parent = "stringType, booleanType, dateType, decimalType, doubleType, fileType, imageType, integerType, objectType")
+	
+	@JSParameter(type = List.class, name = "listValue", parent = "stringListType, booleanListType, dateListType, decimalListType, doubleListType, fileListType, imageListType, integerListType, objectListType")
+	@JSParameter(type = List.class, parent = "listValue", name = "elementValue")
+	
+	@JSParameter(type = Map.class, name = "mapValue", parent = "stringMapType, booleanMapType, dateMapType, decimalMapType, doubleMapType, fileMapType, imageMapType, integerMapType, objectMapType")
+	@JSParameter(type = List.class, parent = "mapValue", name = "entryKey", value = "key")
+	@JSParameter(type = List.class, parent = "mapValue", name = "entryValue", value = "value")
+	
+	@JSParameter(type = List.class, name = "tableValue", parent = "tableType")
+	@JSParameter(type = List.class, parent = "tableValue", name = "a", value = "a")
+	@JSParameter(type = List.class, parent = "tableValue", name = "b", value = "b")
+	@JSParameter(type = List.class, parent = "tableValue", name = "c", value = "c")
+	@JSParameter(type = List.class, parent = "tableValue", name = "d", value = "d")
+	@JSParameter(type = List.class, parent = "tableValue", name = "e", value = "e")
+	private Map<String, Object> parameterMap;
 	
 	public Object getValue() throws IOException, ScriptException {
 		Object value;
-		Class<?> type = getType(getString("type"));
-		if (type == List.class) {
-			List<Object> list = new ArrayList<>();
-			List<Map<String, Object>> table = getTable("listValue");
-			if (table != null) {
-				int size = table.size();
-				for (int i = 0; i < size; i++) {
-					Map<String, Object> rowMap = table.get(i);
-					Class<?> listItemType = getType(nvl((String) rowMap.get("listItemType"), "Text"));
-					String listItemValue = (String) rowMap.get("listItemValue");
-					String listItemFormat = nvl((String) rowMap.get("listItemFormat"), "");
-					list.add(parse(listItemValue, listItemType, listItemFormat));
-				}
-			}
-			value = list;
-		} else if (type == Map.class) {
-			Map<String, Object> map = new LinkedHashMap<>();
-			List<Map<String, Object>> table = getTable("mapValue");
-			if (table != null) {
-				int size = table.size();
-				for (int i = 0; i < size; i++) {
-					Map<String, Object> rowMap = table.get(i);
-					String mapEntryKey = (String) rowMap.get("mapEntryKey");
-					Class<?> mapEntryType = getType(nvl((String) rowMap.get("mapEntryType"), "Text"));
-					String mapEntryValue = (String) rowMap.get("mapEntryValue");
-					String mapEntryFormat = nvl((String) rowMap.get("mapEntryFormat"), "");
-					map.put(mapEntryKey, parse(mapEntryValue, mapEntryType, mapEntryFormat));
-				}
-			}
-			value = map;
+		String type = getString("type");
+		if (type.endsWith("List")) {
+			Class<?> elementType = getType(type.substring(0, type.length() - 4));
+			value = getList("listValue", elementType);
+		} else if (type.endsWith("Map")) {
+			Class<?> entryType = getType(type.substring(0, type.length() - 3));
+			value = getMap("mapValue", entryType, "key", "value");
+		} else if (type.equals("Table")) {
+			value = getTable("tableValue");
 		} else {
-			value = get("value", type);
+			value = get("value", getType(type));
 		}
 		return value;
 	}

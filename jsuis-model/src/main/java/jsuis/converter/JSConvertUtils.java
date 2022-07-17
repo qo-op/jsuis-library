@@ -1,18 +1,19 @@
 package jsuis.converter;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.beanutils.ConvertUtils;
 
-import jsuis.io.JSFileUtils;
+import jsuis.file.JSFileUtils;
 
 /**
  * Convert utils
@@ -21,17 +22,17 @@ import jsuis.io.JSFileUtils;
  */
 public class JSConvertUtils {
 
-	public static Object convert(Object object, Class<?> targetType, String... formats) {
+	public static Object convert(Object object, Class<?> targetType) {
 		if (object == null) {
 			return null;
 		}
-		if (targetType.isAssignableFrom(Object.class) && object instanceof String) {
+		if (Object.class.isAssignableFrom(targetType) && object instanceof String) {
 			String string = (String) object;
 			if (targetType != String.class && string.isEmpty()) {
 				return null;
 			}
 			if (targetType == Date.class) {
-				return toDate(string, formats);
+				return toDate(string);
 			}
 			if (targetType == File.class) {
 				File file = (File) ConvertUtils.convert(string, File.class);
@@ -45,50 +46,19 @@ public class JSConvertUtils {
 		return ConvertUtils.convert(object, targetType);
 	}
 	
-	private static Date toDate(String string, String... dateFormats) {
-		if (dateFormats.length == 0) {
-			try {
-				return getDefaultDateFormat().parse(string);
-			} catch (ParseException e) {
-			}
-		} else {
-			for (String dateFormat : dateFormats) {
-				try {
-					return getDateFormat(dateFormat).parse(string);
-				} catch (ParseException e) {
-				}
-			}
+	private static Date toDate(String string) {
+		string = string.trim();
+		int length = string.length();
+		switch (length) {
+		case 0:
+			return Date.from(Instant.now());
+		case 10:
+			return Date.from(LocalDate.parse(string, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		case 19:
+			return Date.from(LocalDateTime.parse(string, DateTimeFormatter.ISO_LOCAL_DATE_TIME).atZone(ZoneId.systemDefault()).toInstant());
+		default:
+			throw new DateTimeParseException("Unparseable date: \"" + string + "\"", string, length);
 		}
-        System.err.println("Unparseable date: \"" + string + "\"");
-		return null;
-	}
-	
-	private static DateFormat defaultDateFormat;
-	
-	private static DateFormat getDefaultDateFormat() {
-		if (defaultDateFormat == null) {
-			defaultDateFormat = getDateFormat("yyyy-MM-dd");
-		}
-		return defaultDateFormat;
-	}
-	
-	private static DateFormat getDateFormat(String format) {
-		Map<String, DateFormat> dateFormatMap = getDateFormatMap();
-		DateFormat dateFormat = dateFormatMap.get(format);
-		if (dateFormat == null) {
-			dateFormat = new SimpleDateFormat(format);
-			dateFormatMap.put(format, dateFormat);
-		}
-		return dateFormat;
-	}
-	
-	private static Map<String, DateFormat> dateFormatMap;
-	
-	public static Map<String, DateFormat> getDateFormatMap() {
-		if (dateFormatMap == null) {
-			dateFormatMap = new HashMap<>();
-		}
-		return dateFormatMap;
 	}
 	
 	@SuppressWarnings("unchecked")

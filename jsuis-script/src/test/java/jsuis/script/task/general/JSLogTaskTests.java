@@ -14,9 +14,9 @@ public class JSLogTaskTests {
 	@Test
 	public void test() throws Exception {
 		JSBlock block = new JSBlock(Arrays.asList(
-				new JSDeclareTask(JSMap.toMap(
-						"variable", "x", "type", "Text", "value", "Hello, World!")), // let x = (String) "Hello, World!"
-				new JSLogTask(JSMap.toMap(
+				new JSDeclareTask().with(JSMap.toMap(
+						"variable", "x", "type", "String", "value", "Hello, World!")), // let x = (String) "Hello, World!"
+				new JSLogTask().with(JSMap.toMap(
 						"text", "${x}")))); // System.out.println("${x}");
 		block.execute();
 		assertEquals("Hello, World!", block.get("x"));

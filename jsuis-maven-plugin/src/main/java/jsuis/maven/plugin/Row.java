@@ -4,6 +4,11 @@ import java.util.List;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
+/**
+ * Row
+ * 
+ * @author Yassuo Toda
+ */
 public class Row {
 
     @Parameter
@@ -11,10 +16,5 @@ public class Row {
 
 	public List<Object> getCellList() {
 		return cellList;
-	}
-
-	@Override
-	public String toString() {
-		return "Row [cellList=" + cellList + "]";
 	}
 }

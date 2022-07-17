@@ -14,5 +14,5 @@ import jsuis.script.task.general.JSGetTask;
 public class GetTask extends JSGetTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

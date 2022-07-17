@@ -15,16 +15,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSLogTask extends JSTask {
 	
-	public JSLogTask() {
-	}
-	
-	public JSLogTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
-	
 	@JSParameter(name = "name", value = "log")
 	@JSParameter(name = "text")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {

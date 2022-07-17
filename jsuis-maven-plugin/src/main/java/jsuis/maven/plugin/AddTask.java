@@ -14,5 +14,5 @@ import jsuis.script.task.general.JSAddTask;
 public class AddTask extends JSAddTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

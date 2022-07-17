@@ -14,16 +14,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  * @author Yassuo Toda
  */
 public class JSReturnTask extends JSAbstractSetTask {
-
-	public JSReturnTask() {
-	}
-	
-	public JSReturnTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "return")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 
 	@Override
 	public void execute() throws Exception {

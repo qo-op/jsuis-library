@@ -14,5 +14,5 @@ import jsuis.script.task.general.JSPutTask;
 public class PutTask extends JSPutTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

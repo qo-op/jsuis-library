@@ -2,7 +2,6 @@ package jsuis.script.bindings;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,8 +16,8 @@ import jsuis.script.block.JSBlock;
  */
 public class JSCompoundBindings implements Bindings {
 
-	private JSScriptContext primary;
-	private JSScriptContext secondary;
+	public JSScriptContext primary;
+	public JSScriptContext secondary;
 	
 	public JSCompoundBindings(JSScriptContext primary, JSScriptContext secondary) {
 		this.primary = primary;
@@ -36,44 +35,32 @@ public class JSCompoundBindings implements Bindings {
 
 	@Override
 	public boolean isEmpty() {
-		return primary.getBindings().isEmpty() && secondary.getBindings().isEmpty();
+		return primary.getBindings().isEmpty() && secondary.getCompoundBindings().isEmpty();
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
-		if (value == null) {
-			return false;
-		}
-		if (primary.getBindings().containsValue(value)) {
-			return true;
-		}
-		Set<String> keySet = secondary.getBindings().keySet();
-		for (String key : keySet) {
-			if (value.equals(secondary.getBindings().get(key)) && !primary.getBindings().containsKey(key)) {
-				return true;
-			}
-		}
-		return false;
+		return primary.getBindings().containsValue(value) || secondary.getCompoundBindings().containsValue(value);
 	}
 
 	@Override
 	public void clear() {
 		primary.getBindings().clear();
-		secondary.getBindings().clear();
+		secondary.getCompoundBindings().clear();
 	}
 
 	@Override
 	public Set<String> keySet() {
-		Set<String> keySet = new HashSet<>();
-		keySet.addAll(secondary.getBindings().keySet());
-		keySet.addAll(primary.getBindings().keySet());
-		return keySet;
+		Map<String, Object> map = new HashMap<>();
+		map.putAll(secondary.getCompoundBindings());
+		map.putAll(primary.getBindings());
+		return map.keySet();
 	}
 
 	@Override
 	public Collection<Object> values() {
 		Map<String, Object> map = new HashMap<>();
-		map.putAll(secondary.getBindings());
+		map.putAll(secondary.getCompoundBindings());
 		map.putAll(primary.getBindings());
 		return map.values();
 	}
@@ -81,7 +68,7 @@ public class JSCompoundBindings implements Bindings {
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
 		Map<String, Object> map = new HashMap<>();
-		map.putAll(secondary.getBindings());
+		map.putAll(secondary.getCompoundBindings());
 		map.putAll(primary.getBindings());
 		return map.entrySet();
 	}
@@ -98,7 +85,7 @@ public class JSCompoundBindings implements Bindings {
 
 	@Override
 	public boolean containsKey(Object key) {
-		return primary.getBindings().containsKey(key) || secondary.getBindings().containsKey(key);
+		return primary.getBindings().containsKey(key) || secondary.getCompoundBindings().containsKey(key);
 	}
 
 	@Override
@@ -106,12 +93,12 @@ public class JSCompoundBindings implements Bindings {
 		if (primary.getBindings().containsKey(key)) {
 			return primary.getBindings().get(key);
 		}
-		return secondary.getBindings().get(key);
+		return secondary.getCompoundBindings().get(key);
 	}
 
 	@Override
 	public Object remove(Object key) {
-		Object secondaryRemoved = secondary.getBindings().remove(key);
+		Object secondaryRemoved = secondary.getCompoundBindings().remove(key);
 		Object primaryRemoved = primary.getBindings().remove(key);
 		return primaryRemoved != null ? primaryRemoved : secondaryRemoved;
 	}

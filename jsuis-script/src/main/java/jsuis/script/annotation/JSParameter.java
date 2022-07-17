@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  * Slider ::= Double Double Double
  * SplitPane ::= Double Double
  * Tab ::= List { ( Boolean Void ) + }
- * Table ::= ( List { List + } | Map )
+ * Table ::= ( List | Map ) { List + }
  * TextArea ::= List { String }
  * TextField ::= ( String | Date | Decimal | Double | File | Integer | Object )
  * Tree ::= List { File + }
@@ -33,11 +33,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Repeatable(JSParameters.class)
 public @interface JSParameter {
-	Class<?> type() default String.class; // input type: ( Text | Boolean | Date | Decimal | Double | File | Image | Integer | List | Map | Object | Void )
+	Class<?> type() default String.class; // input type: ( String | Boolean | Date | Decimal | Double | File | Image | Integer | List | Map | Object | Void )
+	String parent() default "";
 	String name() default "name";
 	String value() default "";
-	String format() default "";
-	String parent() default "";
 	String label() default "";
 	String description() default "";
 }

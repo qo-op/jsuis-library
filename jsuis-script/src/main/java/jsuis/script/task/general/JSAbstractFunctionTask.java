@@ -15,55 +15,47 @@ import jsuis.script.task.JSTask;
  * @author Yassuo Toda
  */
 public abstract class JSAbstractFunctionTask extends JSTask {
-
-	public JSAbstractFunctionTask() {
-	}
-	
-	public JSAbstractFunctionTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(type = List.class, name = "arguments")
-	@JSParameter(type = List.class, name = "argumentType", parent = "arguments")
-	@JSParameter(type = Void.class, name = "argumentTextType", value = "Text", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentBooleanType", value = "Boolean", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentDateType", value = "Date", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentDecimalType", value = "Decimal", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentDoubleType", value = "Double", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentFileType", value = "File", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentImageType", value = "Image", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentIntegerType", value = "Integer", parent = "argumentType")
-	@JSParameter(type = Void.class, name = "argumentObjectType", value = "Object", parent = "argumentType")
-	@JSParameter(type = List.class, name = "argumentName", parent = "arguments")
-	@JSParameter(type = List.class, name = "argumentValue", parent = "arguments")
-	@JSParameter(type = List.class, name = "argumentFormat", parent = "arguments")
-	@JSParameter(type = List.class, name = "argumentParent", parent = "arguments")
-	@JSParameter(type = List.class, name = "argumentLabel", parent = "arguments")
-	@JSParameter(type = List.class, name = "argumentDescription", parent = "arguments")
-	private Map<String, Object> valueMap;
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentType", value = "type")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentStringType", value = "String")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentBooleanType", value = "Boolean")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDateType", value = "Date")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDecimalType", value = "Decimal")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDoubleType", value = "Double")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentFileType", value = "File")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentImageType", value = "Image")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentIntegerType", value = "Integer")
+	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentObjectType", value = "Object")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "name")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentParent", value = "parent")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentLabel", value = "label")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentDescription", value = "description")
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		
-		List<Map<String, Object>> argumentTable = getTable("arguments");
-		
 		Map<String, JSArgument> argumentMap = new LinkedHashMap<>();
-		if (argumentTable != null) {
-			int size = argumentTable.size();
+		List<Map<String, Object>> table = getTable("arguments");
+		if (table != null) {
+			int size = table.size();
 			for (int i = 0; i < size; i++) {
-				Map<String, Object> rowMap = argumentTable.get(i);
-				Class<?> argumentType = getType((String) rowMap.get("argumentType"));
-				String argumentName = (String) rowMap.get("argumentName");
-				String argumentValue = (String) rowMap.get("argumentValue");
-				String argumentFormat = nvl((String) rowMap.get("argumentFormat"), "");
-				String argumentParent = nvl((String) rowMap.get("argumentParent"), "");
-				String argumentLabel = nvl((String) rowMap.get("argumentLabel"), "");
-				String argumentDescription = nvl((String) rowMap.get("argumentDescription"), "");
-				JSArgument argument = new JSArgument(argumentType, argumentName, argumentValue, argumentFormat, argumentParent, argumentLabel, argumentDescription);
+				Map<String, Object> cellMap = table.get(i);
+				Class<?> type = getType((String) cellMap.get("type"));
+				String name = (String) cellMap.get("name");
+				String value = nvl((String) cellMap.get("value"), "");
+				String parent = nvl((String) cellMap.get("parent"), "");
+				String label = nvl((String) cellMap.get("label"), "");
+				String description = nvl((String) cellMap.get("description"), "");
+				JSArgument argument = new JSArgument(type, name, value, parent, label, description);
 				argumentMap.put(argument.getName(), argument);
 			}
 		}
 		setArgumentMap(argumentMap);
+		
+		getFunctionBlock().setBlock(getBlock());
 	}
 	
 	private Map<String, JSArgument> argumentMap;

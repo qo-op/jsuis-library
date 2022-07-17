@@ -14,10 +14,6 @@ import jsuis.script.task.general.JSLengthTask;
  */
 public class LengthTask extends JSLengthTask {
 
-	public LengthTask() {
-		super();
-	}
-	
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

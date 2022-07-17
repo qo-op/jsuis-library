@@ -37,7 +37,7 @@ public class JSCmdParser extends JSParser {
 			comment = comment();
 		}
 		if (!isAtEnd()) {
-			consume(JSCmdTokenType.LINE_FEED, "Expected '\n' after statement.");
+			consume(JSCmdTokenType.LINE_FEED, "Expected '\\n' after statement.");
 		}
 		return new JSCmdCommandLineStatement(expression, comment);
 	}

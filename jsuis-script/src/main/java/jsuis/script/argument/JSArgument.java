@@ -10,22 +10,20 @@ import jsuis.script.JSScriptConvertUtils;
 public class JSArgument {
 
 	public JSArgument() {
-		this(String.class, "name", "", "", "", "", "");
+		this(String.class, "", "", "", "", "");
 	}
 	
 	private Class<?> type;
 	private String name;
 	private Object value;
-	private String format;
 	private String parent;
 	private String label;
 	private String description;
 	
-	public JSArgument(Class<?> type, String name, String value, String format, String parent, String label, String description) {
+	public JSArgument(Class<?> type, String name, String value, String parent, String label, String description) {
 		this.type = type;
 		this.name = name;
-		this.value = JSScriptConvertUtils.convert(value, type, format);
-		this.format = format;
+		this.value = JSScriptConvertUtils.convert(value, type);
 		this.parent = parent;
 		this.label = label;
 		this.description = description;
@@ -41,10 +39,6 @@ public class JSArgument {
 
 	public Object getValue() {
 		return value;
-	}
-
-	public String getFormat() {
-		return format;
 	}
 
 	public String getParent() {

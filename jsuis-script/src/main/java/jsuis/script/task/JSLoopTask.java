@@ -1,17 +1,8 @@
 package jsuis.script.task;
 
-import java.util.Map;
-
 import jsuis.script.block.JSLoopBlock;
 
 public abstract class JSLoopTask extends JSTask {
-
-	public JSLoopTask() {
-	}
-	
-	public JSLoopTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	private JSLoopBlock loopBlock;
 

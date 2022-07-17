@@ -10,35 +10,37 @@ import jsuis.script.visitor.JSTaskVisitor;
  * Add task
  * 
  * list.add((type) value);
+ * list.add((type) value, index);
  * 
  * @author Yassuo Toda
  */
 public class JSAddTask extends JSAbstractSetTask {
-
-	public JSAddTask() {
-	}
-	
-	public JSAddTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "add")
 	@JSParameter(name = "list", value = "list")
-	private Map<String, Object> valueMap;
+	@JSParameter(name = "index")
+	private Map<String, Object> parameterMap;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void execute() throws Exception {
 		
-		List<Object> list = getList("list");
-		if (list == null) {
-			throw new NullPointerException("" + getBlock().getBindings());
+		Object object = get("list", List.class);
+		if (!(object instanceof List)) {
+			throw new Exception(String.format("Object '%s' is not a List", object));
 		}
-		if (!(list instanceof List)) {
-			throw new Exception(String.format("Object '%s' is not a List", list));
-		}
+		List<Object> list = (List<Object>) object;
 		Object value = getValue();
+		Integer index = getInteger("index");
 		
-		list.add(value);
+		if (index == null) {
+			list.add(value);
+		} else {
+			if (index < 0) {
+				index = Math.max(index + list.size(), 0);
+			}
+			list.add(index, value);
+		}
 	}
 	
 	public <T> T accept(JSTaskVisitor<T> visitor) {

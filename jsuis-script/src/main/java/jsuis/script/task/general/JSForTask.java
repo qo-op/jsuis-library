@@ -11,26 +11,18 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * For task
  * 
- * for (let counter = start; counter <= end; counter += step ) {
- * }
+ * for (let counter = start; counter <= end; counter += step) { ... }
  * 
  * @author Yassuo Toda
  */
 public class JSForTask extends JSLoopTask {
-
-	public JSForTask() {
-	}
-	
-	public JSForTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "for")
 	@JSParameter(name = "counter", value = "i")
 	@JSParameter(name = "start", value = "1")
 	@JSParameter(name = "end", value = "1")
 	@JSParameter(name = "step", value = "1")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
@@ -41,10 +33,9 @@ public class JSForTask extends JSLoopTask {
 		int step = getInteger("step");
 		
 		JSLoopBlock loopBlock = getLoopBlock();
-		loopBlock.clear();
-		loopBlock.put(counter, start);
 		for (int i = start; i <= end; i+= step) {
-			loopBlock.put(counter, i);
+			loopBlock.clear();
+			loopBlock.let(counter, i);
 			if (!process()) {
 				break;
 			}

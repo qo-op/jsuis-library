@@ -30,14 +30,14 @@ public class JSVariableParser extends JSParser {
 	public JSStatement statement() {
 		StringBuffer left = new StringBuffer();
 		while (match(JSVariableTokenType.LEFT_BRACE, JSVariableTokenType.RIGHT_BRACE, JSVariableTokenType.STRING)) {
-			left.append(previous().literal);
+			left.append(previous().lexeme);
 		}
 		List<JSExpression> expressionList = new ArrayList<>();
-		if (match(JSVariableTokenType.DOLLAR_LEFT_BRACE, JSVariableTokenType.HASH_LEFT_BRACE)) {
+		while (match(JSVariableTokenType.DOLLAR_LEFT_BRACE, JSVariableTokenType.HASH_LEFT_BRACE)) {
 			expressionList.add(expression());
 		}
 		if (!isAtEnd()) {
-			consume(JSVariableTokenType.LINE_FEED, "Expected '\n' after statement.");
+			consume(JSVariableTokenType.LINE_FEED, "Expected '\\n' after statement.");
 		}
 		return new JSVariableLineStatement(left.toString(), expressionList);
 	}
@@ -54,7 +54,7 @@ public class JSVariableParser extends JSParser {
 		consume(JSVariableTokenType.RIGHT_BRACE, "Expected '}' after script.");
 		StringBuffer right = new StringBuffer();
 		while (match(JSVariableTokenType.LEFT_BRACE, JSVariableTokenType.RIGHT_BRACE, JSVariableTokenType.STRING)) {
-			right.append(previous().literal);
+			right.append(previous().lexeme);
 		}
 		return new JSVariableCompoundExpression(expression, right.toString());
 	}

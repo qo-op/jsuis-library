@@ -26,11 +26,11 @@ public class JSWorkBlock extends JSBlock {
 		execute(this, null);
 	}
 	
-	public Object execute(Map<String, Object> valueMap) throws Exception {
-		return execute(this, valueMap);
+	public Object execute(Map<String, Object> parameterMap) throws Exception {
+		return execute(this, parameterMap);
 	}
 	
-	public Object execute(JSBlock block, Map<String, Object> valueMap) throws Exception {
+	public Object execute(JSBlock block, Map<String, Object> parameterMap) throws Exception {
 		JSStartTask startTask = null;
 		List<JSTask> taskList = getTaskList();
 		for (JSTask task : taskList) {
@@ -41,7 +41,7 @@ public class JSWorkBlock extends JSBlock {
 			task.execute();
 		}
 		if (startTask != null) {
-			return JSCallTask.execute(block, startTask, valueMap);
+			return JSCallTask.execute(block, startTask, parameterMap);
 		}
 		return null;
 	}

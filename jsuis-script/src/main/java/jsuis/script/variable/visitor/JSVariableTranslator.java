@@ -127,7 +127,12 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 				text.append(object);
 			}
 		}
-		return block.get(text.toString());
+		String key = text.toString();
+		if (block.contains(key)) {
+			return block.get(key);
+		} else {
+			return "${" + key + "}";
+		}
 	}
 
 	@Override
@@ -140,13 +145,16 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 				text.append(object);
 			}
 		}
-		return block.eval(text.toString());
+		try {
+			return block.eval(text.toString());
+		} catch (ScriptException e) {
+			return null;
+		}
 	}
 	
 	@Override
 	public Object visitBlockExpression(JSVariableBlockExpression expression) throws ScriptException {
 		StringBuffer text = new StringBuffer();
-		text.append("{");
 		for (Object object : expression.list) {
 			if (object instanceof JSExpression) {
 				text.append(visitExpression((JSVariableExpression) object));
@@ -154,8 +162,7 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 				text.append(object);
 			}
 		}
-		text.append("}");
-		return text.toString();
+		return "{" + text.toString() + "}";
 	}
 
 	@Override

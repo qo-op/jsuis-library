@@ -1,11 +1,11 @@
 package jsuis.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 /**
@@ -17,44 +17,27 @@ public class JSProperties extends Properties {
 
 	private static final long serialVersionUID = 1L;
 
+	private Path path;
+	
+	public JSProperties(Path path) throws IOException {
+		this.path = path;
+		if (Files.exists(path)) {
+			try (Reader reader = Files.newBufferedReader(path, StandardCharsets.ISO_8859_1)) {
+				load(reader);
+			}
+		} else {
+			Files.createFile(path);
+		}
+	}
+	
 	public JSProperties set(String key, String value) {
 		setProperty(key, value);
 		return this;
 	}
 	
-	private File file;
-	
-	public void setFile(File file) {
-		this.file = file;
-		if (file.exists()) {
-			clear();
-			try (InputStream inputStream = new FileInputStream(file)) {
-				load(inputStream);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			File parentFile = file.getParentFile();
-			if (parentFile != null) {
-				parentFile.mkdirs();
-				try {
-					file.createNewFile();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	public File getFile() {
-		return file;
-	}
-	
-	public void store() {
-		try (OutputStream outputStream = new FileOutputStream(getFile())) {
-			store(outputStream, null);
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void store() throws IOException {
+		try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.ISO_8859_1)) {
+			store(writer, null);
 		}
 	}
 }

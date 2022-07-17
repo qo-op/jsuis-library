@@ -16,24 +16,17 @@ import jsuis.script.visitor.JSTaskVisitor;
  * @author Yassuo Toda
  */
 public class JSWhileTask extends JSLoopTask {
-
-	public JSWhileTask() {
-	}
-	
-	public JSWhileTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "while")
 	@JSParameter(name = "condition", value = "false")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		JSLoopBlock loopBlock = getLoopBlock();
-		loopBlock.clear();
-		while (process()) {
-		}
+		do {
+			loopBlock.clear();
+		} while (process());
 	}
 
 	public boolean process() throws Exception {

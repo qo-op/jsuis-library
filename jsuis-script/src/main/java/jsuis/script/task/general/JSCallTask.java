@@ -2,6 +2,7 @@ package jsuis.script.task.general;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -21,51 +22,49 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Call task
  * 
- * variable = callee({ argumentName1 : value1, argumentName2 : value2, .... });
- * callee({ argumentName1 : value1, argumentName2 : value2, .... });
+ * var variable = callee();
+ * var variable = callee({ argument : value, argument : value, .... });
+ * 
+ * callee();
+ * callee({ argument : value, argument : value, .... });
  * 
  * @author Yassuo Toda
  */
 public class JSCallTask extends JSTask {
-
-	public JSCallTask() {
-	}
-	
-	public JSCallTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "call")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "callee", value = "f")
-	@JSParameter(type = Map.class, name = "values")
-	private Map<String, Object> valueMap;
+	@JSParameter(type = Map.class, name = "arguments")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "argument")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		
 		String variable = getString("variable");
 		String callee = getString("callee");
-		Map<String, Object> valueMap = getMap("values");
+		Map<String, Object> argumentMap = getMap("arguments", String.class, "argument", "value");
 		
 		JSBlock block = getBlock();
 		JSFunctionTask functionTask = (JSFunctionTask) block.get(callee + "()");
 		if (functionTask == null) {
 			throw new Exception(String.format("Function '%s' not found.", callee + "()"));
 		}
-		Object result = execute(block, functionTask, valueMap);
-		if (!variable.isEmpty()) {
-			block.set(variable, result);
+		Object result = execute(block, functionTask, argumentMap);
+		if (variable != null && !variable.isEmpty()) {
+			block.var(variable, result);
 		}
 	}
 	
-	public static Object execute(JSBlock block, JSAbstractFunctionTask functionTask, Map<String, Object> valueMap) throws Exception {
+	public static Object execute(JSBlock block, JSAbstractFunctionTask functionTask, Map<String, Object> argumentValueMap) throws Exception {
 		JSFunctionBlock functionBlock = functionTask.getFunctionBlock();
 		Stack<Bindings> bindingsStack = functionBlock.getBindingsStack();
 		bindingsStack.push(functionBlock.getBindings());
 		functionBlock.setBindings(new JSBindings());
 		try {
-			functionBlock.putAll(translate(block, functionTask, valueMap));
+			functionBlock.putAll(translate(block, functionTask, argumentValueMap));
 			functionBlock.execute();
 			return null;
 		} catch (JSReturnException e) {
@@ -75,15 +74,15 @@ public class JSCallTask extends JSTask {
 		}
 	}
 
-	public static Map<String, Object> translate(JSBlock block, JSAbstractFunctionTask functionTask, Map<String, Object> valueMap) throws IOException, ScriptException {
+	public static Map<String, Object> translate(JSBlock block, JSAbstractFunctionTask functionTask, Map<String, Object> argumentValueMap) throws IOException, ScriptException {
 		Map<String, Object> newValueMap = new HashMap<>();
 		Map<String, JSArgument> argumentMap = functionTask.getArgumentMap();
 		Set<String> keySet = argumentMap.keySet();
-		if (valueMap != null) {
+		if (argumentValueMap != null) {
 			for (String key : keySet) {
 				JSArgument argument = argumentMap.get(key);
-				if (valueMap.containsKey(key)) {
-					newValueMap.put(key, block.parse(valueMap.get(key), argument.getType(), argument.getFormat()));
+				if (argumentValueMap.containsKey(key)) {
+					newValueMap.put(key, block.parse(argumentValueMap.get(key), argument.getType()));
 				} else {
 					newValueMap.put(key, argument.getValue());
 				}
@@ -95,16 +94,6 @@ public class JSCallTask extends JSTask {
 			}
 		}
 		return newValueMap;
-	}
-	
-	private Map<String, String> argumentMap;
-	
-	public Map<String, String> getArgumentMap() {
-		return argumentMap;
-	}
-
-	public void setArgumentMap(Map<String, String> argumentMap) {
-		this.argumentMap = argumentMap;
 	}
 
 	@Override

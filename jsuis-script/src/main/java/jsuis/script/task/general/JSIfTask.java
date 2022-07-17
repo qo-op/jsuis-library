@@ -16,17 +16,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  * @author Yassuo Toda
  */
 public class JSIfTask extends JSConditionalTask {
-
-	public JSIfTask() {
-	}
-	
-	public JSIfTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "if")
 	@JSParameter(name = "condition", value = "true")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {

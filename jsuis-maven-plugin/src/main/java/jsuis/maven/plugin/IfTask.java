@@ -14,7 +14,7 @@ import jsuis.script.task.general.JSIfTask;
 public class IfTask extends JSIfTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 
     @Parameter
     private IfBlock ifBlock;

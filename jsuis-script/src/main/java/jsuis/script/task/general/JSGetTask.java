@@ -4,40 +4,29 @@ import java.util.List;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
-import jsuis.script.block.JSBlock;
 import jsuis.script.task.JSTask;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Get task
  * 
- * variable = object.get(key);
+ * var variable = object.get(key);
  * 
  * @author Yassuo Toda
  */
 public class JSGetTask extends JSTask {
-
-	public JSGetTask() {
-	}
-	
-	public JSGetTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "get")
 	@JSParameter(name = "variable", value = "value")
 	@JSParameter(name = "object", value = "x")
 	@JSParameter(name = "key", value = "0")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		
 		String variable = getString("variable");
 		Object object = getObject("object");
-		if (object == null) {
-			throw new NullPointerException("" + getBlock().getBindings());
-		}
 		Object value = null;
 		if (object instanceof List) {
 			List<?> list = (List<?>) object;
@@ -55,8 +44,7 @@ public class JSGetTask extends JSTask {
 			throw new Exception(String.format("Object '%s' is neither a List, nor a Map, nor a String.", object));
 		}
 		
-		JSBlock block = getBlock();
-		block.put(variable, value);
+		getBlock().var(variable, value);
 	}
 
 	@Override

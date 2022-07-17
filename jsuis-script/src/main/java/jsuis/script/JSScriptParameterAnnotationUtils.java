@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +31,7 @@ public class JSScriptParameterAnnotationUtils {
 			type = typeStack.pop();
 			parameterAnnotationMap.putAll(populate(object, type));
 		}
-		Collection<JSParameter> parameterAnnotationCollection = parameterAnnotationMap.values();
-		return parameterAnnotationCollection.toArray(new JSParameter[parameterAnnotationCollection.size()]);
+		return parameterAnnotationMap.values().toArray(new JSParameter[0]);
 	}
 	
 	private static Map<String, JSParameter> populate(Object object, Class<?> type) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -52,12 +49,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						Class<?> parameterAnnotationType = parameterAnnotation.type();
-						if (parameterAnnotationType == Date.class) {
-							map.put(parameterAnnotationName, JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType, parameterAnnotation.format()));
-						} else {
-							map.put(parameterAnnotationName, JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType));
-						}
+						map.put(parameterAnnotationName, JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
 					}
 					setParameterValue(object, field, map);
 				} else if (fieldType == List.class) {
@@ -69,12 +61,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						Class<?> parameterAnnotationType = parameterAnnotation.type();
-						if (parameterAnnotationType == Date.class) {
-							list.add(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType, parameterAnnotation.format()));
-						} else {
-							list.add(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType));
-						}
+						list.add(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
 					}
 					setParameterValue(object, field, list);
 				} else {
@@ -85,12 +72,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						Class<?> parameterAnnotationType = parameterAnnotation.type();
-						if (parameterAnnotationType == Date.class) {
-							setParameterValue(object, field, JSScriptConvertUtils.convert(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType, parameterAnnotation.format()), fieldType));
-						} else {
-							setParameterValue(object, field, JSScriptConvertUtils.convert(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotationType), fieldType));
-						}
+						setParameterValue(object, field, JSScriptConvertUtils.convert(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()), fieldType));
 					}
 				}
 			}

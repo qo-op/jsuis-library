@@ -8,19 +8,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Start task
  * 
+ * function ([ [ "type", "name", ... ], [ type, name, ... ], ... ]) { ... }
+ * 
  * @author Yassuo Toda
  */
 public class JSStartTask extends JSAbstractFunctionTask {
-
-	public JSStartTask() {
-	}
-	
-	public JSStartTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	@JSParameter(name = "name", value = "start")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
 	@Override
 	public <T> T accept(JSTaskVisitor<T> visitor) {

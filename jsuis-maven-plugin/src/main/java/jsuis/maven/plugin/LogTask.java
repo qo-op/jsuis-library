@@ -14,5 +14,14 @@ import jsuis.script.task.general.JSLogTask;
 public class LogTask extends JSLogTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
+    
+	@Override
+	public void execute() throws Exception {
+		
+		String text = getString("text");
+		
+		WorkMojo workMojo = (WorkMojo) getBlock().get("workMojo");
+		workMojo.getLog().info(text);
+	}
 }

@@ -29,7 +29,7 @@ class JSVariablePrinterTests {
 	
 	@Test
 	void dollarExpressionTest() throws ScriptException {
-		block.put("greeting", "Hello");
+		block.let("greeting", "Hello");
 		Object actual = variableTranslator.translate("${greeting}, World!");
 		assertEquals("Hello, World!", actual);
 	}
@@ -42,7 +42,7 @@ class JSVariablePrinterTests {
 	
 	@Test
 	void booleanEvaluationTest() throws ScriptException {
-		block.put("condition", "false");
+		block.let("condition", false);
 		Object actual = variableTranslator.translate("#{condition}");
 		assertEquals(false, actual);
 	}

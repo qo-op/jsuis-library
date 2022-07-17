@@ -14,5 +14,5 @@ import jsuis.script.task.general.JSReturnTask;
 public class ReturnTask extends JSReturnTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

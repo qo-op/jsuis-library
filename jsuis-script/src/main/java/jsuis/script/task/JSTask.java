@@ -27,14 +27,9 @@ import jsuis.util.NVL;
 public abstract class JSTask {
 	
 	public JSTask() {
-		this(null);
+		init();
 	}
 	
-	public JSTask(Map<String, Object> valueMap) {
-		init();
-		putAll(valueMap);
-	}
-
 	public void init() {
 		try {
 			List<JSParameter> parameterAnnotationList = getParameterAnnotationList();
@@ -53,21 +48,23 @@ public abstract class JSTask {
 		return parameterAnnotationList;
 	}
 	
-	public void putAll(Map<String, Object> valueMap) {
-		if (valueMap == null) {
-			return;
-		}
-		getValueMap().putAll(valueMap);
+	public JSTask with(Map<String, Object> parameterMap) {
+		setParameterMap(parameterMap);
+		return this;
 	}
 	
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 	
-	public Map<String, Object> getValueMap() {
-		return valueMap;
+	public Map<String, Object> getParameterMap() {
+		return parameterMap;
 	}
 
-	public void setValueMap(Map<String, Object> valueMap) {
-		this.valueMap = valueMap;
+	public void setParameterMap(Map<String, Object> parameterMap) {
+		if (this.parameterMap == null) {
+			this.parameterMap = parameterMap;
+		} else {
+			this.parameterMap.putAll(parameterMap);
+		}
 	}
 
 	private JSBlock block;
@@ -84,12 +81,12 @@ public abstract class JSTask {
 	
 	public abstract <T> T accept(JSTaskVisitor<T> visitor);
 	
-	public Object get(String key, Class<?> type, String... formats) throws IOException, ScriptException {
-		return parse(getValueMap().get(key), type, formats);
+	public Object get(String key, Class<?> type) throws IOException, ScriptException {
+		return parse(getParameterMap().get(key), type);
 	}
 	
-	public Object parse(Object value, Class<?> type, String... formats) throws IOException, ScriptException {
-		return getBlock().parse(value, type, formats);
+	public Object parse(Object value, Class<?> type) throws IOException, ScriptException {
+		return getBlock().parse(value, type);
 	}
 	
 	public Class<?> getType(String name) {
@@ -132,35 +129,52 @@ public abstract class JSTask {
 		return (Integer) get(key, Integer.class);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<Object> getList(String key) throws IOException, ScriptException {
-		return (List<Object>) get(key, List.class);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> getMap(String key) throws IOException, ScriptException {
-		return (Map<String, Object>) get(key, Map.class);
-	}
-	
 	public Object getObject(String key) throws IOException, ScriptException {
 		return get(key, Object.class);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> getTable(String key) throws IOException, ScriptException {
-		List<Object> list = getList(key);
+	public List<Object> getList(String key, Class<?> elementType) throws IOException, ScriptException {
+		List<Object> objectList = new ArrayList<>();
+		List<?> list = (List<?>) get(key, List.class);
+		if (list != null && !list.isEmpty()) {
+			Object[] objects = ((List<?>) get(key, List.class)).toArray();
+			for (Object object : objects) {
+				objectList.add(parse(object, elementType));
+			}
+		}
+		return objectList;
+	}
+	
+	public Map<String, Object> getMap(String key, Class<?> entryType, String entryKey, String entryValue) throws IOException, ScriptException {
+		Map<String, Object> map = new LinkedHashMap<>();
+		List<Map<String, Object>> table = getTable(key);
+		if (table != null) {
+			int size = table.size();
+			for (int i = 0; i < size; i++) {
+				Map<String, Object> rowMap = table.get(i);
+				map.put((String) rowMap.get(entryKey), parse(rowMap.get(entryValue), entryType));
+			}
+		}
+		return map;
+	}
+	
+	public List<Map<String, Object>> getTable(String key, Class<?>... columnTypes) throws IOException, ScriptException {
+		List<?> list = (List<?>) get(key, List.class);
 		if (list == null || list.isEmpty()) {
 			return null;
 		}
-		int size = list.size();
 		List<Map<String, Object>> table = new ArrayList<>();
-		List<String> header = (List<String>) list.get(0);
+		String[] headers = ((List<?>) list.get(0)).toArray(new String[0]);
+		int size = list.size();
 		for (int row = 1; row < size; row++) {
-			List<Object> rowData = (List<Object>) list.get(row);
+			Object[] cells = ((List<?>) list.get(row)).toArray();
 			Map<String, Object> map = new LinkedHashMap<String, Object>();
-			int columnCount = rowData.size();
-			for (int column = 0; column < columnCount; column++) {
-				map.put(header.get(column), rowData.get(column));
+			for (int column = 0; column < cells.length; column++) {
+				if (column < columnTypes.length) {
+					map.put(headers[column], parse(cells[column], columnTypes[column]));
+				} else {
+					map.put(headers[column], cells[column]);
+				}
 			}
 			table.add(map);
 		}

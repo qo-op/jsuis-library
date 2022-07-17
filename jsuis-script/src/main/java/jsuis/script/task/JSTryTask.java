@@ -1,7 +1,5 @@
 package jsuis.script.task;
 
-import java.util.Map;
-
 import jsuis.script.block.JSCatchBlock;
 import jsuis.script.block.JSFinallyBlock;
 import jsuis.script.block.JSTryBlock;
@@ -12,13 +10,6 @@ import jsuis.script.block.JSTryBlock;
  * @author Yassuo Toda
  */
 public abstract class JSTryTask extends JSTask {
-	
-	public JSTryTask() {
-	}
-	
-	public JSTryTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
 	
 	private JSTryBlock tryBlock;
 	

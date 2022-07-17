@@ -9,6 +9,8 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Try task
  * 
+ * try { ... } catch { ... } finally { ... }
+ * 
  * @author Yassuo Toda
  */
 public class JSTryCatchTask extends JSTryTask {
@@ -18,7 +20,7 @@ public class JSTryCatchTask extends JSTryTask {
 	}
 	
 	@JSParameter(name = "name", value = "try")
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 
 	@Override
 	public <T> T accept(JSTaskVisitor<T> visitor) {

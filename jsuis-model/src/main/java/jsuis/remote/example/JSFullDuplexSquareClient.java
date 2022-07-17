@@ -7,7 +7,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 
-import jsuis.io.JSFileUtils;
+import jsuis.file.JSDirectoryUtils;
 import jsuis.remote.JSFullDuplex;
 
 /**
@@ -23,7 +23,7 @@ public class JSFullDuplexSquareClient extends JSFullDuplex {
 
 	public static void main(String[] args) throws Exception {
 		
-		List<File> fileList = JSFileUtils.dir(System.getProperty("java.home"), "javaw.exe", true);
+		List<File> fileList = JSDirectoryUtils.list(new File(System.getProperty("java.home")), "**/javaw.exe");
 		File javaw = fileList.get(0);
 		File jar = new File(JSFullDuplexSquareServer.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 		List<String> textList = new ArrayList<String>();

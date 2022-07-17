@@ -16,17 +16,13 @@ import jsuis.script.task.general.JSDeclareTask;
 public class DeclareTask extends JSDeclareTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
     
     @Parameter
-    private List<Row> listValue;
-    
-    public void setListValue(List<Row> listValue) {
-		List<List<Object>> list = new ArrayList<>();
-		for (Row row : listValue) {
-			list.add(row.getCellList());
-		}
-		getValueMap().put("listValue", list);
+	private List<Object> listValue;
+
+    public void setListValue(List<Object> listValue) {
+		getParameterMap().put("listValue", listValue);
 	}
     
     @Parameter
@@ -37,6 +33,17 @@ public class DeclareTask extends JSDeclareTask {
 		for (Row row : mapValue) {
 			map.add(row.getCellList());
 		}
-		getValueMap().put("mapValue", map);
+		getParameterMap().put("mapValue", map);
+	}
+    
+    @Parameter
+    private List<Row> tableValue;
+    
+    public void setTableValue(List<Row> tableValue) {
+		List<List<Object>> map = new ArrayList<>();
+		for (Row row : tableValue) {
+			map.add(row.getCellList());
+		}
+		getParameterMap().put("tableValue", map);
 	}
 }

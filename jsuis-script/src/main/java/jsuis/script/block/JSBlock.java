@@ -2,6 +2,7 @@ package jsuis.script.block;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +11,12 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
+
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 import jsuis.script.JSScriptConvertUtils;
-import jsuis.script.bindings.JSCompoundBindings;
 import jsuis.script.bindings.JSScriptContext;
 import jsuis.script.task.JSConditionalTask;
 import jsuis.script.task.JSLoopTask;
@@ -54,35 +57,6 @@ public class JSBlock extends JSScriptContext {
 		this.taskList = taskList;
 	}
 	
-	private JSBlock block;
-	
-	public JSBlock getBlock() {
-		return block;
-	}
-	
-	public void setBlock(JSBlock block) {
-		this.block = block;
-		Bindings compoundBindings = getCompoundBindings();
-		if (compoundBindings instanceof JSCompoundBindings) {
-			((JSCompoundBindings) getCompoundBindings()).setSecondary(block);
-		} else {
-			compoundBindings = new JSCompoundBindings(this, block);
-		}
-	}
-	
-	private Bindings compoundBindings;
-	
-	public Bindings getCompoundBindings() {
-		if (compoundBindings == null) {
-			compoundBindings = getBindings();
-			JSBlock block = getBlock();
-			if (block != null) {
-				compoundBindings = new JSCompoundBindings(this, block);
-			}
-		}
-		return compoundBindings;
-	}
-	
 	public void execute() throws Exception {
 		
 		List<JSTask> taskList = getTaskList();
@@ -116,14 +90,9 @@ public class JSBlock extends JSScriptContext {
 		bindings.clear();
 	}
 	
-	public void put(String key, Object value) {
+	public void putAll(Map<String, Object> parameterMap) {
 		Bindings bindings = getBindings();
-		bindings.put(key, value);
-	}
-	
-	public void putAll(Map<String, Object> valueMap) {
-		Bindings bindings = getBindings();
-		bindings.putAll(valueMap);
+		bindings.putAll(parameterMap);
 	}
 	
 	public boolean let(String key, Object value) {
@@ -137,6 +106,16 @@ public class JSBlock extends JSScriptContext {
 			throw new RuntimeException(String.format("'%s' can't be defined more than one time.", key));
 		}
 		return success;
+	}
+	
+	public boolean contains(String key) {
+		Bindings compoundBindings = getCompoundBindings();
+		return compoundBindings.containsKey(key);
+	}
+	
+	public Object get(String key) {
+		Bindings compoundBindings = getCompoundBindings();
+		return compoundBindings.get(key);
 	}
 	
 	public boolean set(String key, Object value) {
@@ -156,28 +135,40 @@ public class JSBlock extends JSScriptContext {
 		return success;
 	}
 	
-	public Object get(String key) {
-		Bindings compoundBindings = getCompoundBindings();
-		return compoundBindings.get(key);
+	public boolean var(String key, Object value) {
+		Bindings bindings = getBindings();
+		boolean success = bindings.containsKey(key);
+		if (success) {
+			bindings.put(key, value);
+			return success;
+		}
+		JSBlock block = getBlock();
+		if (block != null) {
+			success = block.var(key, value);
+		}
+		if (!success) {
+			success = let(key, value);
+		}
+		return success;
 	}
 	
-	public Object parse(Object value, Class<?> type, String... formats) throws IOException, ScriptException {
+	public Object parse(Object value, Class<?> type) throws IOException, ScriptException {
 		if (value == null) {
 			return null;
 		}
 		if (value instanceof String) {
-			return parseString((String) value, type, formats);
+			return parseString((String) value, type);
 		} else {
-			return parseObject(value, type, formats);
+			return parseObject(value, type);
 		}
 	}
 	
-	public Object parseString(String string, Class<?> type, String... formats) throws ScriptException {
+	private Object parseString(String string, Class<?> type) throws ScriptException {
 		if (type == String.class) {
 			if (string.trim().isEmpty()) {
 				return string;
 			}
-		} else {
+		} else if (type != File.class) {
 			if (string.trim().startsWith("=")) {
 				string = string.substring(string.indexOf("=") + 1);
 			}
@@ -190,11 +181,11 @@ public class JSBlock extends JSScriptContext {
 				object = eval(string.substring(string.indexOf("=") + 1));
 			}
 		}
-		return parseObject(object, type, formats);
+		return parseObject(object, type);
 	}
 	
-	public Object parseObject(Object object, Class<?> type, String... formats) {
-		object = JSScriptConvertUtils.convert(object, type, formats);
+	private Object parseObject(Object object, Class<?> type) {
+		object = JSScriptConvertUtils.convert(object, type);
 		if (object instanceof File) {
 			File file = (File) object;
 			object = translate(file);
@@ -202,18 +193,17 @@ public class JSBlock extends JSScriptContext {
 		return object;
 	}
 	
-	public File translate(File file) {
+	private File translate(File file) {
 		if (file == null) {
 			return null;
 		}
 		if (!file.isAbsolute()) {
-			String path = file.getPath();
-		    file = new File(System.getProperty("user.dir"), path);
+			file = Paths.get(System.getProperty("user.dir")).resolve(file.toPath()).toFile();
 		}
 		return file;
 	}
 	
-	public Object translate(String value) throws ScriptException {
+	private Object translate(String value) throws ScriptException {
 		if (value == null) {
 			return null;
 		}
@@ -237,12 +227,15 @@ public class JSBlock extends JSScriptContext {
 		return variableTranslator;
 	}
 	
-	private ScriptEngine scriptEngine;
+	private static ScriptEngine scriptEngine;
 	
-	public ScriptEngine getScriptEngine() {
+	public static ScriptEngine getScriptEngine() {
 		if (scriptEngine == null) {
-			scriptEngine = GraalJSScriptEngine.create();
-			scriptEngine.getContext();
+			scriptEngine = GraalJSScriptEngine.create(null,
+			        Context.newBuilder("js")
+			        .allowHostAccess(HostAccess.ALL)
+			        .allowHostClassLookup(s -> true)
+			        .option("js.ecmascript-version", "2021"));
 		}
 		return scriptEngine;
 	}

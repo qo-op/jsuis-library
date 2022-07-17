@@ -14,7 +14,7 @@ import jsuis.script.task.general.JSForTask;
 public class ForTask extends JSForTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 
     @Parameter
     private LoopBlock loopBlock;

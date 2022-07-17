@@ -1,7 +1,5 @@
 package jsuis.script.task;
 
-import java.util.Map;
-
 import jsuis.script.block.JSElseBlock;
 import jsuis.script.block.JSIfBlock;
 
@@ -12,13 +10,6 @@ import jsuis.script.block.JSIfBlock;
  */
 public abstract class JSConditionalTask extends JSTask {
 
-	public JSConditionalTask() {
-	}
-	
-	public JSConditionalTask(Map<String, Object> valueMap) {
-		super(valueMap);
-	}
-	
 	private JSIfBlock ifBlock;
 
 	public JSIfBlock getIfBlock() {

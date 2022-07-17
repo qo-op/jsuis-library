@@ -14,5 +14,5 @@ import jsuis.script.task.general.JSBreakTask;
 public class BreakTask extends JSBreakTask {
 
     @Parameter
-	private Map<String, Object> valueMap;
+	private Map<String, Object> parameterMap;
 }

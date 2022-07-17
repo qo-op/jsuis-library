@@ -47,13 +47,12 @@ public class JSScriptTypeUtils {
 			typeMap.put("map", Map.class);
 			typeMap.put("Object", Object.class);
 			typeMap.put("object", Object.class);
-			typeMap.put("Text", String.class);
-			typeMap.put("text", String.class);
-			
-			typeMap.put("BigDecimal", BigDecimal.class);
-			typeMap.put("bigdecimal", BigDecimal.class);
 			typeMap.put("String", String.class);
 			typeMap.put("string", String.class);
+			
+			typeMap.put("BigDecimal", BigDecimal.class);
+			typeMap.put("bigDecimal", BigDecimal.class);
+			typeMap.put("bigdecimal", BigDecimal.class);
 			
 			typeMap.put("Float", Float.class);
 			typeMap.put("float", float.class);
