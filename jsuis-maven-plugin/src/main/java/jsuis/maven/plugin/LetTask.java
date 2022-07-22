@@ -6,14 +6,14 @@ import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-import jsuis.script.task.general.JSDeclareTask;
+import jsuis.script.task.general.JSLetTask;
 
 /**
  * Declare task
  * 
  * @author Yassuo Toda
  */
-public class DeclareTask extends JSDeclareTask {
+public class LetTask extends JSLetTask {
 
     @Parameter
 	private Map<String, Object> parameterMap;

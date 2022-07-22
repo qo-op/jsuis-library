@@ -12,19 +12,19 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Directory list task
  * 
- * var variable = Directory.list(directory);
- * var variable = Directory.list(directory, include);
- * var variable = Directory.list(directory, include, exclude);
+ * variable = Directory.list(directory);
+ * variable = Directory.list(directory, include);
+ * variable = Directory.list(directory, include, exclude);
  * 
  * @author Yassuo Toda
  */
 public class JSDirectoryListTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "Directory.list")
-	@JSParameter(name = "variable", value = "fileList")
+	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "directory", value = ".\\")
 	@JSParameter(type = File.class, parent = "directory")
-	@JSParameter(name = "include", value = "**/./*")
+	@JSParameter(name = "include", value = "*")
 	@JSParameter(name = "exclude")
 	private Map<String, Object> parameterMap;
 
@@ -38,7 +38,7 @@ public class JSDirectoryListTask extends JSTask {
 		
 		List<File> fileList = JSDirectoryUtils.list(directory, include, exclude);
 		
-		getBlock().var(variable, fileList);
+		getBlock().set(variable, fileList);
 	}
 
 	@Override

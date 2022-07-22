@@ -16,7 +16,7 @@ class JSIfTaskTests {
 	@Test
 	void test() throws Exception {
 		JSBlock block = new JSBlock(Arrays.asList(
-				new JSDeclareTask().with(JSMap.toMap(
+				new JSLetTask().with(JSMap.toMap(
 						"variable", "x", "type", "String", "value", "Hi, World!")), // let x = (String) "Hi, World!"
 				((JSConditionalTask) new JSIfTask().with(JSMap.toMap("condition", "true"))).setIfBlock(new JSIfBlock(Arrays.asList(
 						new JSSetTask().with(JSMap.toMap("variable", "x", "type", "String", "value", "Hello, World!"))))), // x = (String) "Hello, World!"

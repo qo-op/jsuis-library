@@ -10,7 +10,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Remove task
  * 
- * var variable = object.remove(key);
+ * variable = object.remove(key);
  * 
  * object.remove(element);
  * 
@@ -19,7 +19,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 public class JSRemoveTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "remove")
-	@JSParameter(name = "variable", value = "element")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "object", value = "object")
 	@JSParameter(name = "key")
 	@JSParameter(name = "element")
@@ -36,7 +36,7 @@ public class JSRemoveTask extends JSTask {
 			if (key != null) {
 				Object element = list.remove(key);
 				if (variable != null && !variable.isEmpty()) {
-					getBlock().var(variable, element);
+					getBlock().set(variable, element);
 				}
 			} else {
 				Object element = getObject("element");

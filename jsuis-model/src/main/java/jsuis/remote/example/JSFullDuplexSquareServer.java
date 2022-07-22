@@ -23,7 +23,7 @@ public class JSFullDuplexSquareServer extends JSFullDuplex {
 		
 		JSFullDuplexSquareServer server = new JSFullDuplexSquareServer();
 		
-		if (args.length > 0 && ("--debug".equals(args[0]) || "-d".equals(args[0]))) {
+		if (args.length == 0) {
 			
 			server.NUL = "<NUL>";
 			server.SOH = "<SOH>";

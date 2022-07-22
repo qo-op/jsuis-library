@@ -25,7 +25,7 @@ public class JSAddTask extends JSAbstractSetTask {
 	@Override
 	public void execute() throws Exception {
 		
-		Object object = get("list", List.class);
+		Object object = getObject("list");
 		if (!(object instanceof List)) {
 			throw new Exception(String.format("Object '%s' is not a List", object));
 		}

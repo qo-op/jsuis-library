@@ -30,7 +30,7 @@ public class JSDirectoryCopyTask extends JSTask {
 	@JSParameter(name = "name", value = "Directory.copy")
 	@JSParameter(type = File.class, name = "source")
 	@JSParameter(type = File.class, parent = "source")
-	@JSParameter(name = "include", value = "**/./*")
+	@JSParameter(name = "include", value = "*")
 	@JSParameter(name = "exclude")
 	@JSParameter(type = File.class, name = "destination")
 	@JSParameter(type = File.class, parent = "destination")

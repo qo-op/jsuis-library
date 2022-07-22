@@ -17,7 +17,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 public class JSSetTask extends JSAbstractSetTask {
 	
 	@JSParameter(name = "name", value = "set")
-	@JSParameter(name = "variable", value = "x")
+	@JSParameter(name = "variable")
 	private Map<String, Object> parameterMap;
 	
 	@Override

@@ -83,9 +83,6 @@ public class JSDirectoryCopyVisitor extends SimpleFileVisitor<Path> {
 	
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		if (dir.equals(source)) {
-	        return FileVisitResult.CONTINUE;
-		}
 		Path relative = source.relativize(dir);
         if (directoryIncludePatchMatcher.matches(relative) && (directoryExcludePatchMatcher == null || !directoryExcludePatchMatcher.matches(relative))) {
         	Files.copy(dir, destination.resolve(relative), copyOptions);
@@ -105,9 +102,6 @@ public class JSDirectoryCopyVisitor extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
     	if (preserve) {
-    		if (dir.equals(source)) {
-    	        return FileVisitResult.CONTINUE;
-    		}
     		Path relative = source.relativize(dir);
             if (directoryIncludePatchMatcher.matches(relative) && (directoryExcludePatchMatcher == null || !directoryExcludePatchMatcher.matches(relative))) {
             	Files.setLastModifiedTime(destination.resolve(source.relativize(dir)), Files.getLastModifiedTime(dir));

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -135,21 +136,29 @@ public class JSBlock extends JSScriptContext {
 		return success;
 	}
 	
-	public boolean var(String key, Object value) {
+	/*
+	public void setOrLet(String key, Object value) {
+		set(key, value);
+		try {
+			set(key, value);
+			return;
+		} catch (RuntimeException e) {
+		}
+		getBindings().put(key, value);
+	}
+	 */
+	
+	public void var(String key, Object value) {
 		Bindings bindings = getBindings();
-		boolean success = bindings.containsKey(key);
-		if (success) {
-			bindings.put(key, value);
-			return success;
-		}
 		JSBlock block = getBlock();
-		if (block != null) {
-			success = block.var(key, value);
+		while (block != null) {
+			if (block instanceof JSFunctionBlock) {
+				bindings = block.getBindings();
+				break;
+			}
+			block = block.getBlock();
 		}
-		if (!success) {
-			success = let(key, value);
-		}
-		return success;
+		bindings.put(key, value);
 	}
 	
 	public Object parse(Object value, Class<?> type) throws IOException, ScriptException {
@@ -168,9 +177,12 @@ public class JSBlock extends JSScriptContext {
 			if (string.trim().isEmpty()) {
 				return string;
 			}
-		} else if (type != File.class) {
+		} else if (type != File.class && type != Date.class) {
 			if (string.trim().startsWith("=")) {
 				string = string.substring(string.indexOf("=") + 1);
+			}
+			if (string.startsWith("#{") && string.endsWith("}")) {
+				string = string.substring(2, string.length() - 1);
 			}
 			string = "=" + string;
 		}

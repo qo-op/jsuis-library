@@ -1,7 +1,7 @@
 package jsuis.script.task.directory;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +29,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  * Directory.zip(source, include, exclude, destination, overwrite)
  * Directory.zip(source, include, exclude, destination, overwrite, preserve)
  * 
- * Directory.zip(source, fileList, destination)
- * Directory.zip(source, fileList, destination, overwrite)
- * Directory.zip(source, fileList, destination, overwrite, preserve)
+ * Directory.zip(source, nameList, destination)
+ * Directory.zip(source, nameList, destination, overwrite)
+ * Directory.zip(source, nameList, destination, overwrite, preserve)
  * 
  * @author Yassuo Toda
  */
@@ -42,7 +42,7 @@ public class JSDirectoryZipTask extends JSTask {
 	@JSParameter(type = File.class, parent = "source")
 	@JSParameter(name = "include", value = "*")
 	@JSParameter(name = "exclude")
-	@JSParameter(name = "fileList")
+	@JSParameter(name = "nameList")
 	@JSParameter(type = File.class, name = "destination")
 	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
 	@JSParameter(type = Boolean.class, name = "preserve", value = "true")
@@ -55,19 +55,18 @@ public class JSDirectoryZipTask extends JSTask {
 		File source = getFile("source");
 		String include = getString("include");
 		String exclude = getString("exclude");
-		List<File> fileList = (List<File>) get("fileList", List.class);
+		List<String> nameList = (List<String>) get("nameList", List.class);
 		File destination = getFile("destination");
 		if (destination == null) {
-			String fileName = source.toPath().normalize().getFileName().toString();
-			if (!fileName.isEmpty()) {
-				destination = source.toPath().getParent().resolve(Paths.get("..", fileName + ".zip")).toFile();
-			}
+			Path path = source.toPath().normalize();
+			String fileName = path.getFileName().toString();
+			destination = path.getParent().resolve(fileName + ".zip").toFile();
 		}
 		boolean overwrite = getBoolean("overwrite");
 		boolean preserve = getBoolean("preserve");
 		
-		if (fileList != null && !fileList.isEmpty()) {
-			JSDirectoryUtils.zip(source, fileList, destination, overwrite, preserve);
+		if (nameList != null && !nameList.isEmpty()) {
+			JSDirectoryUtils.zip(source, nameList, destination, overwrite, preserve);
 		} else {
 			JSDirectoryUtils.zip(source, include, exclude, destination, overwrite, preserve);
 		}

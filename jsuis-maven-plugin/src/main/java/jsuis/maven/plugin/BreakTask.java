@@ -1,9 +1,5 @@
 package jsuis.maven.plugin;
 
-import java.util.Map;
-
-import org.apache.maven.plugins.annotations.Parameter;
-
 import jsuis.script.task.general.JSBreakTask;
 
 /**
@@ -12,7 +8,4 @@ import jsuis.script.task.general.JSBreakTask;
  * @author Yassuo Toda
  */
 public class BreakTask extends JSBreakTask {
-
-    @Parameter
-	private Map<String, Object> parameterMap;
 }

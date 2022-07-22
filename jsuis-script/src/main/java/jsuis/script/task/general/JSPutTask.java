@@ -23,9 +23,9 @@ public class JSPutTask extends JSAbstractSetTask {
 	@Override
 	public void execute() throws Exception {
 		
-		Object object = get("map", Map.class);
+		Object object = getObject("map");
 		if (!(object instanceof Map)) {
-			throw new Exception(String.format("Object: '%s' is not a Map", object));
+			throw new Exception(String.format("Object '%s' is not a Map", object));
 		}
 		Map<String, Object> map = (Map<String, Object>) object;
 		String key = getString("key");

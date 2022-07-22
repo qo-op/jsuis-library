@@ -14,10 +14,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  * 
  * @author Yassuo Toda
  */
-public class JSDeclareTask extends JSAbstractSetTask {
+public class JSLetTask extends JSAbstractSetTask {
 	
 	@JSParameter(name = "name", value = "declare")
-	@JSParameter(name = "variable", value = "x")
+	@JSParameter(name = "variable")
 	private Map<String, Object> parameterMap;
 	
 	@Override
@@ -31,6 +31,6 @@ public class JSDeclareTask extends JSAbstractSetTask {
 
 	@Override
 	public <T> T accept(JSTaskVisitor<T> visitor) {
-		return visitor.visitDeclareTask(this);
+		return visitor.visitLetTask(this);
 	}
 }

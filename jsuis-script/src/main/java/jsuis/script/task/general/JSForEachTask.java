@@ -3,6 +3,7 @@ package jsuis.script.task.general;
 import java.util.Map;
 
 import jsuis.lang.JSBreakException;
+import jsuis.lang.JSContinueException;
 import jsuis.script.annotation.JSParameter;
 import jsuis.script.block.JSLoopBlock;
 import jsuis.script.task.JSLoopTask;
@@ -18,7 +19,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 public class JSForEachTask extends JSLoopTask {
 	
 	@JSParameter(name = "name", value = "for")
-	@JSParameter(name = "variable", value = "element")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "iterable")
 	private Map<String, Object> parameterMap;
 	
@@ -54,6 +55,8 @@ public class JSForEachTask extends JSLoopTask {
 			return true;
 		} catch (JSBreakException e) {
 			return false;
+		} catch (JSContinueException e) {
+			return true;
 		}
 	}
 

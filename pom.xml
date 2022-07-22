@@ -17,8 +17,10 @@
   </properties>
   
   <modules>
+  	<module>jsuis-gui</module>
   	<module>jsuis-maven-plugin</module>
   	<module>jsuis-model</module>
+  	<module>jsuis-scheduler-app</module>
   	<module>jsuis-script</module>
   </modules>
   
@@ -28,12 +30,22 @@
     
       <dependency>
         <groupId>jsuis-library</groupId>
+        <artifactId>jsuis-gui</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jsuis-library</groupId>
         <artifactId>jsuis-maven-plugin</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>jsuis-library</groupId>
         <artifactId>jsuis-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jsuis-library</groupId>
+        <artifactId>jsuis-scheduler-app</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

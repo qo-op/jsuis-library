@@ -9,15 +9,15 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Text slice task
  * 
- * var variable = Text.slice(text, start)
- * var variable = Text.slice(text, start, end)
+ * variable = Text.slice(text, start)
+ * variable = Text.slice(text, start, end)
  * 
  * @author Yassuo Toda
  */
 public class JSTextSliceTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "Text.slice")
-	@JSParameter(name = "variable", value = "text")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "text")
 	@JSParameter(name = "start", value = "0")
 	@JSParameter(name = "end")
@@ -47,7 +47,7 @@ public class JSTextSliceTask extends JSTask {
 		}
 		text = text.substring(start, end);
 		
-		getBlock().var(variable, text);
+		getBlock().set(variable, text);
 	}
 
 	@Override

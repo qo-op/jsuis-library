@@ -12,8 +12,8 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Work task
  * 
- * var variable = work(file);
- * var variable = work(file, arguments);
+ * variable = work(file);
+ * variable = work(file, arguments);
  * 
  * work(file);
  * work(file, { argument : value, argument : value, .... });
@@ -45,7 +45,7 @@ public class JSWorkTask extends JSTask {
 		Object result = workBlock.execute(argumentMap);
 		
 		if (variable != null && !variable.isEmpty()) {
-			getBlock().var(variable, result);
+			getBlock().set(variable, result);
 		}
 	}
 

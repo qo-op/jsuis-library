@@ -3,6 +3,7 @@ package jsuis.script.task.general;
 import java.util.Map;
 
 import jsuis.lang.JSBreakException;
+import jsuis.lang.JSContinueException;
 import jsuis.script.annotation.JSParameter;
 import jsuis.script.block.JSLoopBlock;
 import jsuis.script.task.JSLoopTask;
@@ -49,6 +50,8 @@ public class JSForTask extends JSLoopTask {
 			return true;
 		} catch (JSBreakException e) {
 			return false;
+		} catch (JSContinueException e) {
+			return true;
 		}
 	}
 

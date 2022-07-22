@@ -22,8 +22,8 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Call task
  * 
- * var variable = callee();
- * var variable = callee({ argument : value, argument : value, .... });
+ * variable = callee();
+ * variable = callee({ argument : value, argument : value, .... });
  * 
  * callee();
  * callee({ argument : value, argument : value, .... });
@@ -54,7 +54,7 @@ public class JSCallTask extends JSTask {
 		}
 		Object result = execute(block, functionTask, argumentMap);
 		if (variable != null && !variable.isEmpty()) {
-			block.var(variable, result);
+			block.set(variable, result);
 		}
 	}
 	

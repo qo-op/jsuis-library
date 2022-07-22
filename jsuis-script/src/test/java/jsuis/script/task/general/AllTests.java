@@ -6,7 +6,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({
 	JSCallTaskTests.class,
-	JSDeclareTaskTests.class,
+	JSLetTaskTests.class,
 	JSForTaskTests.class,
 	JSGetTaskTests.class,
 	JSIfTaskTests.class,

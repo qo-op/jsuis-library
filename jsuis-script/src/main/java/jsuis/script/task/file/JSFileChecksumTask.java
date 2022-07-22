@@ -14,14 +14,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * File checksum task
  * 
- * var variable = File.checksum(file, algorithm)
+ * variable = File.checksum(file, algorithm)
  * 
  * @author Yassuo Toda
  */
 public class JSFileChecksumTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "File.checksum")
-	@JSParameter(name = "variable", value = "checksum")
+	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
 	@JSParameter(name = "algorithm", value = "MD5")
 	@JSParameter(type = Void.class, name = "MD5", value = "MD5")
@@ -38,7 +38,7 @@ public class JSFileChecksumTask extends JSTask {
 		MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
 		String checksum = Hex.encodeHexString(DigestUtils.updateDigest(messageDigest, file).digest());
 
-		getBlock().var(variable, checksum);
+		getBlock().set(variable, checksum);
 	}
 
 	@Override

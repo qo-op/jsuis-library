@@ -16,9 +16,9 @@ public class JSForEachTaskTests {
 	@Test
 	public void test() throws Exception {
 		JSBlock block = new JSBlock(Arrays.asList(
-				new JSDeclareTask().with(JSMap.toMap(
+				new JSLetTask().with(JSMap.toMap(
 						"variable", "sum", "type", "Integer", "value", "0")), // let sum = (Integer) 0;
-				new JSDeclareTask().with(JSMap.toMap(
+				new JSLetTask().with(JSMap.toMap(
 						"variable", "x", "type", "List", "listValue", Arrays.asList(
 								Arrays.asList("elementType", "elementValue"),
 								Arrays.asList("Integer"    , "10"),

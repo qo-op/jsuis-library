@@ -40,39 +40,29 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 		List<JSToken> tokenList = variableScanner.scan();
 		JSVariableParser variableParser = new JSVariableParser(tokenList);
 		List<JSStatement> statementList = variableParser.parse();
-		return translate(statementList);
+		int size = statementList.size();
+		switch (size) {
+		case 0:
+			return "";
+		case 1:
+			return visitStatement((JSVariableLineStatement) statementList.get(0));
+		default:
+			return translate(statementList);
+		}
 	}
 	
 	public Object translate(List<JSStatement> statementList) throws ScriptException {
-		int size = statementList.size();
-		if (size == 0) {
-			return null;
-		}
-		boolean instanceofString = false;
 		List<Object> objectList = new ArrayList<>();
 		for (JSStatement statement : statementList) {
-			Object object = visitStatement((JSVariableLineStatement) statement);
-			if (object instanceof String) {
-				instanceofString = true;
-			}
-			objectList.add(object);
+			objectList.add(visitStatement((JSVariableLineStatement) statement));
 		}
-		if (instanceofString || size > 1) {
-			StringBuffer text = new StringBuffer();
-			text.append(objectList.get(0));
-			for (int i = 1; i < size; i++) {
-				text.append("\n").append(objectList.get(i));
-			}
-			return text.toString();
+		StringBuffer text = new StringBuffer();
+		text.append(objectList.get(0));
+		int size = objectList.size();
+		for (int i = 1; i < size; i++) {
+			text.append(System.lineSeparator()).append(objectList.get(i));
 		}
-		switch (size) {
-		case 0:
-			return null;
-		case 1:
-			return objectList.get(0);
-		default:
-			return objectList;
-		}
+		return text.toString();
 	}
 	
 	@Override

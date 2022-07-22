@@ -33,6 +33,7 @@ public class JSFullDuplexSquareClient extends JSFullDuplex {
 		textList.add("-cp");
 		textList.add(jar.getAbsolutePath());
 		textList.add(JSFullDuplexSquareServer.class.getName());
+		textList.add("--test");
 		System.out.println(textList);
 		ProcessBuilder processBuilder = new ProcessBuilder(textList);
 		processBuilder.redirectError(Redirect.INHERIT);
@@ -46,8 +47,8 @@ public class JSFullDuplexSquareClient extends JSFullDuplex {
 			}
 		}).start();
 		System.out.println(client.request("3"));
+		System.out.println(client.request("4"));
 		System.out.println(client.request(""));
-		System.exit(0);
 	}
 
 	@Override

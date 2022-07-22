@@ -11,14 +11,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * File exists task
  * 
- * var variable = File.exists(file)
+ * variable = File.exists(file)
  * 
  * @author Yassuo Toda
  */
 public class JSFileExistsTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "File.exists")
-	@JSParameter(name = "variable", value = "exists")
+	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
 	private Map<String, Object> parameterMap;
 
@@ -30,7 +30,7 @@ public class JSFileExistsTask extends JSTask {
 
 		boolean exists = Files.exists(file.toPath());
 
-		getBlock().var(variable, new Boolean(exists));
+		getBlock().set(variable, new Boolean(exists));
 	}
 
 	@Override

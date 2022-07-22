@@ -9,15 +9,15 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Text replace task
  * 
- * var variable = Text.replace(text, target, replacement)
- * var variable = Text.replace(text, target, replacement, regex)
+ * variable = Text.replace(text, target, replacement)
+ * variable = Text.replace(text, target, replacement, regex)
  * 
  * @author Yassuo Toda
  */
 public class JSTextReplaceTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "Text.replace")
-	@JSParameter(name = "variable", value = "text")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "text")
 	@JSParameter(name = "target")
 	@JSParameter(name = "replacement")
@@ -39,7 +39,7 @@ public class JSTextReplaceTask extends JSTask {
 			text = text.replace(target, replacement);
 		}
 		
-		getBlock().var(variable, text);
+		getBlock().set(variable, text);
 	}
 
 	@Override

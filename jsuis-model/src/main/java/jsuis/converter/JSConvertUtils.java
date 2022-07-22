@@ -28,15 +28,15 @@ public class JSConvertUtils {
 		}
 		if (Object.class.isAssignableFrom(targetType) && object instanceof String) {
 			String string = (String) object;
-			if (targetType != String.class && string.isEmpty()) {
-				return null;
-			}
 			if (targetType == Date.class) {
 				return toDate(string);
 			}
 			if (targetType == File.class) {
 				File file = (File) ConvertUtils.convert(string, File.class);
 				return JSFileUtils.translate(file);
+			}
+			if (targetType != String.class && string.isEmpty()) {
+				return null;
 			}
 		}
 		if (targetType == List.class && object.getClass().isArray()) {

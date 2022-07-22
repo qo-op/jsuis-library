@@ -12,7 +12,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Http Download task
  * 
- * var variable = Http.download(url, file);
+ * variable = Http.download(url, file);
  * 
  * Http.download(url, file);
  * 
@@ -21,7 +21,7 @@ import jsuis.script.visitor.JSTaskVisitor;
 public class JSHttpDownloadTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "Http.download")
-	@JSParameter(name = "variable", value = "file")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "url")
 	@JSParameter(name = "file")
 	private Map<String, Object> parameterMap;
@@ -37,7 +37,7 @@ public class JSHttpDownloadTask extends JSTask {
 		JSFileUtils.copyURLToFile(url, file);
 		
 		if (variable != null && !variable.isEmpty()) {
-			getBlock().var(variable, file);
+			getBlock().set(variable, file);
 		}
 	}
 

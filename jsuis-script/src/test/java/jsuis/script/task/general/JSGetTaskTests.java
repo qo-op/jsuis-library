@@ -15,7 +15,7 @@ class JSGetTaskTests {
 	@Test
 	void test() throws Exception {
 		JSBlock block = new JSBlock(Arrays.asList(
-				new JSDeclareTask().with(JSMap.toMap("variable", "x", "type", "List", "listValue", new ArrayList<>())), // let x = (List) [];
+				new JSLetTask().with(JSMap.toMap("variable", "x", "type", "List", "listValue", new ArrayList<>())), // let x = (List) [];
 				new JSAddTask().with(JSMap.toMap("list", "x", "type", "Integer", "value", "1")), // x.add((Integer) 1);
 				new JSAddTask().with(JSMap.toMap("list", "x", "type", "Integer", "value", "2")), // x.add((Integer) 2);
 				new JSAddTask().with(JSMap.toMap("list", "x", "type", "Integer", "value", "3")), // x.add((Integer) 3);

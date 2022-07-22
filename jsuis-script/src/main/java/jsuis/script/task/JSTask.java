@@ -109,11 +109,11 @@ public abstract class JSTask {
 		return (Boolean) get(key, Boolean.class);
 	}
 	
-	public Date getDate(String key, String format) throws IOException, ScriptException {
+	public Date getDate(String key) throws IOException, ScriptException {
 		return (Date) get(key, Date.class);
 	}
 	
-	public BigDecimal getDecimal(String key, String format) throws IOException, ScriptException {
+	public BigDecimal getDecimal(String key) throws IOException, ScriptException {
 		return (BigDecimal) get(key, BigDecimal.class);
 	}
 	

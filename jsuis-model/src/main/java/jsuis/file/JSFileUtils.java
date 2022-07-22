@@ -12,9 +12,11 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
@@ -54,6 +56,86 @@ public class JSFileUtils extends FileUtils {
 		Files.copy(source.toPath(), destination.toPath().resolve(fileName), copyOptionList.toArray(new CopyOption[0]));
 	}
 	
+	public static File translate(File file) {
+		if (file == null) {
+			return null;
+		}
+		if (!file.isAbsolute()) {
+			file = translate(file.toPath()).toFile();
+		}
+		return file;
+	}
+	
+	private static Path translate(Path path) {
+		if (path == null) {
+			return null;
+		}
+		if (path.startsWith(Paths.get("~"))) {
+			path = Paths.get(System.getProperty("user.home")).resolve(path.subpath(1, path.getNameCount()));
+		}
+		return path;
+	}
+
+	public static void unzip(File source, File destination, boolean overwrite, boolean preserve) throws IOException {
+		if (Files.notExists(source.toPath())) {
+			throw new NoSuchFileException(source.getAbsolutePath());
+		} else if (!Files.exists(source.toPath())) {
+			throw new AccessDeniedException(source.getAbsolutePath());
+		} else if (Files.isDirectory(source.toPath())) {
+			throw new FileNotFoundException(source.getAbsolutePath());
+		}
+		if (Files.exists(destination.toPath())) {
+			if (!Files.isDirectory(destination.toPath())) {
+				throw new NotDirectoryException(destination.getAbsolutePath());
+			} else if (!overwrite) {
+				throw new FileAlreadyExistsException(destination.getAbsolutePath());
+			}
+		} else {
+			Files.createDirectories(destination.toPath());
+		}
+		Path directory = destination.toPath();
+		if (preserve) {
+			try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(source.toPath()))) {
+				ZipEntry zipEntry = null;
+				while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+					String name = zipEntry.getName();
+					Path file = directory.resolve(name);
+					if (name.endsWith("/")) {
+						Files.createDirectories(file);
+					} else {
+						Files.createDirectories(file.getParent());
+						Files.copy(zipInputStream, file);
+						Files.setLastModifiedTime(file, FileTime.fromMillis(zipEntry.getTime()));
+					}
+				}
+			}
+			try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(source.toPath()))) {
+				ZipEntry zipEntry = null;
+				while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+					String name = zipEntry.getName();
+					if (name.endsWith("/")) {
+						Path file = directory.resolve(name);
+						Files.setLastModifiedTime(file, FileTime.fromMillis(zipEntry.getTime()));
+					}
+				}
+			}
+		} else {
+			try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(source.toPath()))) {
+				ZipEntry zipEntry = null;
+				while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+					String name = zipEntry.getName();
+					Path file = directory.resolve(name);
+					if (name.endsWith("/")) {
+						Files.createDirectories(file);
+					} else {
+						Files.createDirectories(file.getParent());
+						Files.copy(zipInputStream, file);
+					}
+				}
+			}
+		}
+	}
+	
 	public static void zip(File source, File destination, boolean overwrite, boolean preserve) throws IOException {
 		if (Files.notExists(source.toPath())) {
 			throw new NoSuchFileException(source.getAbsolutePath());
@@ -77,25 +159,5 @@ public class JSFileUtils extends FileUtils {
 	    	Files.copy(file, zipOutputStream);
 	    	zipOutputStream.closeEntry();
 		}
-	}
-	
-	public static File translate(File file) {
-		if (file == null) {
-			return null;
-		}
-		if (!file.isAbsolute()) {
-			file = translate(file.toPath()).toFile();
-		}
-		return file;
-	}
-	
-	private static Path translate(Path path) {
-		if (path == null) {
-			return null;
-		}
-		if (path.startsWith(Paths.get("~"))) {
-			path = Paths.get(System.getProperty("user.home")).resolve(path.subpath(1, path.getNameCount()));
-		}
-		return path;
 	}
 }

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -24,6 +25,10 @@ public class JSDirectoryUtils {
 		JSDirectoryCopyVisitor.copy(source, include, exclude, destination, overwrite, preserve);
 	}
 
+	public static void delete(File directory, String include, String exclude) throws IOException {
+		JSDirectoryDeleteVisitor.delete(directory, include, exclude);
+	}
+
 	public static List<File> list(File directory, String include) throws IOException {
 		return list(directory, include, null);
 	}
@@ -36,7 +41,7 @@ public class JSDirectoryUtils {
 		JSDirectoryZipVisitor.zip(source, include, exclude, destination, overwrite, preserve);
 	}
 	
-	public static void zip(File source, List<File> fileList, File destination, boolean overwrite, boolean preserve) throws IOException {
+	public static void zip(File source, List<String> nameList, File destination, boolean overwrite, boolean preserve) throws IOException {
 		if (Files.notExists(source.toPath())) {
 			throw new NoSuchFileException(source.getAbsolutePath());
 		} else if (!Files.exists(source.toPath())) {
@@ -53,8 +58,8 @@ public class JSDirectoryUtils {
 		}
 		Path directory = source.toPath();
 		try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(destination.toPath()))) {
-			for (File file : fileList) {
-				Path path = file.toPath();
+			for (String name : nameList) {
+				Path path = directory.resolve(Paths.get(name));
 				Path relative = directory.relativize(path);
 				if (Files.isDirectory(path)) {
 		        	ZipEntry zipEntry = new ZipEntry(relative.toString().replace(System.getProperty("file.separator"), "/") + "/");

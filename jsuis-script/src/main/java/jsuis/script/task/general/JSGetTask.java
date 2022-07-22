@@ -10,14 +10,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Get task
  * 
- * var variable = object.get(key);
+ * variable = object.get(key);
  * 
  * @author Yassuo Toda
  */
 public class JSGetTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "get")
-	@JSParameter(name = "variable", value = "value")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "object", value = "x")
 	@JSParameter(name = "key", value = "0")
 	private Map<String, Object> parameterMap;
@@ -44,7 +44,7 @@ public class JSGetTask extends JSTask {
 			throw new Exception(String.format("Object '%s' is neither a List, nor a Map, nor a String.", object));
 		}
 		
-		getBlock().var(variable, value);
+		getBlock().set(variable, value);
 	}
 
 	@Override

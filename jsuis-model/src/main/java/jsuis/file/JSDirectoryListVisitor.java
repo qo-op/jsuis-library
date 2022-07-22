@@ -53,9 +53,6 @@ public class JSDirectoryListVisitor extends SimpleFileVisitor<Path> {
 	
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		if (dir.equals(directory)) {
-	        return FileVisitResult.CONTINUE;
-		}
 		Path relative = directory.relativize(dir);
         if (directoryIncludePatchMatcher.matches(relative) && (directoryExcludePatchMatcher == null || !directoryExcludePatchMatcher.matches(relative))) {
         	list.add(dir.toFile());

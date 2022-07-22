@@ -13,14 +13,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Length task
  * 
- * var variable = object.length;
+ * variable = object.length;
  * 
  * @author Yassuo Toda
  */
 public class JSLengthTask extends JSTask {
 	
 	@JSParameter(name = "name", value = "length")
-	@JSParameter(name = "variable", value = "length")
+	@JSParameter(name = "variable")
 	@JSParameter(name = "object", value = "x")
 	private Map<String, Object> parameterMap;
 	
@@ -50,7 +50,7 @@ public class JSLengthTask extends JSTask {
 			throw new Exception(String.format("Object '%s' is neither a List, nor a Map, nor a String, nor a File.", object));
 		}
 		
-		getBlock().var(variable, length);
+		getBlock().set(variable, length);
 	}
 
 	@Override

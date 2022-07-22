@@ -24,7 +24,7 @@ public class JSCallTaskTests {
 								new JSReturnTask().with(JSMap.toMap(
 										"type", "Integer", "value", "x + 1")) // return (Integer) x + 1;
 								))), // }
-				new JSDeclareTask().with(JSMap.toMap(
+				new JSLetTask().with(JSMap.toMap(
 						"variable", "y",
 						"type", "Integer",
 						"value", "0")), // let y = (Integer) 0;
