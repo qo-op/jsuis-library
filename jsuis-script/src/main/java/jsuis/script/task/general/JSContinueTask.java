@@ -16,7 +16,7 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSContinueTask extends JSTerminalTask {
 	
-	@JSParameter(name = "name", value = "continue")
+	@JSParameter
 	private Map<String, Object> parameterMap;
 	
 	@Override

@@ -21,18 +21,20 @@ public class JSProperties extends Properties {
 	
 	public JSProperties(Path path) throws IOException {
 		this.path = path;
-		if (Files.exists(path)) {
-			try (Reader reader = Files.newBufferedReader(path, StandardCharsets.ISO_8859_1)) {
-				load(reader);
-			}
-		} else {
-			Files.createFile(path);
-		}
+		load();
 	}
 	
 	public JSProperties set(String key, String value) {
 		setProperty(key, value);
 		return this;
+	}
+	
+	public void load() throws IOException {
+		if (Files.exists(path)) {
+			try (Reader reader = Files.newBufferedReader(path, StandardCharsets.ISO_8859_1)) {
+				load(reader);
+			}
+		}
 	}
 	
 	public void store() throws IOException {

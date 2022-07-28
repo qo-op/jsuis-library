@@ -18,7 +18,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSForEachTask extends JSLoopTask {
 	
-	@JSParameter(name = "name", value = "for")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "iterable")
 	private Map<String, Object> parameterMap;

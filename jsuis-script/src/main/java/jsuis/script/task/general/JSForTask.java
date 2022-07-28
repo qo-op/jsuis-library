@@ -18,20 +18,19 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSForTask extends JSLoopTask {
 	
-	@JSParameter(name = "name", value = "for")
-	@JSParameter(name = "counter", value = "i")
-	@JSParameter(name = "start", value = "1")
-	@JSParameter(name = "end", value = "1")
-	@JSParameter(name = "step", value = "1")
+	@JSParameter(name = "counter")
+	@JSParameter(name = "start")
+	@JSParameter(name = "end")
+	@JSParameter(name = "step")
 	private Map<String, Object> parameterMap;
 	
 	@Override
 	public void execute() throws Exception {
 		
-		String counter = getString("counter");
-		int start = getInteger("start");
-		int end = getInteger("end");
-		int step = getInteger("step");
+		String counter = nvl(getString("counter"), "i");
+		int start = nvl(getInteger("start"), 1);
+		int end = nvl(getInteger("end"), 1);
+		int step = nvl(getInteger("step"), 1);
 		
 		JSLoopBlock loopBlock = getLoopBlock();
 		for (int i = start; i <= end; i+= step) {

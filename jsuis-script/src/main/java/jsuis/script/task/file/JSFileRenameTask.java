@@ -21,11 +21,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileRenameTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.rename")
 	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
 	@JSParameter(name = "fileName") 
-	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
+	@JSParameter(type = Boolean.class, name = "overwrite")
 	private Map<String, Object> parameterMap;
 
 	@Override
@@ -34,7 +33,7 @@ public class JSFileRenameTask extends JSTask {
 		String variable = getString("variable");
 		File file = getFile("file");
 		String fileName = getString("fileName");
-		boolean overwrite = getBoolean("overwrite");
+		Boolean overwrite = nvl(getBoolean("overwrite"), false);
 		
 		Path source = file.toPath();
 		Path target = source.resolveSibling(fileName);

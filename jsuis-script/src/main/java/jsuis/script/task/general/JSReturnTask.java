@@ -4,24 +4,25 @@ import java.util.Map;
 
 import jsuis.lang.JSReturnException;
 import jsuis.script.annotation.JSParameter;
+import jsuis.script.task.JSTask;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Return task
  * 
- * return (type) value;
+ * return new type(value);
  * 
  * @author Yassuo Toda
  */
-public class JSReturnTask extends JSAbstractSetTask {
+public class JSReturnTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "return")
+	@JSParameter(name = "value")
 	private Map<String, Object> parameterMap;
 
 	@Override
 	public void execute() throws Exception {
 		
-		Object value = getValue();
+		Object value = getObject("value");
 		
 		throw new JSReturnException(value);
 	}

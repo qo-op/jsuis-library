@@ -1,5 +1,7 @@
 package jsuis.util;
 
+import java.awt.Image;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
@@ -7,8 +9,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 
 /**
  * Internationalization
@@ -31,29 +32,35 @@ public class JSI18n {
 				resourceBundle = ResourceBundle.getBundle(name, Locale.getDefault());
 				resourceBundleMap.put(name, resourceBundle);
 			} catch (MissingResourceException e) {
-				System.err.println(e.getLocalizedMessage());
+			}
+			if (resourceBundle == null) {
+				try {
+					resourceBundle = ResourceBundle.getBundle(name, Locale.US);
+					resourceBundleMap.put(name, resourceBundle);
+				} catch (MissingResourceException e) {
+					System.out.println("Missing resource bundle: " + c.getName() + " for key: " + key);
+				}
 			}
 		}
 		if (resourceBundle != null) {
 			try {
-				String string = resourceBundle.getString(key);
-				return string != null ? string : defaultValue;
+				return NVL.nvl(resourceBundle.getString(key), defaultValue);
 			} catch (MissingResourceException e) {
-				System.err.println(name + "/" + e.getLocalizedMessage());
+				System.out.println("Missing resource: " + c.getName() + "/key: " + key);
 			}
 		}
 		return defaultValue;
 	}
 	
-	public static Icon getIcon(Class<?> c, String key) {
-		Icon icon = getIcon(c, key, null);
-		if (icon == null) {
-			System.err.println("Missing resource: " + c.getPackage().getName() + "/" + key);
+	public static Image getImage(Class<?> c, String key) {
+		Image image = getImage(c, key, null);
+		if (image == null) {
+			System.out.println("Missing resource: " + c.getPackage().getName() + "/" + key);
 		}
-		return icon;
+		return image;
 	}
 	
-	public static Icon getIcon(Class<?> c, String key, Icon defaultIcon) {
+	public static Image getImage(Class<?> c, String key, Image defaultImage) {
 		String localizedKey;
 		int index = key.lastIndexOf(".");
 		if (index == -1) {
@@ -61,40 +68,49 @@ public class JSI18n {
 		} else {
 			localizedKey = key.substring(0, index) + "_" + Locale.getDefault() + key.substring(index);
 		}
-		Map<Class<?>, Map<String, Icon>> iconMaps = getIconMaps();
-		Map<String, Icon> iconMap = iconMaps.get(c);
-		if (iconMap == null) {
-			iconMap = new HashMap<String, Icon>();
+		Map<Class<?>, Map<String, Image>> imageMaps = getImageMaps();
+		Map<String, Image> imageMap = imageMaps.get(c);
+		if (imageMap == null) {
+			imageMap = new HashMap<>();
+			imageMaps.put(c, imageMap);
 		}
-		Icon icon = iconMap.get(localizedKey);
-		if (icon != null) {
-			return icon;
+		Image image = imageMap.get(localizedKey);
+		if (image != null) {
+			return image;
 		}
 		URL url = c.getResource(localizedKey);
 		if (url != null) {
-			icon = new ImageIcon(url);
-			iconMap.put(localizedKey, icon);
-			return icon;
+			try {
+				image = ImageIO.read(url);
+				imageMap.put(localizedKey, image);
+				return image;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		icon = iconMap.get(key);
-		if (icon != null) {
-			return icon;
+		image = imageMap.get(key);
+		if (image != null) {
+			return image;
 		}
 		url = c.getResource(key);
 		if (url != null) {
-			icon = new ImageIcon(url);
-			iconMap.put(key, icon);
-			return icon;
+			try {
+				image = ImageIO.read(url);
+				imageMap.put(key, image);
+				return image;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		return defaultIcon;
+		return defaultImage;
 	}
 	
-	private static Map<Class<?>, Map<String, Icon>> iconMaps;
+	private static Map<Class<?>, Map<String, Image>> imageMaps;
 	
-	public static Map<Class<?>, Map<String, Icon>> getIconMaps() {
-		if (iconMaps == null) {
-			iconMaps = new HashMap<Class<?>, Map<String, Icon>>();
+	public static Map<Class<?>, Map<String, Image>> getImageMaps() {
+		if (imageMaps == null) {
+			imageMaps = new HashMap<>();
 		}
-		return iconMaps;
+		return imageMaps;
 	}
 }

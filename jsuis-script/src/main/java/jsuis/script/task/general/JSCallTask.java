@@ -2,7 +2,6 @@ package jsuis.script.task.general;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -32,12 +31,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSCallTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "call")
 	@JSParameter(name = "variable")
-	@JSParameter(name = "callee", value = "f")
+	@JSParameter(name = "callee")
 	@JSParameter(type = Map.class, name = "arguments")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "argument")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
 	private Map<String, Object> parameterMap;
 	
 	@Override
@@ -45,7 +41,7 @@ public class JSCallTask extends JSTask {
 		
 		String variable = getString("variable");
 		String callee = getString("callee");
-		Map<String, Object> argumentMap = getMap("arguments", String.class, "argument", "value");
+		Map<String, Object> argumentMap = getMap("arguments");
 		
 		JSBlock block = getBlock();
 		JSFunctionTask functionTask = (JSFunctionTask) block.get(callee + "()");

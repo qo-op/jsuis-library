@@ -1,6 +1,5 @@
 package jsuis.maven.plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,13 +25,9 @@ public class ProcessTask extends JSProcessTask {
 	}
     
     @Parameter
-    private List<Row> variables;
+    private Map<String, Object> environment;
     
-    public void setVariables(List<Row> variables) {
-		List<List<Object>> map = new ArrayList<>();
-		for (Row row : variables) {
-			map.add(row.getCellList());
-		}
-		getParameterMap().put("variables", map);
+    public void setEnvironment(Map<String, Object> environment) {
+		getParameterMap().put("environment", environment);
 	}
 }

@@ -26,11 +26,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileUnzipTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.unzip")
 	@JSParameter(type = File.class, name = "source")
 	@JSParameter(type = File.class, name = "destination")
-	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
-	@JSParameter(type = Boolean.class, name = "preserve", value = "false")
+	@JSParameter(type = Boolean.class, name = "overwrite")
+	@JSParameter(type = Boolean.class, name = "preserve")
 	private Map<String, Object> parameterMap;
 
 	@Override
@@ -43,8 +42,8 @@ public class JSFileUnzipTask extends JSTask {
 			String fileName = path.getFileName().toString();
 			destination = path.getParent().resolve(FilenameUtils.removeExtension(fileName)).toFile();
 		}
-		boolean overwrite = getBoolean("overwrite");
-		boolean preserve = getBoolean("preserve");
+		Boolean overwrite = nvl(getBoolean("overwrite"), false);
+		Boolean preserve = nvl(getBoolean("preserve"), false);
 		
 		JSFileUtils.unzip(source, destination, overwrite, preserve);
 	}

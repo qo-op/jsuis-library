@@ -37,15 +37,14 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSDirectoryZipTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Directory.zip")
 	@JSParameter(type = File.class, name = "source")
 	@JSParameter(type = File.class, parent = "source")
-	@JSParameter(name = "include", value = "*")
+	@JSParameter(name = "include")
 	@JSParameter(name = "exclude")
 	@JSParameter(name = "nameList")
 	@JSParameter(type = File.class, name = "destination")
-	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
-	@JSParameter(type = Boolean.class, name = "preserve", value = "true")
+	@JSParameter(type = Boolean.class, name = "overwrite")
+	@JSParameter(type = Boolean.class, name = "preserve")
 	private Map<String, Object> parameterMap;
 
 	@SuppressWarnings("unchecked")
@@ -53,7 +52,7 @@ public class JSDirectoryZipTask extends JSTask {
 	public void execute() throws Exception {
 		
 		File source = getFile("source");
-		String include = getString("include");
+		String include = nvl(getString("include"), "*");
 		String exclude = getString("exclude");
 		List<String> nameList = (List<String>) get("nameList", List.class);
 		File destination = getFile("destination");
@@ -62,8 +61,8 @@ public class JSDirectoryZipTask extends JSTask {
 			String fileName = path.getFileName().toString();
 			destination = path.getParent().resolve(fileName + ".zip").toFile();
 		}
-		boolean overwrite = getBoolean("overwrite");
-		boolean preserve = getBoolean("preserve");
+		boolean overwrite = nvl(getBoolean("overwrite"), false);
+		boolean preserve = nvl(getBoolean("preserve"), false);
 		
 		if (nameList != null && !nameList.isEmpty()) {
 			JSDirectoryUtils.zip(source, nameList, destination, overwrite, preserve);

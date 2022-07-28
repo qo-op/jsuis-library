@@ -8,14 +8,11 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Function task
  * 
- * function function([ [ "type", "name", ... ], [ type, name, ... ], ... ]) { ... }
- * 
  * @author Yassuo Toda
  */
 public class JSFunctionTask extends JSAbstractFunctionTask {
 	
-	@JSParameter(name = "name", value = "function")
-	@JSParameter(name = "function", value = "f")
+	@JSParameter(required = true, name = "function")
 	private Map<String, Object> parameterMap;
 	
 	@Override

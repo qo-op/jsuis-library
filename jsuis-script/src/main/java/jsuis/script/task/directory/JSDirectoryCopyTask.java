@@ -11,42 +11,27 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Directory copy task
  * 
- * Directory.copy(source, destination)
- * Directory.copy(source, destination, overwrite)
- * Directory.copy(source, destination, overwrite, preserve)
- * 
- * Directory.copy(source, include, destination)
- * Directory.copy(source, include, destination, overwrite)
- * Directory.copy(source, include, destination, overwrite, preserve)
- * 
- * Directory.copy(source, include, exclude, destination)
- * Directory.copy(source, include, exclude, destination, overwrite)
- * Directory.copy(source, include, exclude, destination, overwrite, preserve)
- * 
  * @author Yassuo Toda
  */
 public class JSDirectoryCopyTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Directory.copy")
-	@JSParameter(type = File.class, name = "source")
-	@JSParameter(type = File.class, parent = "source")
-	@JSParameter(name = "include", value = "*")
+	@JSParameter(type = File.class, name = "source", component = "Directory")
+	@JSParameter(name = "include")
 	@JSParameter(name = "exclude")
-	@JSParameter(type = File.class, name = "destination")
-	@JSParameter(type = File.class, parent = "destination")
-	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
-	@JSParameter(type = Boolean.class, name = "preserve", value = "false")
+	@JSParameter(type = File.class, name = "destination", component = "Directory")
+	@JSParameter(type = Boolean.class, name = "overwrite")
+	@JSParameter(type = Boolean.class, name = "preserve")
 	private Map<String, Object> parameterMap;
 
 	@Override
 	public void execute() throws Exception {
 		
 		File source = getFile("source");
-		String include = getString("include");
+		String include = nvl(getString("include"), "*");
 		String exclude = getString("exclude");
 		File destination = getFile("destination");
-		boolean overwrite = getBoolean("overwrite");
-		boolean preserve = getBoolean("preserve");
+		boolean overwrite = nvl(getBoolean("overwrite"), false);
+		boolean preserve = nvl(getBoolean("preserve"), false);
 		
 		JSDirectoryUtils.copy(source, include, exclude, destination, overwrite, preserve);
 	}

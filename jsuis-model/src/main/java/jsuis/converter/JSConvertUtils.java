@@ -1,6 +1,5 @@
 package jsuis.converter;
 
-import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,8 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
-
-import jsuis.file.JSFileUtils;
 
 /**
  * Convert utils
@@ -30,10 +27,6 @@ public class JSConvertUtils {
 			String string = (String) object;
 			if (targetType == Date.class) {
 				return toDate(string);
-			}
-			if (targetType == File.class) {
-				File file = (File) ConvertUtils.convert(string, File.class);
-				return JSFileUtils.translate(file);
 			}
 			if (targetType != String.class && string.isEmpty()) {
 				return null;

@@ -3,21 +3,19 @@ package jsuis.script.task.text;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
+import jsuis.script.executor.JSTextToLowerCase;
 import jsuis.script.task.JSTask;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Text to lower case task
  * 
- * variable = Text.toLowerCase(text)
- * 
  * @author Yassuo Toda
  */
 public class JSTextToLowerCaseTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Text.toLowerCase")
-	@JSParameter(name = "variable")
-	@JSParameter(name = "text")
+	@JSParameter(required = true, name = "variable")
+	@JSParameter(required = true, name = "text")
 	private Map<String, Object> parameterMap;
 
 	@Override
@@ -26,9 +24,11 @@ public class JSTextToLowerCaseTask extends JSTask {
 		String variable = getString("variable");
 		String text = getString("text");
 		
-		text = text.toLowerCase();
+		String result = new JSTextToLowerCase()
+				.text(text)
+				.execute();
 		
-		getBlock().set(variable, text);
+		getBlock().set(variable, result);
 	}
 
 	@Override

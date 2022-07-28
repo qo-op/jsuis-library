@@ -17,7 +17,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSDirectoryCreateTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Directory.create")
 	@JSParameter(type = File.class, name = "directory")
 	@JSParameter(type = File.class, parent = "directory")
 	private Map<String, Object> parameterMap;

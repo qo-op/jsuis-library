@@ -4,20 +4,21 @@ import java.util.List;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
+import jsuis.script.task.JSTask;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Add task
  * 
- * list.add((type) value);
- * list.add((type) value, index);
+ * list.add(value);
+ * list.add(value, index);
  * 
  * @author Yassuo Toda
  */
-public class JSAddTask extends JSAbstractSetTask {
+public class JSAddTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "add")
-	@JSParameter(name = "list", value = "list")
+	@JSParameter(name = "list")
+	@JSParameter(name = "value")
 	@JSParameter(name = "index")
 	private Map<String, Object> parameterMap;
 	
@@ -30,7 +31,7 @@ public class JSAddTask extends JSAbstractSetTask {
 			throw new Exception(String.format("Object '%s' is not a List", object));
 		}
 		List<Object> list = (List<Object>) object;
-		Object value = getValue();
+		Object value = getObject("value");
 		Integer index = getInteger("index");
 		
 		if (index == null) {

@@ -19,10 +19,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSDirectoryDeleteTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Directory.delete")
 	@JSParameter(type = File.class, name = "directory")
 	@JSParameter(type = File.class, parent = "directory")
-	@JSParameter(name = "include", value = "*")
+	@JSParameter(name = "include")
 	@JSParameter(name = "exclude")
 	private Map<String, Object> parameterMap;
 
@@ -30,7 +29,7 @@ public class JSDirectoryDeleteTask extends JSTask {
 	public void execute() throws Exception {
 		
 		File directory = getFile("directory");
-		String include = getString("include");
+		String include = nvl(getString("include"), "*");
 		String exclude = getString("exclude");
 		
 		JSDirectoryUtils.delete(directory, include, exclude);

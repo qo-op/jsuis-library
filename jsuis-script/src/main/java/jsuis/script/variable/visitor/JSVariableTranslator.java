@@ -3,12 +3,14 @@ package jsuis.script.variable.visitor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import jsuis.interpreter.parser.expression.JSExpression;
 import jsuis.interpreter.parser.statement.JSStatement;
 import jsuis.interpreter.scanner.JSToken;
-import jsuis.script.block.JSBlock;
+import jsuis.script.engine.JSScriptEngine;
 import jsuis.script.variable.parser.JSVariableExpression;
 import jsuis.script.variable.parser.JSVariableParser;
 import jsuis.script.variable.parser.JSVariableStatement;
@@ -26,10 +28,10 @@ import jsuis.script.variable.scanner.JSVariableScanner;
  */
 public class JSVariableTranslator implements JSVariableVisitor<Object> {
 
-	private JSBlock block;
+	private Bindings bindings;
 	
-	public JSVariableTranslator(JSBlock block) {
-		this.block = block;
+	public JSVariableTranslator(Bindings bindings) {
+		this.bindings = bindings;
 	}
 	
 	public Object translate(String value) throws ScriptException {
@@ -118,8 +120,8 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 			}
 		}
 		String key = text.toString();
-		if (block.contains(key)) {
-			return block.get(key);
+		if (bindings.containsKey(key)) {
+			return bindings.get(key);
 		} else {
 			return "${" + key + "}";
 		}
@@ -136,7 +138,8 @@ public class JSVariableTranslator implements JSVariableVisitor<Object> {
 			}
 		}
 		try {
-			return block.eval(text.toString());
+			ScriptEngine scriptEngine = JSScriptEngine.getInstance();
+			return scriptEngine.eval(text.toString(), bindings);
 		} catch (ScriptException e) {
 			return null;
 		}

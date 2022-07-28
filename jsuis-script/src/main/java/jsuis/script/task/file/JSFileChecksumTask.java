@@ -20,12 +20,11 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileChecksumTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.checksum")
 	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
-	@JSParameter(name = "algorithm", value = "MD5")
-	@JSParameter(type = Void.class, name = "MD5", value = "MD5")
-	@JSParameter(type = Void.class, name = "SHA-1", value = "SHA-1")
+	@JSParameter(name = "algorithm", component = "Combo")
+	@JSParameter(type = String.class, label = "MD5")
+	@JSParameter(type = String.class, label = "SHA-1")
 	private Map<String, Object> parameterMap;
 
 	@Override

@@ -20,11 +20,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSDirectoryListTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Directory.list")
 	@JSParameter(name = "variable")
-	@JSParameter(type = File.class, name = "directory", value = ".\\")
-	@JSParameter(type = File.class, parent = "directory")
-	@JSParameter(name = "include", value = "*")
+	@JSParameter(type = File.class, name = "directory")
+	@JSParameter(name = "include")
 	@JSParameter(name = "exclude")
 	private Map<String, Object> parameterMap;
 
@@ -32,8 +30,8 @@ public class JSDirectoryListTask extends JSTask {
 	public void execute() throws Exception {
 		
 		String variable = getString("variable");
-		File directory = getFile("directory");
-		String include = getString("include");
+		File directory = nvl(getFile("directory"), new File(".\\"));
+		String include = nvl(getString("include"), "*");
 		String exclude = getString("exclude");
 		
 		List<File> fileList = JSDirectoryUtils.list(directory, include, exclude);

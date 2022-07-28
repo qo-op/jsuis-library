@@ -13,6 +13,10 @@
       <groupId>jsuis-library</groupId>
       <artifactId>jsuis-gui</artifactId>
     </dependency>
+    <dependency>
+      <groupId>jsuis-library</groupId>
+      <artifactId>jsuis-script</artifactId>
+    </dependency>
 
   </dependencies>
   

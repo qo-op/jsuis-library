@@ -16,12 +16,11 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSTextReplaceTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Text.replace")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "text")
 	@JSParameter(name = "target")
 	@JSParameter(name = "replacement")
-	@JSParameter(type = Boolean.class, name = "regex", value = "false")
+	@JSParameter(type = Boolean.class, name = "regex")
 	private Map<String, Object> parameterMap;
 
 	@Override
@@ -31,7 +30,7 @@ public class JSTextReplaceTask extends JSTask {
 		String text = getString("text");
 		String target = getString("target");
 		String replacement = nvl(getString("replacement"), "");
-		boolean regex = getBoolean("regex");
+		Boolean regex = nvl(getBoolean("regex"), false);
 		
 		if (regex) {
 			text = text.replaceAll(target, replacement);

@@ -20,11 +20,10 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileWriteTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.write")
 	@JSParameter(name = "text")
 	@JSParameter(type = File.class, name = "file")
 	@JSParameter(name = "charset")
-	@JSParameter(type = Boolean.class, name = "append", value = "false")
+	@JSParameter(type = Boolean.class, name = "append")
 	
 	private Map<String, Object> parameterMap;
 
@@ -34,7 +33,7 @@ public class JSFileWriteTask extends JSTask {
 		String text = getString("text");
 		File file = getFile("file");
 		String charset = getString("charset");
-		boolean append = getBoolean("append");
+		Boolean append = nvl(getBoolean("append"), false);
 		
 		if (!append) {
 			if (charset != null && !charset.isEmpty()) {

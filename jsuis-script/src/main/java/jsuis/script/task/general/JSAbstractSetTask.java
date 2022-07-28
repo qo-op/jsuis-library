@@ -16,66 +16,63 @@ import jsuis.script.task.JSTask;
  */
 public abstract class JSAbstractSetTask extends JSTask {
 	
-	@JSParameter(name = "type", value = "String")
+	@JSParameter(name = "type", component = "Combo")
 	
-	@JSParameter(type = Void.class, parent = "type", name = "stringType", value = "String")
-	@JSParameter(type = Void.class, parent = "type", name = "booleanType", value = "Boolean")
-	@JSParameter(type = Void.class, parent = "type", name = "dateType", value = "Date")
-	@JSParameter(type = Void.class, parent = "type", name = "decimalType", value = "Decimal")
-	@JSParameter(type = Void.class, parent = "type", name = "doubleType", value = "Double")
-	@JSParameter(type = Void.class, parent = "type", name = "fileType", value = "File")
-	@JSParameter(type = Void.class, parent = "type", name = "imageType", value = "Image")
-	@JSParameter(type = Void.class, parent = "type", name = "integerType", value = "Integer")
-	@JSParameter(type = Void.class, parent = "type", name = "objectType", value = "Object")
+	@JSParameter(type = String.class, parent = "type", label = "String")
+	@JSParameter(type = String.class, parent = "type", label = "Boolean")
+	@JSParameter(type = String.class, parent = "type", label = "Date")
+	@JSParameter(type = String.class, parent = "type", label = "Decimal")
+	@JSParameter(type = String.class, parent = "type", label = "Double")
+	@JSParameter(type = String.class, parent = "type", label = "File")
+	@JSParameter(type = String.class, parent = "type", label = "Image")
+	@JSParameter(type = String.class, parent = "type", label = "Integer")
+	@JSParameter(type = String.class, parent = "type", label = "Object")
 
-	@JSParameter(type = Void.class, parent = "type", name = "stringListType", value = "StringList")
-	@JSParameter(type = Void.class, parent = "type", name = "booleanListType", value = "BooleanList")
-	@JSParameter(type = Void.class, parent = "type", name = "dateListType", value = "DateList")
-	@JSParameter(type = Void.class, parent = "type", name = "decimalListType", value = "DecimalList")
-	@JSParameter(type = Void.class, parent = "type", name = "doubleListType", value = "DoubleList")
-	@JSParameter(type = Void.class, parent = "type", name = "fileListType", value = "FileList")
-	@JSParameter(type = Void.class, parent = "type", name = "imageListType", value = "ImageList")
-	@JSParameter(type = Void.class, parent = "type", name = "integerListType", value = "IntegerList")
-	@JSParameter(type = Void.class, parent = "type", name = "objectListType", value = "ObjectList")
+	@JSParameter(type = String.class, parent = "type", label = "StringList")
+	@JSParameter(type = String.class, parent = "type", label = "BooleanList")
+	@JSParameter(type = String.class, parent = "type", label = "DateList")
+	@JSParameter(type = String.class, parent = "type", label = "DecimalList")
+	@JSParameter(type = String.class, parent = "type", label = "DoubleList")
+	@JSParameter(type = String.class, parent = "type", label = "FileList")
+	@JSParameter(type = String.class, parent = "type", label = "ImageList")
+	@JSParameter(type = String.class, parent = "type", label = "IntegerList")
+	@JSParameter(type = String.class, parent = "type", label = "ObjectList")
 	
-	@JSParameter(type = Void.class, parent = "type", name = "stringMapType", value = "StringMap")
-	@JSParameter(type = Void.class, parent = "type", name = "booleanMapType", value = "BooleanMap")
-	@JSParameter(type = Void.class, parent = "type", name = "dateMapType", value = "DateMap")
-	@JSParameter(type = Void.class, parent = "type", name = "decimalMapType", value = "DecimalMap")
-	@JSParameter(type = Void.class, parent = "type", name = "doubleMapType", value = "DoubleMap")
-	@JSParameter(type = Void.class, parent = "type", name = "fileMapType", value = "FileMap")
-	@JSParameter(type = Void.class, parent = "type", name = "imageMapType", value = "ImageMap")
-	@JSParameter(type = Void.class, parent = "type", name = "integerMapType", value = "IntegerMap")
-	@JSParameter(type = Void.class, parent = "type", name = "objectMapType", value = "ObjectMap")
+	@JSParameter(type = String.class, parent = "type", label = "StringMap")
+	@JSParameter(type = String.class, parent = "type", label = "BooleanMap")
+	@JSParameter(type = String.class, parent = "type", label = "DateMap")
+	@JSParameter(type = String.class, parent = "type", label = "DecimalMap")
+	@JSParameter(type = String.class, parent = "type", label = "DoubleMap")
+	@JSParameter(type = String.class, parent = "type", label = "FileMap")
+	@JSParameter(type = String.class, parent = "type", label = "ImageMap")
+	@JSParameter(type = String.class, parent = "type", label = "IntegerMap")
+	@JSParameter(type = String.class, parent = "type", label = "ObjectMap")
 	
-	@JSParameter(type = Void.class, parent = "type", name = "tableType", value = "Table")
+	@JSParameter(type = String.class, parent = "type", label = "Table")
 	
 	@JSParameter(name = "value", parent = "stringType, booleanType, dateType, decimalType, doubleType, fileType, imageType, integerType, objectType")
 	
 	@JSParameter(type = List.class, name = "listValue", parent = "stringListType, booleanListType, dateListType, decimalListType, doubleListType, fileListType, imageListType, integerListType, objectListType")
-	@JSParameter(type = List.class, parent = "listValue", name = "elementValue")
 	
 	@JSParameter(type = Map.class, name = "mapValue", parent = "stringMapType, booleanMapType, dateMapType, decimalMapType, doubleMapType, fileMapType, imageMapType, integerMapType, objectMapType")
-	@JSParameter(type = List.class, parent = "mapValue", name = "entryKey", value = "key")
-	@JSParameter(type = List.class, parent = "mapValue", name = "entryValue", value = "value")
 	
 	@JSParameter(type = List.class, name = "tableValue", parent = "tableType")
-	@JSParameter(type = List.class, parent = "tableValue", name = "a", value = "a")
-	@JSParameter(type = List.class, parent = "tableValue", name = "b", value = "b")
-	@JSParameter(type = List.class, parent = "tableValue", name = "c", value = "c")
-	@JSParameter(type = List.class, parent = "tableValue", name = "d", value = "d")
-	@JSParameter(type = List.class, parent = "tableValue", name = "e", value = "e")
+	@JSParameter(type = List.class, parent = "tableValue", name = "a", label = "a")
+	@JSParameter(type = List.class, parent = "tableValue", name = "b", label = "b")
+	@JSParameter(type = List.class, parent = "tableValue", name = "c", label = "c")
+	@JSParameter(type = List.class, parent = "tableValue", name = "d", label = "d")
+	@JSParameter(type = List.class, parent = "tableValue", name = "e", label = "e")
 	private Map<String, Object> parameterMap;
 	
 	public Object getValue() throws IOException, ScriptException {
 		Object value;
-		String type = getString("type");
+		String type = nvl(getString("type"), "String");
 		if (type.endsWith("List")) {
 			Class<?> elementType = getType(type.substring(0, type.length() - 4));
 			value = getList("listValue", elementType);
 		} else if (type.endsWith("Map")) {
 			Class<?> entryType = getType(type.substring(0, type.length() - 3));
-			value = getMap("mapValue", entryType, "key", "value");
+			value = getMap("mapValue", entryType);
 		} else if (type.equals("Table")) {
 			value = getTable("tableValue");
 		} else {

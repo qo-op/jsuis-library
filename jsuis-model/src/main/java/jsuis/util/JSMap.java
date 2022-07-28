@@ -14,4 +14,9 @@ public class JSMap<K, V> extends LinkedHashMap<K, V> {
 		}
 		return map;
 	}
+	
+	public JSMap<K, V> set(K key, V value) {
+		super.put(key, value);
+		return this;
+	}
 }

@@ -20,13 +20,12 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileCopyTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.copy")
 	@JSParameter(type = File.class, name = "source")
 	@JSParameter(type = File.class, name = "destination")
 	@JSParameter(type = File.class, parent = "destination")
 	@JSParameter(name = "fileName") 
-	@JSParameter(type = Boolean.class, name = "overwrite", value = "false")
-	@JSParameter(type = Boolean.class, name = "preserve", value = "false")
+	@JSParameter(type = Boolean.class, name = "overwrite")
+	@JSParameter(type = Boolean.class, name = "preserve")
 	private Map<String, Object> parameterMap;
 
 	@Override
@@ -35,8 +34,8 @@ public class JSFileCopyTask extends JSTask {
 		File source = getFile("source");
 		File destination = getFile("destination");
 		String fileName = getString("fileName");
-		boolean overwrite = getBoolean("overwrite");
-		boolean preserve = getBoolean("preserve");
+		Boolean overwrite = nvl(getBoolean("overwrite"), false);
+		Boolean preserve = nvl(getBoolean("preserve"), false);
 		
 		JSFileUtils.copy(source, destination, fileName, overwrite, preserve);
 	}

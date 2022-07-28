@@ -15,7 +15,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSTextToUpperCaseTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Text.toUpperCase")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "text")
 	private Map<String, Object> parameterMap;

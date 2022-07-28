@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import jsuis.converter.JSConvertUtils;
 import jsuis.script.annotation.JSParameter;
 import jsuis.script.annotation.JSParameters;
 
@@ -49,7 +50,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						map.put(parameterAnnotationName, JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
+						map.put(parameterAnnotationName, JSConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
 					}
 					setParameterValue(object, field, map);
 				} else if (fieldType == List.class) {
@@ -61,7 +62,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						list.add(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
+						list.add(JSConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()));
 					}
 					setParameterValue(object, field, list);
 				} else {
@@ -72,7 +73,7 @@ public class JSScriptParameterAnnotationUtils {
 						if (!isVariable(parameterAnnotation, parameterAnnotationMap)) {
 							continue;
 						}
-						setParameterValue(object, field, JSScriptConvertUtils.convert(JSScriptConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()), fieldType));
+						setParameterValue(object, field, JSConvertUtils.convert(JSConvertUtils.convert(parameterAnnotation.value(), parameterAnnotation.type()), fieldType));
 					}
 				}
 			}

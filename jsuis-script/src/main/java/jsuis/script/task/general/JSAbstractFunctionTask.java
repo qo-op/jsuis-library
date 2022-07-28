@@ -16,22 +16,41 @@ import jsuis.script.task.JSTask;
  */
 public abstract class JSAbstractFunctionTask extends JSTask {
 	
-	@JSParameter(type = List.class, name = "arguments")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentType", value = "type")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentStringType", value = "String")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentBooleanType", value = "Boolean")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDateType", value = "Date")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDecimalType", value = "Decimal")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentDoubleType", value = "Double")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentFileType", value = "File")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentImageType", value = "Image")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentIntegerType", value = "Integer")
-	@JSParameter(type = Void.class, parent = "argumentType", name = "argumentObjectType", value = "Object")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "name")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentParent", value = "parent")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentLabel", value = "label")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentDescription", value = "description")
+	@JSParameter(required = true, type = List.class, name = "arguments", component = "Table")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentType", label = "Type", component = "Combo")
+	@JSParameter(type = String.class, parent = "argumentType", label = "String")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Boolean")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Date")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Decimal")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Double")
+	@JSParameter(type = String.class, parent = "argumentType", label = "File")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Image")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Integer")
+	@JSParameter(type = String.class, parent = "argumentType", label = "Object")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentParent", label = "Parent")
+	@JSParameter(required = true, type = List.class, parent = "arguments", name = "argumentName", label = "Name")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentRequired", label = "Required")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", label = "Value")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentLabel", label = "Label")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentDescription", label = "Description")
+	@JSParameter(type = List.class, parent = "arguments", name = "argumentComponent", label = "Component", component = "Combo")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Button")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Check")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Combo")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Field")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Image")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Label")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Menu")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Panel")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Password")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Progress")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Radio")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Slider")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Split")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Tab")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Table")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Text")
+	@JSParameter(type = String.class, parent = "argumentComponent", label = "Tree")
 	private Map<String, Object> parameterMap;
 	
 	@Override
@@ -43,13 +62,15 @@ public abstract class JSAbstractFunctionTask extends JSTask {
 			int size = table.size();
 			for (int i = 0; i < size; i++) {
 				Map<String, Object> cellMap = table.get(i);
-				Class<?> type = getType((String) cellMap.get("type"));
-				String name = (String) cellMap.get("name");
-				String value = nvl((String) cellMap.get("value"), "");
-				String parent = nvl((String) cellMap.get("parent"), "");
-				String label = nvl((String) cellMap.get("label"), "");
-				String description = nvl((String) cellMap.get("description"), "");
-				JSArgument argument = new JSArgument(type, name, value, parent, label, description);
+				Class<?> type = getType((String) nvl(cellMap.get("argumentType"), "String"));
+				String parent = nvl((String) cellMap.get("argumentParent"), "");
+				String name = (String) cellMap.get("argumentName");
+				boolean required = nvl((Boolean) cellMap.get("argumentRequired"), false);
+				String value = nvl((String) cellMap.get("argumentValue"), "");
+				String label = nvl((String) cellMap.get("argumentLabel"), "");
+				String description = nvl((String) cellMap.get("argumentDescription"), "");
+				Class<?> component = getComponent((String) nvl(cellMap.get("argumentComponent"), "Field"));
+				JSArgument argument = new JSArgument(type, parent, name, required, value, label, description, component);
 				argumentMap.put(argument.getName(), argument);
 			}
 		}

@@ -19,9 +19,8 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSLengthTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "length")
 	@JSParameter(name = "variable")
-	@JSParameter(name = "object", value = "x")
+	@JSParameter(name = "object")
 	private Map<String, Object> parameterMap;
 	
 	@Override

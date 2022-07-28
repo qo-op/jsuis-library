@@ -15,13 +15,13 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSTryCatchTask extends JSTryTask {
 
+	@JSParameter
+	private Map<String, Object> parameterMap;
+	
 	@Override
 	public void execute() throws Exception {
 	}
 	
-	@JSParameter(name = "name", value = "try")
-	private Map<String, Object> parameterMap;
-
 	@Override
 	public <T> T accept(JSTaskVisitor<T> visitor) {
 		return visitor.visitTryCatchTask(this);

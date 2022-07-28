@@ -8,15 +8,14 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Declare task
  * 
- * let variable = (type) value;
- * let variable = (type) listValue;
- * let variable = (type) mapValue;
+ * let variable = new type(value);
+ * let variable = new type(listValue); // type = 'List'
+ * let variable = new type(mapValue); // type = 'Map'
  * 
  * @author Yassuo Toda
  */
 public class JSLetTask extends JSAbstractSetTask {
 	
-	@JSParameter(name = "name", value = "declare")
 	@JSParameter(name = "variable")
 	private Map<String, Object> parameterMap;
 	

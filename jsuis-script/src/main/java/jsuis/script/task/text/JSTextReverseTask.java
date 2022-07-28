@@ -16,7 +16,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSTextReverseTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "Text.reverse")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "text")
 	private Map<String, Object> parameterMap;

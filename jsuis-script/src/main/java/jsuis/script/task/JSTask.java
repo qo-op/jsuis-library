@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
+import jsuis.file.JSFile;
+import jsuis.script.JSScriptComponentUtils;
 import jsuis.script.JSScriptParameterAnnotationUtils;
 import jsuis.script.JSScriptTypeUtils;
 import jsuis.script.annotation.JSParameter;
@@ -66,23 +68,21 @@ public abstract class JSTask {
 			this.parameterMap.putAll(parameterMap);
 		}
 	}
-
-	private JSBlock block;
-	
-	public JSBlock getBlock() {
-		return block;
-	}
-	
-	public void setBlock(JSBlock block) {
-		this.block = block;
-	}
 	
 	public abstract void execute() throws Exception;
 	
 	public abstract <T> T accept(JSTaskVisitor<T> visitor);
 	
+	public void set(String key, Object value) {
+		getParameterMap().put(key, value);
+	}
+	
 	public Object get(String key, Class<?> type) throws IOException, ScriptException {
-		return parse(getParameterMap().get(key), type);
+		return parse(get(key), type);
+	}
+	
+	public Object get(String key) {
+		return getParameterMap().get(key);
 	}
 	
 	public Object parse(Object value, Class<?> type) throws IOException, ScriptException {
@@ -93,8 +93,22 @@ public abstract class JSTask {
 		return nvl(JSScriptTypeUtils.getType(name), Object.class);
 	}
 	
+	public Class<?> getComponent(String name) {
+		return JSScriptComponentUtils.getComponent(name);
+	}
+	
 	public <T> T nvl(T value, T defaultValue) {
 		return NVL.nvl(value, defaultValue);
+	}
+	
+	private JSBlock block;
+	
+	public JSBlock getBlock() {
+		return block;
+	}
+	
+	public void setBlock(JSBlock block) {
+		this.block = block;
 	}
 	
 	/*
@@ -122,7 +136,11 @@ public abstract class JSTask {
 	}
 	
 	public File getFile(String key) throws IOException, ScriptException {
-		return (File) get(key, File.class);
+		File file = (File) get(key, File.class);
+		if (file == null) {
+			return null;
+		}
+		return new JSFile(file);
 	}
 	
 	public Integer getInteger(String key) throws IOException, ScriptException {
@@ -133,26 +151,54 @@ public abstract class JSTask {
 		return get(key, Object.class);
 	}
 	
-	public List<Object> getList(String key, Class<?> elementType) throws IOException, ScriptException {
-		List<Object> objectList = new ArrayList<>();
-		List<?> list = (List<?>) get(key, List.class);
-		if (list != null && !list.isEmpty()) {
-			Object[] objects = ((List<?>) get(key, List.class)).toArray();
-			for (Object object : objects) {
-				objectList.add(parse(object, elementType));
+	public List<Object> getList(String key) throws IOException, ScriptException {
+		List<Object> list = new ArrayList<>();
+		List<?> l = (List<?>) get(key, List.class);
+		if (l != null && !l.isEmpty()) {
+			Object[] elements = ((List<?>) get(key, List.class)).toArray();
+			for (Object element : elements) {
+				list.add(element);
 			}
 		}
-		return objectList;
+		return list;
 	}
 	
-	public Map<String, Object> getMap(String key, Class<?> entryType, String entryKey, String entryValue) throws IOException, ScriptException {
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getList(String key, Class<T> elementType) throws IOException, ScriptException {
+		List<T> list = new ArrayList<>();
+		List<?> l = (List<?>) get(key, List.class);
+		if (l != null && !l.isEmpty()) {
+			Object[] elements = ((List<?>) get(key, List.class)).toArray();
+			for (Object element : elements) {
+				if (elementType != Object.class) {
+					
+				}
+				list.add((T) parse(element, elementType));
+			}
+		}
+		return list;
+	}
+	
+	public Map<String, Object> getMap(String key) throws IOException, ScriptException {
 		Map<String, Object> map = new LinkedHashMap<>();
-		List<Map<String, Object>> table = getTable(key);
-		if (table != null) {
-			int size = table.size();
-			for (int i = 0; i < size; i++) {
-				Map<String, Object> rowMap = table.get(i);
-				map.put((String) rowMap.get(entryKey), parse(rowMap.get(entryValue), entryType));
+		Map<?, ?> m = (Map<?, ?>) get(key, Map.class);
+		if (m != null && !m.isEmpty()) {
+			Object[] entryKeys = m.keySet().toArray();
+			for (Object entryKey : entryKeys) {
+				map.put((String) entryKey, m.get(entryKey));
+			}
+		}
+		return map;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> Map<String, T> getMap(String key, Class<T> entryType) throws IOException, ScriptException {
+		Map<String, T> map = new LinkedHashMap<>();
+		Map<?, ?> m = (Map<?, ?>) get(key, Map.class);
+		if (m != null && !m.isEmpty()) {
+			Object[] entryKeys = m.keySet().toArray();
+			for (Object entryKey : entryKeys) {
+				map.put((String) entryKey, (T) parse(m.get(entryKey), entryType));
 			}
 		}
 		return map;
@@ -170,7 +216,7 @@ public abstract class JSTask {
 			Object[] cells = ((List<?>) list.get(row)).toArray();
 			Map<String, Object> map = new LinkedHashMap<String, Object>();
 			for (int column = 0; column < cells.length; column++) {
-				if (column < columnTypes.length) {
+				if (column < columnTypes.length && columnTypes[column] != Void.class) {
 					map.put(headers[column], parse(cells[column], columnTypes[column]));
 				} else {
 					map.put(headers[column], cells[column]);

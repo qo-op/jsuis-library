@@ -18,8 +18,7 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSWhileTask extends JSLoopTask {
 	
-	@JSParameter(name = "name", value = "while")
-	@JSParameter(name = "condition", value = "false")
+	@JSParameter(name = "condition")
 	private Map<String, Object> parameterMap;
 	
 	@Override

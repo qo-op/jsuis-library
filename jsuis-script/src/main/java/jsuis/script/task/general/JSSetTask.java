@@ -8,15 +8,10 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Set task
  * 
- * variable = (type) value;
- * variable = (type) listValue;
- * variable = (type) mapValue;
- * 
  * @author Yassuo Toda
  */
 public class JSSetTask extends JSAbstractSetTask {
 	
-	@JSParameter(name = "name", value = "set")
 	@JSParameter(name = "variable")
 	private Map<String, Object> parameterMap;
 	

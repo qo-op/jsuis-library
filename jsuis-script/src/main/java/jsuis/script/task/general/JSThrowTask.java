@@ -15,7 +15,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSThrowTask extends JSTerminalTask {
 
-	@JSParameter(name = "name", value = "throw")
 	@JSParameter(name = "exception")
 	private Map<String, Object> parameterMap;
 	

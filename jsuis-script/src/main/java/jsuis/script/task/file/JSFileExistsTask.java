@@ -17,7 +17,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileExistsTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.exists")
 	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
 	private Map<String, Object> parameterMap;

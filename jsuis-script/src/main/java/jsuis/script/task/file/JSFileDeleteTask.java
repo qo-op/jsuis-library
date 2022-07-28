@@ -17,7 +17,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSFileDeleteTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "File.delete")
 	@JSParameter(type = File.class, name = "file")
 	private Map<String, Object> parameterMap;
 

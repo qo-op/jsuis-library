@@ -22,6 +22,7 @@
   	<module>jsuis-model</module>
   	<module>jsuis-scheduler-app</module>
   	<module>jsuis-script</module>
+  	<module>jsuis-parser</module>
   </modules>
   
   <!-- BOM -->
@@ -41,6 +42,11 @@
       <dependency>
         <groupId>jsuis-library</groupId>
         <artifactId>jsuis-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jsuis-library</groupId>
+        <artifactId>jsuis-parser</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -74,11 +80,22 @@
         <artifactId>commons-io</artifactId>
         <version>2.7</version>
       </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency>
       
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-mapper-asl</artifactId>
         <version>1.9.7</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.8.3</version>
       </dependency>
       
       <dependency>

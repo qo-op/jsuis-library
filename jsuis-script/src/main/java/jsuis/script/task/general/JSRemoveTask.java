@@ -18,9 +18,8 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSRemoveTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "remove")
 	@JSParameter(name = "variable")
-	@JSParameter(name = "object", value = "object")
+	@JSParameter(name = "object")
 	@JSParameter(name = "key")
 	@JSParameter(name = "element")
 	private Map<String, Object> parameterMap;

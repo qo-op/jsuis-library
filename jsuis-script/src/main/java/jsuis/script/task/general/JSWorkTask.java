@@ -1,7 +1,6 @@
 package jsuis.script.task.general;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
@@ -22,12 +21,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSWorkTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "work")
 	@JSParameter(name = "variable")
 	@JSParameter(type = File.class, name = "file")
 	@JSParameter(type = Map.class, name = "arguments")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentName", value = "argument")
-	@JSParameter(type = List.class, parent = "arguments", name = "argumentValue", value = "value")
 	private Map<String, Object> parameterMap;
 	
 	@Override
@@ -35,7 +31,7 @@ public class JSWorkTask extends JSTask {
 		
 		String variable = getString("variable");
 		File file = getFile("file");
-		Map<String, Object> argumentMap = getMap("arguments", String.class, "argument", "value");
+		Map<String, Object> argumentMap = getMap("arguments");
 		
 		JSWorkBlock workBlock = getWorkBlock(file);
 		if (workBlock == null) {

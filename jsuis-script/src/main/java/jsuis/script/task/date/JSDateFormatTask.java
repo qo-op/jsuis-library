@@ -11,13 +11,10 @@ import jsuis.script.visitor.JSTaskVisitor;
 /**
  * Date format task
  * 
- * variable = Date.format(date, format);
- * 
  * @author Yassuo Toda
  */
 public class JSDateFormatTask extends JSTask {
 
-	@JSParameter(name = "name", value = "Date.format")
 	@JSParameter(name = "variable")
 	@JSParameter(name = "date")
 	@JSParameter(name = "format")

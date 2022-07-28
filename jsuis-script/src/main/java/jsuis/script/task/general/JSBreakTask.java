@@ -16,7 +16,7 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSBreakTask extends JSTerminalTask {
 	
-	@JSParameter(name = "name", value = "break")
+	@JSParameter
 	private Map<String, Object> parameterMap;
 	
 	@Override

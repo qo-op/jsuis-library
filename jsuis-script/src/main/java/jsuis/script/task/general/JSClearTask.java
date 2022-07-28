@@ -16,7 +16,6 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSClearTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "clear")
 	@JSParameter(name = "object")
 	private Map<String, Object> parameterMap;
 	

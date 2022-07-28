@@ -3,20 +3,21 @@ package jsuis.script.task.general;
 import java.util.Map;
 
 import jsuis.script.annotation.JSParameter;
+import jsuis.script.task.JSTask;
 import jsuis.script.visitor.JSTaskVisitor;
 
 /**
  * Put task
  * 
- * map.put(key, (type) value)
+ * map.put(key, value)
  * 
  * @author Yassuo Toda
  */
-public class JSPutTask extends JSAbstractSetTask {
+public class JSPutTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "put")
-	@JSParameter(name = "map", value = "map")
-	@JSParameter(name = "key", value = "key")
+	@JSParameter(name = "map")
+	@JSParameter(name = "key")
+	@JSParameter(name = "value")
 	private Map<String, Object> parameterMap;
 	
 	@SuppressWarnings("unchecked")
@@ -29,7 +30,7 @@ public class JSPutTask extends JSAbstractSetTask {
 		}
 		Map<String, Object> map = (Map<String, Object>) object;
 		String key = getString("key");
-		Object value = getValue();
+		Object value = getObject("value");
 		
 		map.put(key, value);
 	}

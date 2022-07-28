@@ -1,7 +1,5 @@
 package jsuis.maven.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Parameter;
@@ -19,13 +17,9 @@ public class CallTask extends JSCallTask {
 	private Map<String, Object> parameterMap;
     
     @Parameter
-    private List<Row> arguments;
+    private Map<String, Object> arguments;
     
-    public void setArguments(List<Row> arguments) {
-		List<List<Object>> map = new ArrayList<>();
-		for (Row row : arguments) {
-			map.add(row.getCellList());
-		}
-		getParameterMap().put("arguments", map);
+    public void setArguments(Map<String, Object> arguments) {
+		getParameterMap().put("arguments", arguments);
 	}
 }

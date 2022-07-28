@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
@@ -55,25 +54,33 @@ public class JSFileUtils extends FileUtils {
 		}
 		Files.copy(source.toPath(), destination.toPath().resolve(fileName), copyOptionList.toArray(new CopyOption[0]));
 	}
-	
-	public static File translate(File file) {
-		if (file == null) {
-			return null;
+
+	public static void move(File source, File destination, String fileName, boolean overwrite, boolean preserve) throws IOException {
+		if (Files.notExists(source.toPath())) {
+			throw new NoSuchFileException(source.getAbsolutePath());
+		} else if (!Files.exists(source.toPath())) {
+			throw new AccessDeniedException(source.getAbsolutePath());
+		} else if (Files.isDirectory(source.toPath())) {
+			throw new FileNotFoundException(source.getAbsolutePath());
 		}
-		if (!file.isAbsolute()) {
-			file = translate(file.toPath()).toFile();
+		if (Files.exists(destination.toPath())) {
+			if (!Files.isDirectory(destination.toPath())) {
+				throw new NotDirectoryException(destination.getAbsolutePath());
+			}
+		} else {
+			Files.createDirectories(destination.toPath());
 		}
-		return file;
-	}
-	
-	private static Path translate(Path path) {
-		if (path == null) {
-			return null;
+		if (fileName == null || fileName.trim().isEmpty()) {
+			fileName = source.getName();
 		}
-		if (path.startsWith(Paths.get("~"))) {
-			path = Paths.get(System.getProperty("user.home")).resolve(path.subpath(1, path.getNameCount()));
+		List<CopyOption> copyOptionList = new ArrayList<>();
+		if (overwrite) {
+			copyOptionList.add(StandardCopyOption.REPLACE_EXISTING);
 		}
-		return path;
+		if (preserve) {
+			copyOptionList.add(StandardCopyOption.COPY_ATTRIBUTES);
+		}
+		Files.move(source.toPath(), destination.toPath().resolve(fileName), copyOptionList.toArray(new CopyOption[0]));
 	}
 
 	public static void unzip(File source, File destination, boolean overwrite, boolean preserve) throws IOException {
@@ -151,6 +158,7 @@ public class JSFileUtils extends FileUtils {
 				throw new FileAlreadyExistsException(destination.getAbsolutePath());
 			}
 		}
+		Files.createDirectories(destination.getParentFile().toPath());
 		try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(destination.toPath()))) {
 			Path file = source.toPath();
 	    	ZipEntry zipEntry = new ZipEntry(file.getFileName().toString());

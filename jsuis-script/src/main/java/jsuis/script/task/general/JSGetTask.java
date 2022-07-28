@@ -16,10 +16,9 @@ import jsuis.script.visitor.JSTaskVisitor;
  */
 public class JSGetTask extends JSTask {
 	
-	@JSParameter(name = "name", value = "get")
 	@JSParameter(name = "variable")
-	@JSParameter(name = "object", value = "x")
-	@JSParameter(name = "key", value = "0")
+	@JSParameter(name = "object")
+	@JSParameter(name = "key")
 	private Map<String, Object> parameterMap;
 	
 	@Override
