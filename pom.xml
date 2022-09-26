@@ -5,8 +5,8 @@
   <artifactId>jsuis-library</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>JSUIS library</name>
-  <description>JSUIS library</description>
+  <name>JSUIS Library</name>
+  <description>JSUIS Library</description>
   
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -22,7 +22,8 @@
   	<module>jsuis-model</module>
   	<module>jsuis-scheduler-app</module>
   	<module>jsuis-script</module>
-  	<module>jsuis-parser</module>
+  	<module>jsuis-web</module>
+  	<module>jsuis-script-app</module>
   </modules>
   
   <!-- BOM -->
@@ -57,6 +58,11 @@
       <dependency>
         <groupId>jsuis-library</groupId>
         <artifactId>jsuis-script</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jsuis-library</groupId>
+        <artifactId>jsuis-web</artifactId>
         <version>${project.version}</version>
       </dependency>
       

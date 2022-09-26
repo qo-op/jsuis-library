@@ -1,0 +1,2 @@
+#startup
+    @reboot script message('Welcome!');

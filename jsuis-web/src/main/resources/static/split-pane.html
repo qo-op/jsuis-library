@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="description"
+        content="This example shows how to use a split pane using html, css and javascript. It is based on the example found at 'How to Use Split Panes' https://docs.oracle.com/javase/tutorial/uiswing/components/splitpane.html">
+    <meta name="author" content="Yassuo Toda">
+    <title>Split pane example</title>
+
+    <link rel="stylesheet" href="/css/simpa.css">
+    <script src="/js/simpa.js" defer></script>
+</head>
+
+<body>
+    <div class="center-anchor" style="height: 100%;">
+        <!-- split pane -->
+        <div class="split-pane split-pane-event-listener" style="width: 200px; height: 100px;" id="split-pane">
+            <!-- scroll pane -->
+            <div class="scroll-pane" style="border: 1px solid gray">
+                <button>left</button>
+            </div>
+            <!-- divider -->
+            <div style="min-width: 8px; min-height: 8px;"></div>
+            <!-- scroll pane -->
+            <div class="scroll-pane" style="border: 1px solid gray">
+                <button>right</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

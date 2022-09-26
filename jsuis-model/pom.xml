@@ -8,8 +8,8 @@
   </parent>
   
   <artifactId>jsuis-model</artifactId>
-  <name>JSUIS model</name>
-  <description>JSUIS model</description>
+  <name>JSUIS Model</name>
+  <description>JSUIS Model</description>
   
   <dependencies>
   

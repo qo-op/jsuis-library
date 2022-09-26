@@ -52,7 +52,8 @@ public class JSDirectoryZipTask extends JSTask {
 	public void execute() throws Exception {
 		
 		File source = getFile("source");
-		String include = nvl(getString("include"), "*");
+		String include = getString("include");
+		include = include.isEmpty() ? "*" : include;
 		String exclude = getString("exclude");
 		List<String> nameList = (List<String>) get("nameList", List.class);
 		File destination = getFile("destination");

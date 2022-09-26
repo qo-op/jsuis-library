@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -30,8 +31,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import jsuis.gui.JSPopupMenu;
-import jsuis.gui.JSTable;
 import jsuis.scheduler.JSScheduler;
 import jsuis.scheduler.controller.JSSchedulerAddAction;
 import jsuis.scheduler.controller.JSSchedulerDirectoryAction;
@@ -286,7 +285,8 @@ public class JSSchedulerFrame extends JFrame {
 	
 	public JTable getSchedulerTable() {
 		if (schedulerTable == null) {
-			schedulerTable = new JSTable(getSchedulerTableModel());
+			schedulerTable = new JTable(getSchedulerTableModel());
+			schedulerTable.putClientProperty("terminateEditOnFocusLost", true);
 			JTableHeader schedulerTableHeader = schedulerTable.getTableHeader();
 			TableCellRenderer schedulerTableHeaderDefaultRenderer = schedulerTableHeader.getDefaultRenderer();
 			TableColumnModel schedulerTableColumnModel = schedulerTable.getColumnModel();
@@ -317,11 +317,11 @@ public class JSSchedulerFrame extends JFrame {
 		return schedulerTableModel;
 	}
 	
-	private JSPopupMenu schedulerTablePopupMenu;
+	private JPopupMenu schedulerTablePopupMenu;
 	
-	public JSPopupMenu getSchedulerTablePopupMenu() {
+	public JPopupMenu getSchedulerTablePopupMenu() {
 		if (schedulerTablePopupMenu == null) {
-			schedulerTablePopupMenu = new JSPopupMenu();
+			schedulerTablePopupMenu = new JPopupMenu();
 			schedulerTablePopupMenu.add(getSchedulerTableMenuItem());
 		}
 		return schedulerTablePopupMenu;

@@ -1,0 +1,61 @@
+@charset "ISO-8859-1";
+
+.i18n-pt .i18n-file::before {
+    content: "Arquivo";
+}
+
+.i18n-pt .i18n-new::before {
+    content: "Novo"
+}
+
+.i18n-pt .i18n-open::before {
+    content: "Abrir..."
+}
+
+.i18n-pt .i18n-save::before {
+    content: "Salvar"
+}
+
+.i18n-pt .i18n-save-as::before {
+    content: "Salvar como..."
+}
+
+.i18n-pt .i18n-save-all::before {
+    content: "Salvar tudo"
+}
+
+.i18n-pt .i18n-close::before {
+    content: "Fechar"
+}
+
+.i18n-pt .i18n-close-all::before {
+    content: "Fechar tudo"
+}
+
+.i18n-pt .i18n-exit::before {
+    content: "Sair"
+}
+
+.i18n-pt .i18n-edit::before {
+    content: "Editar";
+}
+
+.i18n-pt .i18n-undo::before {
+    content: "Desfazer";
+}
+
+.i18n-pt .i18n-redo::before {
+    content: "Refazer";
+}
+
+.i18n-pt .i18n-cut::before {
+    content: "Recortar";
+}
+
+.i18n-pt .i18n-copy::before {
+    content: "Copiar";
+}
+
+.i18n-pt .i18n-paste::before {
+    content: "Colar";
+}

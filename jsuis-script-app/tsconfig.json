@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "target": "ES6",
+      "outFile": "src/main/resources/static/js/script-app.js",
+      "sourceMap": true
+    },
+    "include": ["src/main/resources/static/ts/**/*"]
+  }

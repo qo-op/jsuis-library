@@ -11,11 +11,24 @@
   
     <dependency>
       <groupId>jsuis-library</groupId>
-      <artifactId>jsuis-gui</artifactId>
+      <artifactId>jsuis-script</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
     </dependency>
     <dependency>
-      <groupId>jsuis-library</groupId>
-      <artifactId>jsuis-script</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
     </dependency>
 
   </dependencies>

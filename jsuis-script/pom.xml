@@ -8,18 +8,14 @@
   </parent>
   
   <artifactId>jsuis-script</artifactId>
-  <name>JSUIS script</name>
-  <description>JSUIS script</description>
+  <name>JSUIS Script</name>
+  <description>JSUIS Script</description>
   
   <dependencies>
   
     <dependency>
       <groupId>jsuis-library</groupId>
       <artifactId>jsuis-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jsuis-library</groupId>
-      <artifactId>jsuis-gui</artifactId>
     </dependency>
 
     <dependency>

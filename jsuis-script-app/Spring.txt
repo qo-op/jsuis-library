@@ -1,0 +1,13 @@
+https://start.spring.io/
+Group: jsuis-library
+Artifact: jsuis-script-app
+Name: JSUIS Scheduler App
+Description: JSUIS Scheduler App
+Package name: jsuis.script.app
+Packaging: Jar
+Java: 8
+Dependencies:
+	Spring Web
+
+[Generate]
+

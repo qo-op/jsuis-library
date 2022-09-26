@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="ISO-8859-1">
+    <meta name="description" content="Script App">
+    <meta name="author" content="Yassuo Toda">
+    <title>Script App</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <link rel="stylesheet" href="/css/simpa.css">
+    <script src="/js/simpa.js" defer></script>
+
+    <link rel="stylesheet" href="/css/script-app.css">
+    <script src="/js/script-app.js" defer></script>
+
+    <link rel="stylesheet" href="/css/script-app-i18n.css">
+    <link rel="stylesheet" href="/css/script-app-i18n-pt.css">
+    </script>
+</head>
+
+<body class="i18n-pt">
+    <div class="border-container" style="height: 100%;">
+        <div class="line-end-border-container page-start-border" id="title">
+            <div class="line-start-border-container" style="column-gap: 5px; align-items: center; padding-inline: 5px;">
+                <img class="dark-blue-filter" src="/images/Script.svg" id="icon">
+                <ul class="menu-bar menu-event-listener grid-bag-container" style="grid-template-columns: auto auto 1fr auto;" id="menu-bar">
+                    <li>
+                        <div>
+                            <span class="i18n-file"></span>
+                        </div>
+                        <ul>
+                            <li data-action="new">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/NewDocument.svg">
+                                    <span class="i18n-new"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="open">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/FolderOpened.svg">
+                                    <span class="i18n-open"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li data-action="save">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Save.svg">
+                                    <div class="accelerator" data-shortcut="Ctrl S"><span class="i18n-save"></span>
+                                    </div>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="saveAs">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/SaveAs.svg"></img>
+                                    <span class="i18n-save-as"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="saveAll">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/SaveAll.svg"></img>
+                                    <span class="i18n-save-all"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li data-action="close">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/CloseDocument.svg">
+                                    <span class="i18n-close"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="closeAll">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/CloseAll.svg">
+                                    <span class="i18n-close-all"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li data-action="exit">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Exit.svg"></img>
+                                    <span class="i18n-exit"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="i18n-edit"></span>
+                        </div>
+                        <ul>
+                            <li data-action="undo">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Undo.svg">
+                                    <div class="accelerator" data-shortcut="Ctrl Z"><span class="i18n-undo"></span>
+                                    </div>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="redo">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Redo.svg">
+                                    <div class="accelerator" data-shortcut="Ctrl Y"><span class="i18n-redo"></span>
+                                    </div>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li data-action="cut">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Cut.svg">
+                                    <div class="accelerator" data-shortcut="Ctrl X"><span class="i18n-cut"></span>
+                                    </div>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="copy">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Copy.svg"></img>
+                                    <span class="i18n-copy"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                            <li data-action="paste">
+                                <div class="line-border-container">
+                                    <img class="menu-icon" src="/images/Paste.svg"></img>
+                                    <span class="i18n-paste"></span>
+                                    <span class="menu-icon"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <div>
+                    </div>
+                    <li id="i18n">
+                        <div class="box-container">
+                            <img src="/images/SetLanguage.svg">
+                        </div>
+                        <ul>
+                            <li data-action="i18nEnglish">
+                                <div class="box-container">
+                                    <input type="radio" name="i18n">
+                                    <img class="menu-icon" src="/images/US.svg">
+                                    <span class="i18n-english-us"></span>
+                                </div>
+                            </li>
+                            <li data-action="i18nPortuguese">
+                                <div class="box-container">
+                                    <input type="radio" name="i18n" checked>
+                                    <img class="menu-icon" src="/images/BR.svg">
+                                    <span class="i18n-portuguese-br"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="box-container">
+                <div data-action="exit">
+                    <img class="red-filter" src="/images/Close.svg" id="exit">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+@charset "ISO-8859-1";
+
+#title {
+    background-color: whitesmoke;
+}
+
+#icon,
+#exit,
+#i18n>:not(ul) img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+#i18n>ul {
+    inset-inline-end: 0;
+    inset-block-start: auto;
+    inset-inline-start: auto;
+}
+
+.red-filter {
+    filter: invert(14%) sepia(99%) saturate(7499%) hue-rotate(0deg) brightness(89%) contrast(128%);
+}
+
+.dark-blue-filter {
+    filter: invert(15%) sepia(79%) saturate(3158%) hue-rotate(236deg) brightness(70%) contrast(145%);
+}

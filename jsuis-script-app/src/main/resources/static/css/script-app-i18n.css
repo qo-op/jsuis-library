@@ -1,0 +1,69 @@
+@charset "ISO-8859-1";
+
+.i18n-english-us::before {
+    content: "English (US)";
+}
+
+.i18n-portuguese-br::before {
+    content: "Português (BR)";
+}
+
+.i18n-file::before {
+    content: "File";
+}
+
+.i18n-new::before {
+    content: "New"
+}
+
+.i18n-open::before {
+    content: "Open..."
+}
+
+.i18n-save::before {
+    content: "Save"
+}
+
+.i18n-save-as::before {
+    content: "Save as..."
+}
+
+.i18n-save-all::before {
+    content: "Save all"
+}
+
+.i18n-close::before {
+    content: "Close"
+}
+
+.i18n-close-all::before {
+    content: "Close all"
+}
+
+.i18n-exit::before {
+    content: "Exit"
+}
+
+.i18n-edit::before {
+    content: "Edit";
+}
+
+.i18n-undo::before {
+    content: "Undo";
+}
+
+.i18n-redo::before {
+    content: "Redo";
+}
+
+.i18n-cut::before {
+    content: "Cut";
+}
+
+.i18n-copy::before {
+    content: "Copy";
+}
+
+.i18n-paste::before {
+    content: "Paste";
+}
