@@ -17,132 +17,174 @@
 
     <link rel="stylesheet" href="/css/script-app-i18n.css">
     <link rel="stylesheet" href="/css/script-app-i18n-pt.css">
-    </script>
 </head>
 
 <body class="i18n-pt">
-    <div class="border-container" style="height: 100%;">
-        <div class="line-end-border-container page-start-border" id="title">
-            <div class="line-start-border-container" style="column-gap: 5px; align-items: center; padding-inline: 5px;">
-                <img class="dark-blue-filter" src="/images/Script.svg" id="icon">
-                <ul class="menu-bar menu-event-listener grid-bag-container" style="grid-template-columns: auto auto 1fr auto;" id="menu-bar">
+    <div class="page-start-border-container" style="gap: 5px; height: 100%;">
+        <div class="page-axis-stretch-box-container" style="gap: 5px;">
+            <div class="line-end-border-container" id="title">
+                <ul class="menu-bar grid-bag-container" style="grid-template-columns: auto auto auto 1fr auto;"
+                    id="menu-bar">
                     <li>
-                        <div>
-                            <span class="i18n-file"></span>
+                        <div class="menu">
+                            <span class="menu-item-text i18n-file"></span>
                         </div>
                         <ul>
-                            <li data-action="new">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/NewDocument.svg">
-                                    <span class="i18n-new"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="new">
+                                    <img class="menu-item-icon" src="/images/NewDocument.svg">
+                                    <div data-shortcut="Ctrl N"><span class="menu-item-text i18n-new"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
-                            <li data-action="open">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/FolderOpened.svg">
-                                    <span class="i18n-open"></span>
-                                    <span class="menu-icon"></span>
-                                </div>
-                            </li>
-                            <li class="separator">
-                                <hr>
-                            </li>
-                            <li data-action="save">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Save.svg">
-                                    <div class="accelerator" data-shortcut="Ctrl S"><span class="i18n-save"></span>
-                                    </div>
-                                    <span class="menu-icon"></span>
-                                </div>
-                            </li>
-                            <li data-action="saveAs">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/SaveAs.svg"></img>
-                                    <span class="i18n-save-as"></span>
-                                    <span class="menu-icon"></span>
-                                </div>
-                            </li>
-                            <li data-action="saveAll">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/SaveAll.svg"></img>
-                                    <span class="i18n-save-all"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="open">
+                                    <img class="menu-item-icon" src="/images/OpenFolder.svg">
+                                    <span class="menu-item-text i18n-open"></span>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
                             <li class="separator">
                                 <hr>
                             </li>
-                            <li data-action="close">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/CloseDocument.svg">
-                                    <span class="i18n-close"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="save">
+                                    <img class="menu-item-icon" src="/images/Save.svg">
+                                    <div data-shortcut="Ctrl S"><span class="menu-item-text i18n-save"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
-                            <li data-action="closeAll">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/CloseAll.svg">
-                                    <span class="i18n-close-all"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="save-as">
+                                    <img class="menu-item-icon" src="/images/SaveAs.svg">
+                                    <span class="menu-item-text i18n-save-as"></span>
+                                    <span class="menu-item-icon"></span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="menu-item" data-action="save-all">
+                                    <img class="menu-item-icon" src="/images/SaveAll.svg">
+                                    <span class="menu-item-text i18n-save-all"></span>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
                             <li class="separator">
                                 <hr>
                             </li>
-                            <li data-action="exit">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Exit.svg"></img>
-                                    <span class="i18n-exit"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="close">
+                                    <img class="menu-item-icon" src="/images/CloseDocument.svg">
+                                    <span class="menu-item-text i18n-close"></span>
+                                    <span class="menu-item-icon"></span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="menu-item" data-action="close-all">
+                                    <img class="menu-item-icon" src="/images/CloseAll.svg">
+                                    <span class="menu-item-text i18n-close-all"></span>
+                                    <span class="menu-item-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li>
+                                <div class="menu-item" data-action="exit">
+                                    <img class="menu-item-icon" src="/images/Exit.svg">
+                                    <span class="menu-item-text i18n-exit"></span>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <div>
-                            <span class="i18n-edit"></span>
+                        <div class="menu">
+                            <span class="menu-item-text i18n-edit"></span>
                         </div>
                         <ul>
-                            <li data-action="undo">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Undo.svg">
-                                    <div class="accelerator" data-shortcut="Ctrl Z"><span class="i18n-undo"></span>
-                                    </div>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="undo">
+                                    <img class="menu-item-icon" src="/images/Undo.svg">
+                                    <div data-shortcut="Ctrl Z"><span class="menu-item-text i18n-undo"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
-                            <li data-action="redo">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Redo.svg">
-                                    <div class="accelerator" data-shortcut="Ctrl Y"><span class="i18n-redo"></span>
-                                    </div>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="redo">
+                                    <img class="menu-item-icon" src="/images/Redo.svg">
+                                    <div data-shortcut="Ctrl Y"><span class="menu-item-text i18n-redo"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
                             <li class="separator">
                                 <hr>
                             </li>
-                            <li data-action="cut">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Cut.svg">
-                                    <div class="accelerator" data-shortcut="Ctrl X"><span class="i18n-cut"></span>
-                                    </div>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="cut">
+                                    <img class="menu-item-icon" src="/images/Cut.svg">
+                                    <div data-shortcut="Ctrl X"><span class="menu-item-text i18n-cut"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
-                            <li data-action="copy">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Copy.svg"></img>
-                                    <span class="i18n-copy"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="copy">
+                                    <img class="menu-item-icon" src="/images/Copy.svg">
+                                    <div data-shortcut="Ctrl C"><span class="menu-item-text i18n-copy"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
-                            <li data-action="paste">
-                                <div class="line-border-container">
-                                    <img class="menu-icon" src="/images/Paste.svg"></img>
-                                    <span class="i18n-paste"></span>
-                                    <span class="menu-icon"></span>
+                            <li>
+                                <div class="menu-item" data-action="paste">
+                                    <img class="menu-item-icon" src="/images/Paste.svg">
+                                    <div data-shortcut="Ctrl V"><span class="menu-item-text i18n-paste"></span></div>
+                                    <span class="menu-item-icon"></span>
+                                </div>
+                            </li>
+                            <li class="separator">
+                                <hr>
+                            </li>
+                            <li>
+                                <div class="menu">
+                                    <img class="menu-item-icon" src="/images/Grid.svg">
+                                    <span class="menu-item-text i18n-grid"></span>
+                                    <span class="menu-item-icon material-icons">navigate_next</span>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="menu-item" data-action="snap-to-grid">
+                                            <img class="menu-item-icon" src="/images/SnapToGrid.svg">
+                                            <span class="menu-item-text i18n-snap-to-grid"></span>
+                                            <span class="menu-item-icon"></span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="menu-item" data-action="show-grid">
+                                            <img class="menu-item-icon" src="/images/ShowGrid.svg">
+                                            <span class="menu-item-text i18n-show-grid"></span>
+                                            <span class="menu-item-icon"></span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <div class="menu">
+                            <span class="menu-item-text i18n-run"></span>
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="menu-item" data-action="run">
+                                    <img class="menu-item-icon" src="/images/Run.svg">
+                                    <span class="menu-item-text i18n-run"></span>
+                                    <span class="menu-item-icon"></span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="menu-item" data-action="stop">
+                                    <img class="menu-item-icon" src="/images/Stop.svg">
+                                    <div data-shortcut="Alt End"><span class="menu-item-text i18n-stop"></span></div>
+                                    <span class="menu-item-icon"></span>
                                 </div>
                             </li>
                         </ul>
@@ -150,31 +192,184 @@
                     <div>
                     </div>
                     <li id="i18n">
-                        <div class="box-container">
-                            <img src="/images/SetLanguage.svg">
+                        <div class="menu">
+                            <img src="/images/Web.svg">
                         </div>
                         <ul>
-                            <li data-action="i18nEnglish">
-                                <div class="box-container">
+                            <li>
+                                <div class="menu-item" data-action="i18n-en-us">
                                     <input type="radio" name="i18n">
-                                    <img class="menu-icon" src="/images/US.svg">
-                                    <span class="i18n-english-us"></span>
+                                    <img class="menu-item-icon" src="/images/US.svg">
+                                    <span class="menu-item-text i18n-en-us"></span>
                                 </div>
                             </li>
-                            <li data-action="i18nPortuguese">
-                                <div class="box-container">
+                            <li>
+                                <div class="menu-item" data-action="i18n-pt-br">
                                     <input type="radio" name="i18n" checked>
-                                    <img class="menu-icon" src="/images/BR.svg">
-                                    <span class="i18n-portuguese-br"></span>
+                                    <img class="menu-item-icon" src="/images/BR.svg">
+                                    <span class="menu-item-text i18n-pt-br"></span>
                                 </div>
                             </li>
                         </ul>
                     </li>
                 </ul>
+                <div class="stretch-box-container">
+                    <button class="button center-anchor" data-action="exit" id="exit">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
             </div>
-            <div class="box-container">
-                <div data-action="exit">
-                    <img class="red-filter" src="/images/Close.svg" id="exit">
+            <div class="tool-bar box-container" style="padding: 0px;">
+                <button class="button" data-action="new">
+                    <img src="/images/NewDocument.svg">
+                </button>
+                <button class="button" data-action="open">
+                    <img src="/images/OpenFolder.svg">
+                </button>
+                <button class="button" data-action="save">
+                    <img src="/images/Save.svg">
+                </button>
+                <div style="margin-inline: 5px; border-inline-start: 1px solid gray; height: 100%;"></div>
+                <button class="button" data-action="undo">
+                    <img src="/images/Undo.svg">
+                </button>
+                <button class="button" data-action="redo">
+                    <img src="/images/Redo.svg">
+                </button>
+                <div style="margin-inline: 5px; border-inline-start: 1px solid gray; height: 100%;"></div>
+                <button class="button" data-action="cut">
+                    <img src="/images/Cut.svg">
+                </button>
+                <button class="button" data-action="copy">
+                    <img src="/images/Copy.svg">
+                </button>
+                <button class="button" data-action="paste">
+                    <img src="/images/Paste.svg">
+                </button>
+                <div style="margin-inline: 5px; border-inline-start: 1px solid gray; height: 100%;"></div>
+                <button class="button box-container" data-action="run" style="gap: 5px;">
+                    <img src="/images/Run.svg">
+                    <span class="i18n-run"></span>
+                </button>
+                <button class="button box-container" data-action="stop" style="gap: 5px;">
+                    <img src="/images/Stop.svg">
+                    <span class="i18n-stop"></span>
+                </button>
+            </div>
+        </div>
+        <div class="content-pane border-container">
+            <div class="split-pane">
+                <div class="tabbed-pane" id="line-start-tabbed-pane">
+                    <div class="tab-container">
+                        <div class="tab-component box-container selected" style="gap: 5px; padding: 5px;" name="tasks">
+                            <img class="tab-icon dark-blue-filter" src="/images/SDK.svg">
+                            <span class="tab-title i18n-tasks"></span>
+                        </div>
+                        <div class="tab-component box-container" style="gap: 5px; padding: 5px;" name="explorer">
+                            <img class="tab-icon" src="/images/FolderOpened.svg">
+                            <span class="tab-title i18n-explorer"></span>
+                        </div>
+                    </div>
+                    <div class="card-container">
+                        <div class="card-component border-container visible" style="background-color: white;"
+                            name="tasks">
+                            <div class="scroll-pane">
+                                <ul class="tree single-tree-selection" style="padding-block: 5px;">
+                                    <li class="open">
+                                        <div class="tree-node">
+                                            <span class="tree-node-icon material-icons"></span>
+                                            <span class="tree-node-text i18n-general"></span>
+                                        </div>
+                                        <ul>
+                                            <li>
+                                                <div class="tree-node" draggable="true">
+                                                    <img class="tree-node-icon" src="/images/StartPoint.svg">
+                                                    <span class="tree-node-text i18n-start-task"></span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="open">
+                                        <div class="tree-node">
+                                            <span class="tree-node-icon material-icons"></span>
+                                            <span class="tree-node-text i18n-dialog"></span>
+                                        </div>
+                                        <ul>
+                                            <li>
+                                                <div class="tree-node" draggable="true">
+                                                    <img class="tree-node-icon" src="/images/Dialog.svg">
+                                                    <span class="tree-node-text i18n-input-dialog-task"></span>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="tree-node" draggable="true">
+                                                    <img class="tree-node-icon" src="/images/MessageBubble.svg">
+                                                    <span class="tree-node-text i18n-message-dialog-task"></span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="open">
+                                        <div class="tree-node">
+                                            <span class="tree-node-icon material-icons"></span>
+                                            <span class="tree-node-text i18n-input"></span>
+                                        </div>
+                                        <ul>
+                                            <li>
+                                                <div class="tree-node" draggable="true">
+                                                    <img class="tree-node-icon" src="/images/ExcelInput.svg">
+                                                    <span class="tree-node-text i18n-excel-input-task"></span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-component" style="background-color: white;" name="explorer">
+                        </div>
+                    </div>
+                </div>
+                <div style="position: relative; border-inline-start: 1px solid lightgray;">
+                    <div style="position: absolute; inset-inline-start: -6px; width: 11px; height: 100%;"></div>
+                </div>
+                <div class="page-end-split-pane" data-divider-proportional-location=".5" id="page-end-split-pane">
+                    <div class="tabbed-pane" id="page-start-tabbed-pane">
+                        <div class="tab-container" id="page-start-tabbed-pane-tab-container">
+
+                        </div>
+                        <div class="card-container" id="page-start-tabbed-pane-card-container">
+
+                        </div>
+                    </div>
+                    <div style="position: relative; border-block-start: 1px solid lightgray; height: 0px;">
+                        <div style="position: absolute; inset-block-start: -6px; height: 11px; width: 100%;"></div>
+                    </div>
+                    <div class="tabbed-pane" id="page-end-tabbed-pane">
+                        <div class="tab-container">
+                            <div class="tab-component box-container selected" style="gap: 5px; padding: 5px;"
+                                name="console">
+                                <img class="tab-icon" src="/images/Console.svg">
+                                <span class="tab-title i18n-console"></span>
+                            </div>
+                            <div class="tab-component box-container" style="gap: 5px; padding: 5px;" name="search">
+                                <img class="tab-icon" src="images/Search.svg">
+                                <span class="tab-title i18n-search"></span>
+                            </div>
+                        </div>
+                        <div class="card-container">
+                            <div class="card-component border-container visible" style="background-color: white;"
+                                name="console">
+                                <div class="scroll-pane">
+                                </div>
+                            </div>
+                            <div class="card-component border-container" style="background-color: white;"
+                                name="search">
+                                <div class="scroll-pane">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

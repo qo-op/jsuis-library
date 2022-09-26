@@ -103,7 +103,7 @@ class MenuEventListener {
 		const target: HTMLElement = <HTMLElement>ev.target;
 		if (ev.currentTarget === document) {
 			document.querySelectorAll(`
-					.menu-bar.menu-event-listener
+					.menu-bar
 			`).forEach(function (menuBar: Element) {
 				MenuUtils.instance.close(<HTMLElement>menuBar);
 			});
@@ -111,7 +111,7 @@ class MenuEventListener {
 		}
 		const menuBar: HTMLElement = <HTMLElement>ev.currentTarget;
 		if (menuBar.classList.contains("open")) {
-			if (target === menuBar) {
+			if (target === menuBar || (target.parentElement === menuBar && target.tagName !== "li")) {
 				MenuUtils.instance.close(menuBar);
 			}
 			ev.stopPropagation();
@@ -143,15 +143,25 @@ class MenuEventListener {
 			}
 		}
 		const menuBar: HTMLElement = <HTMLElement>ev.currentTarget;
-		const action: string = li.dataset.action;
-		if (action !== undefined && action.trim() !== "") {
-			document.dispatchEvent(new CustomEvent("action", {
-				detail: {
-					menuBar: menuBar,
-					menuItem: li,
-					action: action
+		const menuItem: HTMLElement = li.querySelector(":scope>.menu-item");
+		if (menuItem !== null) {
+			const action: string = menuItem.dataset.action;
+			if (action !== undefined && action.trim() !== "") {
+				let text: string = undefined;
+				const menuText: HTMLElement = menuItem.querySelector(":scope .menu-item-text");
+				if (menuText !== null) {
+					text = menuText.textContent;
 				}
-			}));
+				document.dispatchEvent(new CustomEvent(action + "-action", {
+					detail: {
+						menuBar: menuBar,
+						li: li,
+						menuItem: menuItem,
+						source: menuItem,
+						text: text
+					}
+				}));
+			}
 		}
 		if (menuBar.classList.contains("closed")) {
 			menuBar.classList.remove("closed");
@@ -207,19 +217,20 @@ class MenuEventListener {
 		key = key.trim();
 		const action: string = MenuEventListener.instance.shortcuts.get(key);
 		if (action !== undefined && action.trim() !== "") {
-			document.dispatchEvent(new CustomEvent("action", {
+			document.dispatchEvent(new CustomEvent(action + "-action", {
 				detail: {
-					action: action
+					key: key,
+					source: key
 				}
 			}));
+			ev.preventDefault();
 		}
-		ev.preventDefault();
 	}
 }
 
 document.addEventListener("DOMContentLoaded", function () {
 	const menus = document.querySelectorAll(`
-			.menu-bar.menu-event-listener
+			.menu-bar
 	`);
 	menus.forEach(function (element: Element) {
 		const menuBar: HTMLElement = <HTMLElement>element;
@@ -267,7 +278,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (li === null) {
 				return;
 			}
-			const action: string = li.dataset.action;
+			const menuItem: HTMLElement = li.querySelector(":scope>.menu-item");
+			if (menuItem === null) {
+				return;
+			}
+			const action: string = menuItem.dataset.action;
 			if (action !== undefined && action.trim() !== "") {
 				MenuEventListener.instance.shortcuts.set(key, action);
 			}

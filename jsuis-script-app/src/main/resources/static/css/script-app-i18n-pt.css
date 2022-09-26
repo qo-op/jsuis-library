@@ -59,3 +59,68 @@
 .i18n-pt .i18n-paste::before {
     content: "Colar";
 }
+
+.i18n-pt .i18n-grid::before {
+    content: "Grade";
+}
+
+.i18n-pt .i18n-snap-to-grid::before {
+    content: "Alinhar à Grade";
+}
+
+.i18n-pt .i18n-show-grid::before {
+    content: "Mostrar a Grade";
+}
+
+.i18n-pt .i18n-run::before {
+    content: "Rodar";
+}
+
+.i18n-pt .i18n-stop::before {
+    content: "Parar";
+}
+
+.i18n-pt .i18n-tasks::before {
+    content: "Tarefas";
+}
+
+.i18n-pt .i18n-explorer::before {
+    content: "Explorador";
+}
+
+.i18n-pt .i18n-general::before {
+    content: "Geral";
+}
+
+.i18n-pt .i18n-start-task::before {
+    content: "Início";
+}
+
+.i18n-pt .i18n-dialog::before {
+    content: "Diálogo";
+}
+
+.i18n-pt .i18n-input-dialog-task::before {
+    content: "Diálogo de Entrada de Dados";
+}
+
+.i18n-pt .i18n-message-dialog-task::before {
+    content: "Diálogo de Mensagem";
+}
+
+.i18n-pt .i18n-input::before {
+    content: "Entrada"
+}
+
+.i18n-pt .i18n-excel-input-task::before {
+    content: "Ler dados de Arquivo Excel"
+}
+
+
+.i18n-pt .i18n-console::before {
+    content: "Console";
+}
+
+.i18n-pt .i18n-search::before {
+    content: "Pesquisar";
+}

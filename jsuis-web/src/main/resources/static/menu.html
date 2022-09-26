@@ -5,7 +5,7 @@
 	<meta name="description"
 		content="This example shows how to use a menu using html, css and javascript. It is based on the example found at 'How to Use Menus' https://docs.oracle.com/javase/tutorial/uiswing/components/menu.html">
 	<meta name="author" content="Yassuo Toda">
-	<title>Menu example</title>
+	<title>Menu Example</title>
 
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -13,14 +13,15 @@
 	<script src="/js/simpa.js" defer></script>
 
 	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-			document.addEventListener("action", function (ev) {
-				const action = ev.detail.action;
-				if (action === undefined) {
+		document.addEventListener("log-action", function (ev) {
+			const source = ev.detail.source;
+			if (source instanceof HTMLElement) {
+				if (ev.detail.text !== undefined) {
+					console.log("Menu item text: " + ev.detail.text);
 					return;
 				}
-				console.log("action: " + action);
-			});
+			}
+			console.log("Source: " + source);
 		});
 	</script>
 </head>
@@ -28,89 +29,89 @@
 <body>
 	<div class="center-anchor" style="height: 100%;">
 		<div class="page-start-border-container" style="border: 1px solid gray; width: 450px; height: 300px;">
-			<ul class="menu-bar menu-event-listener box-container" id="menu-bar">
+			<ul class="menu-bar box-container vertical-fill" id="menu-bar">
 				<li>
-					<div>
+					<div class="menu">
 						<span>A Menu</span>
 					</div>
 					<ul>
-						<li data-action="span: A text-only menu item">
-							<div class="line-border-container">
-								<span class="menu-icon"></span>
-								<div data-shortcut="Alt 1"><span>A text-only menu item</span></div>
-								<span class="menu-icon"></span>
+						<li>
+							<div class="menu-item" data-action="log">
+								<span class="menu-item-icon"></span>
+								<div data-shortcut="Alt 1"><span class="menu-item-text">A text-only menu item</span></div>
+								<span class="menu-item-icon"></span>
 							</div>
 						</li>
-						<li data-action="span: Both text and icon">
-							<div class="line-border-container">
-								<span class="menu-icon material-icons" style="color: gold;">star</span>
-								<span>Both text and icon</span>
-								<span class="menu-icon"></span>
+						<li>
+							<div class="menu-item" data-action="log">
+								<span class="menu-item-icon material-icons" style="color: gold;">star</span>
+								<span class="menu-item-text">Both text and icon</span>
+								<span class="menu-item-icon"></span>
 							</div>
 						</li>
-						<li data-action="span">
-							<div class="line-border-container">
-								<span class="menu-icon material-icons" style="color: gold;">star</span>
-								<span></span>
-								<span class="menu-icon"></span>
-							</div>
-						</li>
-						<li class="separator">
-							<hr>
-						</li>
-						<li data-action="radio: A radio button menu item">
-							<div class="line-border-container">
-								<input type="radio" name="group" checked>
-								<span>A radio button menu item</span>
-								<span class="menu-icon"></span>
-							</div>
-						</li>
-						<li data-action="radio: Another one">
-							<div class="line-border-container">
-								<input type="radio" name="group">
-								<span>Another one</span>
-								<span class="menu-icon"></span>
-							</div>
-						</li>
-						<li class="separator">
-							<hr>
-						</li>
-						<li data-action="checkbox: A check box menu item">
-							<div class="line-border-container">
-								<input type="checkbox">
-								<span>A check box menu item</span>
-								<span class="menu-icon"></span>
-							</div>
-						</li>
-						<li data-action="checkbox: Another one">
-							<div class="line-border-container">
-								<input type="checkbox">
-								<span>Another one</span>
-								<span class="menu-icon"></span>
+						<li>
+							<div class="menu-item" data-action="log">
+								<span class="menu-item-icon material-icons" style="color: gold;">star</span>
+								<span class="menu-item-text"></span>
+								<span class="menu-item-icon"></span>
 							</div>
 						</li>
 						<li class="separator">
 							<hr>
 						</li>
 						<li>
-							<div class="line-border-container">
-								<span class="menu-icon"></span>
-								<span>A submenu</span>
-								<span class="menu-icon material-icons">navigate_next</span>
+							<div class="menu-item" data-action="log">
+								<input type="radio" name="group" checked>
+								<span class="menu-item-text">A radio button menu item</span>
+								<span class="menu-item-icon"></span>
+							</div>
+						</li>
+						<li>
+							<div class="menu-item" data-action="log">
+								<input type="radio" name="group">
+								<span class="menu-item-text">Another one</span>
+								<span class="menu-item-icon"></span>
+							</div>
+						</li>
+						<li class="separator">
+							<hr>
+						</li>
+						<li>
+							<div class="menu-item" data-action="log">
+								<input type="checkbox">
+								<span class="menu-item-text">A check box menu item</span>
+								<span class="menu-item-icon"></span>
+							</div>
+						</li>
+						<li>
+							<div class="menu-item" data-action="log">
+								<input type="checkbox">
+								<span class="menu-item-text">Another one</span>
+								<span class="menu-item-icon"></span>
+							</div>
+						</li>
+						<li class="separator">
+							<hr>
+						</li>
+						<li>
+							<div class="menu">
+								<span class="menu-item-icon"></span>
+								<span class="menu-item-text">A submenu</span>
+								<span class="menu-item-icon material-icons">navigate_next</span>
 							</div>
 							<ul>
-								<li data-action="span: An item in submenu">
-									<div class="line-border-container">
-										<span class="menu-icon"></span>
-										<div data-shortcut="Alt 2"><span>An item in submenu</span></div>
-										<span class="menu-icon"></span>
+								<li>
+									<div class="menu-item" data-action="log">
+										<span class="menu-item-icon"></span>
+										<div data-shortcut="Alt 2"><span class="menu-item-text">An item in submenu</span></div>
+										<span class="menu-item-icon"></span>
 									</div>
 								</li>
-								<li data-action="span: Another item">
-									<div class="line-border-container">
-										<span class="menu-icon"></span>
-										<span>Another item</span>
-										<span class="menu-icon"></span>
+								<li>
+									<div class="menu-item" data-action="log">
+										<span class="menu-item-icon"></span>
+										<span class="menu-item-text">Another item</span>
+										<span class="menu-item-icon"></span>
 									</div>
 								</li>
 							</ul>
@@ -118,14 +119,15 @@
 					</ul>
 				</li>
 				<li>
-					<div>
+					<div class="menu">
 						<span>Another Menu</span>
 					</div>
 					<ul>
-						<li data-action="span: Another text-only menu item">
-							<div class="line-border-container">
-								<span class="menu-icon"></span> <span>Another text-only
-									menu item</span> <span class="menu-icon"></span>
+						<li>
+							<div class="menu-item" data-action="log">
+								<span class="menu-item-icon"></span>
+								<span class="menu-item-text">Another text-only menu item</span>
+								<span class="menu-item-icon"></span>
 							</div>
 						</li>
 					</ul>

@@ -240,12 +240,13 @@ class TabbedPaneEventListener {
 		const tabContainer: HTMLElement = tabComponent.parentElement;
 		const cardContainer: HTMLElement = tabbedPane.querySelector(":scope>.card-container");
 		if (target.classList.contains("tab-close")) {
-			document.dispatchEvent(new CustomEvent("close", {
+			document.dispatchEvent(new CustomEvent("tab-close-action", {
 				detail: {
 					tabbedPane: tabbedPane,
 					tabContainer: tabContainer,
 					cardContainer: cardContainer,
-					tabComponent: tabComponent
+					tabComponent: tabComponent,
+					source: tabComponent
 				}
 			}));
 			return;
@@ -256,21 +257,21 @@ class TabbedPaneEventListener {
 
 document.addEventListener("DOMContentLoaded", function () {
 	document.querySelectorAll(`
-			.tabbed-pane.tabbed-pane-event-listener,
-			.wrap-tabbed-pane.tabbed-pane-event-listener,
-			.scroll-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-scroll-tabbed-pane.tabbed-pane-event-listener
+			.tabbed-pane,
+			.wrap-tabbed-pane,
+			.scroll-tabbed-pane,
+			.page-start-tabbed-pane,
+			.page-start-wrap-tabbed-pane,
+			.page-start-scroll-tabbed-pane,
+			.page-end-tabbed-pane,
+			.page-end-wrap-tabbed-pane,
+			.page-end-scroll-tabbed-pane,
+			.line-start-tabbed-pane,
+			.line-start-wrap-tabbed-pane,
+			.line-start-scroll-tabbed-pane,
+			.line-end-tabbed-pane,
+			.line-end-wrap-tabbed-pane,
+			.line-end-scroll-tabbed-pane
 	`).forEach(function (tabbedPane: Element) {
 		const tabContainer: HTMLElement = tabbedPane.querySelector(":scope>.tab-container");
 		const cardContainer: HTMLElement = tabbedPane.querySelector(":scope>.card-container");

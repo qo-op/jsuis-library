@@ -5,7 +5,7 @@
     <meta name="description"
         content="This example shows how to use buttons using html and css. It is based on the example found at 'How to Use Buttons, Check Boxes, and Radio Buttons' https://docs.oracle.com/javase/tutorial/uiswing/components/button.html">
     <meta name="author" content="Yassuo Toda">
-    <title>Button example</title>
+    <title>Button Example</title>
 
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -13,22 +13,22 @@
     <script src="/js/simpa.js" defer></script>
 
     <script>
-        function disable(ev) {
+        document.addEventListener("disable-action", function (ev) {
             const b1 = document.getElementById("b1");
             const b2 = document.getElementById("b2");
             const b3 = document.getElementById("b3");
             b2.disabled = true;
             b1.disabled = true;
             b3.disabled = false;
-        }
-        function enable(ev) {
+        });
+        document.addEventListener("enable-action", function (ev) {
             const b1 = document.getElementById("b1");
             const b2 = document.getElementById("b2");
             const b3 = document.getElementById("b3");
             b2.disabled = false;
             b1.disabled = false;
             b3.disabled = true;
-        }
+        });
     </script>
 </head>
 

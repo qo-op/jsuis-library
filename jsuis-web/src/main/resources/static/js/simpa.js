@@ -1,29 +1,18 @@
-document.addEventListener("DOMContentLoaded", function () {
-    document.addEventListener("action", function (ev) {
-        const action = ev.detail.action;
-        const actionListener = window[action];
-        if (actionListener !== undefined) {
-            actionListener(ev);
-        }
-    });
-});
-document.addEventListener("DOMContentLoaded", function () {
-    document.addEventListener("click", function (ev) {
-        const target = ev.target;
-        const button = document.evaluate("ancestor-or-self::button[position() = 1]", target, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        if (button === null) {
-            return;
-        }
-        const action = button.dataset.action;
-        if (action !== undefined && action.trim() !== "") {
-            document.dispatchEvent(new CustomEvent("action", {
-                detail: {
-                    button: button,
-                    action: action
-                }
-            }));
-        }
-    });
+document.addEventListener("click", function (ev) {
+    const target = ev.target;
+    const button = document.evaluate("ancestor-or-self::button[position() = 1]", target, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    if (button === null) {
+        return;
+    }
+    const action = button.dataset.action;
+    if (action !== undefined && action.trim() !== "") {
+        document.dispatchEvent(new CustomEvent(action + "-action", {
+            detail: {
+                button: button,
+                source: button
+            }
+        }));
+    }
 });
 class MenuUtils {
     static get instance() {
@@ -100,7 +89,7 @@ class MenuEventListener {
         const target = ev.target;
         if (ev.currentTarget === document) {
             document.querySelectorAll(`
-					.menu-bar.menu-event-listener
+					.menu-bar
 			`).forEach(function (menuBar) {
                 MenuUtils.instance.close(menuBar);
             });
@@ -108,7 +97,7 @@ class MenuEventListener {
         }
         const menuBar = ev.currentTarget;
         if (menuBar.classList.contains("open")) {
-            if (target === menuBar) {
+            if (target === menuBar || (target.parentElement === menuBar && target.tagName !== "li")) {
                 MenuUtils.instance.close(menuBar);
             }
             ev.stopPropagation();
@@ -140,15 +129,25 @@ class MenuEventListener {
             }
         }
         const menuBar = ev.currentTarget;
-        const action = li.dataset.action;
-        if (action !== undefined && action.trim() !== "") {
-            document.dispatchEvent(new CustomEvent("action", {
-                detail: {
-                    menuBar: menuBar,
-                    menuItem: li,
-                    action: action
+        const menuItem = li.querySelector(":scope>.menu-item");
+        if (menuItem !== null) {
+            const action = menuItem.dataset.action;
+            if (action !== undefined && action.trim() !== "") {
+                let text = undefined;
+                const menuText = menuItem.querySelector(":scope .menu-item-text");
+                if (menuText !== null) {
+                    text = menuText.textContent;
                 }
-            }));
+                document.dispatchEvent(new CustomEvent(action + "-action", {
+                    detail: {
+                        menuBar: menuBar,
+                        li: li,
+                        menuItem: menuItem,
+                        source: menuItem,
+                        text: text
+                    }
+                }));
+            }
         }
         if (menuBar.classList.contains("closed")) {
             menuBar.classList.remove("closed");
@@ -200,19 +199,20 @@ class MenuEventListener {
         key = key.trim();
         const action = MenuEventListener.instance.shortcuts.get(key);
         if (action !== undefined && action.trim() !== "") {
-            document.dispatchEvent(new CustomEvent("action", {
+            document.dispatchEvent(new CustomEvent(action + "-action", {
                 detail: {
-                    action: action
+                    key: key,
+                    source: key
                 }
             }));
+            ev.preventDefault();
         }
-        ev.preventDefault();
     }
 }
 MenuEventListener._instance = null;
 document.addEventListener("DOMContentLoaded", function () {
     const menus = document.querySelectorAll(`
-			.menu-bar.menu-event-listener
+			.menu-bar
 	`);
     menus.forEach(function (element) {
         const menuBar = element;
@@ -260,7 +260,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (li === null) {
                 return;
             }
-            const action = li.dataset.action;
+            const menuItem = li.querySelector(":scope>.menu-item");
+            if (menuItem === null) {
+                return;
+            }
+            const action = menuItem.dataset.action;
             if (action !== undefined && action.trim() !== "") {
                 MenuEventListener.instance.shortcuts.set(key, action);
             }
@@ -278,10 +282,10 @@ class SplitPaneUtils {
         }
         return SplitPaneUtils._instance;
     }
-    setDividerProportionalLocation(splitPane, proportionalLocation, verticalSplit) {
-        if (verticalSplit === undefined) {
-            verticalSplit = splitPane.classList.contains("vertical-split-pane");
-        }
+    setDividerProportionalLocation(splitPane, proportionalLocation) {
+        const pageEndSplitPane = splitPane.classList.contains("page-end-split-pane");
+        const verticalSplit = splitPane.classList.contains("vertical-split-pane") || splitPane.classList.contains("page-start-split-pane") || pageEndSplitPane;
+        const lineEndSplitPane = splitPane.classList.contains("line-end-split-pane");
         const leftComponent = splitPane.children[0];
         const rightComponent = splitPane.children[2];
         const leftComponentRect = leftComponent.getBoundingClientRect();
@@ -293,25 +297,48 @@ class SplitPaneUtils {
             maximumDividerLocation = leftComponentRect.height - +leftComponentComputedStyle.borderTopWidth.replace("px", "") - +leftComponentComputedStyle.borderBottomWidth.replace("px", "");
             maximumDividerLocation += rightComponentRect.height - +rightComponentComputedStyle.borderTopWidth.replace("px", "") - +rightComponentComputedStyle.borderBottomWidth.replace("px", "");
             const dividerLocation = proportionalLocation * maximumDividerLocation;
-            leftComponent.style.height = dividerLocation + "px";
+            if (pageEndSplitPane) {
+                rightComponent.style.height = dividerLocation + "px";
+            }
+            else {
+                leftComponent.style.height = dividerLocation + "px";
+            }
         }
         else {
             maximumDividerLocation = leftComponentRect.width - +leftComponentComputedStyle.borderLeftWidth.replace("px", "") - +leftComponentComputedStyle.borderRightWidth.replace("px", "");
             maximumDividerLocation += rightComponentRect.width - +rightComponentComputedStyle.borderLeftWidth.replace("px", "") - +rightComponentComputedStyle.borderRightWidth.replace("px", "");
             const dividerLocation = proportionalLocation * maximumDividerLocation;
-            leftComponent.style.width = dividerLocation + "px";
+            if (lineEndSplitPane) {
+                rightComponent.style.width = dividerLocation + "px";
+            }
+            else {
+                leftComponent.style.width = dividerLocation + "px";
+            }
         }
     }
-    setDividerLocation(splitPane, location, verticalSplit) {
-        if (verticalSplit === undefined) {
-            verticalSplit = splitPane.classList.contains("vertical-split-pane");
-        }
-        const leftComponent = splitPane.children[0];
+    setDividerLocation(splitPane, location) {
+        const pageEndSplitPane = splitPane.classList.contains("page-end-split-pane");
+        const verticalSplit = splitPane.classList.contains("vertical-split-pane") || splitPane.classList.contains("page-start-split-pane") || pageEndSplitPane;
+        const lineEndSplitPane = splitPane.classList.contains("line-end-split-pane");
         if (verticalSplit) {
-            leftComponent.style.height = location + "px";
+            if (pageEndSplitPane) {
+                const rightComponent = splitPane.children[2];
+                rightComponent.style.height = location + "px";
+            }
+            else {
+                const leftComponent = splitPane.children[0];
+                leftComponent.style.height = location + "px";
+            }
         }
         else {
-            leftComponent.style.width = location + "px";
+            if (lineEndSplitPane) {
+                const rightComponent = splitPane.children[2];
+                rightComponent.style.width = location + "px";
+            }
+            else {
+                const leftComponent = splitPane.children[0];
+                leftComponent.style.width = location + "px";
+            }
         }
     }
 }
@@ -324,61 +351,118 @@ class SplitPaneEventListener {
         return SplitPaneEventListener._instance;
     }
     mousedown(ev) {
-        const divider = ev.target;
+        const divider = ev.currentTarget;
         const splitPane = divider.parentElement;
-        const leftComponent = divider.previousElementSibling;
-        const rightComponent = divider.nextElementSibling;
+        const leftComponent = splitPane.children[0];
+        const rightComponent = splitPane.children[2];
         const leftComponentRect = leftComponent.getBoundingClientRect();
         const rightComponentRect = rightComponent.getBoundingClientRect();
         const leftComponentComputedStyle = getComputedStyle(leftComponent);
         const rightComponentComputedStyle = getComputedStyle(rightComponent);
-        const verticalSplit = splitPane.classList.contains("vertical-split-pane");
+        const pageEndSplitPane = splitPane.classList.contains("page-end-split-pane");
+        const verticalSplit = splitPane.classList.contains("vertical-split-pane") || splitPane.classList.contains("page-start-split-pane") || pageEndSplitPane;
+        const lineEndSplitPane = splitPane.classList.contains("line-end-split-pane");
         let offset = 0;
         let maximumDividerLocation = 0;
         if (verticalSplit) {
-            offset = ev.y - leftComponentRect.height;
+            if (pageEndSplitPane) {
+                offset = ev.y + rightComponentRect.height;
+            }
+            else {
+                offset = ev.y - leftComponentRect.height;
+            }
             maximumDividerLocation = leftComponentRect.height - +leftComponentComputedStyle.borderTopWidth.replace("px", "") - +leftComponentComputedStyle.borderBottomWidth.replace("px", "");
             maximumDividerLocation += rightComponentRect.height - +rightComponentComputedStyle.borderTopWidth.replace("px", "") - +rightComponentComputedStyle.borderBottomWidth.replace("px", "");
         }
         else {
-            offset = ev.x - leftComponentRect.width;
+            if (lineEndSplitPane) {
+                offset = ev.x + rightComponentRect.width;
+            }
+            else {
+                offset = ev.x - leftComponentRect.width;
+            }
             maximumDividerLocation = leftComponentRect.width - +leftComponentComputedStyle.borderLeftWidth.replace("px", "") - +leftComponentComputedStyle.borderRightWidth.replace("px", "");
             maximumDividerLocation += rightComponentRect.width - +rightComponentComputedStyle.borderLeftWidth.replace("px", "") - +rightComponentComputedStyle.borderRightWidth.replace("px", "");
         }
         const glassPane = document.createElement("div");
         glassPane.classList.add("glass-pane");
+        if (verticalSplit) {
+            glassPane.style.cursor = "ns-resize";
+        }
+        else {
+            glassPane.style.cursor = "ew-resize";
+        }
         document.body.appendChild(glassPane);
         const glassPaneEventListener = {
             mousemove(ev) {
                 if (verticalSplit) {
-                    const location = Math.min(Math.max(ev.y - offset, 0), maximumDividerLocation);
-                    leftComponent.style.height = location + "px";
+                    if (pageEndSplitPane) {
+                        const location = Math.min(Math.max(offset - ev.y, 0), maximumDividerLocation);
+                        rightComponent.style.height = location + "px";
+                    }
+                    else {
+                        const location = Math.min(Math.max(ev.y - offset, 0), maximumDividerLocation);
+                        leftComponent.style.height = location + "px";
+                    }
                 }
                 else {
-                    const location = Math.min(Math.max(ev.x - offset, 0), maximumDividerLocation);
-                    leftComponent.style.width = location + "px";
+                    if (lineEndSplitPane) {
+                        const location = Math.min(Math.max(offset - ev.x, 0), maximumDividerLocation);
+                        rightComponent.style.width = location + "px";
+                    }
+                    else {
+                        const location = Math.min(Math.max(ev.x - offset, 0), maximumDividerLocation);
+                        leftComponent.style.width = location + "px";
+                    }
                 }
             },
             mouseup(ev) {
+                glassPane.remove();
+            },
+            mouseleave(ev) {
                 glassPane.remove();
             }
         };
         glassPane.addEventListener("mousemove", glassPaneEventListener.mousemove);
         glassPane.addEventListener("mouseup", glassPaneEventListener.mouseup);
+        glassPane.addEventListener("mouseleave", glassPaneEventListener.mouseleave);
     }
 }
 SplitPaneEventListener._instance = null;
+document.addEventListener("split-pane-divider-location-action", function (ev) {
+    const splitPane = ev.detail.splitPane;
+    const dividerLocation = ev.detail.dividerLocation;
+    SplitPaneUtils.instance.setDividerLocation(splitPane, dividerLocation);
+});
+document.addEventListener("split-pane-divider-proportional-location-action", function (ev) {
+    const splitPane = ev.detail.splitPane;
+    const dividerProportionalLocation = ev.detail.dividerProportionalLocation;
+    SplitPaneUtils.instance.setDividerProportionalLocation(splitPane, dividerProportionalLocation);
+});
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(`
-			.split-pane.split-pane-event-listener,
-			.horizontal-split-pane.split-pane-event-listener,
-			.vertical-split-pane.split-pane-event-listener
-	`).forEach(function (splitPane) {
+			.split-pane,
+			.horizontal-split-pane,
+			.line-start-split-pane,
+			.line-end-split-pane,
+			.vertical-split-pane,
+			.page-start-split-pane,
+			.page-end-split-pane
+	`).forEach(function (element) {
+        const splitPane = element;
         if (splitPane.children.length != 3) {
             return;
         }
         const divider = splitPane.children[1];
         divider.addEventListener("mousedown", SplitPaneEventListener.instance.mousedown);
+        if (splitPane.dataset.dividerLocation !== undefined) {
+            const dividerLocation = +splitPane.dataset.dividerLocation;
+            SplitPaneUtils.instance.setDividerLocation(splitPane, dividerLocation);
+        }
+        else if (splitPane.dataset.dividerProportionalLocation !== undefined) {
+            const dividerProportionalLocation = +splitPane.dataset.dividerProportionalLocation;
+            SplitPaneUtils.instance.setDividerProportionalLocation(splitPane, dividerProportionalLocation);
+        }
     });
 });
 class CardContainerUtils {
@@ -574,12 +658,13 @@ class TabbedPaneEventListener {
         const tabContainer = tabComponent.parentElement;
         const cardContainer = tabbedPane.querySelector(":scope>.card-container");
         if (target.classList.contains("tab-close")) {
-            document.dispatchEvent(new CustomEvent("close", {
+            document.dispatchEvent(new CustomEvent("tab-close-action", {
                 detail: {
                     tabbedPane: tabbedPane,
                     tabContainer: tabContainer,
                     cardContainer: cardContainer,
-                    tabComponent: tabComponent
+                    tabComponent: tabComponent,
+                    source: tabComponent
                 }
             }));
             return;
@@ -590,21 +675,21 @@ class TabbedPaneEventListener {
 TabbedPaneEventListener._instance = null;
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(`
-			.tabbed-pane.tabbed-pane-event-listener,
-			.wrap-tabbed-pane.tabbed-pane-event-listener,
-			.scroll-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.page-start-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.page-end-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.line-start-scroll-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-wrap-tabbed-pane.tabbed-pane-event-listener,
-			.line-end-scroll-tabbed-pane.tabbed-pane-event-listener
+			.tabbed-pane,
+			.wrap-tabbed-pane,
+			.scroll-tabbed-pane,
+			.page-start-tabbed-pane,
+			.page-start-wrap-tabbed-pane,
+			.page-start-scroll-tabbed-pane,
+			.page-end-tabbed-pane,
+			.page-end-wrap-tabbed-pane,
+			.page-end-scroll-tabbed-pane,
+			.line-start-tabbed-pane,
+			.line-start-wrap-tabbed-pane,
+			.line-start-scroll-tabbed-pane,
+			.line-end-tabbed-pane,
+			.line-end-wrap-tabbed-pane,
+			.line-end-scroll-tabbed-pane
 	`).forEach(function (tabbedPane) {
         const tabContainer = tabbedPane.querySelector(":scope>.tab-container");
         const cardContainer = tabbedPane.querySelector(":scope>.card-container");
@@ -736,6 +821,27 @@ class TreeEventListener {
             }
         }
         if (!ev.ctrlKey) {
+            const treeNode = li.querySelector(":scope>.tree-node");
+            if (treeNode !== null) {
+                let text = undefined;
+                const treeText = treeNode.querySelector(":scope .tree-node-text");
+                if (treeText !== null) {
+                    text = treeText.textContent;
+                }
+                const userObject = treeNode.dataset.userObject;
+                if (userObject !== undefined && userObject.trim() !== "") {
+                    document.dispatchEvent(new CustomEvent("tree-selection-action", {
+                        detail: {
+                            tree: tree,
+                            li: li,
+                            treeNode: treeNode,
+                            source: treeNode,
+                            text: text,
+                            userObject: userObject
+                        }
+                    }));
+                }
+            }
             const ul = li.querySelector(":scope>ul");
             if (ul !== null) {
                 if (li.classList.contains("open")) {
@@ -747,13 +853,6 @@ class TreeEventListener {
                     li.classList.remove("closed");
                 }
             }
-            document.dispatchEvent(new CustomEvent("selection", {
-                detail: {
-                    tree: tree,
-                    treeNode: li,
-                    userObject: li.dataset.userObject
-                }
-            }));
         }
     }
     dblclick(ev) {
@@ -781,7 +880,7 @@ class TreeEventListener {
 TreeEventListener._instance = null;
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(`
-			.tree.tree-event-listener
+			.tree
 	`).forEach(function (element) {
         const tree = element;
         tree.addEventListener("click", TreeEventListener.instance.click);
@@ -808,10 +907,8 @@ document.addEventListener("DOMContentLoaded", function () {
             li.classList.remove("lead-selection");
         });
         tree.querySelector(":scope li").classList.add("lead-selection");
-        const treeIcon = tree.querySelector(":scope .tree-icon");
-        const treeIconComputedStyle = getComputedStyle(treeIcon);
-        const padding = +treeIconComputedStyle.width.replace("px", "") + +treeIconComputedStyle.marginInlineEnd.replace("px", "");
-        TreeUtils.instance.pad(tree, 0, padding);
+        const rem = parseInt(getComputedStyle(document.documentElement).fontSize);
+        TreeUtils.instance.pad(tree, 0, +tree.dataset.padding || (rem + 5));
     });
 });
 //# sourceMappingURL=simpa.js.map

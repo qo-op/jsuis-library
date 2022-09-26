@@ -1,13 +1,5 @@
 @charset "ISO-8859-1";
 
-.i18n-english-us::before {
-    content: "English (US)";
-}
-
-.i18n-portuguese-br::before {
-    content: "Português (BR)";
-}
-
 .i18n-file::before {
     content: "File";
 }
@@ -66,4 +58,78 @@
 
 .i18n-paste::before {
     content: "Paste";
+}
+
+.i18n-grid::before {
+    content: "Grid";
+}
+
+.i18n-snap-to-grid::before {
+    content: "Snap to Grid";
+}
+
+.i18n-show-grid::before {
+    content: "Show Grid";
+}
+
+.i18n-run::before {
+    content: "Run";
+}
+
+.i18n-stop::before {
+    content: "Stop";
+}
+
+.i18n-tasks::before {
+    content: "Tasks";
+}
+
+.i18n-explorer::before {
+    content: "Explorer";
+}
+
+.i18n-general::before {
+    content: "General";
+}
+
+.i18n-start-task::before {
+    content: "Start";
+}
+
+.i18n-dialog::before {
+    content: "Dialog";
+}
+
+.i18n-input-dialog-task::before {
+    content: "Input Dialog";
+}
+
+.i18n-message-dialog-task::before {
+    content: "Message Dialog";
+}
+
+.i18n-input::before {
+    content: "Input"
+}
+
+.i18n-excel-input-task::before {
+    content: "Excel Input"
+}
+
+
+.i18n-console::before {
+    content: "Console";
+}
+
+.i18n-search::before {
+    content: "Search";
+}
+
+
+.i18n-en-us::before {
+    content: "English (US)";
+}
+
+.i18n-pt-br::before {
+    content: "Português (BR)";
 }

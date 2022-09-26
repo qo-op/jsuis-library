@@ -147,6 +147,27 @@ class TreeEventListener {
 			}
 		}
 		if (!ev.ctrlKey) {
+			const treeNode: HTMLElement = li.querySelector(":scope>.tree-node");
+			if (treeNode !== null) {
+				let text: string = undefined;
+				const treeText: HTMLElement = treeNode.querySelector(":scope .tree-node-text");
+				if (treeText !== null) {
+					text = treeText.textContent;
+				}
+				const userObject: string = treeNode.dataset.userObject;
+				if (userObject !== undefined && userObject.trim() !== "") {
+					document.dispatchEvent(new CustomEvent("tree-selection-action", {
+						detail: {
+							tree: tree,
+							li: li,
+							treeNode: treeNode,
+							source: treeNode,
+							text: text,
+							userObject: userObject
+						}
+					}));
+				}
+			}
 			const ul: HTMLElement = li.querySelector(":scope>ul");
 			if (ul !== null) {
 				if (li.classList.contains("open")) {
@@ -157,13 +178,6 @@ class TreeEventListener {
 					li.classList.remove("closed");
 				}
 			}
-			document.dispatchEvent(new CustomEvent("selection", {
-				detail: {
-					tree: tree,
-					treeNode: li,
-					userObject: li.dataset.userObject
-				}
-			}));
 		}
 	}
 
@@ -191,7 +205,7 @@ class TreeEventListener {
 
 document.addEventListener("DOMContentLoaded", function () {
 	document.querySelectorAll(`
-			.tree.tree-event-listener
+			.tree
 	`).forEach(function (element: Element) {
 		const tree: HTMLElement = <HTMLElement>element;
 		tree.addEventListener("click", TreeEventListener.instance.click);
@@ -217,9 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			li.classList.remove("lead-selection");
 		});
 		tree.querySelector(":scope li").classList.add("lead-selection");
-		const treeIcon = tree.querySelector(":scope .tree-icon");
-		const treeIconComputedStyle: CSSStyleDeclaration = getComputedStyle(treeIcon);
-		const padding = +treeIconComputedStyle.width.replace("px", "") + +treeIconComputedStyle.marginInlineEnd.replace("px", "");
-		TreeUtils.instance.pad(tree, 0, padding);
+		const rem: number = parseInt(getComputedStyle(document.documentElement).fontSize);
+		TreeUtils.instance.pad(tree, 0, +tree.dataset.padding || (rem + 5));
 	});
 });
